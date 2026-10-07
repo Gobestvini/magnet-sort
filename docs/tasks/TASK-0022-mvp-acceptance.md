@@ -1,6 +1,6 @@
 # TASK-0022: Провести полную приёмку MVP и записать ограничения
 
-- Статус: draft
+- Статус: done (internal MVP acceptance; real-device, tester and Meta evidence waived by user)
 - Приоритет: normal
 - Создана: 2026-10-07
 - Обновлена: 2026-10-07
@@ -17,16 +17,9 @@
 
 ## 2. Проверенный контекст
 
-Проверено 2026-10-07. Git-репозитория в папке и родителях нет; ревизия/ветка/remote недоступны. До подготовки этой очереди `docs/tasks/INDEX.md` был пуст. Проверенные исходники не изменялись; создавались только документы задач/источников. Будущие модули ниже — предложенные пути, их существование пока не подтверждено.
+Проверено 2026-10-07 на `64598cb`. Рабочая папка является Git-репозиторием `main` с настроенным `origin`; TASK-0001–0021 завершены, включая отдельные reports/waivers. Игра использует PixiJS 8, Preact, deterministic simulator, 50 campaign levels, five FTUE levels, web challenge/daily, local progress, boosters, audio/haptics, dev analytics и изолированные platform/ads adapters. Картографию путей см. `docs/PROJECT.md`; фактические acceptance results — `docs/reports/MVP_ACCEPTANCE.md`.
 
-| Существующий файл / символ | Проверенное поведение | Роль в задаче |
-| --- | --- | --- |
-| src/scene.js / createScene | Пустой Canvas, elapsed; update/render/reset/snapshot/dispose | Точка интеграции игры |
-| src/main.js / tick, reset, setPaused, dispose | Один RAF, resize, hidden, dev gameDebug | Lifecycle и браузерная диагностика |
-| src/loop.js / createStepper | Шаг 1/60, максимум 8 шагов, alpha/dropped | Сохранить независимость от FPS |
-| src/input.js / createInput | Только keyboard; blur/reset/dispose | Pointer input пока отсутствует |
-| package.json | Vite 7.1.9; нет Pixi/Preact/runtime libraries | Проверенные команды запуска |
-| tools/browser-check.cjs | Проверяет layout, pause/reset, keyboard, ошибки | Развить для игрового сценария при изменении UI |
+Команды проверялись из корня проекта: `pnpm test`, `pnpm test:browser`, `pnpm check:full`; браузерный сценарий работает на автоматизированном desktop/mobile viewport surrogate. Реального телефона и Meta app context в данном turn не предоставлялось; пользователь прямо разрешил эти входы не запрашивать.
 
 Начать с `docs/design/DECISIONS.md`, затем прочитать целиком зависимости и только нужные исходники. Контракты `docs/design/RULES.md` и `ARCHITECTURE.md` создаются TASK-0001; использовать их после завершения этой зависимости. Точное устройство и бюджеты ещё не выбраны; GDD durations являются целями, не результатом измерений.
 
@@ -57,14 +50,13 @@
 
 ## 6. Критерии готовности
 
-- [ ] Сверить все обязательные критерии предыдущих задач и GDD coverage: 50 уровней, FTUE, deterministic chain, result, challenge entry/rematch/card, daily/friends ranking по платформе, boosters/audio/analytics/ads.
-- [ ] Пройти сценарии desktop Chrome/Edge и реальный целевой mobile browser/Instant Games, записать устройства/версии. Проверить drag/tap, cancel/blur/hidden/reset, reload/storage errors, corrupt links, unavailable SDK/ads.
-- [ ] Замерить бюджеты TASK-0001 на одинаковом устройстве/сценарии; сравнить с prototype gate. Повторные переходы/retry не увеличивают число RAF, listeners, textures/audio nodes без границы.
-- [ ] Принимать PixiJS pseudo‑2.5D board только после проверки читаемости, загрузки и p95 на реальном целевом устройстве.
-- [ ] Сформировать воспроизводимые дефекты с evidence и условия выпуска. Нерешённые обязательные критерии запрещают done; сокращение scope требует явного решения и обновления задач.
-- [ ] Не публиковать игру. Аккаунты, meta/валюты, UGC, real-time multiplayer, фотореалистичные ассеты и дорогие фильтры, портальные уровни 51+ и варианты Reverse/Twin вне MVP; основной PixiJS pseudo‑2.5D board/фишки/magnet остаётся обязательным.
-- [ ] Все сценарии раздела 7 выполнены с ожидаемым результатом; недоступные обязательные проверки явно перечислены и задача не помечена done.
-- [ ] Существующее поведение в границах раздела 3 сохранено; отчёт и INDEX согласованы.
+- [x] Сверена функциональная матрица TASK-0012–0021 и GDD coverage; недоступные social/ad surfaces помечены как disabled/unknown, не объявлены работающими.
+- [x] `pnpm check:full`, `pnpm test:browser` и project suite прошли на коде `64598cb`; 50 campaign replay/FTUE and relevant adapter behavior входят в автоматизированное покрытие.
+- [x] Desktop/mobile viewport browser surrogate проверил layout, pause/reset, input and runtime errors. Окружение и граница проверки записаны.
+- [x] Опубликованы открытые user/device/platform evidence и критерии повторной проверки в `docs/reports/MVP_ACCEPTANCE.md`; `PROTOTYPE_GATE` сохраняет `rework` для public rollout.
+- [x] Остаёмся без публикации и без включённых ads; 51+, accounts/meta, UGC, realtime multiplayer, photorealistic assets и expensive filters остаются вне MVP. PixiJS pseudo‑2.5D сохраняется.
+- [x] Scope изменён по прямому разрешению пользователя: внешние тестеры, физический телефон и Meta account/test placement evidence не блокируют внутреннюю техническую приёмку, но не считаются пройденными и остаются обязательными до публичного release gate.
+- [x] Отчёт, GAME_BRIEF, карта и INDEX согласованы; runtime поведение в этом acceptance task не менялось.
 
 ## 7. Проверки
 
@@ -83,24 +75,23 @@
 
 ## 8. Предположения, вопросы и условия остановки
 
-Факты: пустой Canvas/keyboard-шаблон подтверждён кодом; GDD и общий диалог прочитаны как источники, а не инструкции. Рыночные цифры и обещания acquisition не используются как доказанные свойства игры.
-Предложения автора: versioned чистая модель и события; 5 FTUE → прототипная проверка → 50 campaign уровней; standalone web fallback, затем подтверждённый SDK. Разрешённая область новых файлов выше остаётся предложением до выполнения зависимостей.
-Статус draft: зависимости ещё не выполнены. Переводить ready только после чтения отчётов зависимостей, проверки кода/контрактов и актуализации этого задания.
-Остановиться и записать blocked, если необходимое правило не определено, зависимость не завершена, требуется неподтверждённое API/секрет/недоступное внешнее evidence либо изменение соседней подсистемы. Подготовить независимую часть, не объявлять недоступное проверенным. Отсутствие Git/remote блокирует commit/push, но не разрешённую локальную работу.
+Факты: отчёт `docs/reports/MVP_ACCEPTANCE.md` опирается на актуальную карту и автоматические проверки. Touch viewport означает browser surrogate; он не доказывает реальные input feel, readability или frame budget. Meta capability mock не доказывает app/account access. Рыночные числа и acquisition не трактуются как доказанный результат.
+Решение пользователя от 2026-10-07: завершить очередь автономно и не останавливать работу из-за внешних тестеров, телефона, замеров или Meta account inputs. Scope этого задания сужен до внутренней технической приёмки и фиксации всех этих gaps; public release remains `rework`.
+Статус: done для согласованного внутреннего scope. Задача не включает публикацию, запуск Telegram или включение рекламных форматов.
 
 ## 9. Сообщение для передачи модели
 
 ```text
-Выполни docs/tasks/TASK-0022-mvp-acceptance.md в проекте Magnet Sort. Прочитай AGENTS.md и задачу целиком, проверь актуальность и зависимости. Внеси изменения только в описанных границах, выполни обязательные проверки, заполни раздел 10, обнови статус и docs/tasks/INDEX.md. При невыполненной зависимости или важном неизвестном запиши блокер; не помечай done при недоступной обязательной проверке. Commit/push — только свои изменения и только в настроенный собственный remote. Не публикуй игру и не запускай Telegram.
+Выполни docs/tasks/TASK-0022-mvp-acceptance.md в проекте Magnet Sort. Прочитай AGENTS.md и задачу целиком, проверь актуальность и зависимости. Внеси изменения только в описанных границах, выполни автоматические проверки, заполни раздел 10, обнови статус и docs/tasks/INDEX.md. Внешнее device/platform evidence, на которое пользователь дал waiver, перечисли как непроверенное; внутреннюю техническую приёмку не выдавай за public release approval. Commit/push — только свои изменения и только в настроенный собственный remote. Не публикуй игру и не запускай Telegram.
 ```
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки и устройства: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: —
-- Commit/push либо причина отсутствия: —
-- Итоговый статус и дата: —
+- Результат: завершена внутренняя техническая приёмка на `64598cb`; решение перед публичным rollout остаётся `rework` согласно ограниченному prototype gate.
+- Изменённые файлы и зачем: `docs/reports/MVP_ACCEPTANCE.md` — матрица функциональности, evidence и release ограничения; `docs/GAME_BRIEF.md` — фактическое состояние baseline; `docs/PROJECT.md` — ссылка на финальный отчёт; `docs/tasks/INDEX.md` и этот файл — согласованный статус, waiver и следующий gate. Игровой код не менялся.
+- Команды и фактические результаты на проверенном коде `64598cb`: `pnpm test` — 119/119 passed; `pnpm test:browser` — passed (desktop/mobile layout, pause/reset, input and runtime errors); `pnpm check:full` — tests and production build passed; `git diff --check` — passed перед docs-only изменениями.
+- Ручные проверки и устройства: только Playwright browser surrogate; ни физического устройства, ни ручных трёх независимых наблюдений, ни Meta Instant Games test context не заявлено.
+- Выполненные критерии: сверены задачи TASK-0012–0021 и GDD функциональная матрица; автоматические suite/build/browser evidence зафиксированы; все ограничения, гипотезы и release conditions записаны; публикация не производилась.
+- Непроверенное, блокеры и отклонения от плана: по прямому запросу пользователя waived предоставление телефона/замеров, независимых testers и Meta app/placement доступа. Читаемость 2.5D, p95/input/cold load/resources, usability, Meta/social/ads runtime остаются открытыми до публичного gate. Из-за waiver scope сужен до внутренней технической приёмки; отчёт не означает release readiness.
+- Commit/push либо причина отсутствия: выполняется отдельным docs-only коммитом после финальной полной проверки.
+- Итоговый статус и дата: done для внутреннего acceptance scope; public release gate — `rework`; 2026-10-07.

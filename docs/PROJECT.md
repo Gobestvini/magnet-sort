@@ -72,6 +72,7 @@
 | docs/design/references/ | Визуальные схемы GDD; только внутренние референсы |
 | docs/tasks/INDEX.md | Очередь Magnet Sort: 22 задания; рендер остаётся на PixiJS |
 | docs/reports/PROTOTYPE_GATE.md | Протокол теста трёх новых игроков и baseline performance/readability gate |
+| docs/reports/MVP_ACCEPTANCE.md | Internal technical MVP evidence, open device/platform waivers, and public rollout gate |
 | docs/tasks/PREPARATION_REPORT.md | Фактические проверки подготовки и ограничения среды |
 
 Рабочая директория всех команд — корень шаблона. `pnpm dev`, `pnpm test`, `pnpm build`, `pnpm check:full`, `pnpm context -- "тема"`.
