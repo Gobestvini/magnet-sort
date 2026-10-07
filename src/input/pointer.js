@@ -3,6 +3,7 @@ import { isMagnetTrayPoint, screenToCell } from '../render/layout.js';
 
 export function createPointerController(target, { getLayout, getLevel, getState, onPreview, onAction }) {
   let pointerId = null;
+  let toolBounds = null;
   let dragging = false;
   let locked = false;
   let selectedColor = null;
@@ -59,7 +60,7 @@ export function createPointerController(target, { getLayout, getLevel, getState,
     const layout = getLayout();
     if (isMagnetTrayPoint(point, layout)) {
       const options = getState().selectedMagnetOptions ?? getLevel().magnetSchedule[0].options;
-      const color = options.find((option) => getLevel().colors.includes(option));
+      const color = options.includes(selectedColor) ? selectedColor : options.find((option) => getLevel().colors.includes(option));
       if (!color) return;
       selectedColor = color;
       dragging = true;
@@ -82,6 +83,7 @@ export function createPointerController(target, { getLayout, getLevel, getState,
     dragging = false;
     previewCell = null;
     pointerPoint = null;
+    toolBounds = null;
     if (release && previousId !== null) {
       try { if (target.hasPointerCapture(previousId)) target.releasePointerCapture(previousId); } catch { /* Target may have unmounted. */ }
     }
@@ -93,13 +95,15 @@ export function createPointerController(target, { getLayout, getLevel, getState,
     const cell = previewCell;
     const color = selectedColor;
     const beganAtTray = dragging;
-    const releasedOnTray = isMagnetTrayPoint(pointFrom(event), getLayout());
+    const releasedOnTray = toolBounds
+      ? event.clientX >= toolBounds.left && event.clientX <= toolBounds.right && event.clientY >= toolBounds.top && event.clientY <= toolBounds.bottom
+      : isMagnetTrayPoint(pointFrom(event), getLayout());
     if (cell && (!beganAtTray || !releasedOnTray)) invalidReason = null;
     else if (beganAtTray && releasedOnTray) invalidReason = null;
     else invalidReason = hoverReason ?? 'outside';
     clearPointer();
     // A tray tap selects; dropping a tray drag (or tapping a cell after selection) emits one Action.
-    if (cell && (!beganAtTray || !isMagnetTrayPoint(pointFrom(event), getLayout()))) {
+    if (cell && (!beganAtTray || !releasedOnTray)) {
       lastAction = { type: 'placeMagnet', color, cell: { ...cell } };
       actionCount += 1;
       onAction?.(structuredClone(lastAction));
@@ -130,6 +134,22 @@ export function createPointerController(target, { getLayout, getLevel, getState,
 
   return {
     cancel,
+    beginToolDrag(event, color) {
+      const options = getState().selectedMagnetOptions ?? getLevel().magnetSchedule[0].options;
+      if (disposed || locked || pointerId !== null || event.isPrimary === false || event.button > 0 || !options.includes(color)) return false;
+      const bounds = event.currentTarget?.getBoundingClientRect();
+      if (!bounds) return false;
+      toolBounds = { left: bounds.left, right: bounds.right, top: bounds.top, bottom: bounds.bottom };
+      selectedColor = color;
+      invalidReason = null;
+      lastAction = null;
+      dragging = true;
+      pointerId = event.pointerId;
+      try { target.setPointerCapture(pointerId); } catch { /* Browser may cancel a gesture before capture. */ }
+      updatePreview(event);
+      event.preventDefault();
+      return true;
+    },
     chooseColor(color) {
       const options = getState().selectedMagnetOptions ?? getLevel().magnetSchedule[0].options;
       if (disposed || locked || pointerId !== null || !options.includes(color)) return false;

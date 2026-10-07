@@ -5,9 +5,11 @@
 | src/main.js | App-owned RAF, Preact controls, resize/hidden/blur/HMR, dev gameDebug |
 | src/render/application.js | PixiJS Application lifecycle; render обслуживается app-owned RAF |
 | src/render/board.js | PixiJS 7×7 hex board view с псевдо‑2.5D слоями cells/tokens/magnet из LevelDefinition |
+| src/render/art.js, src/render/visual-assets.js | Оригинальные SVG фишек/ячеек/магнита, общие запечённые текстуры и cleanup; общий стиль Pixi и DOM |
 | src/render/resolution-player.js | Replays simulator events into visual token poses; deterministic presentation timeline with reduced-motion profile and cancellation |
 | src/render/effects.js | Lightweight Pixi Graphics for pull trails, placement magnet, merge mass, chain badge and cleared-cell pulse |
 | src/render/layout.js | DPR-aware screen/cell helpers и преобразование координат указателя |
+| src/ui/icons.js, public/art/garden.svg, public/fonts/ | Векторные иконки, садовый фон и локальный Nunito с OFL |
 | src/ui/App.js | Preact shell, accessible status, tutorial, pause/reset/retry |
 | src/ui/home.js | Home/Continue, disabled Daily/friend availability entries and local reduced-motion setting |
 | src/input/pointer.js | Pointer capture, drag/tap placement validation, preview, cancellation and lock |
@@ -58,6 +60,7 @@
 | docs/knowledge/threejs-journey.md | Только общие переносимые инженерные советы из Three.js Journey |
 | docs/design/PIXI_RENDERING.md | Rendering-контракт Magnet Sort: PixiJS 8 и псевдо‑2.5D |
 | tools/browser-check.cjs | Desktop/mobile/landscape, first-launch FTUE/skip, daily, challenge copy/open/rematch, booster Undo/Hint/Extra Move, session win/loss/retry, animation resolve/cancel, pause/reset, hidden/blur, HMR disposer, ошибки |
+| tools/reference-visual-check.cjs, docs/reports/VISUAL_REFERENCE.md | Повторяемые кадры плотного поля, drag/pull/result и отчёт переделки по референсу |
 | docs/design/GDD_SOURCE.md | Полный текст исходного GDD v0.1 с SHA-256 DOCX |
 | docs/design/GDD_V0.2.md, docs/design/PIXI_RENDERING.md | Текущая спецификация PixiJS/pseudo‑2.5D и rendering contract |
 | docs/design/DECISIONS.md | Источники, расхождения и границы MVP |

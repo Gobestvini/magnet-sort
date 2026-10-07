@@ -18,7 +18,7 @@ test('all 49 staggered cells round-trip at multiple viewport sizes and DPRs', ()
 test('hex edges and gaps do not select an adjacent cell', () => {
   const layout = createBoardLayout(800, 700);
   const first = cellToScreen({ col: 0, row: 0 }, layout);
-  const edge = { x: first.x + Math.sqrt(3) * layout.radius * 0.91 / 2, y: first.y + layout.radius * 0.91 / 2 };
+  const edge = { x: first.x + layout.radius * 0.91 * 0.75, y: first.y + Math.sqrt(3) * layout.radius * 0.91 * 0.25 };
   assert.equal(screenToCell(edge, layout), null);
   const next = cellToScreen({ col: 0, row: 1 }, layout);
   assert.equal(screenToCell({ x: (first.x + next.x) / 2, y: (first.y + next.y) / 2 }, layout), null);

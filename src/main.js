@@ -228,7 +228,7 @@ function challengeErrorMessage(reason) {
   return 'Ссылка на вызов повреждена или неполная.';
 }
 
-async function shareCurrentChallenge() {
+async function shareCurrentChallenge({ copyOnly = false } = {}) {
   const session = scene?.getSession();
   const level = scene?.getLevel();
   if (!level || !session?.result) return;
@@ -240,7 +240,9 @@ async function shareCurrentChallenge() {
     const cardSvg = createChallengeCardSvg(level, session.result);
     const encodedChallenge = encodeChallengePayload(createChallengePayload(level, session.result));
     let outcome;
-    if (platform.snapshot().kind === 'facebook-instant-games' && platform.snapshot().started) {
+    if (copyOnly) {
+      outcome = await shareChallenge({ url, cardSvg }, { navigator: {}, clipboard: window.navigator.clipboard, File: window.File });
+    } else if (platform.snapshot().kind === 'facebook-instant-games' && platform.snapshot().started) {
       const result = await platform.shareResult({ text: 'Сможешь побить мой результат?', encodedChallenge });
       outcome = result.status === 'ok'
         ? { status: 'shared' }
@@ -342,6 +344,7 @@ function renderUI() {
     onRetry: retry,
     onRetryRenderer: initialize,
     onChooseColor: (color) => pointer?.chooseColor(color),
+    onStartMagnetDrag: (event, color) => pointer?.beginToolDrag(event, color),
     onUndo: useUndo,
     onHint: requestHint,
     onApplyHint: applyHint,
@@ -583,7 +586,7 @@ async function initialize() {
       return;
     }
     renderer = candidate;
-    scene = createScene(renderer.stage, { ...progressTarget(), ...(challenge ? { challengePuzzleId: challenge.puzzleId } : {}), reducedMotion: prefersReducedMotion,
+    scene = createScene(renderer.stage, { ...progressTarget(), ...(challenge ? { challengePuzzleId: challenge.puzzleId } : {}), reducedMotion: prefersReducedMotion, visualAssets: renderer.visualAssets,
       grantReward: (kind) => isStandaloneTestReward() ? grantStandaloneTestReward(kind) : { granted: false, reason: 'placement-unconfigured' } });
     if (challenge && !challengeOpened) {
       challengeOpened = true;

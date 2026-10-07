@@ -1,14 +1,21 @@
 import { h } from 'preact';
+import { artUrl, chipSvg, magnetSvg } from '../render/art.js';
+import { Icon } from './icons.js';
 
 export function Home({ progress, daily, ready, error, initializing, onPlay, onRetryRenderer, onDaily, onFriend, onToggleReducedMotion, onToggleSound, onToggleHaptics }) {
   const hasProgress = progress.completedPuzzles.length > 0;
   const dailyBest = daily ? progress.dailyResults[daily.dailyId] : null;
   return h('section', { className: 'home-card', 'aria-label': 'Главное меню' },
-    h('p', { className: 'eyebrow' }, 'Короткая головоломка'),
+    h('div', { className: 'home-art', 'aria-hidden': 'true' },
+      h('img', { className: 'home-chip home-chip-red', src: artUrl(chipSvg('red', 3, false)), alt: '' }),
+      h('img', { className: 'home-chip home-chip-yellow', src: artUrl(chipSvg('yellow', 2, false)), alt: '' }),
+      h('img', { className: 'home-chip home-chip-green', src: artUrl(chipSvg('green', 2, false)), alt: '' }),
+      h('img', { className: 'home-magnet', src: artUrl(magnetSvg('blue')), alt: '' })),
     h('h2', null, 'Magnet Sort'),
     h('p', { className: 'home-intro' }, 'Поставь магнит, собери фишки и открой новые уровни.'),
     h('p', { className: 'home-progress', 'aria-live': 'polite' }, `Открыт уровень ${progress.unlockedCampaignLevel} из 50${hasProgress ? ` · пройдено: ${progress.completedPuzzles.length}` : ''}`),
-    h('button', { className: 'home-primary', type: 'button', onClick: onPlay, disabled: !ready },
+    h('button', { className: 'home-primary green-button', type: 'button', onClick: onPlay, disabled: !ready },
+      h(Icon, { name: 'play' }),
       ready ? hasProgress ? 'Продолжить' : 'Играть' : 'Подготовка…'),
     error && h('div', { className: 'home-error', role: 'alert' },
       h('span', null, 'Не удалось открыть игровое поле. Проверьте поддержку WebGL.'),

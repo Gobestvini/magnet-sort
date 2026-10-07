@@ -1,6 +1,6 @@
 import { cellToScreen } from './layout.js';
 
-const COLORS = { red: 0xef6b62, blue: 0x5388d8, yellow: 0xf2c64e, green: 0x54b995 };
+const COLORS = { red: 0xff514d, blue: 0x159bff, yellow: 0xffca31, green: 0x3cce63 };
 
 export function drawResolutionEffects(graphics, effects, layout) {
   for (const effect of effects) {
@@ -27,11 +27,16 @@ export function drawResolutionEffects(graphics, effects, layout) {
         .stroke({ color: 0x5d5860, width: magnetRadius * 0.15, cap: 'round', alpha });
     } else if (effect.type === 'pull-line') {
       const { x: fromX, y: fromY } = cellToScreen(effect.from, layout);
-      graphics.moveTo(fromX, fromY).lineTo(x, y)
-        .stroke({ color: COLORS[effect.color] ?? 0xef6b62, width: Math.max(2.5, radius * 0.085), alpha: 0.8 * (1 - effect.progress * 0.35) });
+      const end = effect.magnetCell ? cellToScreen(effect.magnetCell, layout) : { x, y };
+      const bendX = (fromX + end.x) / 2 + (end.y - fromY) * 0.12;
+      const bendY = (fromY + end.y) / 2 - (end.x - fromX) * 0.12;
+      for (const [width, alpha, color] of [[0.4, 0.12, 0x00cfff], [0.22, 0.4, 0x56eaff], [0.07, 0.96, 0xeeffff]]) {
+        graphics.moveTo(fromX, fromY - radius * 0.15).quadraticCurveTo(bendX, bendY, end.x, end.y)
+          .stroke({ color, width: Math.max(2, radius * width), alpha: alpha * (1 - effect.progress * 0.25), cap: 'round' });
+      }
       const pulse = 0.22 + ((effect.progress * 2) % 0.55);
       graphics.circle(fromX + (x - fromX) * pulse, fromY + (y - fromY) * pulse, radius * 0.1)
-        .fill({ color: COLORS[effect.color] ?? 0xef6b62, alpha: 0.92 });
+        .fill({ color: 0xffffff, alpha: 0.92 });
       graphics.circle(x, y, radius * (0.13 + effect.progress * 0.1))
         .fill({ color: COLORS[effect.color] ?? 0xef6b62, alpha: 0.72 * (1 - effect.progress * 0.4) });
     } else if (effect.type === 'merge') {

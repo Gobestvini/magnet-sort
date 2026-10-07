@@ -38,6 +38,7 @@ export function createResolutionPlayer() {
   let elapsed = 0;
   let active = false;
   let complete = true;
+  let magnet = null;
 
   function finishStage(stage) {
     if (stage.type === 'slide') {
@@ -58,6 +59,8 @@ export function createResolutionPlayer() {
 
   function start(state, events, { reducedMotion = false } = {}) {
     tokens = cloneTokens(state.tokens);
+    const accepted = events.find(event => event.type === 'actionAccepted');
+    magnet = accepted ? { cell: { ...accepted.cell }, color: accepted.color } : null;
     stages = makeTimeline(events, reducedMotion);
     index = 0;
     elapsed = 0;
@@ -98,9 +101,12 @@ export function createResolutionPlayer() {
         if (!token) continue;
         token.x = event.from.col + (event.to.col - event.from.col) * ease(progress);
         token.y = event.from.row + (event.to.row - event.from.row) * ease(progress);
+        token.fromCell = { ...event.from };
+        token.toCell = { ...event.to };
+        token.moveProgress = ease(progress);
       }
       effects.push(...stage.events.map((event) => ({
-        type: 'pull-line', from: { ...event.from }, to: { ...event.to }, color: tokens.get(event.tokenId)?.color, progress,
+        type: 'pull-line', from: { ...event.from }, to: { ...event.to }, magnetCell: magnet?.cell, color: tokens.get(event.tokenId)?.color, progress,
       })));
     } else if (stage?.type === 'merge') {
       for (const event of stage.events) {
@@ -115,7 +121,7 @@ export function createResolutionPlayer() {
         effects.push({ type: 'clear', cell: { ...event.cell }, mass: event.mass, chain: stage.chain, progress });
       }
     }
-    return { active, complete, stage: stage?.type ?? null, progress, tokens: visualTokens, effects };
+    return { active, complete, stage: stage?.type ?? null, progress, tokens: visualTokens, effects, magnet: active ? magnet : null };
   }
 
   function cancel() {
@@ -125,6 +131,7 @@ export function createResolutionPlayer() {
     active = false;
     complete = true;
     tokens = new Map();
+    magnet = null;
   }
 
   return { start, update, cancel, snapshot: getSnapshot };

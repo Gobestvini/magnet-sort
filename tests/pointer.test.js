@@ -123,3 +123,48 @@ test('crate cells are rejected as placement targets with a local reason', () => 
   assert.equal(ctx.actions.length, 0);
   assert.equal(ctx.controller.snapshot().invalidReason, 'crated');
 });
+
+test('dragging the tray preserves the color selected in the tool panel', () => {
+  const ctx = setup();
+  ctx.level.colors = ['red', 'blue'];
+  ctx.state.selectedMagnetOptions = ['red', 'blue'];
+  assert.equal(ctx.controller.chooseColor('blue'), true);
+  const target = cellToScreen({ col: 3, row: 0 }, ctx.layout);
+  ctx.send('pointerdown', ctx.tray);
+  assert.equal(ctx.controller.snapshot().selectedColor, 'blue');
+  ctx.send('pointermove', target);
+  ctx.send('pointerup', target);
+  assert.deepEqual(ctx.actions, [{ type: 'placeMagnet', color: 'blue', cell: { col: 3, row: 0 } }]);
+});
+
+test('tool-panel drag and tap use canvas capture, with one action and no false outside warning', () => {
+  const ctx = setup();
+  ctx.level.colors = ['red', 'blue'];
+  ctx.state.selectedMagnetOptions = ['red', 'blue'];
+  const event = {
+    clientX: 40, clientY: 750, pointerId: 7, button: 0, isPrimary: true,
+    currentTarget: { getBoundingClientRect: () => ({ left: 20, right: 80, top: 720, bottom: 790 }) },
+    preventDefault() {},
+  };
+  assert.equal(ctx.controller.beginToolDrag(event, 'blue'), true);
+  assert.equal(ctx.captures.has(7), true);
+  ctx.send('pointerup', { x: 40, y: 750, pointerId: 7 });
+  assert.equal(ctx.actions.length, 0);
+  assert.equal(ctx.controller.snapshot().invalidReason, null);
+  assert.equal(ctx.controller.snapshot().selectedColor, 'blue');
+  assert.equal(ctx.captures.size, 0);
+  assert.equal(ctx.controller.beginToolDrag(event, 'blue'), true);
+  const point = cellToScreen({ col: 3, row: 0 }, ctx.layout);
+  ctx.send('pointermove', { ...point, pointerId: 7 });
+  ctx.send('pointerup', { ...point, pointerId: 7 });
+  assert.deepEqual(ctx.actions, [{ type: 'placeMagnet', color: 'blue', cell: { col: 3, row: 0 } }]);
+  ctx.send('pointerup', { ...point, pointerId: 7 });
+  assert.equal(ctx.actions.length, 1);
+  assert.equal(ctx.captures.size, 0);
+  assert.equal(ctx.controller.beginToolDrag(event, 'blue'), true);
+  ctx.send('pointercancel', { ...point, pointerId: 7 });
+  assert.equal(ctx.controller.snapshot().dragging, false);
+  assert.equal(ctx.captures.size, 0);
+  ctx.controller.setLocked(true);
+  assert.equal(ctx.controller.beginToolDrag(event, 'blue'), false);
+});

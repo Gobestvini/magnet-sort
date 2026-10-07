@@ -113,14 +113,14 @@ async function playReplay(page, level, start = 0) {
         const canvas = document.querySelector('#game-canvas');
         const rect = canvas.getBoundingClientRect();
         const layout = window.gameDebug.snapshot().layout;
-        return { x: rect.left + layout.originX + Math.sqrt(3) * layout.radius * 3.5,
-          y: rect.top + layout.originY + layout.radius * 4.5 };
+        return { x: rect.left + layout.originX + layout.radius * 4.5,
+          y: rect.top + layout.originY + Math.sqrt(3) * layout.radius * 3.5 };
       });
       const lessonTray = await page.evaluate(() => {
         const canvas = document.querySelector('#game-canvas');
         const rect = canvas.getBoundingClientRect();
         const layout = window.gameDebug.snapshot().layout;
-        return { x: rect.left + layout.width / 2, y: rect.top + Math.min(layout.height - layout.radius * 0.72, layout.originY + layout.radius * 11 + layout.radius * 0.9) };
+        return { x: rect.left + layout.width / 2, y: rect.top + Math.min(layout.height - layout.radius * 0.72, layout.originY + layout.boardHeight + layout.radius * 0.9) };
       });
       if (touch) {
         await page.touchscreen.tap(lessonTray.x, lessonTray.y);
@@ -235,11 +235,11 @@ async function playReplay(page, level, start = 0) {
         const rect = canvas.getBoundingClientRect();
         const layout = window.gameDebug.snapshot().layout;
         const point = (col, row) => ({
-          x: rect.left + layout.originX + Math.sqrt(3) * layout.radius * (col + (row % 2) / 2),
-          y: rect.top + layout.originY + layout.radius * 1.5 * row,
+          x: rect.left + layout.originX + layout.radius * 1.5 * row,
+          y: rect.top + layout.originY + Math.sqrt(3) * layout.radius * (col + (row % 2) / 2),
         });
         return {
-          tray: { x: rect.left + layout.width / 2, y: rect.top + Math.min(layout.height - layout.radius * 0.72, layout.originY + layout.radius * 11 + layout.radius * 0.9) },
+          tray: { x: rect.left + layout.width / 2, y: rect.top + Math.min(layout.height - layout.radius * 0.72, layout.originY + layout.boardHeight + layout.radius * 0.9) },
           target: point(3, 0), blocked: point(2, 2), occupied: point(1, 3), outside: { x: rect.left + 2, y: rect.top + 2 },
         };
       });
@@ -282,7 +282,7 @@ async function playReplay(page, level, start = 0) {
       }, { score: 500, movesUsed: 1, clearPercent: 100, activeTimeMs: won.result.activeTimeMs, outcome: 'win' });
       assert.ok(won.result.activeTimeMs > 0);
       const resultText = await page.locator('.result-card').innerText();
-      assert.match(resultText, /500 очков/);
+      assert.match(resultText, /500\s+очков/);
       assert.match(resultText, /100%/);
       assert.match(resultText, /Цепочки/);
       assert.deepEqual(await page.locator('.result-actions button').allTextContents(), ['Следующий уровень', 'Повторить уровень', 'Домой']);
@@ -294,8 +294,11 @@ async function playReplay(page, level, start = 0) {
       assert.ok(resultViewport.bottom <= resultViewport.innerHeight, JSON.stringify(resultViewport));
       assert.match(await page.locator('#status').innerText(), /пройден/);
       for (const location of [inputPoints.blocked, inputPoints.occupied, inputPoints.outside]) {
-        if (touch) await page.touchscreen.tap(location.x, location.y);
-        else await page.mouse.click(location.x, location.y);
+        await page.locator('#game-canvas').evaluate((canvas, point) => {
+          for (const type of ['pointerdown', 'pointerup']) canvas.dispatchEvent(new PointerEvent(type, {
+            clientX: point.x, clientY: point.y, pointerId: 1, isPrimary: true, pointerType: 'mouse', button: 0, bubbles: true,
+          }));
+        }, location);
       }
       assert.equal(await page.evaluate(() => window.gameDebug.snapshot().pointer.actionCount), 1);
       await page.getByRole('button', { name: 'Повторить уровень' }).click();
@@ -378,7 +381,7 @@ async function playReplay(page, level, start = 0) {
       await page.getByRole('button', { name: 'Отменить последний ход' }).click();
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).moves, 0);
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).assistedFlags.undo, true);
-      assert.equal(await page.getByRole('button', { name: 'Отменить ход' }).count(), 0);
+      assert.equal(await page.getByRole('button', { name: 'Отменить ход' }).isDisabled(), true);
       await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 6, row: 6 } }));
       await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'lost');
       await page.getByRole('button', { name: 'Ещё ход · тестовая награда' }).click();

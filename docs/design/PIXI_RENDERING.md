@@ -16,6 +16,8 @@
 
 ## Архитектурная граница
 
+Реализация визуального референса 2026-10-07 использует retained Sprite containers и оригинальные SVG, запечённые в общие текстуры один раз при старте. Flat-top представление поворачивает экранную проекцию odd-r: row задаёт X, col и сдвиг нечётного row задают Y. Правила и IDs клеток остаются прежними; layout и pointer mapping используют одну проекцию. Во время slide интерполируются экранные координаты from/to клеток, включая stagger; сортировка стопок идёт по текущему Y. Preact использует те же SVG для кнопок и миниатюры уровня.
+
 - `src/game/*`: rules, levels и simulator без PixiJS/DOM.
 - `src/render/*`: PixiJS scene graph, layout/projection helpers, board/tokens/magnet, визуальное воспроизведение events и cleanup.
 - app runtime: единственный RAF, resize, pause/hidden/reset/dispose.

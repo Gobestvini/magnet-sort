@@ -5,7 +5,7 @@ import { createBoardLayout } from './render/layout.js';
 import { createResolutionPlayer } from './render/resolution-player.js';
 
 // The scene owns its nodes; the application owns the stage and renderer.
-export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challengePuzzleId, ftuePuzzleId, skipTutorial = false, reducedMotion = () => false, grantReward } = {}) {
+export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challengePuzzleId, ftuePuzzleId, skipTutorial = false, reducedMotion = () => false, grantReward, visualAssets } = {}) {
   let elapsed = 0;
   let width = 1;
   let height = 1;
@@ -21,12 +21,12 @@ export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challeng
   const root = new Container();
   const backdrop = new Graphics();
   root.addChild(backdrop);
-  const board = createBoardRenderer(root);
+  const board = createBoardRenderer(root, visualAssets);
   stage.addChild(root);
 
   function draw() {
     if (disposed) return;
-    backdrop.clear().rect(0, 0, width, height).fill({ color: 0xfffaf2 });
+    backdrop.clear().rect(0, 0, width, height).fill({ color: 0xfff2e2 });
     layout = createBoardLayout(width, height, deviceResolution);
       const currentLevel = session.getLevel();
     const currentState = session.getState();
@@ -124,7 +124,7 @@ export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challeng
         elapsed,
         board: { rows: level.geometry.rows, cols: level.geometry.cols, renderedCells: 49, tokens: session.getState()?.tokens.length ?? 0, blockers: session.getLevel()?.blockedCells.length ?? 0 },
         session: session.snapshot(),
-        layout: { width: layout.width, height: layout.height, radius: layout.radius, originX: layout.originX, originY: layout.originY },
+        layout: { width: layout.width, height: layout.height, radius: layout.radius, originX: layout.originX, originY: layout.originY, boardWidth: layout.boardWidth, boardHeight: layout.boardHeight },
         interaction: {
           selectedColor: interaction.selectedColor,
           previewCell: interaction.previewCell ? { ...interaction.previewCell } : null,

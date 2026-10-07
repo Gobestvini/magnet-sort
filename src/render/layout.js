@@ -8,11 +8,12 @@ export function createBoardLayout(width, height, resolution = 1) {
   const safeWidth = Math.max(1, width);
   const safeHeight = Math.max(1, height);
   const dpr = Number.isFinite(resolution) && resolution > 0 ? resolution : 1;
-  const radius = Math.max(8, Math.floor(Math.min((safeWidth * 0.92) / (SQRT3 * CELL_COLS), (safeHeight * 0.73) / 11) * dpr) / dpr);
-  const boardWidth = SQRT3 * radius * CELL_COLS;
-  const boardHeight = radius * 11;
-  const originX = (safeWidth - boardWidth) / 2 + SQRT3 * radius / 2;
-  const originY = Math.max(radius * 1.65, (safeHeight - boardHeight) / 2 + radius);
+  const availableHeight = Math.max(40, safeHeight - 66);
+  const radius = Math.max(8, Math.floor(Math.min((safeWidth - 22) / 11, (availableHeight - 16) / (SQRT3 * (CELL_COLS + 0.5))) * dpr) / dpr);
+  const boardWidth = radius * (1.5 * (CELL_ROWS - 1) + 2);
+  const boardHeight = SQRT3 * radius * (CELL_COLS + 0.5);
+  const originX = (safeWidth - boardWidth) / 2 + radius;
+  const originY = (availableHeight - boardHeight) / 2 + SQRT3 * radius / 2;
   const layout = { width: safeWidth, height: safeHeight, radius, originX, originY, boardWidth, boardHeight, resolution: dpr };
   layout.centers = new Map(allCells().map(({ cell, cellId }) => [cellId, cellToScreen(cell, layout)]));
   return layout;
@@ -20,8 +21,8 @@ export function createBoardLayout(width, height, resolution = 1) {
 
 export function cellToScreen(cell, layout) {
   return {
-    x: layout.originX + SQRT3 * layout.radius * (cell.col + (cell.row % 2) / 2),
-    y: layout.originY + layout.radius * 1.5 * cell.row,
+    x: layout.originX + layout.radius * 1.5 * cell.row,
+    y: layout.originY + SQRT3 * layout.radius * (cell.col + (cell.row % 2) / 2),
   };
 }
 
@@ -44,8 +45,8 @@ export function isMagnetTrayPoint(point, layout) {
 function insideHex(point, center, radius) {
   let inside = false;
   for (let i = 0, j = 5; i < 6; j = i, i += 1) {
-    const angleI = Math.PI / 3 * i - Math.PI / 6;
-    const angleJ = Math.PI / 3 * j - Math.PI / 6;
+    const angleI = Math.PI / 3 * i;
+    const angleJ = Math.PI / 3 * j;
     const xi = center.x + Math.cos(angleI) * radius * 0.91;
     const yi = center.y + Math.sin(angleI) * radius * 0.91;
     const xj = center.x + Math.cos(angleJ) * radius * 0.91;
