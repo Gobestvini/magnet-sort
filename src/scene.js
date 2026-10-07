@@ -12,7 +12,7 @@ export function createScene(stage) {
   let disposed = false;
   const level = loadPrototypeLevel('prototype-03-blocker');
   let state = initialState();
-  let interaction = { selectedColor: null, previewCell: null, action: null };
+  let interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null };
   let layout = createBoardLayout(width, height, resolution);
   const root = new Container();
   const backdrop = new Graphics();
@@ -40,11 +40,13 @@ export function createScene(stage) {
       draw();
     },
     render(renderer) { if (!disposed) renderer.render(); },
-    reset() { elapsed = 0; state = initialState(); interaction = { selectedColor: null, previewCell: null, action: null }; draw(); },
+    reset() { elapsed = 0; state = initialState(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null }; draw(); },
     setInteraction(next) {
       interaction = {
         selectedColor: next.selectedColor ?? null,
         previewCell: next.previewCell ? { ...next.previewCell } : null,
+        pointerPoint: next.pointerPoint ? { ...next.pointerPoint } : null,
+        dragging: Boolean(next.dragging),
         action: next.action ? { ...next.action, cell: { ...next.action.cell } } : null,
       };
       draw();
@@ -60,6 +62,8 @@ export function createScene(stage) {
         interaction: {
           selectedColor: interaction.selectedColor,
           previewCell: interaction.previewCell ? { ...interaction.previewCell } : null,
+          pointerPoint: interaction.pointerPoint ? { ...interaction.pointerPoint } : null,
+          dragging: interaction.dragging,
           action: interaction.action ? { ...interaction.action, cell: { ...interaction.action.cell } } : null,
         },
       };

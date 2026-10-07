@@ -41,12 +41,30 @@ export function createBoardRenderer(root) {
       const { x, y } = cellToScreen(interaction.previewCell, layout);
       preview.circle(x, y, layout.radius * 0.64).stroke({ color: COLORS[interaction.selectedColor] ?? 0x5b84c9, width: Math.max(2.5, layout.radius * 0.1), alpha: 0.95 });
     }
+    if (interaction.dragging && interaction.pointerPoint && interaction.selectedColor) {
+      drawDraggedMagnet(preview, interaction.pointerPoint.x, interaction.pointerPoint.y - 34, layout.radius, COLORS[interaction.selectedColor] ?? COLORS.red);
+    }
   }
 
   return {
     render,
     dispose() { if (disposed) return; disposed = true; grid.destroy(); pieces.destroy(); preview.destroy(); },
   };
+}
+
+function drawDraggedMagnet(graphics, x, y, boardRadius, color) {
+  const radius = Math.min(26, Math.max(17, boardRadius * 0.48));
+  graphics.ellipse(x, y + radius * 0.62, radius * 1.05, radius * 0.34).fill({ color: 0x55483f, alpha: 0.22 });
+  graphics.circle(x, y, radius * 1.12).fill({ color: 0xfffcf7, alpha: 0.96 }).stroke({ color: 0xffffff, width: 2.5, alpha: 0.98 });
+  graphics.moveTo(x - radius * 0.42, y + radius * 0.12)
+    .arc(x, y + radius * 0.12, radius * 0.42, Math.PI, 0)
+    .stroke({ color, width: radius * 0.27, cap: 'round' });
+  graphics.moveTo(x - radius * 0.42, y + radius * 0.12).lineTo(x - radius * 0.42, y + radius * 0.48)
+    .moveTo(x + radius * 0.42, y + radius * 0.12).lineTo(x + radius * 0.42, y + radius * 0.48)
+    .stroke({ color, width: radius * 0.27, cap: 'round' });
+  graphics.moveTo(x - radius * 0.54, y + radius * 0.49).lineTo(x - radius * 0.3, y + radius * 0.49)
+    .moveTo(x + radius * 0.3, y + radius * 0.49).lineTo(x + radius * 0.54, y + radius * 0.49)
+    .stroke({ color: 0x5d5860, width: radius * 0.17, cap: 'round' });
 }
 
 function drawHex(graphics, x, y, radius, color, raised) {

@@ -7,6 +7,7 @@ export function createPointerController(target, { getLayout, getLevel, getState,
   let locked = false;
   let selectedColor = null;
   let previewCell = null;
+  let pointerPoint = null;
   let lastAction = null;
   let actionCount = 0;
   let disposed = false;
@@ -17,7 +18,13 @@ export function createPointerController(target, { getLayout, getLevel, getState,
   }
 
   function notify() {
-    onPreview?.({ selectedColor, previewCell: previewCell ? { ...previewCell } : null, action: lastAction ? structuredClone(lastAction) : null });
+    onPreview?.({
+      selectedColor,
+      previewCell: previewCell ? { ...previewCell } : null,
+      pointerPoint: pointerPoint ? { ...pointerPoint } : null,
+      dragging,
+      action: lastAction ? structuredClone(lastAction) : null,
+    });
   }
 
   function validCell(cell, color) {
@@ -30,7 +37,8 @@ export function createPointerController(target, { getLayout, getLevel, getState,
   }
 
   function updatePreview(event) {
-    const cell = screenToCell(pointFrom(event), getLayout());
+    pointerPoint = pointFrom(event);
+    const cell = screenToCell(pointerPoint, getLayout());
     previewCell = validCell(cell, selectedColor) ? cell : null;
     notify();
   }
@@ -63,6 +71,7 @@ export function createPointerController(target, { getLayout, getLevel, getState,
     pointerId = null;
     dragging = false;
     previewCell = null;
+    pointerPoint = null;
     if (release && previousId !== null) {
       try { if (target.hasPointerCapture(previousId)) target.releasePointerCapture(previousId); } catch { /* Target may have unmounted. */ }
     }
@@ -106,7 +115,7 @@ export function createPointerController(target, { getLayout, getLevel, getState,
   return {
     cancel,
     setLocked(value) { locked = Boolean(value); if (locked) cancel(); },
-    snapshot() { return { pointerId, dragging, locked, selectedColor, previewCell: previewCell ? { ...previewCell } : null, action: lastAction ? structuredClone(lastAction) : null, actionCount }; },
+    snapshot() { return { pointerId, dragging, locked, selectedColor, previewCell: previewCell ? { ...previewCell } : null, pointerPoint: pointerPoint ? { ...pointerPoint } : null, action: lastAction ? structuredClone(lastAction) : null, actionCount }; },
     dispose() {
       if (disposed) return;
       cancel();

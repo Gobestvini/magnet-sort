@@ -47,6 +47,11 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
         await page.mouse.move(inputPoints.tray.x, inputPoints.tray.y);
         await page.mouse.down();
         await page.mouse.move(inputPoints.target.x, inputPoints.target.y, { steps: 4 });
+        await page.waitForFunction(() => {
+          const interaction = window.gameDebug.snapshot().interaction;
+          return interaction.dragging && interaction.pointerPoint && interaction.previewCell?.col === 3 && interaction.previewCell?.row === 0;
+        });
+        assert.equal(await page.evaluate(() => window.gameDebug.snapshot().interaction.dragging), true);
         await page.mouse.up();
       }
       await page.waitForFunction(() => window.gameDebug.snapshot().pointer.actionCount === 1);

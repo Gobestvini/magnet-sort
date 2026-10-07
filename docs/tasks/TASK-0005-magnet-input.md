@@ -94,11 +94,11 @@
 
 ## 10. Отчёт исполнителя
 
-- Результат: Pointer Events controller поддерживает drag magnet→cell и tap magnet→tap empty cell. Временная команда видна как `placeMagnet(color, cell)` с явной пометкой «без симуляции»; успех игрового хода не показывается.
-- Изменённые файлы и зачем: `src/input/pointer.js` — единый controller, capture, single-primary handling, validation, preview, cancel/lock; `src/render/layout.js` — hit area tray ≥44×44 CSS px; `src/render/board.js`, `src/scene.js` — preview ring и interaction snapshot; `src/main.js` — hooks pause/reset/blur/hidden/dispose, связь input→scene; `src/ui/App.js`, `src/style.css` — helper и command preview; `tests/pointer.test.js` — unit scenarios; `tools/browser-check.cjs` — desktop drag/mobile tap, invalid destinations, pause while drag; `docs/PROJECT.md`, task reports/INDEX — актуальная карта.
-- Команды и фактические результаты: `pnpm test` — 50/50 на TASK-0005. `pnpm test:browser` — passed в headless Chromium desktop mouse drag и mobile touch emulation tap, blockers/occupied/outside rejection и pause-during-drag. `pnpm check:full` — test/build passed (в последующем TASK-0006 набор расширен до 57/57).
+- Результат: Pointer Events controller поддерживает drag magnet→cell и tap magnet→tap empty cell. Во время drag магнит следует за указателем, а допустимая клетка подсвечивается. После отпускания временная команда видна как `placeMagnet(color, cell)` с явной пометкой «без симуляции»; успех игрового хода не показывается до TASK-0007.
+- Изменённые файлы и зачем: `src/input/pointer.js` — передаёт точку drag в interaction preview; `src/scene.js` — хранит позицию указателя/состояние drag; `src/render/board.js` — рисует следующий за указателем магнит; `tests/pointer.test.js` — проверяет позицию и очистку drag preview; `tools/browser-check.cjs` — проверяет активное preview во время desktop drag. Ранее реализованные изменения задачи описаны выше.
+- Команды и фактические результаты этого исправления: `pnpm check:full` — успешно; `pnpm test:browser` — успешно, desktop drag и mobile touch emulation.
 - Ручные проверки и устройства: в браузере виден command preview; никакой victory/симуляции не происходит. Проверено headless Chromium, desktop 1280×900 с Playwright mouse, mobile 390×844 с Playwright touch emulation. Реальный touch-телефон недоступен.
-- Выполненные критерии: единый Pointer Events controller, capture/preview, drag/tap flow, valid cell/color checks, invalid blocked/occupied/outside rejection, second pointer/lock/cancel/dispose unit coverage, no success fiction; Preact controls retain 48px targets/focus styles.
+- Выполненные критерии: единый Pointer Events controller, capture/preview, видимый магнит во время drag, drag/tap flow, valid cell/color checks, invalid blocked/occupied/outside rejection, second pointer/lock/cancel/dispose unit coverage, no success fiction; Preact controls retain 48px targets/focus styles.
 - Непроверенное, блокеры и отклонения от плана: раздел 7 требует реальный touch-телефон для drag/tap/cancel/pause; его не было в среде. Lock API проверен изолированно; app session/resolution пока отсутствуют до TASK-0007. Поэтому статус не done.
-- Commit/push либо причина отсутствия: очередь продолжается; checkpoint будет включать только изменения этого проекта.
-- Итоговый статус и дата: blocked, 2026-10-07.
+- Commit/push либо причина отсутствия: исправление будет отправлено отдельным коммитом в настроенную ветку `main`.
+- Итоговый статус и дата: blocked до физической touch-проверки, 2026-10-07.

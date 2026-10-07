@@ -38,11 +38,15 @@ test('magnet drag and tap-to-place each emit exactly one command', () => {
   const destination = cellToScreen({ col: 3, row: 0 }, drag.layout);
   drag.send('pointerdown', drag.tray);
   assert.equal(drag.controller.snapshot().dragging, true);
+  assert.deepEqual(drag.previews.at(-1).pointerPoint, drag.tray);
   drag.send('pointermove', destination);
   assert.deepEqual(drag.controller.snapshot().previewCell, { col: 3, row: 0 });
+  assert.deepEqual(drag.controller.snapshot().pointerPoint, destination);
+  assert.equal(drag.previews.at(-1).dragging, true);
   drag.send('pointerup', destination);
   assert.deepEqual(drag.actions, [{ type: 'placeMagnet', color: 'red', cell: { col: 3, row: 0 } }]);
   assert.equal(drag.controller.snapshot().actionCount, 1);
+  assert.equal(drag.controller.snapshot().pointerPoint, null);
   assert.equal(drag.captures.size, 0);
 
   const tap = setup();
