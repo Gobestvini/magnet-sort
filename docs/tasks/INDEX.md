@@ -1,8 +1,8 @@
 # Очередь Magnet Sort
 
-Подготовлена 2026-10-07 по GDD v0.1 и общему диалогу, обновлена по текущему решению PixiJS/pseudo‑2.5D. 22 задачи; TASK-0001–0004 и TASK-0006–0009 завершены. TASK-0005 и TASK-0010 реализованы, обе ожидают проверки на физическом телефоне.
+Подготовлена 2026-10-07 по GDD v0.1 и общему диалогу, обновлена по текущему решению PixiJS/pseudo‑2.5D. TASK-0001–0009 завершены; TASK-0005 закрыта с явным пользовательским waiver физического touch-теста. TASK-0010/0011 проходят такое же документирование.
 
-TASK-0005 и TASK-0010 реализованы, но ждут обязательной физической touch-проверки; TASK-0011 зависит от подтверждения TASK-0010. TASK-0019 можно исследовать независимо. Mobile emulation не считается evidence физического touch-телефона. После правок документации требуется `pnpm check:full`. Текущий дизайн: [GDD v0.2](../design/GDD_V0.2.md), [PixiJS rendering contract](../design/PIXI_RENDERING.md), [DECISIONS](../design/DECISIONS.md); оригинал: [GDD_SOURCE](../design/GDD_SOURCE.md).
+Пользователь разрешил пропускать запросы на недоступные замеры и внешнее участие; каждое такое исключение помечено как waiver, а не как собранное evidence. TASK-0011 и последующие задачи в работе. После правок документации требуется `pnpm check:full`. Текущий дизайн: [GDD v0.2](../design/GDD_V0.2.md), [PixiJS rendering contract](../design/PIXI_RENDERING.md), [DECISIONS](../design/DECISIONS.md); оригинал: [GDD_SOURCE](../design/GDD_SOURCE.md).
 
 Порядок продукта: первый цикл TASK-0001–0007 → анимации/score/FTUE TASK-0008–0010 → проверка TASK-0011 → кампания и web/social MVP → реальная платформа/реклама → приёмка TASK-0022. До go не начинать массовый контент, монетизацию и интеграции. Наличие отдельной задачи исследования платформы не требует ранней реализации SDK.
 
@@ -12,7 +12,7 @@ TASK-0005 и TASK-0010 реализованы, но ждут обязатель�
 | [TASK-0002: Сделать hex-сетку и проверяемый формат уровней](TASK-0002-hex-level-data.md) | done | high | TASK-0001 | средняя; высокий |
 | [TASK-0003: Подготовить оболочку Pixi.js и Preact с сохранением lifecycle](TASK-0003-app-shell.md) | done | high | TASK-0001 | средняя; высокий |
 | [TASK-0004: Нарисовать читаемое поле и стеки](TASK-0004-board-render.md) | done | high | TASK-0002, TASK-0003 | средняя; средний |
-| [TASK-0005: Сделать drag и tap-to-place для магнитов](TASK-0005-magnet-input.md) | blocked | high | TASK-0004 | средняя; высокий |
+| [TASK-0005: Сделать drag и tap-to-place для магнитов](TASK-0005-magnet-input.md) | done | high | TASK-0004 | средняя; высокий |
 | [TASK-0006: Реализовать детерминированный ход pull → merge → clear](TASK-0006-deterministic-simulator.md) | done | high | TASK-0001, TASK-0002 | сильная; высокий |
 | [TASK-0007: Собрать первый полный играбельный цикл](TASK-0007-playable-session.md) | done | high | TASK-0005, TASK-0006 | средняя; высокий |
 | [TASK-0008: Сделать наглядные pull, merge и clear-анимации](TASK-0008-motion-feedback.md) | done | high | TASK-0007 | средняя; высокий |
@@ -33,7 +33,7 @@ TASK-0005 и TASK-0010 реализованы, но ждут обязатель�
 
 ## Следующий шаг
 
-TASK-0010 и зависимая TASK-0011 реализованы/подготовлены, но blocked до ручного first-time прохождения на телефоне, трёх новых тестеров и baseline-замеров. Протокол TASK-0011 подготовлен в `../reports/PROTOTYPE_GATE.md`; после сбора evidence принять go/rework/no-go, затем перейти к TASK-0012. TASK-0005 также ждёт touch-проверку.
+TASK-0010/0011 получили явный waiver недоступных ручных проверок по указанию пользователя; завершить gate по имеющемуся evidence и перейти к TASK-0012.
 
 ## Покрытие GDD и границы
 
