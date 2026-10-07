@@ -3,8 +3,9 @@ import { GameHud } from './game-hud.js';
 import { ResultCard } from './result.js';
 import { TutorialPanel } from './tutorial.js';
 import { Home } from './home.js';
+import { ChallengeEntry } from './challenge-entry.js';
 
-export function App({ screen = 'game', progress, paused, ready, initializing, error, status, session, interaction, surfaceRef, canvasRef, onTogglePause, onReset, onRetry, onRetryRenderer, onNextPuzzle, onChooseColor, onSkipTutorial, onPlay, onHome, onDaily, onFriend, onToggleReducedMotion }) {
+export function App({ screen = 'game', progress, challenge, challengeComparison, challengeError, shareStatus, level, paused, ready, initializing, error, status, session, interaction, surfaceRef, canvasRef, onTogglePause, onReset, onRetry, onRetryRenderer, onNextPuzzle, onChooseColor, onSkipTutorial, onPlay, onHome, onDaily, onFriend, onToggleReducedMotion, onShareChallenge }) {
   return h('main', { className: `app-shell${screen === 'game' && session?.result ? ' app-shell-result' : ''}` },
     h('header', { className: 'app-header' },
       h('div', null,
@@ -13,7 +14,9 @@ export function App({ screen = 'game', progress, paused, ready, initializing, er
         h('p', { className: 'subtitle' }, 'Поставь магнит и наблюдай, как собираются фишки.')),
       h('span', { className: 'brand-mark', 'aria-hidden': 'true' }, '✦')),
     screen === 'home' && h(Home, { progress, ready, error, initializing, onPlay, onRetryRenderer, onDaily, onFriend, onToggleReducedMotion }),
-    h('section', { className: 'game-layout', 'aria-label': 'Игровая оболочка', style: screen === 'home' ? { display: 'none' } : undefined },
+    screen === 'home' && challengeError && h('p', { className: 'challenge-link-error', role: 'status' }, challengeError),
+    screen === 'challenge' && h(ChallengeEntry, { challenge, onPlay }),
+    h('section', { className: 'game-layout', 'aria-label': 'Игровая оболочка', style: screen !== 'game' ? { display: 'none' } : undefined },
       h('div', { id: 'game-surface', ref: surfaceRef, className: 'game-surface', 'aria-label': 'Игровое поле' },
         h('canvas', { id: 'game-canvas', ref: canvasRef, 'aria-label': 'Игровое поле Magnet Sort', role: 'img' }),
         !ready && h('div', { className: 'surface-message', role: error ? 'alert' : 'status' },
@@ -36,6 +39,12 @@ export function App({ screen = 'game', progress, paused, ready, initializing, er
           nextLabel: session?.tutorial?.nextLabel,
           allowNextOnLoss: !session?.tutorial?.active && session?.campaignNumber == null,
           onHome,
+          level,
+          challengeTarget: challenge?.challengerResult,
+          challengeComparison,
+          shareStatus,
+          onShareChallenge,
+          isChallenge: session?.challenge,
         }),
         !session?.result && h('div', { className: 'controls' },
           h('button', {

@@ -29,6 +29,27 @@ button { font: inherit; }
 .home-setting { display: flex; align-items: center; gap: 9px; color: #6f6d75; font-size: 0.88rem; }
 .home-setting input { width: 18px; height: 18px; accent-color: #5388d8; }
 .home-footer { font-size: 0.78rem; }
+.challenge-entry { display: grid; justify-items: start; gap: 12px; width: min(560px, 100%); margin: clamp(24px, 9vh, 88px) auto; padding: clamp(22px, 5vw, 42px); border: 1px solid #eee4d6; border-radius: 28px; background: linear-gradient(145deg, #fff, #fff8ee); box-shadow: 0 18px 48px #56453a12; }
+.challenge-entry h2 { margin: 0; font-size: clamp(1.5rem, 5vw, 2.2rem); }
+.challenge-target-score { margin: 0; font-size: 2rem; font-weight: 850; }
+.challenge-target-facts, .challenge-unverified, .challenge-share-status, .challenge-link-error { margin: 0; color: #77747b; font-size: 0.84rem; }
+.challenge-unverified { color: #8e7550; }
+.challenge-entry .home-primary { margin-top: 8px; }
+.challenge-link-error { width: min(560px, 100%); margin: -12px auto 20px; color: #974e48; }
+.challenge-result { display: grid; gap: 8px; margin-top: 6px; }
+.challenge-result-comparison { margin: 0; font-weight: 800; }
+.challenge-card-preview { display: block; width: min(100%, 400px); height: auto; border: 1px solid #eadfce; border-radius: 12px; }
+.challenge-result button, .challenge-download { display: block; width: 100%; min-height: 44px; padding: 9px 12px; border: 1px solid #e3d7c9; border-radius: 12px; background: #fffaf2; color: #34313a; font: inherit; font-size: 0.86rem; font-weight: 700; text-align: center; text-decoration: none; cursor: pointer; }
+.challenge-download:hover { background: #fff1dc; }
+.app-shell-result .challenge-result { grid-template-columns: minmax(82px, 110px) minmax(0, 1fr); align-items: center; gap: 4px 8px; }
+.app-shell-result .challenge-card-preview { grid-column: 1; grid-row: 1 / span 5; width: 100%; }
+.app-shell-result .challenge-result-comparison,
+.app-shell-result .challenge-unverified,
+.app-shell-result .challenge-result button,
+.app-shell-result .challenge-download,
+.app-shell-result .challenge-share-status { grid-column: 2; }
+.app-shell-result .challenge-result button,
+.app-shell-result .challenge-download { min-height: 34px; padding: 5px 7px; font-size: 0.76rem; }
 .game-layout { display: grid; grid-template-columns: minmax(0, 1fr) 236px; align-items: stretch; gap: 18px; }
 .game-surface { position: relative; min-width: 0; height: clamp(340px, 64vh, 560px); overflow: hidden; border: 1px solid #eee4d6; border-radius: 24px; background: #fffaf2; box-shadow: 0 12px 34px #56453a12; }
 .game-surface canvas { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -89,6 +110,7 @@ button:focus-visible { outline: 3px solid #3c78c5; outline-offset: 3px; }
   .subtitle { max-width: 32ch; font-size: 0.94rem; }
   .brand-mark { width: 42px; border-radius: 14px; }
   .home-card { margin: clamp(18px, 6vh, 56px) auto; border-radius: 24px; }
+  .challenge-entry { margin: clamp(18px, 6vh, 56px) auto; border-radius: 24px; }
   .game-layout { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .game-surface { height: clamp(300px, 53vh, 470px); border-radius: 20px; }
   .game-controls { padding: 14px; border-radius: 20px; }
@@ -100,7 +122,7 @@ button:focus-visible { outline: 3px solid #3c78c5; outline-offset: 3px; }
   .app-shell-result { margin-top: max(10px, env(safe-area-inset-top)); margin-bottom: max(10px, env(safe-area-inset-bottom)); }
   .app-shell-result .app-header { margin-bottom: 8px; }
   .app-shell-result .game-layout { gap: 8px; }
-  .app-shell-result .game-surface { height: clamp(210px, 33vh, 280px); }
+  .app-shell-result .game-surface { height: clamp(190px, 27vh, 235px); }
   .app-shell-result .game-controls { padding: 10px 12px; }
   .app-shell-result #status { margin-bottom: 6px; }
   .app-shell-result .game-hud { gap: 6px; padding-bottom: 8px; }

@@ -7,6 +7,8 @@ import { createScene } from './scene.js';
 import { createPixiApplication } from './render/application.js';
 import { campaignLevelIds, ftueLevelIds } from './game/levels.js';
 import { loadProgress, recordRunResult, saveProgress, setProgressSetting } from './game/progress.js';
+import { compareRunResults } from './game/scoring.js';
+import { createChallengeCardSvg, createChallengeUrl, parseChallengeUrl, shareChallenge } from './social/challenge.js';
 import { App } from './ui/App.js';
 
 const uiRoot = document.querySelector('#ui-root');
@@ -32,7 +34,12 @@ let tickCount = 0;
 let observer = null;
 let pointer = null;
 let reducedMotionOverride = null;
-let screen = 'home';
+const hasChallengeQuery = new URLSearchParams(window.location.search).has('challenge');
+const parsedChallenge = hasChallengeQuery ? parseChallengeUrl(window.location.href) : null;
+let challenge = parsedChallenge?.ok ? parsedChallenge.challenge : null;
+let challengeError = parsedChallenge && !parsedChallenge.ok ? challengeErrorMessage(parsedChallenge.reason) : null;
+let shareStatus = null;
+let screen = challenge ? 'challenge' : 'home';
 let progress = loadProgress().progress;
 const savedResults = new Set();
 
@@ -53,12 +60,15 @@ function persistProgress() {
 function startGame() {
   if (!scene || !renderer) return;
   pointer?.cancel();
-  scene.startFromProgress(progressTarget());
-  if (!progress.ftue.seen && !progress.ftue.completed && !progress.ftue.skipped) {
+  if (challenge) scene.startChallenge(challenge.puzzleId);
+  else scene.startFromProgress(progressTarget());
+  if (!challenge && !progress.ftue.seen && !progress.ftue.completed && !progress.ftue.skipped) {
     progress = { ...progress, ftue: { ...progress.ftue, seen: true } };
     persistProgress();
   }
   screen = 'game';
+  challengeError = null;
+  if (hasChallengeQuery && !challenge) clearChallengeFromUrl();
   paused = false;
   syncPointerLock();
   clearTiming();
@@ -71,6 +81,9 @@ function startGame() {
 function goHome() {
   if (!scene) return;
   screen = 'home';
+  challenge = null;
+  challengeError = null;
+  clearChallengeFromUrl();
   pointer?.cancel();
   cancelFrame();
   clearTiming();
@@ -80,7 +93,7 @@ function goHome() {
 
 function handleTerminalResult() {
   const session = scene?.getSession();
-  if (!session?.result) return;
+  if (!session?.result || session.challenge) return;
   const resultKey = JSON.stringify(session.result);
   if (savedResults.has(resultKey)) return;
   const tutorial = session.tutorial;
@@ -92,6 +105,37 @@ function handleTerminalResult() {
   });
   persistProgress();
   savedResults.add(resultKey);
+}
+
+function clearChallengeFromUrl() {
+  if (!window.history?.replaceState || !new URLSearchParams(window.location.search).has('challenge')) return;
+  const url = new URL(window.location.href);
+  url.searchParams.delete('challenge');
+  window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+}
+
+function challengeErrorMessage(reason) {
+  if (reason === 'unsupported-version') return 'Эта ссылка создана в другой версии игры.';
+  if (reason === 'unknown-puzzle') return 'Уровень из ссылки больше не доступен.';
+  return 'Ссылка на вызов повреждена или неполная.';
+}
+
+async function shareCurrentChallenge() {
+  const session = scene?.getSession();
+  const level = scene?.getLevel();
+  if (!level || !session?.result) return;
+  try {
+    const url = createChallengeUrl(level, session.result, window.location.href);
+    const cardSvg = createChallengeCardSvg(level, session.result);
+    const outcome = await shareChallenge({ url, cardSvg }, { navigator: window.navigator, clipboard: window.navigator.clipboard, File: window.File });
+    shareStatus = outcome.status === 'shared' ? 'Вызов отправлен в меню «Поделиться».'
+      : outcome.status === 'copied' ? 'Ссылка скопирована.'
+        : outcome.status === 'cancelled' ? 'Отправка отменена.'
+          : 'Не удалось поделиться. Скачай карточку или проверь разрешение на копирование.';
+  } catch {
+    shareStatus = 'Не удалось создать ссылку на этот результат.';
+  }
+  renderUI();
 }
 
 function toggleReducedMotion(event) {
@@ -135,14 +179,20 @@ function currentStatus() {
 
 function renderUI() {
   if (disposed) return;
+  const currentSession = scene?.getSession();
   render(h(App, {
     screen,
     progress,
+    challenge,
+    challengeError,
+    challengeComparison: currentSession?.result && challenge ? compareRunResults(currentSession.result, challenge.challengerResult) : null,
+    shareStatus,
+    level: scene?.getLevel(),
     paused,
     ready: Boolean(renderer && scene && !error),
     initializing,
     error,
-    session: scene?.getSession(),
+    session: currentSession,
     status: currentStatus(),
     interaction: scene?.snapshot().interaction,
     surfaceRef,
@@ -159,6 +209,7 @@ function renderUI() {
     onFriend() {},
     onToggleReducedMotion: toggleReducedMotion,
     onNextPuzzle: advancePuzzle,
+    onShareChallenge: shareCurrentChallenge,
   }), uiRoot);
 }
 
@@ -303,7 +354,7 @@ async function initialize() {
       return;
     }
     renderer = candidate;
-    scene = createScene(renderer.stage, { ...progressTarget(), reducedMotion: prefersReducedMotion });
+    scene = createScene(renderer.stage, { ...progressTarget(), ...(challenge ? { challengePuzzleId: challenge.puzzleId } : {}), reducedMotion: prefersReducedMotion });
     pointer = createPointerController(canvasElement, {
       getLayout: () => scene.getLayout(),
       getLevel: () => scene.getLevel(),
@@ -368,6 +419,7 @@ function snapshot() {
     result: scene?.getSession().result ?? null,
     progress,
     screen,
+    challenge: scene?.getSession().challenge ?? false,
     activeTimeMs: scene?.getSession().activeTimeMs ?? 0,
     assistedFlags: scene?.getSession().assistedFlags ?? {},
     paused,

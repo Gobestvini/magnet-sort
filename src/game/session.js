@@ -11,11 +11,12 @@ function phaseForState(state) {
   return 'playing';
 }
 
-export function createSession({ initialPuzzleId, campaignPuzzleId, ftuePuzzleId, skipTutorial = false, resolveSeconds = DEFAULT_RESOLVE_SECONDS } = {}) {
+export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzzleId, ftuePuzzleId, skipTutorial = false, resolveSeconds = DEFAULT_RESOLVE_SECONDS } = {}) {
   const puzzleIds = prototypeLevelIds();
   const campaignIds = campaignLevelIds();
   const lessonIds = ftueLevelIds();
-  let route = campaignPuzzleId ? 'campaign' : skipTutorial || initialPuzzleId ? 'prototype' : 'ftue';
+  let route = challengePuzzleId ? 'challenge' : campaignPuzzleId ? 'campaign' : skipTutorial || initialPuzzleId ? 'prototype' : 'ftue';
+  let sharedPuzzleId = challengePuzzleId;
   let puzzleIndex = Math.max(0, puzzleIds.indexOf(initialPuzzleId ?? puzzleIds[0]));
   let campaignIndex = Math.max(0, campaignIds.indexOf(campaignPuzzleId ?? campaignIds[0]));
   let lessonIndex = Math.max(0, lessonIds.indexOf(ftuePuzzleId ?? lessonIds[0]));
@@ -61,6 +62,7 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, ftuePuzzleId,
   function loadCurrent() {
     if (route === 'ftue') return installLevel(loadFtueLevel(lessonIds[lessonIndex]));
     if (route === 'campaign') return installLevel(loadCampaignLevel(campaignIds[campaignIndex]));
+    if (route === 'challenge') return installLevel(loadSharedPuzzle(sharedPuzzleId));
     return installLevel(loadPrototypeLevel(puzzleIds[puzzleIndex]));
   }
 
@@ -128,6 +130,8 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, ftuePuzzleId,
       } else if (route === 'campaign') {
         if (phase !== 'won' || campaignIndex >= campaignIds.length - 1) return false;
         campaignIndex += 1;
+      } else if (route === 'challenge') {
+        return false;
       } else {
         if (!['won', 'lost'].includes(phase)) return false;
         puzzleIndex = (puzzleIndex + 1) % puzzleIds.length;
@@ -153,6 +157,12 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, ftuePuzzleId,
       }
       return loadCurrent();
     },
+    startChallenge(puzzleId) {
+      sharedPuzzleId = puzzleId;
+      route = 'challenge';
+      tutorialSkipped = true;
+      return loadCurrent();
+    },
     loadTestLevel(testLevel) {
       route = 'prototype';
       tutorialSkipped = true;
@@ -164,6 +174,7 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, ftuePuzzleId,
         error,
         puzzleId: level?.puzzleId ?? puzzleIds[puzzleIndex],
         campaignNumber: level?.campaignNumber ?? null,
+        challenge: route === 'challenge',
         goal: level ? { ...level.goal } : null,
         colors: level ? [...level.colors] : [],
         state: state ? cloneState(state) : null,
@@ -192,4 +203,10 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, ftuePuzzleId,
       };
     },
   };
+}
+
+function loadSharedPuzzle(puzzleId) {
+  if (campaignLevelIds().includes(puzzleId)) return loadCampaignLevel(puzzleId);
+  if (ftueLevelIds().includes(puzzleId)) return loadFtueLevel(puzzleId);
+  return loadPrototypeLevel(puzzleId);
 }

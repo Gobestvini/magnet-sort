@@ -17,8 +17,10 @@
 | src/game/session.js / createSession | Validates FTUE/prototype levels, gates lesson progression, resolves simulator outcomes, supports skip/retry/next and dev snapshots |
 | src/game/scoring.js | RULES v1 RunResult scoring, clear percentage, assisted challenge eligibility and shared deterministic run comparator |
 | src/game/progress.js | Versioned local progress, best/completed runs, FTUE/campaign unlocks, safe storage fallback and settings |
+| src/social/challenge.js | Versioned challenge links, bounded/safe URL decoding, frozen puzzle resolution, explicit Web Share/clipboard fallback and local SVG result card |
 | src/ui/game-hud.js | Session-driven objective, moves, magnet choices, event feedback and terminal actions |
 | src/ui/result.js | Accessible win/loss result card with score, moves, active time, clear percentage, chain links and contextual retry/next actions |
+| src/ui/challenge-entry.js | Incoming challenge target, assisted-policy notice, and single action to start the shared frozen puzzle |
 | src/game/hex.js | odd-r/axial преобразования, 7×7 neighbors/distance/ID и materialization empty/blocker/crate/token клеток |
 | src/game/levels.js | LevelDefinition validation rules v1/v2, deterministic normalization и загрузка FTUE/prototype/campaign |
 | src/game/state.js | Immutable simulator state creation/copy, crate occupancy and legal-placement invariants |
@@ -30,6 +32,7 @@
 | tests/ftue.test.js | FTUE solutions, timer-only hint, progression, skip/retry/completion |
 | tests/campaign.test.js | 50 campaign replays, rules bands, массовый баланс и crate resolution |
 | tests/progress.test.js | Storage fallback, bounds, result comparator, FTUE progression and settings |
+| tests/challenge.test.js | Challenge URL safety/versioning, frozen board/session, result comparator, card, and share fallback |
 | index.html, src/style.css | Название Magnet Sort, адаптивная светлая оболочка |
 | tests/loop.test.js, tests/input.test.js | Частоты кадров, stalls, ввод и очистка |
 | tests/hex.test.js, tests/levels.test.js, tests/layout.test.js, tests/board-render.test.js, tests/pointer.test.js, tests/simulator.test.js | Geometry, level validation, rendering/input immutability, pointer commands and simulator fixtures/invariants |
@@ -39,7 +42,7 @@
 | docs/knowledge/pixijs-practices.md | Курсы и проверенные практики PixiJS 8 для Magnet Sort |
 | docs/knowledge/threejs-journey.md | Только общие переносимые инженерные советы из Three.js Journey |
 | docs/design/PIXI_RENDERING.md | Rendering-контракт Magnet Sort: PixiJS 8 и псевдо‑2.5D |
-| tools/browser-check.cjs | Desktop/mobile/landscape, first-launch FTUE/skip, session win/loss/retry, animation resolve/cancel, pause/reset, hidden/blur, HMR disposer, ошибки |
+| tools/browser-check.cjs | Desktop/mobile/landscape, first-launch FTUE/skip, session win/loss/retry, challenge copy/open/rematch, animation resolve/cancel, pause/reset, hidden/blur, HMR disposer, ошибки |
 | docs/design/GDD_SOURCE.md | Полный текст исходного GDD v0.1 с SHA-256 DOCX |
 | docs/design/GDD_V0.2.md, docs/design/PIXI_RENDERING.md | Текущая спецификация PixiJS/pseudo‑2.5D и rendering contract |
 | docs/design/DECISIONS.md | Источники, расхождения и границы MVP |

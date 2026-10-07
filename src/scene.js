@@ -5,13 +5,13 @@ import { createBoardLayout } from './render/layout.js';
 import { createResolutionPlayer } from './render/resolution-player.js';
 
 // The scene owns its nodes; the application owns the stage and renderer.
-export function createScene(stage, { initialPuzzleId, campaignPuzzleId, ftuePuzzleId, skipTutorial = false, reducedMotion = () => false } = {}) {
+export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challengePuzzleId, ftuePuzzleId, skipTutorial = false, reducedMotion = () => false } = {}) {
   let elapsed = 0;
   let width = 1;
   let height = 1;
   let deviceResolution = 1;
   let disposed = false;
-  const session = createSession({ ...(initialPuzzleId ? { initialPuzzleId } : {}), ...(campaignPuzzleId ? { campaignPuzzleId } : {}), ...(ftuePuzzleId ? { ftuePuzzleId } : {}), skipTutorial });
+  const session = createSession({ ...(initialPuzzleId ? { initialPuzzleId } : {}), ...(campaignPuzzleId ? { campaignPuzzleId } : {}), ...(challengePuzzleId ? { challengePuzzleId } : {}), ...(ftuePuzzleId ? { ftuePuzzleId } : {}), skipTutorial });
   const resolution = createResolutionPlayer();
   let placementFeedback = null;
   const level = session.getLevel();
@@ -66,6 +66,7 @@ export function createScene(stage, { initialPuzzleId, campaignPuzzleId, ftuePuzz
     nextPuzzle() { elapsed = 0; resolution.cancel(); placementFeedback = null; const advanced = session.nextPuzzle(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); return advanced; },
     skipTutorial() { elapsed = 0; resolution.cancel(); placementFeedback = null; const skipped = session.skipTutorial(); if (skipped) { interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); } return skipped; },
     startFromProgress(target) { elapsed = 0; resolution.cancel(); placementFeedback = null; const started = session.startFromProgress(target); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); return started; },
+    startChallenge(puzzleId) { elapsed = 0; resolution.cancel(); placementFeedback = null; const started = session.startChallenge(puzzleId); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); return started; },
     submitAction(action) {
       const before = session.getState();
       const result = session.dispatch(action);
