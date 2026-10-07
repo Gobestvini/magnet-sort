@@ -40,6 +40,7 @@ const parsedChallenge = hasChallengeQuery ? parseChallengeUrl(window.location.hr
 let challenge = parsedChallenge?.ok ? parsedChallenge.challenge : null;
 let challengeError = parsedChallenge && !parsedChallenge.ok ? challengeErrorMessage(parsedChallenge.reason) : null;
 let shareStatus = null;
+let boosterNotice = null;
 let screen = challenge ? 'challenge' : 'home';
 let progress = loadProgress().progress;
 const savedResults = new Set();
@@ -86,6 +87,7 @@ function startDaily() {
 
 function goHome() {
   if (!scene) return;
+  handleTerminalResult({ force: true });
   screen = 'home';
   challenge = null;
   challengeError = null;
@@ -97,9 +99,10 @@ function goHome() {
   renderUI();
 }
 
-function handleTerminalResult() {
+function handleTerminalResult({ force = false } = {}) {
   const session = scene?.getSession();
   if (!session?.result || session.challenge) return;
+  if (!force && session.phase === 'lost' && (session.boosters.undoAvailable || session.boosters.extraMoveAvailable)) return;
   const resultKey = JSON.stringify([session.dailyId ?? 'campaign', session.result]);
   if (savedResults.has(resultKey)) return;
   const tutorial = session.tutorial;
@@ -198,8 +201,10 @@ function renderUI() {
     daily: getDailyPuzzle(),
     challenge,
     challengeError,
-    challengeComparison: currentSession?.result && challenge ? compareRunResults(currentSession.result, challenge.challengerResult) : null,
+    challengeComparison: currentSession?.result && challenge && currentSession.result.eligibleForChallenge && challenge.challengerResult.eligibleForChallenge
+      ? compareRunResults(currentSession.result, challenge.challengerResult) : null,
     shareStatus,
+    boosterNotice,
     level: scene?.getLevel(),
     paused,
     ready: Boolean(renderer && scene && !error),
@@ -215,6 +220,10 @@ function renderUI() {
     onRetry: retry,
     onRetryRenderer: initialize,
     onChooseColor: (color) => pointer?.chooseColor(color),
+    onUndo: useUndo,
+    onHint: requestHint,
+    onApplyHint: applyHint,
+    onExtraMove: requestExtraMove,
     onSkipTutorial: skipTutorial,
     onPlay: startGame,
     onHome: goHome,
@@ -269,6 +278,7 @@ function reset() {
 
 function retry() {
   if (!scene) return;
+  handleTerminalResult({ force: true });
   pointer?.cancel();
   scene.retry();
   syncPointerLock();
@@ -291,6 +301,7 @@ function nextPuzzle() {
 
 function advancePuzzle() {
   if (!scene) return;
+  handleTerminalResult({ force: true });
   pointer?.cancel();
   const advanced = scene.nextPuzzle();
   if (!advanced) { goHome(); return; }
@@ -306,6 +317,53 @@ function skipTutorial() {
   progress = { ...progress, unlockedCampaignLevel: Math.max(6, progress.unlockedCampaignLevel), ftue: { ...progress.ftue, seen: true, skipped: true } };
   persistProgress();
   pointer?.cancel();
+  syncPointerLock();
+  clearTiming();
+  renderScene(0);
+  renderUI();
+  scheduleFrame();
+}
+
+function useUndo() {
+  boosterNotice = null;
+  pointer?.cancel();
+  const result = scene?.undo();
+  if (!result?.accepted) return;
+  syncPointerLock();
+  clearTiming();
+  renderScene(0);
+  renderUI();
+  scheduleFrame();
+}
+
+function requestHint() {
+  pointer?.cancel();
+  const hint = scene?.requestHint();
+  boosterNotice = hint?.available ? 'Подсказка отмечает забег как забег с помощью.'
+    : hint?.reason === 'state-outside-solution' || hint?.reason === 'no-authored-solution' ? 'Для этого состояния нет проверенной подсказки.'
+      : hint?.reason === 'hint-already-used' ? 'Подсказка уже использована в этом забеге.' : 'Подсказка сейчас недоступна.';
+  renderUI();
+  return hint;
+}
+
+function applyHint() {
+  boosterNotice = null;
+  pointer?.cancel();
+  const result = scene?.applyHint();
+  if (!result?.accepted) return;
+  syncPointerLock();
+  clearTiming();
+  renderScene(0);
+  renderUI();
+  scheduleFrame();
+}
+
+function requestExtraMove() {
+  const result = scene?.requestExtraMove();
+  boosterNotice = result?.granted ? 'Получен один дополнительный ход тестовой наградой; забег отмечен как вспомогательный.'
+    : result?.reason === 'extra-move-unavailable' ? 'Дополнительный ход доступен только при оставшихся легальных ходах.'
+      : result?.reason === 'extra-move-already-used' ? 'Дополнительный ход уже использован в этом забеге.' : 'Тестовая награда недоступна.';
+  if (!result?.granted) { renderUI(); return; }
   syncPointerLock();
   clearTiming();
   renderScene(0);
@@ -428,6 +486,7 @@ function snapshot() {
     state: scene?.getSession().state ?? null,
     phase: scene?.getSession().phase ?? 'loading',
     moves: scene?.getSession().movesUsed ?? 0,
+    remainingMoves: scene?.getSession().remainingMoves ?? null,
     tutorial: scene?.getSession().tutorial ?? null,
     result: scene?.getSession().result ?? null,
     progress,

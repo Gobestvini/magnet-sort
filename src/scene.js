@@ -78,6 +78,30 @@ export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challeng
       }
       return result;
     },
+    undo() {
+      elapsed = 0;
+      resolution.cancel();
+      placementFeedback = null;
+      const result = session.undo();
+      if (result.accepted) {
+        interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null };
+        draw();
+      }
+      return result;
+    },
+    requestHint() { const hint = session.requestHint(); draw(); return hint; },
+    applyHint() {
+      const before = session.getState();
+      const result = session.applyHint();
+      if (result.accepted) {
+        resolution.start(before, result.events, { reducedMotion: Boolean(reducedMotion()) });
+        placementFeedback = { type: 'placed-magnet', cell: { ...result.events[0].cell }, color: result.events[0].color, progress: 0, duration: 0.16 };
+        interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null };
+        draw();
+      }
+      return result;
+    },
+    requestExtraMove() { const result = session.requestExtraMove(); if (result.granted) draw(); return result; },
     loadTestLevel(testLevel) { elapsed = 0; resolution.cancel(); placementFeedback = null; session.loadTestLevel(testLevel); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); },
     setInteraction(next) {
       interaction = {
@@ -115,6 +139,7 @@ export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challeng
       if (disposed) return;
       disposed = true;
       resolution.cancel();
+      session.dispose();
       placementFeedback = null;
       stage.removeChild(root);
       board.dispose();

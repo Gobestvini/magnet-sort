@@ -2,6 +2,7 @@ import { applyAction, createInitialState } from './simulator.js';
 import { campaignLevelIds, ftueLevelIds, loadCampaignLevel, loadFtueLevel, loadPrototypeLevel, prototypeLevelIds, validateLevelDefinition } from './levels.js';
 import { cloneState } from './state.js';
 import { createRunResult } from './scoring.js';
+import { BOOSTER_LIMITS, addOneMove, canAddExtraMove, createHintResolver, grantStandaloneTestReward } from './boosters.js';
 
 const DEFAULT_RESOLVE_SECONDS = 0.22;
 
@@ -11,7 +12,7 @@ function phaseForState(state) {
   return 'playing';
 }
 
-export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzzleId, dailyPuzzleId, dailyId, ftuePuzzleId, skipTutorial = false, resolveSeconds = DEFAULT_RESOLVE_SECONDS } = {}) {
+export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzzleId, dailyPuzzleId, dailyId, ftuePuzzleId, skipTutorial = false, resolveSeconds = DEFAULT_RESOLVE_SECONDS, grantReward = grantStandaloneTestReward } = {}) {
   const puzzleIds = prototypeLevelIds();
   const campaignIds = campaignLevelIds();
   const lessonIds = ftueLevelIds();
@@ -35,9 +36,17 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
   let runResult = null;
   let tutorialHintElapsed = 0;
   let tutorialHintDismissed = false;
+  let undoSnapshot = null;
+  let undoUsed = false;
+  let hintUsed = false;
+  let hintAction = null;
+  let extraMoveUsed = false;
+  let rewardProvider = 'standalone-test';
+  const hintResolver = createHintResolver();
 
   function installLevel(nextLevel) {
     try {
+      hintResolver.cancel();
       level = validateLevelDefinition(nextLevel);
       state = createInitialState(level);
       phase = phaseForState(state);
@@ -49,6 +58,12 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
       runResult = null;
       tutorialHintElapsed = 0;
       tutorialHintDismissed = false;
+      undoSnapshot = null;
+      undoUsed = false;
+      hintUsed = false;
+      hintAction = null;
+      extraMoveUsed = false;
+      rewardProvider = 'standalone-test';
       return true;
     } catch (caught) {
       level = null;
@@ -87,6 +102,8 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
       if (phase !== 'playing') return { accepted: false, reason: `session-${phase}`, state };
       const result = applyAction(state, action);
       if (!result.accepted) return result;
+      undoSnapshot = cloneState(state);
+      hintAction = null;
       tutorialHintDismissed = true;
       state = result.state;
       lastEvents = result.events.map((event) => structuredClone(event));
@@ -115,16 +132,66 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
       assistedFlags[flag] = true;
       return true;
     },
+    undo() {
+      if (!undoSnapshot || undoUsed || !['playing', 'lost'].includes(phase)) {
+        return { accepted: false, reason: 'undo-unavailable' };
+      }
+      state = cloneState(undoSnapshot);
+      undoSnapshot = null;
+      undoUsed = true;
+      hintAction = null;
+      assistedFlags.undo = true;
+      lastEvents = [];
+      resolveRemaining = 0;
+      runResult = null;
+      phase = phaseForState(state);
+      return { accepted: true, state: cloneState(state) };
+    },
+    requestHint() {
+      if (phase !== 'playing') return { available: false, reason: 'session-not-playing' };
+      if (hintUsed) return { available: false, reason: 'hint-already-used' };
+      const hint = hintResolver.request(level, state);
+      if (!hint.available) return hint;
+      hintUsed = true;
+      hintAction = structuredClone(hint.action);
+      assistedFlags.hint = true;
+      return { ...hint, action: structuredClone(hintAction) };
+    },
+    applyHint() {
+      if (!hintAction || phase !== 'playing') return { accepted: false, reason: 'no-active-hint', state };
+      return this.dispatch(structuredClone(hintAction));
+    },
+    requestExtraMove() {
+      if (extraMoveUsed) return { granted: false, reason: 'extra-move-already-used' };
+      if (!canAddExtraMove(state, phase)) return { granted: false, reason: 'extra-move-unavailable' };
+      let grant;
+      try { grant = grantReward('extraMove'); }
+      catch { return { granted: false, reason: 'grant-failed' }; }
+      if (!grant || grant.granted !== true) return { granted: false, reason: grant?.reason ?? 'grant-denied' };
+      const next = addOneMove(state);
+      if (!next) return { granted: false, reason: 'extra-move-unavailable' };
+      state = next;
+      extraMoveUsed = true;
+      rewardProvider = typeof grant.provider === 'string' ? grant.provider : 'unknown-provider';
+      assistedFlags.extraMove = true;
+      hintAction = null;
+      lastEvents = [];
+      runResult = null;
+      phase = 'playing';
+      return { granted: true, provider: rewardProvider, state: cloneState(state) };
+    },
     finishResolution() {
       if (phase !== 'resolving') return false;
       settleResolution();
       return true;
     },
     reset() {
+      hintResolver.cancel();
       if (!level) return loadCurrent();
       return installLevel(level);
     },
     retry() { return this.reset(); },
+    dispose() { hintResolver.dispose(); hintAction = null; undoSnapshot = null; },
     nextPuzzle() {
       if (route === 'ftue') {
         if (phase !== 'won') return false;
@@ -175,6 +242,7 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
       return loadCurrent();
     },
     loadTestLevel(testLevel) {
+      hintResolver.cancel();
       route = 'prototype';
       tutorialSkipped = true;
       return installLevel(testLevel);
@@ -198,6 +266,14 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
         resolveRemaining,
         activeTimeMs: Math.max(0, Math.round(activeTimeSeconds * 1000)),
         assistedFlags: { ...assistedFlags },
+        hintAction: hintAction ? structuredClone(hintAction) : null,
+        boosters: {
+          limits: { ...BOOSTER_LIMITS },
+          undoAvailable: Boolean(undoSnapshot) && !undoUsed && ['playing', 'lost'].includes(phase),
+          hintAvailable: !hintUsed && phase === 'playing',
+          extraMoveAvailable: !extraMoveUsed && canAddExtraMove(state, phase),
+          rewardProvider,
+        },
         result: runResult ? structuredClone(runResult) : null,
         tutorial: {
           active: route === 'ftue',

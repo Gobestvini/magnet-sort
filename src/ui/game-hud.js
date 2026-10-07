@@ -2,7 +2,7 @@ import { h } from 'preact';
 
 const COLOR_NAMES = { red: 'Красный', blue: 'Синий', yellow: 'Жёлтый', green: 'Зелёный' };
 
-export function GameHud({ session, interaction, ready, onChooseColor }) {
+export function GameHud({ session, interaction, ready, boosterNotice, onChooseColor, onUndo, onHint, onApplyHint, onExtraMove }) {
   if (!session) return null;
   const state = session.state;
   const remainingMass = state?.tokens.reduce((sum, token) => sum + token.mass, 0) ?? 0;
@@ -12,6 +12,7 @@ export function GameHud({ session, interaction, ready, onChooseColor }) {
   const movesText = session.remainingMoves === null
     ? `Ход ${session.movesUsed + 1} · без лимита`
     : `Ходы · ${session.remainingMoves} осталось`;
+  const boosters = session.boosters;
   return h('section', { className: 'game-hud', 'aria-label': 'Состояние уровня' },
     h('div', { className: 'hud-facts' },
       h('p', null, h('span', null, 'Цель'), h('strong', null, goalText)),
@@ -25,6 +26,15 @@ export function GameHud({ session, interaction, ready, onChooseColor }) {
         disabled: !ready || session.phase !== 'playing',
         onClick: () => onChooseColor?.(color),
       }, h('span', { className: 'magnet-swatch', 'aria-hidden': 'true' }), `${COLOR_NAMES[color] ?? color} магнит`))),
+    h('div', { className: 'booster-actions', 'aria-label': 'Помощь в забеге' },
+      boosters.undoAvailable && h('button', { type: 'button', onClick: onUndo, disabled: !ready }, 'Отменить ход'),
+      h('button', { type: 'button', onClick: onHint, disabled: !ready || !boosters.hintAvailable }, boosters.hintAvailable ? 'Подсказка' : 'Подсказка использована'),
+      boosters.extraMoveAvailable && h('button', { type: 'button', onClick: onExtraMove, disabled: !ready }, 'Ещё ход · тест')),
+    session.hintAction && h('div', { className: 'booster-hint', role: 'status', 'aria-live': 'polite' },
+      h('p', null, `Попробуй ${COLOR_NAMES[session.hintAction.color] ?? session.hintAction.color} магнит: столбец ${session.hintAction.cell.col + 1}, ряд ${session.hintAction.cell.row + 1}.`),
+      h('button', { type: 'button', onClick: onApplyHint, disabled: !ready || session.phase !== 'playing' }, 'Применить этот ход')),
+    boosterNotice && h('p', { className: 'booster-notice', role: 'status', 'aria-live': 'polite' }, boosterNotice),
+    h('p', { className: 'booster-provider-note' }, 'Дополнительный ход использует тестовую награду без рекламы.'),
     session.phase === 'resolving' && h('p', { className: 'turn-feedback', role: 'status', 'aria-live': 'polite' }, 'Магнит притягивает фишки…'),
     session.events.length > 0 && session.phase !== 'resolving' && h('p', { className: 'turn-feedback', role: 'status', 'aria-live': 'polite' }, summarizeEvents(session)));
 }

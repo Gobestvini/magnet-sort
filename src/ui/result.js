@@ -1,14 +1,17 @@
 import { h } from 'preact';
 import { challengeCardDataUrl, createChallengeCardSvg, isShareablePuzzle } from '../social/challenge.js';
 
-export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, onHome, level, challengeTarget, challengeComparison, shareStatus, onShareChallenge, isChallenge = false, isDaily = false, dailyId, nextLabel = 'Следующий уровень', allowNextOnLoss = true }) {
+export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, onHome, level, challengeTarget, challengeComparison, shareStatus, boosterNotice, boosters, onUndo, onExtraMove, onShareChallenge, isChallenge = false, isDaily = false, dailyId, nextLabel = 'Следующий уровень', allowNextOnLoss = true }) {
   if (!result) return null;
   const won = result.outcome === 'win';
   const duration = formatDuration(result.activeTimeMs);
   const shareable = Boolean(level && isShareablePuzzle(level.puzzleId));
   const cardSvg = shareable ? createChallengeCardSvg(level, result) : null;
-  const challengeText = challengeComparison > 0 ? 'Ты побил результат соперника.'
-    : challengeComparison === 0 ? 'Ничья по результату.' : 'Результат соперника выше.';
+  const challengeComparable = result.eligibleForChallenge && challengeTarget?.eligibleForChallenge;
+  const challengeText = !challengeComparable ? 'Сравнение доступно только для забегов без помощи.'
+    : challengeComparison > 0 ? 'Ты побил результат соперника.'
+      : challengeComparison === 0 ? 'Ничья по результату.'
+        : challengeComparison === null ? 'Результаты нельзя сравнить по правилам этой версии.' : 'Результат соперника выше.';
   return h('section', {
     className: `result-card result-card-${won ? 'win' : 'loss'}`,
     'aria-label': 'Результат уровня',
@@ -31,10 +34,14 @@ export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, onHo
       ? h('button', { type: 'button', className: 'result-primary', onClick: isChallenge ? onShareChallenge : onNextPuzzle }, isChallenge ? 'Ответить вызовом' : nextLabel)
       : h('button', { type: 'button', className: 'result-primary', onClick: onRetry }, 'Попробовать ещё раз'),
     won && h('button', { type: 'button', className: 'result-secondary', onClick: onRetry }, 'Повторить уровень'),
+    boosters?.undoAvailable && h('button', { type: 'button', className: 'result-secondary', onClick: onUndo }, 'Отменить последний ход'),
+    boosters?.extraMoveAvailable && h('button', { type: 'button', className: 'result-secondary', onClick: onExtraMove }, 'Ещё ход · тестовая награда'),
     !won && allowNextOnLoss
       ? h('button', { type: 'button', className: 'result-secondary', onClick: onNextPuzzle }, 'Следующий уровень')
       : null,
     h('button', { type: 'button', className: 'result-secondary', onClick: onHome }, 'Домой')),
+  boosterNotice && h('p', { className: 'booster-notice', role: 'status', 'aria-live': 'polite' }, boosterNotice),
+  boosters?.extraMoveAvailable && h('p', { className: 'booster-provider-note' }, 'Это тестовая награда без рекламы; просмотр рекламы не заявляется.'),
   shareable && h('section', { className: 'challenge-result', 'aria-label': 'Результат вызова' },
     challengeTarget && h('p', { className: 'challenge-result-comparison', role: 'status', 'aria-live': 'polite' }, challengeText),
     challengeTarget && h('p', { className: 'challenge-unverified' }, 'Счёт соперника хранится в ссылке и не проверен сервером.'),

@@ -31,6 +31,11 @@ button { font: inherit; }
 .home-daily .eyebrow { color: #8b715d; font-size: .72rem; font-weight: 800; letter-spacing: .08em; }
 .home-daily-best { color: #34313a !important; font-weight: 700; }
 .daily-run-label { margin: -4px 0 10px; color: #8b715d; font-size: .82rem; }
+.booster-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.booster-actions button, .booster-hint button, .result-actions .result-secondary { min-height: 42px; }
+.booster-hint { margin-top: 10px; padding: 10px 12px; border: 1px solid #e2bd80; border-radius: 14px; background: #fff7e8; }
+.booster-hint p, .booster-notice, .booster-provider-note { margin: 6px 0; color: #72614a; font-size: .84rem; line-height: 1.45; }
+.booster-provider-note { color: #89838a; font-size: .75rem; }
 .home-setting { display: flex; align-items: center; gap: 9px; color: #6f6d75; font-size: 0.88rem; }
 .home-setting input { width: 18px; height: 18px; accent-color: #5388d8; }
 .home-footer { font-size: 0.78rem; }
