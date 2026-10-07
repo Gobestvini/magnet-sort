@@ -1,8 +1,9 @@
 import { h } from 'preact';
 import { GameHud } from './game-hud.js';
+import { ResultCard } from './result.js';
 
 export function App({ paused, ready, initializing, error, status, session, interaction, surfaceRef, canvasRef, onTogglePause, onReset, onRetry, onRetryRenderer, onNextPuzzle, onChooseColor }) {
-  return h('main', { className: 'app-shell' },
+  return h('main', { className: `app-shell${session?.result ? ' app-shell-result' : ''}` },
     h('header', { className: 'app-header' },
       h('div', null,
         h('p', { className: 'eyebrow' }, 'Короткая головоломка'),
@@ -22,16 +23,14 @@ export function App({ paused, ready, initializing, error, status, session, inter
       h('aside', { className: 'game-controls', 'aria-label': 'Управление игрой' },
         h('p', { className: 'control-label' }, 'Сессия'),
         h('p', { id: 'status', role: 'status', 'aria-live': 'polite' }, status),
-        h(GameHud, { session, interaction, ready, onChooseColor }),
-        h('div', { className: 'controls' },
+        !session?.result && h(GameHud, { session, interaction, ready, onChooseColor }),
+        h(ResultCard, { result: session?.result, chainLinks: session?.state?.chainLinks ?? 0, onRetry, onNextPuzzle }),
+        !session?.result && h('div', { className: 'controls' },
           h('button', {
             id: 'pause', type: 'button', onClick: onTogglePause,
             disabled: !ready, 'aria-pressed': paused,
           }, paused ? 'Продолжить' : 'Пауза'),
           h('button', { id: 'reset', type: 'button', onClick: onReset, disabled: !ready }, 'Сброс')),
-        session && ['won', 'lost', 'error'].includes(session.phase) && h('div', { className: 'result-controls' },
-          h('button', { type: 'button', onClick: onRetry, disabled: !ready }, 'Повторить уровень'),
-          h('button', { type: 'button', className: 'next-puzzle', onClick: onNextPuzzle, disabled: !ready }, 'Следующий уровень')),
         h('p', { className: 'helper-text' }, session?.phase === 'won' || session?.phase === 'lost'
           ? 'Можно повторить этот уровень или перейти к следующему.'
           : interaction?.selectedColor

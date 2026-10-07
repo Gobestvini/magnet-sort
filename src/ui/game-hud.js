@@ -12,10 +12,6 @@ export function GameHud({ session, interaction, ready, onChooseColor }) {
   const movesText = session.remainingMoves === null
     ? `Ход ${session.movesUsed + 1} · без лимита`
     : `Ходы · ${session.remainingMoves} осталось`;
-  const outcome = session.phase === 'won' ? 'Победа! Уровень пройден.'
-    : session.phase === 'lost' ? 'Поражение. Попробуй ещё раз.'
-      : session.phase === 'error' ? 'Не удалось загрузить уровень.' : null;
-
   return h('section', { className: 'game-hud', 'aria-label': 'Состояние уровня' },
     h('div', { className: 'hud-facts' },
       h('p', null, h('span', null, 'Цель'), h('strong', null, goalText)),
@@ -30,8 +26,7 @@ export function GameHud({ session, interaction, ready, onChooseColor }) {
         onClick: () => onChooseColor?.(color),
       }, h('span', { className: 'magnet-swatch', 'aria-hidden': 'true' }), `${COLOR_NAMES[color] ?? color} магнит`))),
     session.phase === 'resolving' && h('p', { className: 'turn-feedback', role: 'status', 'aria-live': 'polite' }, 'Магнит притягивает фишки…'),
-    session.events.length > 0 && session.phase !== 'resolving' && h('p', { className: 'turn-feedback', role: 'status', 'aria-live': 'polite' }, summarizeEvents(session)),
-    outcome && h('div', { className: `run-result run-result-${session.phase}`, role: 'status', 'aria-live': 'polite' }, outcome));
+    session.events.length > 0 && session.phase !== 'resolving' && h('p', { className: 'turn-feedback', role: 'status', 'aria-live': 'polite' }, summarizeEvents(session)));
 }
 
 function summarizeEvents(session) {

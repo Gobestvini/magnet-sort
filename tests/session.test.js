@@ -75,3 +75,22 @@ test('invalid level data enters recoverable error phase', () => {
   assert.equal(session.retry(), true);
   assert.equal(session.snapshot().phase, 'playing');
 });
+
+test('session finalizes one immutable scored result and resets assisted flags and active time', () => {
+  const session = createSession();
+  assert.equal(session.markAssisted('hint'), true);
+  session.advanceActiveTime(0.4);
+  session.dispatch({ type: 'placeMagnet', color: 'red', cell: { col: 3, row: 3 } });
+  session.advanceActiveTime(0.1);
+  assert.equal(session.finishResolution(), true);
+  const result = session.snapshot().result;
+  assert.equal(result.outcome, 'win');
+  assert.equal(result.movesUsed, 1);
+  assert.equal(result.eligibleForChallenge, false);
+  assert.equal(result.activeTimeMs, 500);
+  assert.equal(session.finishResolution(), false);
+  session.retry();
+  assert.equal(session.snapshot().result, null);
+  assert.equal(session.snapshot().activeTimeMs, 0);
+  assert.deepEqual(session.snapshot().assistedFlags, {});
+});

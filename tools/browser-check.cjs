@@ -60,6 +60,7 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       const moving = await page.evaluate(() => window.gameDebug.snapshot());
       assert.equal(moving.phase, 'resolving');
       assert.equal(moving.animation.active, true);
+      assert.equal(moving.result, null);
       assert.equal(moving.animation.tokens.length, initialState.tokens.length);
       const blockedDuringResolve = await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 4, row: 4 } }));
       assert.equal(blockedDuringResolve.accepted, false);
@@ -72,6 +73,22 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       assert.equal(won.state.terminal.outcome, 'win');
       assert.equal(won.moves, 1);
       assert.equal(won.state.tokens.length, 0);
+      assert.deepEqual(won.result && {
+        score: won.result.score, movesUsed: won.result.movesUsed, clearPercent: won.result.clearPercent,
+        activeTimeMs: won.result.activeTimeMs, outcome: won.result.outcome,
+      }, { score: 500, movesUsed: 1, clearPercent: 100, activeTimeMs: won.result.activeTimeMs, outcome: 'win' });
+      assert.ok(won.result.activeTimeMs > 0);
+      const resultText = await page.locator('.result-card').innerText();
+      assert.match(resultText, /500 очков/);
+      assert.match(resultText, /100%/);
+      assert.match(resultText, /Цепочки/);
+      assert.deepEqual(await page.locator('.result-actions button').allTextContents(), ['Следующий уровень', 'Повторить уровень']);
+      await page.screenshot({ path: `artifacts/screenshots/${name}-result.png` });
+      const resultViewport = await page.locator('.result-card').evaluate((card) => ({
+        bottom: card.getBoundingClientRect().bottom, height: card.getBoundingClientRect().height,
+        innerHeight, scrollY, shellHeight: document.querySelector('.app-shell').getBoundingClientRect().height,
+      }));
+      assert.ok(resultViewport.bottom <= resultViewport.innerHeight, JSON.stringify(resultViewport));
       assert.match(await page.locator('#status').innerText(), /пройден/);
       for (const location of [inputPoints.blocked, inputPoints.occupied, inputPoints.outside]) {
         if (touch) await page.touchscreen.tap(location.x, location.y);
@@ -82,6 +99,8 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       const retried = await page.evaluate(() => window.gameDebug.snapshot());
       assert.equal(retried.phase, 'playing');
       assert.equal(retried.puzzleId, won.puzzleId);
+      assert.equal(retried.result, null);
+      assert.equal(retried.activeTimeMs, 0);
       assert.deepEqual(retried.state.tokens, initialState.tokens);
       if (!touch) {
         await page.mouse.move(inputPoints.tray.x, inputPoints.tray.y);
@@ -122,7 +141,9 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       else await page.locator('#pause').evaluate((button) => button.click());
       const frozenAnimation = await page.evaluate(() => window.gameDebug.snapshot());
       await page.waitForTimeout(150);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).animation.progress, frozenAnimation.animation.progress);
+      const stillPaused = await page.evaluate(() => window.gameDebug.snapshot());
+      assert.equal(stillPaused.animation.progress, frozenAnimation.animation.progress);
+      assert.equal(stillPaused.activeTimeMs, frozenAnimation.activeTimeMs);
       if (touch) await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
       else await page.locator('#pause').evaluate((button) => button.click());
       await page.getByRole('button', { name: 'Сброс', exact: true }).click();
@@ -144,7 +165,11 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       const lost = await page.evaluate(() => window.gameDebug.snapshot());
       assert.equal(lost.state.terminal.reason, 'move-limit');
       assert.equal(lost.moves, 1);
-      await page.getByRole('button', { name: 'Повторить уровень' }).click();
+      assert.equal(lost.result.outcome, 'loss');
+      assert.equal(lost.result.clearPercent, 0);
+      assert.match(await page.locator('.result-card').innerText(), /Цель не достигнута/);
+      assert.deepEqual(await page.locator('.result-actions button').allTextContents(), ['Попробовать ещё раз', 'Следующий уровень']);
+      await page.getByRole('button', { name: 'Попробовать ещё раз' }).click();
       assert.equal(await page.evaluate(() => window.gameDebug.snapshot().phase), 'playing');
       assert.equal(await page.evaluate(() => window.gameDebug.snapshot().puzzleId), 'browser-loss-fixture');
       await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 6, row: 6 } }));

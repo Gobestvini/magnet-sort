@@ -1,6 +1,7 @@
 import { applyAction, createInitialState } from './simulator.js';
 import { loadPrototypeLevel, prototypeLevelIds, validateLevelDefinition } from './levels.js';
 import { cloneState } from './state.js';
+import { createRunResult } from './scoring.js';
 
 const DEFAULT_RESOLVE_SECONDS = 0.22;
 
@@ -19,6 +20,9 @@ export function createSession({ initialPuzzleId = 'prototype-03-blocker', resolv
   let error = null;
   let lastEvents = [];
   let resolveRemaining = 0;
+  let activeTimeSeconds = 0;
+  let assistedFlags = {};
+  let runResult = null;
 
   function installLevel(nextLevel) {
     try {
@@ -28,6 +32,9 @@ export function createSession({ initialPuzzleId = 'prototype-03-blocker', resolv
       error = null;
       lastEvents = [];
       resolveRemaining = 0;
+      activeTimeSeconds = 0;
+      assistedFlags = {};
+      runResult = null;
       return true;
     } catch (caught) {
       level = null;
@@ -47,6 +54,9 @@ export function createSession({ initialPuzzleId = 'prototype-03-blocker', resolv
   function settleResolution() {
     resolveRemaining = 0;
     phase = phaseForState(state);
+    if (phase === 'won' || phase === 'lost') {
+      runResult ??= createRunResult(state, activeTimeSeconds * 1000, assistedFlags);
+    }
   }
 
   loadCurrent();
@@ -67,8 +77,19 @@ export function createSession({ initialPuzzleId = 'prototype-03-blocker', resolv
     },
     update(dt) {
       if (phase !== 'resolving' || !Number.isFinite(dt) || dt <= 0) return false;
+      activeTimeSeconds += dt;
       resolveRemaining = Math.max(0, resolveRemaining - dt);
       if (resolveRemaining === 0) settleResolution();
+      return true;
+    },
+    advanceActiveTime(dt) {
+      if (!['playing', 'resolving'].includes(phase) || !Number.isFinite(dt) || dt <= 0) return false;
+      activeTimeSeconds += dt;
+      return true;
+    },
+    markAssisted(flag) {
+      if (!['playing', 'resolving'].includes(phase) || typeof flag !== 'string' || !flag.trim()) return false;
+      assistedFlags[flag] = true;
       return true;
     },
     finishResolution() {
@@ -99,6 +120,9 @@ export function createSession({ initialPuzzleId = 'prototype-03-blocker', resolv
         availableColors: state ? [...state.selectedMagnetOptions] : [],
         events: lastEvents.map((event) => structuredClone(event)),
         resolveRemaining,
+        activeTimeMs: Math.max(0, Math.round(activeTimeSeconds * 1000)),
+        assistedFlags: { ...assistedFlags },
+        result: runResult ? structuredClone(runResult) : null,
       };
     },
   };

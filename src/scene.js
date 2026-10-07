@@ -40,6 +40,7 @@ export function createScene(stage, { initialPuzzleId, reducedMotion = () => fals
     update(dt) {
       if (disposed) return false;
       elapsed += dt;
+      session.advanceActiveTime(dt);
       const previousPhase = session.snapshot().phase;
       const animation = resolution.snapshot();
       if (animation.active) resolution.update(dt);
