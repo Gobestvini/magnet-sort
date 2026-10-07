@@ -1,6 +1,6 @@
 # TASK-0020: Подключить Instant Games и доступные социальные функции
 
-- Статус: draft
+- Статус: done (с waiver реального Instant Games test context по разрешению пользователя)
 - Приоритет: normal
 - Создана: 2026-10-07
 - Обновлена: 2026-10-07
@@ -94,11 +94,11 @@
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки и устройства: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: —
-- Commit/push либо причина отсутствия: —
-- Итоговый статус и дата: —
+- Результат: подключён feature-detected Instant Games adapter с изолированным standalone fallback; игровой цикл не зависит от доступности SDK.
+- Изменённые файлы и зачем: `src/platform/facebook.js` — bounded SDK calls, API allowlist, безопасная обработка init/start, challenge/daily entry, share, unverified leaderboard, ads surface и pause cleanup; `src/platform/standalone.js` — локальный fallback; `src/main.js` — runtime lifecycle, entry, share и snapshot; `tests/platform.test.js` — adapter mocks; `docs/design/PLATFORM_CONTRACT.md`, `docs/PROJECT.md`, `docs/tasks/INDEX.md` и этот отчёт — фактическая граница интеграции.
+- Команды и фактические результаты: `pnpm test` — 115/115 passed; `pnpm test:browser` — desktop/mobile layout, pause/reset, input and runtime errors passed; `pnpm check:full` — tests and build passed; `git diff --check` — passed.
+- Ручные проверки и устройства: Playwright browser surrogate, включая мобильные viewport сценарии. Реальный телефон и Meta Instant Games test app/context не запускались.
+- Выполненные критерии: feature checks, init/start, loader progress, validated challenge/daily entry, explicit challenge share with existing Web fallback, standalone availability, timeout/rejection handling, pause listener cleanup, no trusted-score claim.
+- Непроверенное, блокеры и отклонения от плана: по прямому разрешению пользователя реальные app/dashboard/test-context проверки waived. Нет appId/access, board ID/trust policy и ad placement. Adapter mocks не являются evidence работы в Meta; friend ranking остаётся выключен в UI; ads не активированы; внешний upload/publishing не выполнялся.
+- Commit/push либо причина отсутствия: выполняется после проверки этого отчёта.
+- Итоговый статус и дата: done с явно ограниченным evidence, 2026-10-07.

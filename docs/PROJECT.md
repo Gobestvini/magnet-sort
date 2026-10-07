@@ -19,6 +19,8 @@
 | src/game/boosters.js | One-per-run booster policy, bounded authored-solution hint resolver, extra-move eligibility and standalone test grant provider |
 | src/game/progress.js | Versioned local progress, best/completed runs, FTUE/campaign unlocks, safe storage fallback and settings |
 | src/analytics/events.js | Allowlisted funnel event schema, bounded development collector, disabled injectable sink and verified rewarded completion gate |
+| src/platform/facebook.js | Feature-detected Instant Games adapter for validated entry data, explicit share, pause lifecycle, unverified leaderboard rows and bounded optional ads calls |
+| src/platform/standalone.js | No-op platform lifecycle and explicit unsupported responses for remote-only features |
 | src/audio/feedback.js | Gesture-started synthesized Web Audio cues, event dedupe/order, optional Vibration API, mute/pause/hidden/dispose lifecycle |
 | src/social/challenge.js | Versioned challenge links, bounded/safe URL decoding, frozen puzzle resolution, explicit Web Share/clipboard fallback and local SVG result card |
 | src/social/daily.js | UTC dailyId and versioned deterministic rotation across reviewed frozen campaign puzzles |
@@ -39,6 +41,7 @@
 | tests/boosters.test.js | Full-state Undo, bounded legal hints, cancellation, grant provider, assisted flags and extra-move eligibility |
 | tests/audio-feedback.test.js | Audio unlock timing, cue order/deduplication, bounded voices, settings, unsupported API and cleanup |
 | tests/analytics.test.js | Event schemas/dedupe, payload privacy, bounded collection, async sink failures and rewarded completion validation |
+| tests/platform.test.js | Standalone and Instant Games adapter capability, lifecycle, validation, fallback, timeout, share, leaderboard and ad-completion behavior |
 | tests/daily.test.js | UTC date identity, deterministic frozen daily mapping, active-run continuity across midnight, and rotation bounds |
 | tests/progress.test.js | Storage fallback, v1→v2 migration, per-day best/assisted result, comparator, FTUE progression and settings |
 | tests/challenge.test.js | Challenge URL safety/versioning, frozen board/session, result comparator, card, and share fallback |

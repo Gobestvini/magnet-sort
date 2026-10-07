@@ -8,10 +8,12 @@ import { createPixiApplication } from './render/application.js';
 import { campaignLevelIds, ftueLevelIds } from './game/levels.js';
 import { loadProgress, recordDailyRunResult, recordRunResult, saveProgress, setProgressSetting } from './game/progress.js';
 import { compareRunResults } from './game/scoring.js';
-import { createChallengeCardSvg, createChallengeUrl, parseChallengeUrl, shareChallenge } from './social/challenge.js';
+import { createChallengeCardSvg, createChallengePayload, createChallengeUrl, encodeChallengePayload, parseChallengeUrl, shareChallenge } from './social/challenge.js';
 import { getDailyPuzzle } from './social/daily.js';
 import { createAudioFeedback } from './audio/feedback.js';
 import { createAnalytics } from './analytics/events.js';
+import { createFacebookInstantGamesAdapter } from './platform/facebook.js';
+import { createStandalonePlatform } from './platform/standalone.js';
 import { App } from './ui/App.js';
 
 const uiRoot = document.querySelector('#ui-root');
@@ -50,6 +52,12 @@ let activeRunId = null;
 let ftueFlowId = null;
 let ftueStarted = false;
 let challengeOpened = false;
+let platformDaily = null;
+const platform = window.FBInstant
+  ? createFacebookInstantGamesAdapter({ sdk: window.FBInstant })
+  : createStandalonePlatform();
+const platformInitialization = platform.initialize();
+let removePlatformPauseListener = null;
 const feedback = createAudioFeedback({
   AudioContext: window.AudioContext ?? window.webkitAudioContext,
   navigator: window.navigator,
@@ -139,7 +147,7 @@ function startGame({ daily = null } = {}) {
 }
 
 function startDaily() {
-  startGame({ daily: getDailyPuzzle() });
+  startGame({ daily: platformDaily ?? getDailyPuzzle() });
 }
 
 function goHome() {
@@ -205,7 +213,16 @@ async function shareCurrentChallenge() {
     const url = createChallengeUrl(level, session.result, window.location.href);
     analytics.track('challenge_created', payload);
     const cardSvg = createChallengeCardSvg(level, session.result);
-    const outcome = await shareChallenge({ url, cardSvg }, { navigator: window.navigator, clipboard: window.navigator.clipboard, File: window.File });
+    const encodedChallenge = encodeChallengePayload(createChallengePayload(level, session.result));
+    let outcome;
+    if (platform.snapshot().kind === 'facebook-instant-games' && platform.snapshot().started) {
+      const result = await platform.shareResult({ text: 'Сможешь побить мой результат?', encodedChallenge });
+      outcome = result.status === 'ok'
+        ? { status: 'shared' }
+        : await shareChallenge({ url, cardSvg }, { navigator: window.navigator, clipboard: window.navigator.clipboard, File: window.File });
+    } else {
+      outcome = await shareChallenge({ url, cardSvg }, { navigator: window.navigator, clipboard: window.navigator.clipboard, File: window.File });
+    }
     shareStatus = outcome.status === 'shared' ? 'Вызов отправлен в меню «Поделиться».'
       : outcome.status === 'copied' ? 'Ссылка скопирована.'
         : outcome.status === 'cancelled' ? 'Отправка отменена.'
@@ -271,7 +288,7 @@ function renderUI() {
   render(h(App, {
     screen,
     progress,
-    daily: getDailyPuzzle(),
+    daily: platformDaily ?? getDailyPuzzle(),
     challenge,
     challengeError,
     challengeComparison: currentSession?.result && challenge && currentSession.result.eligibleForChallenge && challenge.challengerResult.eligibleForChallenge
@@ -549,6 +566,8 @@ async function initialize() {
         }
       },
     });
+    removePlatformPauseListener = platform.onPause?.((value) => setPaused(value)) ?? null;
+    void initializePlatform(attempt);
     pointer.setLocked(paused || document.hidden);
     scene.resize(gameHost.clientWidth, gameHost.clientHeight);
     resize();
@@ -575,6 +594,37 @@ async function initialize() {
   }
 }
 
+async function initializePlatform(attempt) {
+  try {
+    const initialized = await platformInitialization;
+    if (disposed || attempt !== initAttempt || initialized.status !== 'ok') return;
+    const started = await platform.start();
+    if (disposed || attempt !== initAttempt || started.status !== 'ok') return;
+    const entry = await platform.getEntry();
+    if (disposed || attempt !== initAttempt || entry.status !== 'ok') return;
+    if (entry.value?.kind === 'daily') {
+      platformDaily = entry.value.data;
+      renderUI();
+      return;
+    }
+    // Do not replace a run if entry data arrives after the player started.
+    if (entry.value?.kind !== 'challenge' || challenge || screen !== 'home' || !scene) return;
+    challenge = entry.value.data;
+    screen = 'challenge';
+    scene.startChallenge(challenge.puzzleId);
+    challengeOpened = true;
+    activeRunId = analytics.createId('run');
+    analytics.track('challenge_opened', analyticsContext(scene.getSession()));
+    pointer?.cancel();
+    syncPointerLock();
+    clearTiming();
+    renderUI();
+    renderScene(0);
+  } catch {
+    // Platform startup is optional and must not interrupt standalone play.
+  }
+}
+
 renderUI();
 window.addEventListener('resize', resize);
 window.addEventListener('blur', handleBlur);
@@ -597,6 +647,7 @@ function snapshot() {
     progress,
     feedback: feedback.snapshot(),
     analytics: analytics.snapshot(),
+    platform: platform.snapshot(),
     screen,
     challenge: scene?.getSession().challenge ?? false,
     daily: scene?.getSession().daily ?? false,
@@ -622,6 +673,9 @@ function dispose() {
   clearTiming();
   pointer?.dispose();
   pointer = null;
+  removePlatformPauseListener?.();
+  removePlatformPauseListener = null;
+  platform.dispose();
   observer?.disconnect();
   window.removeEventListener('resize', resize);
   window.removeEventListener('blur', handleBlur);
