@@ -7,7 +7,7 @@ export function createInitialState(levelDefinition) {
   const remainingMoves = level.moveLimit;
   const state = {
     schemaVersion: 1,
-    rulesVersion: 1,
+    rulesVersion: level.rulesVersion,
     puzzleId: level.puzzleId,
     contentVersion: level.contentVersion,
     seed: level.seed,
@@ -18,6 +18,7 @@ export function createInitialState(levelDefinition) {
     magnetSchedule: level.magnetSchedule.map((entry) => ({ options: [...entry.options] })),
     tokens,
     blockedCells: level.blockedCells.map((cell) => ({ ...cell })),
+    crates: level.crates.map((cell) => ({ ...cell })),
     goal: { ...level.goal },
     clearedMass: 0,
     initialMass: tokens.reduce((sum, token) => sum + token.mass, 0),
@@ -37,16 +38,17 @@ export function cloneState(state) {
     magnetSchedule: state.magnetSchedule.map((entry) => ({ options: [...entry.options] })),
     tokens: state.tokens.map(cloneToken),
     blockedCells: state.blockedCells.map((cell) => ({ ...cell })),
+    crates: (state.crates ?? []).map((cell) => ({ ...cell })),
     goal: { ...state.goal },
     terminal: state.terminal ? { ...state.terminal } : null,
   };
 }
 
 export function assertSupportedState(state) {
-  if (!state || typeof state !== 'object' || state.schemaVersion !== 1 || state.rulesVersion !== 1) {
+  if (!state || typeof state !== 'object' || state.schemaVersion !== 1 || ![1, 2].includes(state.rulesVersion)) {
     throw new TypeError('GameState.schemaVersion/rulesVersion: unsupported game state');
   }
-  if (!Array.isArray(state.tokens) || !Array.isArray(state.blockedCells) || !Array.isArray(state.selectedMagnetOptions)
+  if (!Array.isArray(state.tokens) || !Array.isArray(state.blockedCells) || (state.crates !== undefined && !Array.isArray(state.crates)) || !Array.isArray(state.selectedMagnetOptions)
     || !Number.isInteger(state.turn) || state.turn < 0 || !Number.isInteger(state.clearedMass) || state.clearedMass < 0) {
     throw new TypeError(`GameState ${String(state.puzzleId)}: malformed state`);
   }
@@ -55,7 +57,7 @@ export function assertSupportedState(state) {
 
 export function hasLegalPlacement(state) {
   if (state.selectedMagnetOptions.length === 0) return false;
-  const cells = allCells({ blockedCells: state.blockedCells, tokens: state.tokens });
+  const cells = allCells({ blockedCells: state.blockedCells, crates: state.crates ?? [], tokens: state.tokens });
   return cells.some((entry) => entry.kind === 'empty');
 }
 

@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "puzzleId": "campaign-31",
+  "campaignNumber": 31,
+  "seed": "magnet-campaign-v1-31",
+  "contentVersion": 1,
+  "geometry": {
+    "kind": "odd-r",
+    "rows": 7,
+    "cols": 7
+  },
+  "colors": [
+    "red",
+    "blue",
+    "yellow",
+    "green"
+  ],
+  "blockedCells": [
+    {
+      "col": 3,
+      "row": 6
+    }
+  ],
+  "crates": [],
+  "tokens": [
+    {
+      "tokenId": "green-pair-a",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 1,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "green-pair-b",
+      "color": "green",
+      "mass": 3,
+      "cell": {
+        "col": 3,
+        "row": 4
+      }
+    }
+  ],
+  "goal": {
+    "kind": "clearAll"
+  },
+  "moveLimit": 12,
+  "magnetSchedule": [
+    {
+      "options": [
+        "green",
+        "red"
+      ]
+    }
+  ],
+  "mode": "campaign",
+  "solution": {
+    "actions": [
+      {
+        "type": "placeMagnet",
+        "color": "green",
+        "cell": {
+          "col": 4,
+          "row": 4
+        }
+      }
+    ],
+    "expected": {
+      "outcome": "win",
+      "clearedMass": 5,
+      "movesUsed": 1
+    }
+  },
+  "design": {
+    "band": "magnet-choice",
+    "concept": "Уровень 31: Выбери правильный цвет среди двух.",
+    "aha": "Поставь магнит за стеком 3: стек 2 сделает один шаг, соединится и очистит массу 5."
+  }
+}

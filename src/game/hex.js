@@ -50,8 +50,9 @@ export function hexDistance(first, second) {
   return (Math.abs(dq) + Math.abs(dr) + Math.abs(dq + dr)) / 2;
 }
 
-export function allCells({ blockedCells = [], tokens = [] } = {}) {
+export function allCells({ blockedCells = [], crates = [], tokens = [] } = {}) {
   const blocked = new Set(blockedCells.map(cellId));
+  const crated = new Set(crates.map(cellId));
   const tokenAt = new Map(tokens.map((token) => [cellId(token.cell), token]));
   return Array.from({ length: ROWS * COLS }, (_, index) => {
     const cell = { col: index % COLS, row: Math.floor(index / COLS) };
@@ -60,7 +61,7 @@ export function allCells({ blockedCells = [], tokens = [] } = {}) {
     return {
       cell,
       cellId: id,
-      kind: blocked.has(id) ? 'blocked' : token ? 'token' : 'empty',
+      kind: blocked.has(id) ? 'blocked' : crated.has(id) ? 'crate' : token ? 'token' : 'empty',
       ...(token ? { tokenId: token.tokenId } : {}),
     };
   });

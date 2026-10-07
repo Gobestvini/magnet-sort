@@ -102,7 +102,7 @@ test('invalid actions and unsupported state versions cannot mutate state or cons
     assert.equal(result.state, state);
     assert.equal(canonicalStringify(state), before);
   }
-  assert.throws(() => applyAction({ ...state, rulesVersion: 2 }, { type: 'placeMagnet', color: 'red', cell: { col: 3, row: 3 } }), /unsupported game state/);
+  assert.throws(() => applyAction({ ...state, rulesVersion: 3 }, { type: 'placeMagnet', color: 'red', cell: { col: 3, row: 3 } }), /unsupported game state/);
 });
 
 test('terminal states reject further placements without changing the terminal result', () => {

@@ -39,6 +39,7 @@ export function createPointerController(target, { getLayout, getLevel, getState,
     if (!options.includes(color)) return 'unavailableColor';
     const id = cellId(cell);
     if (level.blockedCells.some((blocked) => cellId(blocked) === id)) return 'blocked';
+    if (level.crates?.some((crate) => cellId(crate) === id)) return 'crated';
     if (getState().tokens.some((token) => cellId(token.cell) === id)) return 'occupied';
     return null;
   }

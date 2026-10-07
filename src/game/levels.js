@@ -6,6 +6,51 @@ import ftue02 from '../levels/ftue/ftue-02-pull.json' with { type: 'json' };
 import ftue03 from '../levels/ftue/ftue-03-merge.json' with { type: 'json' };
 import ftue04 from '../levels/ftue/ftue-04-color-choice.json' with { type: 'json' };
 import ftue05 from '../levels/ftue/ftue-05-chain.json' with { type: 'json' };
+import campaign06 from '../levels/campaign/campaign-06.json' with { type: 'json' };
+import campaign07 from '../levels/campaign/campaign-07.json' with { type: 'json' };
+import campaign08 from '../levels/campaign/campaign-08.json' with { type: 'json' };
+import campaign09 from '../levels/campaign/campaign-09.json' with { type: 'json' };
+import campaign10 from '../levels/campaign/campaign-10.json' with { type: 'json' };
+import campaign11 from '../levels/campaign/campaign-11.json' with { type: 'json' };
+import campaign12 from '../levels/campaign/campaign-12.json' with { type: 'json' };
+import campaign13 from '../levels/campaign/campaign-13.json' with { type: 'json' };
+import campaign14 from '../levels/campaign/campaign-14.json' with { type: 'json' };
+import campaign15 from '../levels/campaign/campaign-15.json' with { type: 'json' };
+import campaign16 from '../levels/campaign/campaign-16.json' with { type: 'json' };
+import campaign17 from '../levels/campaign/campaign-17.json' with { type: 'json' };
+import campaign18 from '../levels/campaign/campaign-18.json' with { type: 'json' };
+import campaign19 from '../levels/campaign/campaign-19.json' with { type: 'json' };
+import campaign20 from '../levels/campaign/campaign-20.json' with { type: 'json' };
+import campaign21 from '../levels/campaign/campaign-21.json' with { type: 'json' };
+import campaign22 from '../levels/campaign/campaign-22.json' with { type: 'json' };
+import campaign23 from '../levels/campaign/campaign-23.json' with { type: 'json' };
+import campaign24 from '../levels/campaign/campaign-24.json' with { type: 'json' };
+import campaign25 from '../levels/campaign/campaign-25.json' with { type: 'json' };
+import campaign26 from '../levels/campaign/campaign-26.json' with { type: 'json' };
+import campaign27 from '../levels/campaign/campaign-27.json' with { type: 'json' };
+import campaign28 from '../levels/campaign/campaign-28.json' with { type: 'json' };
+import campaign29 from '../levels/campaign/campaign-29.json' with { type: 'json' };
+import campaign30 from '../levels/campaign/campaign-30.json' with { type: 'json' };
+import campaign31 from '../levels/campaign/campaign-31.json' with { type: 'json' };
+import campaign32 from '../levels/campaign/campaign-32.json' with { type: 'json' };
+import campaign33 from '../levels/campaign/campaign-33.json' with { type: 'json' };
+import campaign34 from '../levels/campaign/campaign-34.json' with { type: 'json' };
+import campaign35 from '../levels/campaign/campaign-35.json' with { type: 'json' };
+import campaign36 from '../levels/campaign/campaign-36.json' with { type: 'json' };
+import campaign37 from '../levels/campaign/campaign-37.json' with { type: 'json' };
+import campaign38 from '../levels/campaign/campaign-38.json' with { type: 'json' };
+import campaign39 from '../levels/campaign/campaign-39.json' with { type: 'json' };
+import campaign40 from '../levels/campaign/campaign-40.json' with { type: 'json' };
+import campaign41 from '../levels/campaign/campaign-41.json' with { type: 'json' };
+import campaign42 from '../levels/campaign/campaign-42.json' with { type: 'json' };
+import campaign43 from '../levels/campaign/campaign-43.json' with { type: 'json' };
+import campaign44 from '../levels/campaign/campaign-44.json' with { type: 'json' };
+import campaign45 from '../levels/campaign/campaign-45.json' with { type: 'json' };
+import campaign46 from '../levels/campaign/campaign-46.json' with { type: 'json' };
+import campaign47 from '../levels/campaign/campaign-47.json' with { type: 'json' };
+import campaign48 from '../levels/campaign/campaign-48.json' with { type: 'json' };
+import campaign49 from '../levels/campaign/campaign-49.json' with { type: 'json' };
+import campaign50 from '../levels/campaign/campaign-50.json' with { type: 'json' };
 import { allCells, cellId, isCell } from './hex.js';
 
 const SUPPORTED_COLORS = new Set(['red', 'blue', 'yellow', 'green']);
@@ -13,6 +58,7 @@ const SUPPORTED_MODES = new Set(['campaign', 'challenge', 'daily', 'prototype'])
 
 const PROTOTYPE_LEVELS = new Map([clearAll, clearCount, blockerLesson].map((level) => [level.puzzleId, level]));
 const FTUE_LEVELS = new Map([ftue01, ftue02, ftue03, ftue04, ftue05].map((level) => [level.puzzleId, level]));
+const CAMPAIGN_LEVELS = new Map([ftue01, ftue02, ftue03, ftue04, ftue05, campaign06, campaign07, campaign08, campaign09, campaign10, campaign11, campaign12, campaign13, campaign14, campaign15, campaign16, campaign17, campaign18, campaign19, campaign20, campaign21, campaign22, campaign23, campaign24, campaign25, campaign26, campaign27, campaign28, campaign29, campaign30, campaign31, campaign32, campaign33, campaign34, campaign35, campaign36, campaign37, campaign38, campaign39, campaign40, campaign41, campaign42, campaign43, campaign44, campaign45, campaign46, campaign47, campaign48, campaign49, campaign50].map((level) => [level.puzzleId, level]));
 
 export function prototypeLevelIds() {
   return [...PROTOTYPE_LEVELS.keys()].sort(compareIds);
@@ -34,6 +80,16 @@ export function loadFtueLevel(puzzleId) {
   return validateLevelDefinition(level);
 }
 
+export function campaignLevelIds() {
+  return [...CAMPAIGN_LEVELS.values()].sort((a, b) => a.campaignNumber - b.campaignNumber).map((level) => level.puzzleId);
+}
+
+export function loadCampaignLevel(puzzleId) {
+  const level = CAMPAIGN_LEVELS.get(puzzleId);
+  if (!level) throw new TypeError(`LevelDefinition ${String(puzzleId)}.puzzleId: unknown campaign level`);
+  return validateLevelDefinition(level);
+}
+
 export function parseLevelDefinition(jsonText) {
   let parsed;
   try {
@@ -52,7 +108,7 @@ export function validateLevelDefinition(level) {
 
   if (!level || typeof level !== 'object' || Array.isArray(level)) fail('root', 'expected an object');
   if (level.schemaVersion !== 1) fail('schemaVersion', 'expected supported version 1');
-  if (level.rulesVersion !== 1) fail('rulesVersion', 'expected supported version 1');
+  if (![1, 2].includes(level.rulesVersion)) fail('rulesVersion', 'expected supported version 1 or 2');
   if (typeof level.puzzleId !== 'string' || !level.puzzleId.trim()) fail('puzzleId', 'must be a non-empty string');
   if (typeof level.seed !== 'string' || !level.seed) fail('seed', 'must be a non-empty string');
   if (!Number.isInteger(level.contentVersion) || level.contentVersion < 1) fail('contentVersion', 'must be a positive integer');
@@ -71,6 +127,14 @@ export function validateLevelDefinition(level) {
 
   if (!Array.isArray(level.blockedCells)) fail('blockedCells', 'expected an array');
   const occupied = new Set();
+  if (level.rulesVersion === 1 && level.crates !== undefined && level.crates.length) fail('crates', 'crates require rulesVersion 2');
+  if (level.crates !== undefined && !Array.isArray(level.crates)) fail('crates', 'expected an array');
+  for (const [index, cell] of (level.crates ?? []).entries()) {
+    if (!isCell(cell)) fail(`crates[${index}]`, 'coordinate must be inside the 7x7 board');
+    const id = cellId(cell);
+    if (occupied.has(id)) fail(`crates[${index}]`, `duplicate cell ${id}`);
+    occupied.add(id);
+  }
   for (const [index, cell] of level.blockedCells.entries()) {
     if (!isCell(cell)) fail(`blockedCells[${index}]`, 'coordinate must be inside the 7x7 board');
     const id = cellId(cell);
@@ -118,7 +182,7 @@ export function validateLevelDefinition(level) {
 
 export function createLevelBoard(level) {
   const valid = validateLevelDefinition(level);
-  return allCells({ blockedCells: valid.blockedCells, tokens: valid.tokens });
+  return allCells({ blockedCells: valid.blockedCells, crates: valid.crates, tokens: valid.tokens });
 }
 
 function normalizeLevel(level) {
@@ -127,6 +191,7 @@ function normalizeLevel(level) {
     geometry: { ...level.geometry },
     colors: [...level.colors],
     blockedCells: level.blockedCells.map((cell) => ({ ...cell })).sort((a, b) => a.row - b.row || a.col - b.col),
+    crates: (level.crates ?? []).map((cell) => ({ ...cell })).sort((a, b) => a.row - b.row || a.col - b.col),
     tokens: level.tokens
       .map((token) => ({ ...token, cell: { ...token.cell } }))
       .sort((a, b) => compareIds(a.tokenId, b.tokenId)),

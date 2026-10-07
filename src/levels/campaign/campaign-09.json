@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "puzzleId": "campaign-09",
+  "campaignNumber": 9,
+  "seed": "magnet-campaign-v1-09",
+  "contentVersion": 1,
+  "geometry": {
+    "kind": "odd-r",
+    "rows": 7,
+    "cols": 7
+  },
+  "colors": [
+    "red",
+    "blue",
+    "yellow",
+    "green"
+  ],
+  "blockedCells": [
+    {
+      "col": 2,
+      "row": 4
+    },
+    {
+      "col": 4,
+      "row": 0
+    },
+    {
+      "col": 6,
+      "row": 3
+    },
+    {
+      "col": 1,
+      "row": 6
+    },
+    {
+      "col": 3,
+      "row": 2
+    },
+    {
+      "col": 5,
+      "row": 5
+    },
+    {
+      "col": 0,
+      "row": 1
+    }
+  ],
+  "crates": [],
+  "tokens": [
+    {
+      "tokenId": "blue-pair-a",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 1,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "blue-pair-b",
+      "color": "blue",
+      "mass": 3,
+      "cell": {
+        "col": 3,
+        "row": 3
+      }
+    }
+  ],
+  "goal": {
+    "kind": "clearAll"
+  },
+  "moveLimit": 12,
+  "magnetSchedule": [
+    {
+      "options": [
+        "blue"
+      ]
+    }
+  ],
+  "mode": "campaign",
+  "solution": {
+    "actions": [
+      {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 4,
+          "row": 3
+        }
+      }
+    ],
+    "expected": {
+      "outcome": "win",
+      "clearedMass": 5,
+      "movesUsed": 1
+    }
+  },
+  "design": {
+    "band": "obstacles",
+    "concept": "Уровень 9: Проложи путь среди препятствий.",
+    "aha": "Поставь магнит за стеком 3: стек 2 сделает один шаг, соединится и очистит массу 5."
+  }
+}

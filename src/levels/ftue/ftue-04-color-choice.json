@@ -4,6 +4,7 @@
   "puzzleId": "ftue-04-color-choice",
   "seed": "magnet-ftue-v1-04",
   "contentVersion": 1,
+  "campaignNumber": 4,
   "geometry": {
     "kind": "odd-r",
     "rows": 7,

@@ -4,6 +4,7 @@
   "puzzleId": "ftue-02-pull",
   "seed": "magnet-ftue-v1-02",
   "contentVersion": 1,
+  "campaignNumber": 2,
   "geometry": { "kind": "odd-r", "rows": 7, "cols": 7 },
   "colors": ["red", "blue", "yellow"],
   "blockedCells": [],

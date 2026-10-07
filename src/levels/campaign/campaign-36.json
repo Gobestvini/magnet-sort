@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 2,
+  "puzzleId": "campaign-36",
+  "campaignNumber": 36,
+  "seed": "magnet-campaign-v1-36",
+  "contentVersion": 1,
+  "geometry": {
+    "kind": "odd-r",
+    "rows": 7,
+    "cols": 7
+  },
+  "colors": [
+    "red",
+    "blue",
+    "yellow",
+    "green"
+  ],
+  "blockedCells": [],
+  "crates": [
+    {
+      "col": 2,
+      "row": 3
+    }
+  ],
+  "tokens": [
+    {
+      "tokenId": "red-pair-a",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 1,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "red-pair-b",
+      "color": "red",
+      "mass": 3,
+      "cell": {
+        "col": 3,
+        "row": 4
+      }
+    }
+  ],
+  "goal": {
+    "kind": "clearAll"
+  },
+  "moveLimit": 12,
+  "magnetSchedule": [
+    {
+      "options": [
+        "red"
+      ]
+    }
+  ],
+  "mode": "campaign",
+  "solution": {
+    "actions": [
+      {
+        "type": "placeMagnet",
+        "color": "red",
+        "cell": {
+          "col": 4,
+          "row": 4
+        }
+      }
+    ],
+    "expected": {
+      "outcome": "win",
+      "clearedMass": 5,
+      "movesUsed": 1
+    }
+  },
+  "design": {
+    "band": "crates",
+    "concept": "Уровень 36: Очистка рядом ломает ящик.",
+    "aha": "Поставь магнит за стеком 3: стек 2 сделает один шаг, соединится и очистит массу 5."
+  }
+}

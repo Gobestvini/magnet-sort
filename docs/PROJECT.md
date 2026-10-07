@@ -17,14 +17,16 @@
 | src/game/scoring.js | RULES v1 RunResult scoring, clear percentage, assisted challenge eligibility and shared deterministic run comparator |
 | src/ui/game-hud.js | Session-driven objective, moves, magnet choices, event feedback and terminal actions |
 | src/ui/result.js | Accessible win/loss result card with score, moves, active time, clear percentage, chain links and contextual retry/next actions |
-| src/game/hex.js | odd-r/axial преобразования, 7×7 neighbors/distance/ID и 49-cell materialization |
-| src/game/levels.js | LevelDefinition validation, deterministic normalization и загрузка FTUE/prototype levels |
-| src/game/state.js | Immutable simulator state creation/copy and legal-placement invariants |
-| src/game/simulator.js | Pure deterministic pull→merge→clear action resolution and canonical replay serialization |
+| src/game/hex.js | odd-r/axial преобразования, 7×7 neighbors/distance/ID и materialization empty/blocker/crate/token клеток |
+| src/game/levels.js | LevelDefinition validation rules v1/v2, deterministic normalization и загрузка FTUE/prototype/campaign |
+| src/game/state.js | Immutable simulator state creation/copy, crate occupancy and legal-placement invariants |
+| src/game/simulator.js | Pure deterministic pull→merge→clear/crate resolution and canonical replay serialization |
 | src/levels/prototype/*.json | Три versioned prototype puzzles с goal и авторским решением |
 | src/levels/ftue/*.json | Пять первых campaign-уровней с tutorial metadata и проверенными решениями |
+| src/levels/campaign/*.json | Уровни 6–50 со статическими решениями, bands и crate puzzles rules v2 |
 | src/ui/tutorial.js | Локальные подсказки ошибок, шаги choose/place/pull и session skip обучения |
 | tests/ftue.test.js | FTUE solutions, timer-only hint, progression, skip/retry/completion |
+| tests/campaign.test.js | 50 campaign replays, rules bands, массовый баланс и crate resolution |
 | index.html, src/style.css | Название Magnet Sort, адаптивная светлая оболочка |
 | tests/loop.test.js, tests/input.test.js | Частоты кадров, stalls, ввод и очистка |
 | tests/hex.test.js, tests/levels.test.js, tests/layout.test.js, tests/board-render.test.js, tests/pointer.test.js, tests/simulator.test.js | Geometry, level validation, rendering/input immutability, pointer commands and simulator fixtures/invariants |
@@ -38,7 +40,8 @@
 | docs/design/GDD_SOURCE.md | Полный текст исходного GDD v0.1 с SHA-256 DOCX |
 | docs/design/GDD_V0.2.md, docs/design/PIXI_RENDERING.md | Текущая спецификация PixiJS/pseudo‑2.5D и rendering contract |
 | docs/design/DECISIONS.md | Источники, расхождения и границы MVP |
-| docs/design/RULES.md | Детерминированная трактовка правил и JSON-контрактов, rulesVersion 1 |
+| docs/design/RULES.md | Детерминированная трактовка правил и JSON-контрактов, rulesVersion 1–2 |
+| docs/design/LEVELS.md | Концепты, aha, bands и ограничения кампании 1–50 |
 | docs/design/ARCHITECTURE.md | Владельцы модели/UI/runtime, lifecycle и план устройств/бюджетов |
 | docs/design/fixtures/rules-v1.json | Восемь ручных before/action/after сценариев модели |
 | docs/design/references/ | Визуальные схемы GDD; только внутренние референсы |

@@ -30,7 +30,7 @@ function setup() {
     return prevented;
   }
   const tray = { x: layout.width / 2, y: Math.min(layout.height - layout.radius * 0.72, layout.originY + layout.boardHeight + layout.radius * 0.9) };
-  return { actions, captures, controller, layout, previews, send, state, tray };
+  return { actions, captures, controller, layout, level, previews, send, state, tray };
 }
 
 test('magnet drag and tap-to-place each emit exactly one command', () => {
@@ -112,4 +112,14 @@ test('invalid placements expose a local reason and a valid hover clears it', () 
   const valid = cellToScreen({ col: 3, row: 0 }, ctx.layout);
   ctx.send('pointerdown', valid); ctx.send('pointermove', valid);
   assert.equal(ctx.controller.snapshot().invalidReason, null);
+});
+
+test('crate cells are rejected as placement targets with a local reason', () => {
+  const ctx = setup();
+  ctx.level.crates = [{ col: 3, row: 0 }];
+  ctx.send('pointerdown', ctx.tray); ctx.send('pointerup', ctx.tray);
+  const point = cellToScreen({ col: 3, row: 0 }, ctx.layout);
+  ctx.send('pointerdown', point); ctx.send('pointerup', point);
+  assert.equal(ctx.actions.length, 0);
+  assert.equal(ctx.controller.snapshot().invalidReason, 'crated');
 });

@@ -4,6 +4,7 @@
   "puzzleId": "ftue-05-chain",
   "seed": "magnet-ftue-v1-05",
   "contentVersion": 1,
+  "campaignNumber": 5,
   "geometry": { "kind": "odd-r", "rows": 7, "cols": 7 },
   "colors": ["red", "blue", "yellow"],
   "blockedCells": [],

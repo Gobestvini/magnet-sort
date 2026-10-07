@@ -15,7 +15,7 @@ export function applyAction(state, action) {
   const emit = (type, wave, fields = {}) => events.push({ seq: events.length + 1, type, turn: next.turn + 1, wave, ...fields });
   const actionColor = action.color;
   const magnetCell = { ...action.cell };
-  const blockedIds = new Set(next.blockedCells.map(cellId));
+  const blockedIds = new Set([...next.blockedCells, ...next.crates].map(cellId));
   let wave = 0;
   let finished = false;
 
@@ -50,9 +50,10 @@ export function applyAction(state, action) {
     }
 
     const mergeResult = resolveComponents(next, emit, wave);
+    const destroyedCrates = destroyAdjacentCrates(next, mergeResult.clearedCells, emit, wave, blockedIds);
     if (mergeResult.clearedMass > 0) next.chainLinks += 1;
     const stillMoves = moved.length > 0;
-    if (!stillMoves && mergeResult.mergedCount === 0 && mergeResult.clearedMass === 0) finished = true;
+    if (!stillMoves && mergeResult.mergedCount === 0 && mergeResult.clearedMass === 0 && destroyedCrates === 0) finished = true;
     // If movement or a merge changed occupancy, take a fresh wave snapshot. A no-op pass ends the chain.
   }
 
@@ -92,6 +93,7 @@ function validateAction(state, action) {
     || action.cell.col < 0 || action.cell.col > 6 || action.cell.row < 0 || action.cell.row > 6) return 'cell-out-of-bounds';
   const id = cellId(action.cell);
   if (state.blockedCells.some((cell) => cellId(cell) === id)) return 'cell-blocked';
+  if (state.crates.some((cell) => cellId(cell) === id)) return 'cell-crated';
   if (state.tokens.some((token) => cellId(token.cell) === id)) return 'cell-occupied';
   return null;
 }
@@ -145,6 +147,7 @@ function resolveComponents(state, emit, wave) {
   components.sort((a, b) => compareIds(a.keeper.tokenId, b.keeper.tokenId));
 
   let clearedMass = 0;
+  const clearedCells = [];
   let mergedCount = 0;
   const remove = new Set();
   for (const component of components) {
@@ -165,12 +168,28 @@ function resolveComponents(state, emit, wave) {
     if (totalMass >= 5) {
       remove.add(keeper.tokenId);
       clearedMass += totalMass;
+      clearedCells.push({ ...keeper.cell });
       emit('stackCleared', wave, { tokenId: keeper.tokenId, mass: totalMass, cell: { ...keeper.cell } });
     }
   }
   if (remove.size > 0) state.tokens = state.tokens.filter((token) => !remove.has(token.tokenId));
   state.clearedMass += clearedMass;
-  return { clearedMass, mergedCount };
+  return { clearedMass, mergedCount, clearedCells };
+}
+
+function destroyAdjacentCrates(state, clearedCells, emit, wave, blockedIds) {
+  if (state.rulesVersion !== 2 || clearedCells.length === 0 || state.crates.length === 0) return 0;
+  const clearedIds = new Set(clearedCells.map(cellId));
+  const destroyed = state.crates.filter((crate) => neighborCells(crate).some((cell) => clearedIds.has(cellId(cell))))
+    .sort((a, b) => a.row - b.row || a.col - b.col);
+  if (destroyed.length === 0) return 0;
+  const ids = new Set(destroyed.map(cellId));
+  state.crates = state.crates.filter((crate) => !ids.has(cellId(crate)));
+  for (const cell of destroyed) {
+    blockedIds.delete(cellId(cell));
+    emit('crateDestroyed', wave, { cell: { ...cell } });
+  }
+  return destroyed.length;
 }
 
 function isGoalMet(state, remainingMass) {

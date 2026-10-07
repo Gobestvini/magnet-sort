@@ -4,6 +4,7 @@
   "puzzleId": "ftue-03-merge",
   "seed": "magnet-ftue-v1-03",
   "contentVersion": 1,
+  "campaignNumber": 3,
   "geometry": { "kind": "odd-r", "rows": 7, "cols": 7 },
   "colors": ["red", "blue", "yellow"],
   "blockedCells": [],
