@@ -12,8 +12,10 @@ import { createChallengeCardSvg, createChallengePayload, createChallengeUrl, enc
 import { getDailyPuzzle } from './social/daily.js';
 import { createAudioFeedback } from './audio/feedback.js';
 import { createAnalytics } from './analytics/events.js';
+import { createAdsController } from './platform/ads.js';
 import { createFacebookInstantGamesAdapter } from './platform/facebook.js';
 import { createStandalonePlatform } from './platform/standalone.js';
+import { grantStandaloneTestReward } from './game/boosters.js';
 import { App } from './ui/App.js';
 
 const uiRoot = document.querySelector('#ui-root');
@@ -65,6 +67,28 @@ const feedback = createAudioFeedback({
   hapticsEnabled: progress.settings.hapticsEnabled,
 });
 const savedResults = new Set();
+const rewardedPlacementId = import.meta.env.VITE_META_REWARDED_PLACEMENT_ID ?? '';
+const interstitialPlacementId = import.meta.env.VITE_META_INTERSTITIAL_PLACEMENT_ID ?? '';
+const isStandaloneTestReward = () => import.meta.env.DEV && platform.snapshot().kind === 'standalone';
+const ads = createAdsController({
+  platform,
+  rewardedPlacementId,
+  interstitialPlacementId,
+  getRunId: () => activeRunId,
+  grantExtraMove: (grant) => {
+    const result = scene?.confirmExtraMove(grant) ?? { granted: false, reason: 'scene-unavailable' };
+    if (result.granted) {
+      syncPointerLock();
+      clearTiming();
+      renderScene(0);
+      renderUI();
+    }
+    return result;
+  },
+  setPaused,
+  isPaused: () => paused,
+  analytics,
+});
 
 function progressTarget(value = progress) {
   if (value.ftue.completed || value.ftue.skipped) {
@@ -171,6 +195,7 @@ function handleTerminalResult({ force = false } = {}) {
   if (!force && session.phase === 'lost' && (session.boosters.undoAvailable || session.boosters.extraMoveAvailable)) return;
   recordAnalyticsTerminal(session);
   if (session.challenge) return;
+  if (!session.daily) void ads.showInterstitial({ runId: activeRunId, outcome: session.result.outcome, tutorial: Boolean(session.tutorial?.active) });
   const resultKey = JSON.stringify([session.dailyId ?? 'campaign', session.result]);
   if (savedResults.has(resultKey)) return;
   const tutorial = session.tutorial;
@@ -282,6 +307,12 @@ function currentStatus() {
   return 'Готово';
 }
 
+function extraMoveMode() {
+  if (isStandaloneTestReward()) return 'test';
+  return rewardedPlacementId && platform.snapshot().kind === 'facebook-instant-games' && platform.snapshot().started
+    ? 'advertisement' : 'unavailable';
+}
+
 function renderUI() {
   if (disposed) return;
   const currentSession = scene?.getSession();
@@ -295,6 +326,7 @@ function renderUI() {
       ? compareRunResults(currentSession.result, challenge.challengerResult) : null,
     shareStatus,
     boosterNotice,
+    extraMoveMode: extraMoveMode(),
     level: scene?.getLevel(),
     paused,
     ready: Boolean(renderer && scene && !error),
@@ -472,12 +504,22 @@ function applyHint() {
   scheduleFrame();
 }
 
-function requestExtraMove() {
-  const result = scene?.requestExtraMove();
-  boosterNotice = result?.granted ? 'Получен один дополнительный ход тестовой наградой; забег отмечен как вспомогательный.'
-    : result?.reason === 'extra-move-unavailable' ? 'Дополнительный ход доступен только при оставшихся легальных ходах.'
-      : result?.reason === 'extra-move-already-used' ? 'Дополнительный ход уже использован в этом забеге.' : 'Тестовая награда недоступна.';
-  if (!result?.granted) { renderUI(); return; }
+async function requestExtraMove() {
+  boosterNotice = null;
+  if (isStandaloneTestReward()) {
+    const result = scene?.requestExtraMove();
+    boosterNotice = result?.granted ? 'Получен дополнительный ход тестовой наградой; реклама не запускалась.'
+      : result?.reason === 'extra-move-already-used' ? 'Дополнительный ход уже использован в этом забеге.'
+        : 'Тестовая награда сейчас недоступна.';
+    if (!result?.granted) { renderUI(); return; }
+  } else {
+    const result = await ads.requestExtraMove(analyticsContext());
+    boosterNotice = result.status === 'ok' && result.value?.granted ? 'Получен дополнительный ход; забег отмечен как вспомогательный.'
+      : result.reason === 'placement-unconfigured' ? 'Реклама для дополнительного хода не настроена.'
+        : result.reason === 'stale-run' ? 'Забег изменился во время рекламы; награда не выдана.'
+          : result.status === 'ok' && !result.value?.completed ? 'Реклама закрыта без подтверждения завершения.'
+            : 'Сейчас нельзя получить рекламную награду. Попробуй ещё раз.';
+  }
   syncPointerLock();
   clearTiming();
   renderScene(0);
@@ -541,7 +583,8 @@ async function initialize() {
       return;
     }
     renderer = candidate;
-    scene = createScene(renderer.stage, { ...progressTarget(), ...(challenge ? { challengePuzzleId: challenge.puzzleId } : {}), reducedMotion: prefersReducedMotion });
+    scene = createScene(renderer.stage, { ...progressTarget(), ...(challenge ? { challengePuzzleId: challenge.puzzleId } : {}), reducedMotion: prefersReducedMotion,
+      grantReward: (kind) => isStandaloneTestReward() ? grantStandaloneTestReward(kind) : { granted: false, reason: 'placement-unconfigured' } });
     if (challenge && !challengeOpened) {
       challengeOpened = true;
       activeRunId = analytics.createId('run');
@@ -600,6 +643,7 @@ async function initializePlatform(attempt) {
     if (disposed || attempt !== initAttempt || initialized.status !== 'ok') return;
     const started = await platform.start();
     if (disposed || attempt !== initAttempt || started.status !== 'ok') return;
+    renderUI();
     const entry = await platform.getEntry();
     if (disposed || attempt !== initAttempt || entry.status !== 'ok') return;
     if (entry.value?.kind === 'daily') {
@@ -676,6 +720,7 @@ function dispose() {
   removePlatformPauseListener?.();
   removePlatformPauseListener = null;
   platform.dispose();
+  ads.dispose();
   observer?.disconnect();
   window.removeEventListener('resize', resize);
   window.removeEventListener('blur', handleBlur);

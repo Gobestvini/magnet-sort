@@ -5,13 +5,13 @@ import { createBoardLayout } from './render/layout.js';
 import { createResolutionPlayer } from './render/resolution-player.js';
 
 // The scene owns its nodes; the application owns the stage and renderer.
-export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challengePuzzleId, ftuePuzzleId, skipTutorial = false, reducedMotion = () => false } = {}) {
+export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challengePuzzleId, ftuePuzzleId, skipTutorial = false, reducedMotion = () => false, grantReward } = {}) {
   let elapsed = 0;
   let width = 1;
   let height = 1;
   let deviceResolution = 1;
   let disposed = false;
-  const session = createSession({ ...(initialPuzzleId ? { initialPuzzleId } : {}), ...(campaignPuzzleId ? { campaignPuzzleId } : {}), ...(challengePuzzleId ? { challengePuzzleId } : {}), ...(ftuePuzzleId ? { ftuePuzzleId } : {}), skipTutorial });
+  const session = createSession({ ...(initialPuzzleId ? { initialPuzzleId } : {}), ...(campaignPuzzleId ? { campaignPuzzleId } : {}), ...(challengePuzzleId ? { challengePuzzleId } : {}), ...(ftuePuzzleId ? { ftuePuzzleId } : {}), skipTutorial, ...(grantReward ? { grantReward } : {}) });
   const resolution = createResolutionPlayer();
   let placementFeedback = null;
   const level = session.getLevel();
@@ -102,6 +102,7 @@ export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challeng
       return result;
     },
     requestExtraMove() { const result = session.requestExtraMove(); if (result.granted) draw(); return result; },
+    confirmExtraMove(grant) { const result = session.confirmExtraMove(grant); if (result.granted) draw(); return result; },
     loadTestLevel(testLevel) { elapsed = 0; resolution.cancel(); placementFeedback = null; session.loadTestLevel(testLevel); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); },
     setInteraction(next) {
       interaction = {

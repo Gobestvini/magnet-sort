@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { challengeCardDataUrl, createChallengeCardSvg, isShareablePuzzle } from '../social/challenge.js';
 
-export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, onHome, level, challengeTarget, challengeComparison, shareStatus, boosterNotice, boosters, onUndo, onExtraMove, onShareChallenge, isChallenge = false, isDaily = false, dailyId, nextLabel = 'Следующий уровень', allowNextOnLoss = true }) {
+export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, onHome, level, challengeTarget, challengeComparison, shareStatus, boosterNotice, extraMoveMode, boosters, onUndo, onExtraMove, onShareChallenge, isChallenge = false, isDaily = false, dailyId, nextLabel = 'Следующий уровень', allowNextOnLoss = true }) {
   if (!result) return null;
   const won = result.outcome === 'win';
   const duration = formatDuration(result.activeTimeMs);
@@ -35,13 +35,13 @@ export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, onHo
       : h('button', { type: 'button', className: 'result-primary', onClick: onRetry }, 'Попробовать ещё раз'),
     won && h('button', { type: 'button', className: 'result-secondary', onClick: onRetry }, 'Повторить уровень'),
     boosters?.undoAvailable && h('button', { type: 'button', className: 'result-secondary', onClick: onUndo }, 'Отменить последний ход'),
-    boosters?.extraMoveAvailable && h('button', { type: 'button', className: 'result-secondary', onClick: onExtraMove }, 'Ещё ход · тестовая награда'),
+    boosters?.extraMoveAvailable && h('button', { type: 'button', className: 'result-secondary', onClick: onExtraMove }, extraMoveButtonLabel(extraMoveMode)),
     !won && allowNextOnLoss
       ? h('button', { type: 'button', className: 'result-secondary', onClick: onNextPuzzle }, 'Следующий уровень')
       : null,
     h('button', { type: 'button', className: 'result-secondary', onClick: onHome }, 'Домой')),
   boosterNotice && h('p', { className: 'booster-notice', role: 'status', 'aria-live': 'polite' }, boosterNotice),
-  boosters?.extraMoveAvailable && h('p', { className: 'booster-provider-note' }, 'Это тестовая награда без рекламы; просмотр рекламы не заявляется.'),
+  boosters?.extraMoveAvailable && h('p', { className: 'booster-provider-note' }, extraMoveNote(extraMoveMode)),
   shareable && h('section', { className: 'challenge-result', 'aria-label': 'Результат вызова' },
     challengeTarget && h('p', { className: 'challenge-result-comparison', role: 'status', 'aria-live': 'polite' }, challengeText),
     challengeTarget && h('p', { className: 'challenge-unverified' }, 'Счёт соперника хранится в ссылке и не проверен сервером.'),
@@ -49,6 +49,16 @@ export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, onHo
     h('button', { type: 'button', onClick: onShareChallenge }, 'Поделиться вызовом'),
     h('a', { className: 'challenge-download', href: challengeCardDataUrl(cardSvg), download: 'magnet-sort-result.svg' }, 'Скачать карточку'),
     h('p', { className: 'challenge-share-status', role: 'status', 'aria-live': 'polite' }, shareStatus ?? '')));
+}
+
+function extraMoveButtonLabel(mode) {
+  return mode === 'test' ? 'Ещё ход · тестовая награда' : mode === 'advertisement' ? 'Ещё ход · реклама' : 'Ещё ход';
+}
+
+function extraMoveNote(mode) {
+  return mode === 'test' ? 'Локальная тестовая награда; реклама не запускалась.'
+    : mode === 'advertisement' ? 'Дополнительный ход выдаётся только после подтверждённого просмотра.'
+      : 'Реклама для дополнительного хода пока не настроена.';
 }
 
 function metric(label, value) {

@@ -5,7 +5,7 @@ import { TutorialPanel } from './tutorial.js';
 import { Home } from './home.js';
 import { ChallengeEntry } from './challenge-entry.js';
 
-export function App({ screen = 'game', progress, daily, challenge, challengeComparison, challengeError, shareStatus, boosterNotice, level, paused, ready, initializing, error, status, session, interaction, surfaceRef, canvasRef, onTogglePause, onReset, onRetry, onRetryRenderer, onNextPuzzle, onChooseColor, onUndo, onHint, onApplyHint, onExtraMove, onSkipTutorial, onPlay, onHome, onDaily, onFriend, onToggleReducedMotion, onToggleSound, onToggleHaptics, onShareChallenge }) {
+export function App({ screen = 'game', progress, daily, challenge, challengeComparison, challengeError, shareStatus, boosterNotice, extraMoveMode, level, paused, ready, initializing, error, status, session, interaction, surfaceRef, canvasRef, onTogglePause, onReset, onRetry, onRetryRenderer, onNextPuzzle, onChooseColor, onUndo, onHint, onApplyHint, onExtraMove, onSkipTutorial, onPlay, onHome, onDaily, onFriend, onToggleReducedMotion, onToggleSound, onToggleHaptics, onShareChallenge }) {
   return h('main', { className: `app-shell${screen === 'game' && session?.result ? ' app-shell-result' : ''}` },
     h('header', { className: 'app-header' },
       h('div', null,
@@ -30,7 +30,7 @@ export function App({ screen = 'game', progress, daily, challenge, challengeComp
         h('p', { className: 'control-label' }, 'Сессия'),
         h('p', { id: 'status', role: 'status', 'aria-live': 'polite' }, status),
         !session?.result && h(TutorialPanel, { tutorial: session?.tutorial, interaction, onSkip: onSkipTutorial, disabled: session?.phase !== 'playing' }),
-        !session?.result && h(GameHud, { session, interaction, ready, boosterNotice, feedbackSettings: progress.settings, onToggleSound, onToggleHaptics, onChooseColor, onUndo, onHint, onApplyHint, onExtraMove }),
+        !session?.result && h(GameHud, { session, interaction, ready, boosterNotice, extraMoveMode, feedbackSettings: progress.settings, onToggleSound, onToggleHaptics, onChooseColor, onUndo, onHint, onApplyHint, onExtraMove }),
         h(ResultCard, {
           result: session?.result,
           chainLinks: session?.state?.chainLinks ?? 0,
@@ -44,6 +44,7 @@ export function App({ screen = 'game', progress, daily, challenge, challengeComp
           challengeComparison,
           shareStatus,
           boosterNotice,
+          extraMoveMode,
           onShareChallenge,
           isChallenge: session?.challenge,
           isDaily: session?.daily,

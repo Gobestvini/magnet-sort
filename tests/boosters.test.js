@@ -100,6 +100,22 @@ test('extra move rejects wins, no-legal-action states, unlimited moves, and a de
   assert.equal(denied.snapshot().assistedFlags.extraMove, undefined);
 });
 
+test('confirmed ad extra move can be granted once after an async provider response', () => {
+  const session = createSession({ initialPuzzleId: 'prototype-03-blocker' });
+  loseOneTurn(session);
+  const before = session.snapshot().remainingMoves;
+  assert.equal(session.confirmExtraMove({ granted: false, provider: 'facebook-instant-games' }).granted, false);
+  assert.equal(session.snapshot().remainingMoves, before);
+  const grant = session.confirmExtraMove({ granted: true, provider: 'facebook-instant-games' });
+  assert.equal(grant.granted, true);
+  assert.equal(session.snapshot().remainingMoves, before + 1);
+  assert.equal(session.snapshot().assistedFlags.extraMove, true);
+  assert.equal(session.confirmExtraMove({ granted: true, provider: 'facebook-instant-games' }).reason, 'extra-move-already-used');
+  session.retry();
+  assert.equal(session.snapshot().remainingMoves, 1);
+  assert.equal(session.snapshot().assistedFlags.extraMove, undefined);
+});
+
 test('hint resolver is bounded, reset-safe, and cannot return work after dispose', () => {
   const resolver = createHintResolver();
   const level = loadFtueLevel('ftue-04-color-choice');

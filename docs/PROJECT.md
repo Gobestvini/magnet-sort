@@ -21,6 +21,7 @@
 | src/analytics/events.js | Allowlisted funnel event schema, bounded development collector, disabled injectable sink and verified rewarded completion gate |
 | src/platform/facebook.js | Feature-detected Instant Games adapter for validated entry data, explicit share, pause lifecycle, unverified leaderboard rows and bounded optional ads calls |
 | src/platform/standalone.js | No-op platform lifecycle and explicit unsupported responses for remote-only features |
+| src/platform/ads.js | Rewarded grant bound to a run ID, conservative completion gate, standalone unavailable path and disabled-by-default interstitial frequency policy |
 | src/audio/feedback.js | Gesture-started synthesized Web Audio cues, event dedupe/order, optional Vibration API, mute/pause/hidden/dispose lifecycle |
 | src/social/challenge.js | Versioned challenge links, bounded/safe URL decoding, frozen puzzle resolution, explicit Web Share/clipboard fallback and local SVG result card |
 | src/social/daily.js | UTC dailyId and versioned deterministic rotation across reviewed frozen campaign puzzles |
@@ -42,6 +43,7 @@
 | tests/audio-feedback.test.js | Audio unlock timing, cue order/deduplication, bounded voices, settings, unsupported API and cleanup |
 | tests/analytics.test.js | Event schemas/dedupe, payload privacy, bounded collection, async sink failures and rewarded completion validation |
 | tests/platform.test.js | Standalone and Instant Games adapter capability, lifecycle, validation, fallback, timeout, share, leaderboard and ad-completion behavior |
+| tests/ads.test.js | Rewarded completion/cancel/stale-run/deduplication and disabled/interstitial policy gates |
 | tests/daily.test.js | UTC date identity, deterministic frozen daily mapping, active-run continuity across midnight, and rotation bounds |
 | tests/progress.test.js | Storage fallback, v1→v2 migration, per-day best/assisted result, comparator, FTUE progression and settings |
 | tests/challenge.test.js | Challenge URL safety/versioning, frozen board/session, result comparator, card, and share fallback |
@@ -63,6 +65,7 @@
 | docs/design/ANALYTICS.md | Event semantics, collection lifecycle, privacy allowlist and hypothesis denominators |
 | docs/design/FACEBOOK_CAPABILITIES.md | Meta Instant Games documented capabilities vs account-specific unknowns and evidence boundary |
 | docs/design/PLATFORM_CONTRACT.md | Async platform adapter surface, lifecycle, validation, privacy and standalone fallback |
+| docs/design/ADS_POLICY.md | Disabled-by-default ad formats, verified rewarded-grant conditions and proposed interstitial limits |
 | docs/design/LEVELS.md | Концепты, aha, bands и ограничения кампании 1–50 |
 | docs/design/ARCHITECTURE.md | Владельцы модели/UI/runtime, lifecycle и план устройств/бюджетов |
 | docs/design/fixtures/rules-v1.json | Восемь ручных before/action/after сценариев модели |

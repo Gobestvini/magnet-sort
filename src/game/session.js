@@ -2,7 +2,7 @@ import { applyAction, createInitialState } from './simulator.js';
 import { campaignLevelIds, ftueLevelIds, loadCampaignLevel, loadFtueLevel, loadPrototypeLevel, prototypeLevelIds, validateLevelDefinition } from './levels.js';
 import { cloneState } from './state.js';
 import { createRunResult } from './scoring.js';
-import { BOOSTER_LIMITS, addOneMove, canAddExtraMove, createHintResolver, grantStandaloneTestReward } from './boosters.js';
+import { BOOSTER_LIMITS, addOneMove, canAddExtraMove, createHintResolver } from './boosters.js';
 
 const DEFAULT_RESOLVE_SECONDS = 0.22;
 
@@ -12,7 +12,7 @@ function phaseForState(state) {
   return 'playing';
 }
 
-export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzzleId, dailyPuzzleId, dailyId, ftuePuzzleId, skipTutorial = false, resolveSeconds = DEFAULT_RESOLVE_SECONDS, grantReward = grantStandaloneTestReward } = {}) {
+export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzzleId, dailyPuzzleId, dailyId, ftuePuzzleId, skipTutorial = false, resolveSeconds = DEFAULT_RESOLVE_SECONDS, grantReward = () => ({ granted: false, reason: 'placement-unconfigured' }) } = {}) {
   const puzzleIds = prototypeLevelIds();
   const campaignIds = campaignLevelIds();
   const lessonIds = ftueLevelIds();
@@ -167,6 +167,11 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
       let grant;
       try { grant = grantReward('extraMove'); }
       catch { return { granted: false, reason: 'grant-failed' }; }
+      return this.confirmExtraMove(grant);
+    },
+    confirmExtraMove(grant) {
+      if (extraMoveUsed) return { granted: false, reason: 'extra-move-already-used' };
+      if (!canAddExtraMove(state, phase)) return { granted: false, reason: 'extra-move-unavailable' };
       if (!grant || grant.granted !== true) return { granted: false, reason: grant?.reason ?? 'grant-denied' };
       const next = addOneMove(state);
       if (!next) return { granted: false, reason: 'extra-move-unavailable' };

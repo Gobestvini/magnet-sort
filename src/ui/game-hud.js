@@ -2,7 +2,7 @@ import { h } from 'preact';
 
 const COLOR_NAMES = { red: 'Красный', blue: 'Синий', yellow: 'Жёлтый', green: 'Зелёный' };
 
-export function GameHud({ session, interaction, ready, boosterNotice, feedbackSettings, onToggleSound, onToggleHaptics, onChooseColor, onUndo, onHint, onApplyHint, onExtraMove }) {
+export function GameHud({ session, interaction, ready, boosterNotice, extraMoveMode, feedbackSettings, onToggleSound, onToggleHaptics, onChooseColor, onUndo, onHint, onApplyHint, onExtraMove }) {
   if (!session) return null;
   const state = session.state;
   const remainingMass = state?.tokens.reduce((sum, token) => sum + token.mass, 0) ?? 0;
@@ -29,7 +29,7 @@ export function GameHud({ session, interaction, ready, boosterNotice, feedbackSe
     h('div', { className: 'booster-actions', 'aria-label': 'Помощь в забеге' },
       boosters.undoAvailable && h('button', { type: 'button', onClick: onUndo, disabled: !ready }, 'Отменить ход'),
       h('button', { type: 'button', onClick: onHint, disabled: !ready || !boosters.hintAvailable }, boosters.hintAvailable ? 'Подсказка' : 'Подсказка использована'),
-      boosters.extraMoveAvailable && h('button', { type: 'button', onClick: onExtraMove, disabled: !ready }, 'Ещё ход · тест')),
+      boosters.extraMoveAvailable && h('button', { type: 'button', onClick: onExtraMove, disabled: !ready }, extraMoveButtonLabel(extraMoveMode))),
     h('div', { className: 'feedback-settings', 'aria-label': 'Настройки обратной связи' },
       h('label', null, h('input', { type: 'checkbox', checked: Boolean(feedbackSettings?.soundEnabled), onChange: onToggleSound }), 'Звук'),
       h('label', null, h('input', { type: 'checkbox', checked: Boolean(feedbackSettings?.hapticsEnabled), onChange: onToggleHaptics }), 'Вибрация')),
@@ -37,9 +37,19 @@ export function GameHud({ session, interaction, ready, boosterNotice, feedbackSe
       h('p', null, `Попробуй ${COLOR_NAMES[session.hintAction.color] ?? session.hintAction.color} магнит: столбец ${session.hintAction.cell.col + 1}, ряд ${session.hintAction.cell.row + 1}.`),
       h('button', { type: 'button', onClick: onApplyHint, disabled: !ready || session.phase !== 'playing' }, 'Применить этот ход')),
     boosterNotice && h('p', { className: 'booster-notice', role: 'status', 'aria-live': 'polite' }, boosterNotice),
-    h('p', { className: 'booster-provider-note' }, 'Дополнительный ход использует тестовую награду без рекламы.'),
+    h('p', { className: 'booster-provider-note' }, extraMoveNote(extraMoveMode)),
     session.phase === 'resolving' && h('p', { className: 'turn-feedback', role: 'status', 'aria-live': 'polite' }, 'Магнит притягивает фишки…'),
     session.events.length > 0 && session.phase !== 'resolving' && h('p', { className: 'turn-feedback', role: 'status', 'aria-live': 'polite' }, summarizeEvents(session)));
+}
+
+function extraMoveButtonLabel(mode) {
+  return mode === 'test' ? 'Ещё ход · тест' : mode === 'advertisement' ? 'Ещё ход · реклама' : 'Ещё ход';
+}
+
+function extraMoveNote(mode) {
+  return mode === 'test' ? 'Локальная тестовая награда; реклама не запускалась.'
+    : mode === 'advertisement' ? 'Дополнительный ход выдаётся только после подтверждённого просмотра.'
+      : 'Реклама для дополнительного хода пока не настроена.';
 }
 
 function summarizeEvents(session) {

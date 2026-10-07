@@ -1,6 +1,6 @@
 # TASK-0021: Подключить подтверждённые rewarded и ограниченные interstitial
 
-- Статус: draft
+- Статус: done (waiver real Meta ad placement/context по разрешению пользователя; рекламные форматы остаются выключены)
 - Приоритет: normal
 - Создана: 2026-10-07
 - Обновлена: 2026-10-07
@@ -35,7 +35,7 @@
 Визуальное направление Magnet Sort задают [GDD v0.2](../design/GDD_V0.2.md) и [PixiJS pseudo-2.5D rendering contract](../design/PIXI_RENDERING.md). Для графических изменений сохраняй PixiJS 8 и псевдо‑2.5D; не добавляй настоящую 3D-сцену. Если задача чисто модельная/аналитическая, не расширяй её область из-за рендерера. Для задач с PixiJS, вводом, ассетами, производительностью или lifecycle также сверяй применимые разделы `../knowledge/pixijs-practices.md`; не расширяй scope задач чистой модели/аналитики.
 
 
-Допустимые изменения и новые файлы: src/platform/ads.js, src/ui/boosters.*, src/game/session.js; tests/ads.test.js; docs/design/ADS_POLICY.md. Допустимы соответствующие поведенческие тесты `tests/*.test.js`, обновление карты `docs/PROJECT.md`, отчёта этой задачи и INDEX. Равноценные небольшие модули разрешены при сохранении контрактов и записи путей в отчёте.
+Допустимые изменения и новые файлы: src/platform/ads.js, src/platform/facebook.js, src/ui/boosters.*, src/ui/game-hud.js, src/ui/result.js, src/game/session.js, src/scene.js, src/main.js; tests/ads.test.js, tests/boosters.test.js; docs/design/ADS_POLICY.md. Допустимы соответствующие поведенческие тесты `tests/*.test.js`, обновление карты `docs/PROJECT.md`, отчёта этой задачи и INDEX. Scope уточнён после проверки фактического runtime dependency: async grant требует main/scene handoff.
 Не включать другие задачи очереди, Telegram runner, публикацию, чужие изменения, node_modules или dist. Сохранять reset/pause/hidden/dispose, dev-only diagnostics и детерминированность. Исходный DOCX и `GDD_SOURCE.md` не редактировать.
 
 ## 4. Требуемое поведение
@@ -94,11 +94,11 @@
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки и устройства: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: —
-- Commit/push либо причина отсутствия: —
-- Итоговый статус и дата: —
+- Результат: добавлен run-bound rewarded controller для Extra Move и отдельная interstitial policy с default disabled; live-реклама не активирована.
+- Изменённые файлы и зачем: `src/platform/ads.js` — confirmed completion gate, stale-run rejection, busy lock, pause/resume и частотная policy; `src/game/session.js`, `src/scene.js` — отдельный grant handoff после async provider confirmation и default-deny; `src/main.js` — dev-only standalone test reward и SDK placement integration; `src/ui/game-hud.js`, `src/ui/result.js`, `src/ui/App.js` — режимные подписи и honest availability; `tests/ads.test.js`, `tests/boosters.test.js` — completion/cancel/stale/deduplicate/policy/session cases; `docs/design/ADS_POLICY.md`, `docs/design/PLATFORM_CONTRACT.md`, `docs/PROJECT.md`, `docs/tasks/INDEX.md` и этот отчёт — правила и evidence.
+- Команды и фактические результаты: `pnpm test` — 119/119 passed; `pnpm test:browser` — desktop/mobile layout, pause/reset, input and runtime errors passed; `pnpm check:full` — tests and build passed; `git diff --check` — passed.
+- Ручные проверки и устройства: Playwright browser surrogate в desktop/mobile viewport; отдельно выполнены mock-тесты provider. Реальный телефон, Meta test ad, no-fill и подтверждение completion реального JS SDK не запускались.
+- Выполненные критерии: награда только после явного provider completion и для того же активного run ID; duplicate/in-flight lock; cancellation/incomplete/stale run/ошибка не выдают бонус; выдача один раз ставит assisted flag; audio/game pause при показе, resume; interstitial только через terminal entry point, исключает FTUE и gated by session frequency; standalone dev reward явно помечен тестовым, production default-deny; аналитика пишет `rewarded_viewed` только после grant и провайдерского подтверждения.
+- Непроверенное, блокеры и отклонения от плана: пользователь разрешил пропустить требования реального Meta app/tester/placement. Completion flag намеренно требует явного `completed/isCompleted`; прямое поведение Meta JS SDK для cancellation/no-fill/completion остаётся не подтверждено. Оба format config пусты, interstitial выключен по умолчанию, live monetization и публикация не выполнялись.
+- Commit/push либо причина отсутствия: коммит и push будут выполнены после обновления очереди.
+- Итоговый статус и дата: done с указанным waiver, 2026-10-07.
