@@ -23,7 +23,7 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       await page.waitForFunction(() => window.gameDebug?.snapshot().rendererReady);
       assert.equal(await page.getByRole('region', { name: 'Главное меню' }).count(), 1);
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).screen, 'home');
-      assert.equal(await page.locator('[aria-label="Ежедневное поле скоро появится"]').isDisabled(), true);
+      assert.equal(await page.locator('[aria-label="Играть в ежедневное поле"]').isEnabled(), true);
       assert.equal(await page.locator('[aria-label="Испытание с другом скоро появится"]').isDisabled(), true);
       if (!touch) {
         await page.getByLabel('Уменьшить движение').check();
@@ -31,7 +31,40 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       } else {
         assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).unlockedCampaignLevel, 1);
       }
-      await page.getByRole('button', { name: 'Играть' }).click();
+      const dailyPuzzle = await page.evaluate(() => window.gameDebug.snapshot().dailyPreview);
+      assert.match(await page.locator('.home-daily').innerText(), new RegExp(dailyPuzzle.dailyId));
+      await page.getByRole('button', { name: 'Играть в ежедневное поле' }).click();
+      const dailyStarted = await page.evaluate(() => window.gameDebug.snapshot());
+      assert.equal(dailyStarted.daily, true);
+      assert.equal(dailyStarted.dailyId, dailyPuzzle.dailyId);
+      assert.equal(dailyStarted.puzzleId, dailyPuzzle.puzzleId);
+      assert.equal(dailyStarted.tutorial.active, false);
+      const dailyLevel = await page.evaluate(async (puzzleId) => (await import(`/src/levels/campaign/${puzzleId}.json`)).default, dailyPuzzle.puzzleId);
+      await page.evaluate(async (level) => {
+        for (const action of level.solution.actions) {
+          window.gameDebug.playTestAction(action);
+          while (window.gameDebug.snapshot().phase === 'resolving') await new Promise(resolve => setTimeout(resolve, 20));
+        }
+      }, dailyLevel);
+      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
+      const dailyProgress = await page.evaluate(() => window.gameDebug.snapshot().progress);
+      assert.equal(dailyProgress.dailyResults[dailyPuzzle.dailyId].result.score > 0, true);
+      assert.equal(dailyProgress.dailyResults[dailyPuzzle.dailyId].assisted, false);
+      assert.equal(dailyProgress.completedPuzzles.includes(dailyPuzzle.puzzleId), false);
+      assert.equal(dailyProgress.unlockedCampaignLevel, 1);
+      await page.getByRole('button', { name: 'Повторить уровень' }).click();
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).dailyId, dailyPuzzle.dailyId);
+      await page.evaluate(async (level) => {
+        for (const action of level.solution.actions) {
+          window.gameDebug.playTestAction(action);
+          while (window.gameDebug.snapshot().phase === 'resolving') await new Promise(resolve => setTimeout(resolve, 20));
+        }
+      }, dailyLevel);
+      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
+      await page.getByRole('button', { name: 'Домой' }).click();
+      assert.match(await page.locator('.home-daily-best').innerText(), /Лучший результат/);
+      await page.screenshot({ path: `artifacts/screenshots/${name}-daily-home.png` });
+      await page.getByRole('button', { name: 'Играть', exact: true }).click();
       await page.waitForFunction(() => window.gameDebug.snapshot().elapsed > 0);
       const firstLaunch = await page.evaluate(() => window.gameDebug.snapshot());
       assert.equal(firstLaunch.tutorial.active, true);

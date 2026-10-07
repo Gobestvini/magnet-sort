@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { challengeCardDataUrl, createChallengeCardSvg, isShareablePuzzle } from '../social/challenge.js';
 
-export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, onHome, level, challengeTarget, challengeComparison, shareStatus, onShareChallenge, isChallenge = false, nextLabel = 'Следующий уровень', allowNextOnLoss = true }) {
+export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, onHome, level, challengeTarget, challengeComparison, shareStatus, onShareChallenge, isChallenge = false, isDaily = false, dailyId, nextLabel = 'Следующий уровень', allowNextOnLoss = true }) {
   if (!result) return null;
   const won = result.outcome === 'win';
   const duration = formatDuration(result.activeTimeMs);
@@ -16,6 +16,7 @@ export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, onHo
     'aria-live': 'polite',
   },
   h('h2', null, won ? 'Цель достигнута!' : 'Цель не достигнута'),
+  isDaily && h('p', { className: 'daily-run-label' }, `Ежедневное поле · ${dailyId} UTC · локальный результат`),
   h('p', { className: 'result-score' }, `${result.score.toLocaleString('ru-RU')} очков`),
   h('dl', { className: 'result-metrics' },
     metric('Ходы', String(result.movesUsed)),

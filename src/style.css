@@ -26,6 +26,11 @@ button { font: inherit; }
 .home-error { display: grid; gap: 8px; width: 100%; color: #974e48; font-size: 0.88rem; }
 .home-secondary-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; width: 100%; }
 .home-secondary-actions button { min-height: 44px; padding: 8px; font-size: 0.82rem; }
+.home-daily { width: 100%; padding: 14px 16px; border: 1px solid #eadfce; border-radius: 18px; background: #fffdf9; }
+.home-daily p { margin: 4px 0; color: #77747b; font-size: .9rem; }
+.home-daily .eyebrow { color: #8b715d; font-size: .72rem; font-weight: 800; letter-spacing: .08em; }
+.home-daily-best { color: #34313a !important; font-weight: 700; }
+.daily-run-label { margin: -4px 0 10px; color: #8b715d; font-size: .82rem; }
 .home-setting { display: flex; align-items: center; gap: 9px; color: #6f6d75; font-size: 0.88rem; }
 .home-setting input { width: 18px; height: 18px; accent-color: #5388d8; }
 .home-footer { font-size: 0.78rem; }

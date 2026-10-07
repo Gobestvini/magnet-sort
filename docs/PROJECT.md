@@ -18,9 +18,11 @@
 | src/game/scoring.js | RULES v1 RunResult scoring, clear percentage, assisted challenge eligibility and shared deterministic run comparator |
 | src/game/progress.js | Versioned local progress, best/completed runs, FTUE/campaign unlocks, safe storage fallback and settings |
 | src/social/challenge.js | Versioned challenge links, bounded/safe URL decoding, frozen puzzle resolution, explicit Web Share/clipboard fallback and local SVG result card |
+| src/social/daily.js | UTC dailyId and versioned deterministic rotation across reviewed frozen campaign puzzles |
 | src/ui/game-hud.js | Session-driven objective, moves, magnet choices, event feedback and terminal actions |
 | src/ui/result.js | Accessible win/loss result card with score, moves, active time, clear percentage, chain links and contextual retry/next actions |
 | src/ui/challenge-entry.js | Incoming challenge target, assisted-policy notice, and single action to start the shared frozen puzzle |
+| src/ui/home.js | Home/Continue, UTC daily card and per-day local best, disabled friend availability entry, and reduced-motion setting |
 | src/game/hex.js | odd-r/axial преобразования, 7×7 neighbors/distance/ID и materialization empty/blocker/crate/token клеток |
 | src/game/levels.js | LevelDefinition validation rules v1/v2, deterministic normalization и загрузка FTUE/prototype/campaign |
 | src/game/state.js | Immutable simulator state creation/copy, crate occupancy and legal-placement invariants |
@@ -31,7 +33,8 @@
 | src/ui/tutorial.js | Локальные подсказки ошибок, шаги choose/place/pull и session skip обучения |
 | tests/ftue.test.js | FTUE solutions, timer-only hint, progression, skip/retry/completion |
 | tests/campaign.test.js | 50 campaign replays, rules bands, массовый баланс и crate resolution |
-| tests/progress.test.js | Storage fallback, bounds, result comparator, FTUE progression and settings |
+| tests/daily.test.js | UTC date identity, deterministic frozen daily mapping, active-run continuity across midnight, and rotation bounds |
+| tests/progress.test.js | Storage fallback, v1→v2 migration, per-day best/assisted result, comparator, FTUE progression and settings |
 | tests/challenge.test.js | Challenge URL safety/versioning, frozen board/session, result comparator, card, and share fallback |
 | index.html, src/style.css | Название Magnet Sort, адаптивная светлая оболочка |
 | tests/loop.test.js, tests/input.test.js | Частоты кадров, stalls, ввод и очистка |

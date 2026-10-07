@@ -6,9 +6,10 @@ import { createPointerController } from './input/pointer.js';
 import { createScene } from './scene.js';
 import { createPixiApplication } from './render/application.js';
 import { campaignLevelIds, ftueLevelIds } from './game/levels.js';
-import { loadProgress, recordRunResult, saveProgress, setProgressSetting } from './game/progress.js';
+import { loadProgress, recordDailyRunResult, recordRunResult, saveProgress, setProgressSetting } from './game/progress.js';
 import { compareRunResults } from './game/scoring.js';
 import { createChallengeCardSvg, createChallengeUrl, parseChallengeUrl, shareChallenge } from './social/challenge.js';
+import { getDailyPuzzle } from './social/daily.js';
 import { App } from './ui/App.js';
 
 const uiRoot = document.querySelector('#ui-root');
@@ -57,10 +58,11 @@ function persistProgress() {
   progress = saved.progress;
 }
 
-function startGame() {
+function startGame({ daily = null } = {}) {
   if (!scene || !renderer) return;
   pointer?.cancel();
   if (challenge) scene.startChallenge(challenge.puzzleId);
+  else if (daily) scene.startDaily(daily.dailyId, daily.puzzleId);
   else scene.startFromProgress(progressTarget());
   if (!challenge && !progress.ftue.seen && !progress.ftue.completed && !progress.ftue.skipped) {
     progress = { ...progress, ftue: { ...progress.ftue, seen: true } };
@@ -76,6 +78,10 @@ function startGame() {
   resize();
   renderScene(0);
   scheduleFrame();
+}
+
+function startDaily() {
+  startGame({ daily: getDailyPuzzle() });
 }
 
 function goHome() {
@@ -94,9 +100,15 @@ function goHome() {
 function handleTerminalResult() {
   const session = scene?.getSession();
   if (!session?.result || session.challenge) return;
-  const resultKey = JSON.stringify(session.result);
+  const resultKey = JSON.stringify([session.dailyId ?? 'campaign', session.result]);
   if (savedResults.has(resultKey)) return;
   const tutorial = session.tutorial;
+  if (session.daily && session.dailyId) {
+    progress = recordDailyRunResult(progress, session.dailyId, session.result);
+    persistProgress();
+    savedResults.add(resultKey);
+    return;
+  }
   progress = recordRunResult(progress, session.result, {
     campaignNumber: session.campaignNumber,
     ftueSeen: tutorial.active,
@@ -183,6 +195,7 @@ function renderUI() {
   render(h(App, {
     screen,
     progress,
+    daily: getDailyPuzzle(),
     challenge,
     challengeError,
     challengeComparison: currentSession?.result && challenge ? compareRunResults(currentSession.result, challenge.challengerResult) : null,
@@ -205,7 +218,7 @@ function renderUI() {
     onSkipTutorial: skipTutorial,
     onPlay: startGame,
     onHome: goHome,
-    onDaily() {},
+    onDaily: startDaily,
     onFriend() {},
     onToggleReducedMotion: toggleReducedMotion,
     onNextPuzzle: advancePuzzle,
@@ -420,6 +433,9 @@ function snapshot() {
     progress,
     screen,
     challenge: scene?.getSession().challenge ?? false,
+    daily: scene?.getSession().daily ?? false,
+    dailyId: scene?.getSession().dailyId ?? null,
+    dailyPreview: (() => { const { dailyId, puzzleId, rotationVersion } = getDailyPuzzle(); return { dailyId, puzzleId, rotationVersion }; })(),
     activeTimeMs: scene?.getSession().activeTimeMs ?? 0,
     assistedFlags: scene?.getSession().assistedFlags ?? {},
     paused,

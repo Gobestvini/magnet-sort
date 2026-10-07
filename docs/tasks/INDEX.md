@@ -22,7 +22,7 @@
 | [TASK-0012: Собрать проверенную кампанию из 50 уровней](TASK-0012-campaign-fifty.md) | done | normal | TASK-0011 | сильная; высокий |
 | [TASK-0013: Сделать Home и устойчивый локальный прогресс](TASK-0013-progress-navigation.md) | done | normal | TASK-0012 | средняя; высокий |
 | [TASK-0014: Сделать web-ссылку на тот же puzzle и rematch](TASK-0014-friend-challenge.md) | done | normal | TASK-0009, TASK-0011 | средняя; высокий |
-| [TASK-0015: Добавить ежедневное общее поле и локальный рекорд](TASK-0015-daily-puzzle.md) | draft | normal | TASK-0012, TASK-0013, TASK-0014 | средняя; высокий |
+| [TASK-0015: Добавить ежедневное общее поле и локальный рекорд](TASK-0015-daily-puzzle.md) | done | normal | TASK-0012, TASK-0013, TASK-0014 | средняя; высокий |
 | [TASK-0016: Добавить Undo, Hint и Extra Move с учётом assisted runs](TASK-0016-boosters.md) | draft | normal | TASK-0012, TASK-0014 | сильная; высокий |
 | [TASK-0017: Добавить звук и доступную обратную связь](TASK-0017-sound-haptics.md) | draft | normal | TASK-0008, TASK-0013 | средняя; средний |
 | [TASK-0018: Инструментировать воронку игры и challenge](TASK-0018-analytics.md) | draft | normal | TASK-0010, TASK-0014, TASK-0015, TASK-0016 | средняя; высокий |
@@ -33,7 +33,7 @@
 
 ## Следующий шаг
 
-TASK-0010/0011 закрыты с явно записанным waiver недоступных физических тестов. Gate вынес `rework` для публичного масштабирования; пользователь разрешил продолжать внутреннюю очередь. TASK-0012 добавила кампанию из 50 уровней с rules v2 crates. TASK-0013 добавила Home и локальное сохранение FTUE/campaign progress. TASK-0014 добавила web challenge/rematch с безопасным versioned payload. Следующая — TASK-0015, ежедневное общее поле.
+TASK-0010/0011 закрыты с явно записанным waiver недоступных физических тестов. Gate вынес `rework` для публичного масштабирования; пользователь разрешил продолжать внутреннюю очередь. TASK-0012 добавила кампанию из 50 уровней с rules v2 crates. TASK-0013 добавила Home и локальное сохранение FTUE/campaign progress. TASK-0014 добавила web challenge/rematch; TASK-0015 — UTC daily rotation и локальный per-day рекорд. Следующая — TASK-0016, Undo/Hint/Extra Move.
 
 ## Покрытие GDD и границы
 

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   createDefaultProgress, loadProgress, normalizeProgress,
-  recordRunResult, saveProgress, setProgressSetting,
+  recordDailyRunResult, recordRunResult, saveProgress, setProgressSetting,
 } from '../src/game/progress.js';
 
 function memoryStorage(initial = null, fail = {}) {
@@ -70,4 +70,25 @@ test('FTUE advancement and settings persist independently of a fresh run', () =>
   progress = setProgressSetting(progress, 'reducedMotion', true);
   assert.equal(progress.settings.reducedMotion, true);
   assert.equal(saveProgress(progress, memoryStorage()).saved, true);
+});
+
+test('version 1 progress migrates without losing campaign data; daily bests stay separate by UTC id', () => {
+  const legacy = { ...createDefaultProgress(), schemaVersion: 1, unlockedCampaignLevel: 8, bestResults: { 'campaign-01': win } };
+  const migrated = normalizeProgress(legacy);
+  assert.equal(migrated.schemaVersion, 2);
+  assert.equal(migrated.unlockedCampaignLevel, 8);
+  assert.deepEqual(migrated.dailyResults, {});
+  assert.equal(normalizeProgress({ ...migrated, dailyResults: { '2026-02-30': { result: win, assisted: false } } }), null);
+
+  let progress = recordDailyRunResult(migrated, '2026-10-07', win);
+  assert.equal(progress.dailyResults['2026-10-07'].assisted, false);
+  progress = recordDailyRunResult(progress, '2026-10-07', loss);
+  assert.equal(progress.dailyResults['2026-10-07'].result.score, win.score);
+  const assistedWin = { ...win, score: 600, movesUsed: 1, eligibleForChallenge: false, assistedFlags: { hint: true } };
+  progress = recordDailyRunResult(progress, '2026-10-07', assistedWin);
+  assert.equal(progress.dailyResults['2026-10-07'].result.score, 600);
+  assert.equal(progress.dailyResults['2026-10-07'].assisted, true);
+  progress = recordDailyRunResult(progress, '2026-10-08', loss);
+  assert.equal(progress.dailyResults['2026-10-08'].result.score, loss.score);
+  assert.equal(progress.dailyResults['2026-10-07'].result.score, 600);
 });

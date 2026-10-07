@@ -67,6 +67,7 @@ export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challeng
     skipTutorial() { elapsed = 0; resolution.cancel(); placementFeedback = null; const skipped = session.skipTutorial(); if (skipped) { interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); } return skipped; },
     startFromProgress(target) { elapsed = 0; resolution.cancel(); placementFeedback = null; const started = session.startFromProgress(target); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); return started; },
     startChallenge(puzzleId) { elapsed = 0; resolution.cancel(); placementFeedback = null; const started = session.startChallenge(puzzleId); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); return started; },
+    startDaily(dailyId, puzzleId) { elapsed = 0; resolution.cancel(); placementFeedback = null; const started = session.startDaily(dailyId, puzzleId); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); return started; },
     submitAction(action) {
       const before = session.getState();
       const result = session.dispatch(action);

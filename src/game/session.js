@@ -11,12 +11,14 @@ function phaseForState(state) {
   return 'playing';
 }
 
-export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzzleId, ftuePuzzleId, skipTutorial = false, resolveSeconds = DEFAULT_RESOLVE_SECONDS } = {}) {
+export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzzleId, dailyPuzzleId, dailyId, ftuePuzzleId, skipTutorial = false, resolveSeconds = DEFAULT_RESOLVE_SECONDS } = {}) {
   const puzzleIds = prototypeLevelIds();
   const campaignIds = campaignLevelIds();
   const lessonIds = ftueLevelIds();
-  let route = challengePuzzleId ? 'challenge' : campaignPuzzleId ? 'campaign' : skipTutorial || initialPuzzleId ? 'prototype' : 'ftue';
+  let route = challengePuzzleId ? 'challenge' : dailyPuzzleId ? 'daily' : campaignPuzzleId ? 'campaign' : skipTutorial || initialPuzzleId ? 'prototype' : 'ftue';
   let sharedPuzzleId = challengePuzzleId;
+  let activeDailyId = dailyId ?? null;
+  let sharedDailyPuzzleId = dailyPuzzleId ?? null;
   let puzzleIndex = Math.max(0, puzzleIds.indexOf(initialPuzzleId ?? puzzleIds[0]));
   let campaignIndex = Math.max(0, campaignIds.indexOf(campaignPuzzleId ?? campaignIds[0]));
   let lessonIndex = Math.max(0, lessonIds.indexOf(ftuePuzzleId ?? lessonIds[0]));
@@ -62,6 +64,7 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
   function loadCurrent() {
     if (route === 'ftue') return installLevel(loadFtueLevel(lessonIds[lessonIndex]));
     if (route === 'campaign') return installLevel(loadCampaignLevel(campaignIds[campaignIndex]));
+    if (route === 'daily') return installLevel(loadCampaignLevel(sharedDailyPuzzleId));
     if (route === 'challenge') return installLevel(loadSharedPuzzle(sharedPuzzleId));
     return installLevel(loadPrototypeLevel(puzzleIds[puzzleIndex]));
   }
@@ -130,7 +133,7 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
       } else if (route === 'campaign') {
         if (phase !== 'won' || campaignIndex >= campaignIds.length - 1) return false;
         campaignIndex += 1;
-      } else if (route === 'challenge') {
+      } else if (route === 'challenge' || route === 'daily') {
         return false;
       } else {
         if (!['won', 'lost'].includes(phase)) return false;
@@ -163,6 +166,14 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
       tutorialSkipped = true;
       return loadCurrent();
     },
+    startDaily(nextDailyId, puzzleId) {
+      if (typeof nextDailyId !== 'string' || typeof puzzleId !== 'string' || !campaignIds.includes(puzzleId)) return false;
+      activeDailyId = nextDailyId;
+      sharedDailyPuzzleId = puzzleId;
+      route = 'daily';
+      tutorialSkipped = true;
+      return loadCurrent();
+    },
     loadTestLevel(testLevel) {
       route = 'prototype';
       tutorialSkipped = true;
@@ -175,6 +186,8 @@ export function createSession({ initialPuzzleId, campaignPuzzleId, challengePuzz
         puzzleId: level?.puzzleId ?? puzzleIds[puzzleIndex],
         campaignNumber: level?.campaignNumber ?? null,
         challenge: route === 'challenge',
+        daily: route === 'daily',
+        dailyId: route === 'daily' ? activeDailyId : null,
         goal: level ? { ...level.goal } : null,
         colors: level ? [...level.colors] : [],
         state: state ? cloneState(state) : null,
