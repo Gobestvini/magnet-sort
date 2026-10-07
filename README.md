@@ -42,7 +42,7 @@ pnpm check:full
 - `docs/PROJECT.md` — карта кода и команд.
 - `docs/GAME_BRIEF.md` — идея, устройства, стиль и измеримые бюджеты.
 - `docs/design/GDD_V0.2.md` — актуальное направление Magnet Sort на PixiJS/pseudo‑2.5D; `PIXI_RENDERING.md` — обязательный контракт рендера.
-- `docs/tasks/` — пустая очередь и шаблон задания другой модели.
+- `docs/tasks/` — очередь задач Magnet Sort, статусы и шаблон задания другой модели.
 - `docs/knowledge/playbook.md` — инженерные практики игр; `pixijs-practices.md` — исследования курсов и практики PixiJS 8.
 - `docs/AI_WORKFLOW.md` — выбор сложности модели, контекст, проверки, токены.
 - `docs/TEMPLATE_ANALYSIS.md` — анализ переноса и источники улучшений.

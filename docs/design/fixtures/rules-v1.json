@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "notation": "Координаты row/col odd-r; token arrays показаны в порядке tokenId. Сокращённые записи фиксируют минимальные наблюдаемые before/action/after для ручной сверки RULES.md.",
+  "fixtures": [
+    {
+      "id": "win-last-move-clear-count",
+      "before": {"tokens": [{"tokenId":"r1","color":"red","mass":5,"cell":{"col":2,"row":2}}],"clearedMass":0,"turn":0,"remainingMoves":1,"terminal":null},
+      "action": {"type":"placeMagnet","color":"red","cell":{"col":3,"row":2}},
+      "after": {"tokens":[],"clearedMass":5,"turn":1,"remainingMoves":0,"terminal":{"outcome":"win","reason":"clear-count"},"events":["actionAccepted","tokenMoved:r1","stackCleared:r1:5","goalProgress:5","runEnded:win"]}
+    },
+    {
+      "id": "loss-on-last-ineffective-legal-move",
+      "before": {"tokens": [{"tokenId":"b1","color":"blue","mass":1,"cell":{"col":0,"row":0}}],"clearedMass":0,"turn":0,"remainingMoves":1,"terminal":null},
+      "action": {"type":"placeMagnet","color":"red","cell":{"col":6,"row":6}},
+      "after": {"tokens":[{"tokenId":"b1","color":"blue","mass":1,"cell":{"col":0,"row":0}}],"clearedMass":0,"turn":1,"remainingMoves":0,"terminal":{"outcome":"loss","reason":"move-limit"},"events":["actionAccepted","goalProgress:0","runEnded:loss"]}
+    },
+    {
+      "id": "two-tokens-contest-one-cell",
+      "before": {"tokens":[{"tokenId":"a","color":"red","mass":1,"cell":{"col":1,"row":2}},{"tokenId":"z","color":"red","mass":1,"cell":{"col":3,"row":2}}],"turn":0},
+      "action": {"type":"placeMagnet","color":"red","cell":{"col":2,"row":2}},
+      "after": {"tokens":[{"tokenId":"a","color":"red","mass":1,"cell":{"col":2,"row":2}},{"tokenId":"z","color":"red","mass":1,"cell":{"col":3,"row":2}}],"events":["actionAccepted","tokenMoved:a:1,2>2,2"],"reason":"Equal distance; tokenId a wins; z is blocked by the occupied destination in every later wave."}
+    },
+    {
+      "id": "merge-four-persists",
+      "before": {"tokens":[{"tokenId":"a","color":"yellow","mass":1,"cell":{"col":1,"row":3}},{"tokenId":"b","color":"yellow","mass":1,"cell":{"col":2,"row":3}},{"tokenId":"c","color":"yellow","mass":2,"cell":{"col":3,"row":3}}],"turn":0},
+      "action": {"type":"placeMagnet","color":"red","cell":{"col":4,"row":3}},
+      "after": {"tokens":[{"tokenId":"a","color":"yellow","mass":4,"cell":{"col":1,"row":3}}],"events":["actionAccepted","stackMerged:a:4","goalProgress:0"],"reason":"No red token moves; the yellow component is resolved from the wave snapshot. A connected component totals 4; mass is conserved and below clear threshold 5."}
+    },
+    {
+      "id": "clear-five-from-mini-stack",
+      "before": {"tokens":[{"tokenId":"a","color":"blue","mass":2,"cell":{"col":1,"row":3}},{"tokenId":"b","color":"blue","mass":1,"cell":{"col":2,"row":3}},{"tokenId":"c","color":"blue","mass":2,"cell":{"col":3,"row":3}}],"turn":0,"clearedMass":0},
+      "action": {"type":"placeMagnet","color":"blue","cell":{"col":4,"row":3}},
+      "after": {"tokens":[],"clearedMass":5,"events":["actionAccepted","tokenMoved:c:3,3>4,3","stackMerged:a:5","stackCleared:a:5","goalProgress:5"],"reason":"Mass 2 contributes two units to merge threshold; no unit is lost."}
+    },
+    {
+      "id": "chain-after-clear-opens-wave",
+      "before": {"tokens":[{"tokenId":"a","color":"red","mass":5,"cell":{"col":4,"row":3}},{"tokenId":"b","color":"red","mass":4,"cell":{"col":2,"row":3}},{"tokenId":"c","color":"red","mass":1,"cell":{"col":0,"row":3}}],"blockedCells":[],"turn":0,"clearedMass":0},
+      "action": {"type":"placeMagnet","color":"red","cell":{"col":6,"row":3}},
+      "after": {"tokens":[],"clearedMass":10,"chainLinks":2,"events":["actionAccepted","tokenMoved:a:4,3>5,3","tokenMoved:b:2,3>3,3","tokenMoved:c:0,3>1,3","stackCleared:a:5","tokenMoved:b:3,3>4,3","tokenMoved:c:1,3>2,3","tokenMoved:b:4,3>5,3","tokenMoved:c:2,3>3,3","tokenMoved:b:5,3>6,3","tokenMoved:c:3,3>4,3","tokenMoved:c:4,3>5,3","stackMerged:b:5","stackCleared:b:5","goalProgress:10"],"reason":"Initially the three stacks are separate. The front mass-5 stack clears in wave 1; mass 4 and mass 1 continue moving through the newly open lane and clear together in wave 5."}
+    },
+    {
+      "id": "blocker-stops-shortest-route",
+      "before": {"tokens":[{"tokenId":"a","color":"red","mass":1,"cell":{"col":1,"row":3}}],"blockedCells":[{"col":2,"row":3},{"col":2,"row":2},{"col":1,"row":2},{"col":0,"row":3},{"col":1,"row":4},{"col":2,"row":4}],"turn":0},
+      "action": {"type":"placeMagnet","color":"red","cell":{"col":3,"row":3}},
+      "after": {"tokens":[{"tokenId":"a","color":"red","mass":1,"cell":{"col":1,"row":3}}],"events":["actionAccepted","goalProgress:0"],"reason":"All six neighboring cells are blocked; no legal first step exists."}
+    },
+    {
+      "id": "mini-stack-mass-two-merges-with-one",
+      "before": {"tokens":[{"tokenId":"a","color":"yellow","mass":2,"cell":{"col":1,"row":2}},{"tokenId":"b","color":"yellow","mass":1,"cell":{"col":2,"row":2}}],"turn":0,"clearedMass":0},
+      "action": {"type":"placeMagnet","color":"red","cell":{"col":3,"row":2}},
+      "after": {"tokens":[{"tokenId":"a","color":"yellow","mass":3,"cell":{"col":1,"row":2}}],"clearedMass":0,"events":["actionAccepted","stackMerged:a:3","goalProgress:0"],"reason":"With no red tokens to move, the yellow mass-2 mini-stack merges with mass 1. Combined mass 3 makes a stack but does not clear until it reaches 5."}
+    }
+  ]
+}

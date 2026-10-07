@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "essential": true,
+      "sources": {
+        "src/render/board.js": "44791f3a16a249e83736887f1be995d806f6d9ef7c4473deb0ba6bb97c3b8884",
+        "src/render/application.js": "9c7e52d806e6faf060b7398a1e6e604732e02187bc9828ed377c3d15af55cf11",
+        "package.json": "f95afac0bb46e21e00a0ccb9136059816e100d12d892c273b930acd0d63675fa",
+        "src/scene.js": "2f72fee8006fecfbbba566932d1885c01cbf6b82fe71b7c3f4dd49c7ac7c519f"
+      },
+      "at": "2026-10-07T00:00:00.000Z",
+      "evidence": "Verified against package and current render/runtime modules; practices checked against official PixiJS 8 guides on 2026-10-07.",
+      "id": "pixijs-rendering",
+      "text": "Magnet Sort target: PixiJS 8.22.0 with Preact HUD, pure deterministic simulator, one app-owned RAF, pseudo-2.5D layered 2D art; no Three.js migration. For PixiJS 8 tutorials and practical guidance on scene graph, pointer input, assets, performance, cleanup, read docs/knowledge/pixijs-practices.md and docs/design/PIXI_RENDERING.md."
+    }
+  ]
+}

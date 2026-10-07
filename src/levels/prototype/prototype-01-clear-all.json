@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "puzzleId": "prototype-01-clear-all",
+  "seed": "proto-v1-01",
+  "contentVersion": 1,
+  "geometry": {"kind":"odd-r","rows":7,"cols":7},
+  "colors": ["red","blue","yellow"],
+  "blockedCells": [],
+  "tokens": [
+    {"tokenId":"red-five","color":"red","mass":5,"cell":{"col":1,"row":2}}
+  ],
+  "goal": {"kind":"clearAll"},
+  "moveLimit": 3,
+  "magnetSchedule": [{"options":["red"]}],
+  "mode": "prototype",
+  "solution": {
+    "actions": [{"type":"placeMagnet","color":"red","cell":{"col":2,"row":2}}],
+    "expected": {"outcome":"win","clearedMass":5,"movesUsed":1}
+  }
+}

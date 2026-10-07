@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "puzzleId": "prototype-02-clear-count",
+  "seed": "proto-v1-02",
+  "contentVersion": 1,
+  "geometry": {"kind":"odd-r","rows":7,"cols":7},
+  "colors": ["red","blue","yellow"],
+  "blockedCells": [],
+  "tokens": [
+    {"tokenId":"blue-a","color":"blue","mass":2,"cell":{"col":1,"row":3}},
+    {"tokenId":"blue-b","color":"blue","mass":2,"cell":{"col":2,"row":3}},
+    {"tokenId":"blue-c","color":"blue","mass":1,"cell":{"col":3,"row":3}}
+  ],
+  "goal": {"kind":"clearCount","mass":3},
+  "moveLimit": 4,
+  "magnetSchedule": [{"options":["red"]}],
+  "mode": "prototype",
+  "solution": {
+    "actions": [{"type":"placeMagnet","color":"red","cell":{"col":4,"row":3}}],
+    "expected": {"outcome":"win","clearedMass":5,"movesUsed":1}
+  }
+}

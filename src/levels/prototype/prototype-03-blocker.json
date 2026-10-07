@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "puzzleId": "prototype-03-blocker",
+  "seed": "proto-v1-03",
+  "contentVersion": 1,
+  "geometry": {"kind":"odd-r","rows":7,"cols":7},
+  "colors": ["red","blue","yellow"],
+  "blockedCells": [
+    {"col":2,"row":2},
+    {"col":1,"row":2},
+    {"col":0,"row":3},
+    {"col":1,"row":4},
+    {"col":2,"row":4}
+  ],
+  "tokens": [
+    {"tokenId":"red-five","color":"red","mass":5,"cell":{"col":1,"row":3}}
+  ],
+  "goal": {"kind":"clearAll"},
+  "moveLimit": 3,
+  "magnetSchedule": [{"options":["red"]}],
+  "mode": "prototype",
+  "solution": {
+    "actions": [{"type":"placeMagnet","color":"red","cell":{"col":3,"row":3}}],
+    "expected": {"outcome":"win","clearedMass":5,"movesUsed":1}
+  }
+}

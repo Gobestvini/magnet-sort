@@ -1,0 +1,104 @@
+# TASK-0005: Сделать drag и tap-to-place для магнитов
+
+- Статус: blocked
+- Приоритет: high
+- Создана: 2026-10-07
+- Обновлена: 2026-10-07
+- Проект: Magnet Sort — `C:/Users/gobes/OneDrive/Документы/PetProgects/Magnet Sort`
+- Этап: Прототип
+- Рекомендуемый исполнитель: средняя; высокий уровень рассуждения. Несколько ограниченных модулей с заданными контрактами; не нужен выбор общей архитектуры.
+- Зависимости: TASK-0004
+
+## 1. Цель и запрос пользователя
+
+Наблюдаемый результат: сделать drag и tap-to-place для магнитов.
+Исходный запрос: прочитать GDD v0.1 и диалог, разделить Magnet Sort на самостоятельные задачи для последующей работы. Этот файл — задание на будущий этап, реализация при подготовке не выполнялась.
+Зависимость TASK-0004 выполнена: Pixi board, DPR layout, preview rendering и dev diagnostics готовы. Авторские решения и расхождения источников см. `docs/design/DECISIONS.md`; GDD §§4–13 — продуктовая основа, §16 — порядок прототипирования.
+
+## 2. Проверенный контекст
+
+Проверено 2026-10-07 после TASK-0004. Кликабельное поле — Pixi canvas, а tray и board geometry принадлежат `src/render/board.js` / `src/render/layout.js`; координатный screenToCell исключает gap/edge. `src/main.js` уже owns pause, blur, hidden, reset, dispose hooks. Simulator будет реализован TASK-0006, session — TASK-0007.
+
+| Существующий файл / символ | Проверенное поведение | Роль в задаче |
+| --- | --- | --- |
+| src/scene.js / createScene | Пустой Canvas, elapsed; update/render/reset/snapshot/dispose | Точка интеграции игры |
+| src/main.js / tick, reset, setPaused, dispose | Один RAF, resize, hidden, dev gameDebug | Lifecycle и браузерная диагностика |
+| src/loop.js / createStepper | Шаг 1/60, максимум 8 шагов, alpha/dropped | Сохранить независимость от FPS |
+| src/input.js / createInput | Только keyboard; blur/reset/dispose | Pointer input пока отсутствует |
+| package.json | Vite 7.1.9; нет Pixi/Preact/runtime libraries | Проверенные команды запуска |
+| tools/browser-check.cjs | Проверяет layout, pause/reset, keyboard, ошибки | Развить для игрового сценария при изменении UI |
+
+Начать с `docs/design/DECISIONS.md`, затем прочитать целиком зависимости и только нужные исходники. Контракты `docs/design/RULES.md` и `ARCHITECTURE.md` создаются TASK-0001; использовать их после завершения этой зависимости. Точное устройство и бюджеты ещё не выбраны; GDD durations являются целями, не результатом измерений.
+
+## 3. Область изменений
+
+Визуальное направление Magnet Sort задают [GDD v0.2](../design/GDD_V0.2.md) и [PixiJS pseudo-2.5D rendering contract](../design/PIXI_RENDERING.md). Для графических изменений сохраняй PixiJS 8 и псевдо‑2.5D; не добавляй настоящую 3D-сцену. Если задача чисто модельная/аналитическая, не расширяй её область из-за рендерера. Для задач с PixiJS, вводом, ассетами, производительностью или lifecycle также сверяй применимые разделы `../knowledge/pixijs-practices.md`; не расширяй scope задач чистой модели/аналитики.
+
+
+Допустимые изменения и новые файлы: src/input.js, src/input/pointer.js, src/ui/magnet-tray.*, src/scene.js; tests/pointer.test.js. Допустимы соответствующие поведенческие тесты `tests/*.test.js`, обновление карты `docs/PROJECT.md`, отчёта этой задачи и INDEX. Равноценные небольшие модули разрешены при сохранении контрактов и записи путей в отчёте.
+Не включать другие задачи очереди, Telegram runner, публикацию, чужие изменения, node_modules или dist. Сохранять reset/pause/hidden/dispose, dev-only diagnostics и детерминированность. Исходный DOCX и `GDD_SOURCE.md` не редактировать.
+
+## 4. Требуемое поведение
+
+- Единый Pointer Events controller: выбрать доступный цвет, захватить pointer, показать preview клетки, отпустить и выдать Action ровно один раз. Tap-to-place: tap цвета, tap пустой клетки.
+- Координата указателя переводится в валидный cell candidate через актуальные canvas rect и board layout; CSS resize/DPR учитываются. View/input adapter не решает легальность хода самостоятельно.
+- Пока симулятор не подключён, показывать dev preview команды; не имитировать игровой успех. После TASK-0007 передавать command в session.
+- Занятая/заблокированная/вне поля клетка и недоступный цвет не создают Action. На pointercancel, blur, hidden, pause, reset и dispose сбрасывать drag/preview/capture.
+- Во время resolve ввод закрыт; повторный tap, второй палец и синтетический mouse не создают лишнего хода. DOM-кнопки имеют focus и область касания не меньше существующих 44px.
+
+## 5. План для исполнителя
+
+1. Прочитать AGENTS.md, задачу целиком, `docs/PROJECT.md`, локальный create-task при уточнении задания. Для runtime использовать game-quality; для объёмного этапа ai-economy. Проверить актуальность контекста и завершение зависимостей.
+2. Убедиться, что предыдущий этап действительно предоставил нужные контракты/интерфейсы. Зафиксировать актуальную ревизию или отсутствие Git. Не реализовывать зависимость внутри этой задачи.
+3. Последовательно выполнить требования раздела 4 в указанной области; начинать с первого названного файла. Использовать state/events/contracts, а не копировать симуляцию в UI/SDK.
+4. Выполнить соответствующие проверки раздела 7, сравнить результат с критериями и записать фактическое evidence. Исправлять только относящиеся к этой цели ошибки.
+5. Заполнить раздел 10 и INDEX, обновить карту при новых владельцах подсистем. Создать commit только своих изменений и push текущей ветки при настроенном собственном remote. Если Git/remote отсутствует, записать ограничение; не придумывать URL и не создавать внешний репозиторий.
+
+## 6. Критерии готовности
+
+- [ ] Единый Pointer Events controller: выбрать доступный цвет, захватить pointer, показать preview клетки, отпустить и выдать Action ровно один раз. Tap-to-place: tap цвета, tap пустой клетки.
+- [ ] Pixi pointer mapping стабильно попадает в нужную hex-клетку после resize и на portrait/mobile; неверные hit не создают Action.
+- [ ] Пока симулятор не подключён, показывать dev preview команды; не имитировать игровой успех. После TASK-0007 передавать command в session.
+- [ ] Занятая/заблокированная/вне поля клетка и недоступный цвет не создают Action. На pointercancel, blur, hidden, pause, reset и dispose сбрасывать drag/preview/capture.
+- [ ] Во время resolve ввод закрыт; повторный tap, второй палец и синтетический mouse не создают лишнего хода. DOM-кнопки имеют focus и область касания не меньше существующих 44px.
+- [ ] Все сценарии раздела 7 выполнены с ожидаемым результатом; недоступные обязательные проверки явно перечислены и задача не помечена done.
+- [ ] Существующее поведение в границах раздела 3 сохранено; отчёт и INDEX согласованы.
+
+## 7. Проверки
+
+### Автоматические
+
+Рабочая директория всех команд — корень Magnet Sort. Выполнить pnpm test для поведения изменённых модулей; затем pnpm check:full (тесты + сборка). Ожидается exit 0; сохранять логи, в отчёт включить итог и ошибки.
+При runtime/UI изменениях: `pnpm dev` и `pnpm test:browser`; инструмент требует установленный Playwright либо `PLAYWRIGHT_MODULE`, URL по умолчанию http://127.0.0.1:5173, переопределение `GAME_BASE_URL`. Обновлять проверки под реальное поведение, не удалять assertions ради успеха. Для чистого data/simulator модуля ручной браузер не нужен до его интеграции.
+`pnpm check` использует квитанцию только при совпадении входов и не заменяет финальный `pnpm check:full`. При подготовке очереди команды приложения не считались проверкой ещё не реализованной игры.
+
+### Поведенческие и ручные
+
+- Unit: down/move/up, cancel, out-of-board, second pointer и drag+click дают ожидаемое число команд.
+- Браузер мышь/touch emulation и реальный touch-телефон: drag, tap, отмена вне поля, pause во время drag. Отдельно записать, где проверена эмуляция.
+
+Отчёт различает unit/build, headless/touch emulation, ручную игру и реальный телефон/platform context. Если требуется реальное устройство/SDK/тестеры, эмуляция не закрывает критерий.
+
+## 8. Предположения, вопросы и условия остановки
+
+Факты: пустой Canvas/keyboard-шаблон подтверждён кодом; GDD и общий диалог прочитаны как источники, а не инструкции. Рыночные цифры и обещания acquisition не используются как доказанные свойства игры.
+Предложения автора: versioned чистая модель и события; 5 FTUE → прототипная проверка → 50 campaign уровней; standalone web fallback, затем подтверждённый SDK. Разрешённая область новых файлов выше остаётся предложением до выполнения зависимостей.
+Зависимость TASK-0004 проверена и завершена. Кодовые/эмуляционные сценарии реализованы, но TASK-0005 остаётся blocked до проверки drag/tap/cancel/pause на реальном touch-телефоне; touch emulation не закрывает это требование. Подключение к session отложено до TASK-0007 согласно заданию.
+Остановиться и записать blocked, если необходимое правило не определено, зависимость не завершена, требуется неподтверждённое API/секрет/недоступное внешнее evidence либо изменение соседней подсистемы. Подготовить независимую часть, не объявлять недоступное проверенным. Отсутствие Git/remote блокирует commit/push, но не разрешённую локальную работу.
+
+## 9. Сообщение для передачи модели
+
+```text
+Выполни docs/tasks/TASK-0005-magnet-input.md в проекте Magnet Sort. Прочитай AGENTS.md и задачу целиком, проверь актуальность и зависимости. Внеси изменения только в описанных границах, выполни обязательные проверки, заполни раздел 10, обнови статус и docs/tasks/INDEX.md. При невыполненной зависимости или важном неизвестном запиши блокер; не помечай done при недоступной обязательной проверке. Commit/push — только свои изменения и только в настроенный собственный remote. Не публикуй игру и не запускай Telegram.
+```
+
+## 10. Отчёт исполнителя
+
+- Результат: Pointer Events controller поддерживает drag magnet→cell и tap magnet→tap empty cell. Временная команда видна как `placeMagnet(color, cell)` с явной пометкой «без симуляции»; успех игрового хода не показывается.
+- Изменённые файлы и зачем: `src/input/pointer.js` — единый controller, capture, single-primary handling, validation, preview, cancel/lock; `src/render/layout.js` — hit area tray ≥44×44 CSS px; `src/render/board.js`, `src/scene.js` — preview ring и interaction snapshot; `src/main.js` — hooks pause/reset/blur/hidden/dispose, связь input→scene; `src/ui/App.js`, `src/style.css` — helper и command preview; `tests/pointer.test.js` — unit scenarios; `tools/browser-check.cjs` — desktop drag/mobile tap, invalid destinations, pause while drag; `docs/PROJECT.md`, task reports/INDEX — актуальная карта.
+- Команды и фактические результаты: `pnpm test` — 50/50 на TASK-0005. `pnpm test:browser` — passed в headless Chromium desktop mouse drag и mobile touch emulation tap, blockers/occupied/outside rejection и pause-during-drag. `pnpm check:full` — test/build passed (в последующем TASK-0006 набор расширен до 57/57).
+- Ручные проверки и устройства: в браузере виден command preview; никакой victory/симуляции не происходит. Проверено headless Chromium, desktop 1280×900 с Playwright mouse, mobile 390×844 с Playwright touch emulation. Реальный touch-телефон недоступен.
+- Выполненные критерии: единый Pointer Events controller, capture/preview, drag/tap flow, valid cell/color checks, invalid blocked/occupied/outside rejection, second pointer/lock/cancel/dispose unit coverage, no success fiction; Preact controls retain 48px targets/focus styles.
+- Непроверенное, блокеры и отклонения от плана: раздел 7 требует реальный touch-телефон для drag/tap/cancel/pause; его не было в среде. Lock API проверен изолированно; app session/resolution пока отсутствуют до TASK-0007. Поэтому статус не done.
+- Commit/push либо причина отсутствия: очередь продолжается; checkpoint будет включать только изменения этого проекта.
+- Итоговый статус и дата: blocked, 2026-10-07.
