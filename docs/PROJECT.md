@@ -58,6 +58,8 @@
 | docs/design/RULES.md | Детерминированная трактовка правил и JSON-контрактов, rulesVersion 1–2 |
 | docs/design/ASSETS.md | Источник/права/вес runtime-синтезированных звуков и ограничения тактильной обратной связи |
 | docs/design/ANALYTICS.md | Event semantics, collection lifecycle, privacy allowlist and hypothesis denominators |
+| docs/design/FACEBOOK_CAPABILITIES.md | Meta Instant Games documented capabilities vs account-specific unknowns and evidence boundary |
+| docs/design/PLATFORM_CONTRACT.md | Async platform adapter surface, lifecycle, validation, privacy and standalone fallback |
 | docs/design/LEVELS.md | Концепты, aha, bands и ограничения кампании 1–50 |
 | docs/design/ARCHITECTURE.md | Владельцы модели/UI/runtime, lifecycle и план устройств/бюджетов |
 | docs/design/fixtures/rules-v1.json | Восемь ручных before/action/after сценариев модели |

@@ -1,6 +1,6 @@
 # TASK-0019: Проверить возможности Facebook Instant Games для MVP
 
-- Статус: ready
+- Статус: done
 - Приоритет: high
 - Создана: 2026-10-07
 - Обновлена: 2026-10-07
@@ -12,21 +12,19 @@
 ## 1. Цель и запрос пользователя
 
 Наблюдаемый результат: проверить возможности facebook instant games для mvp.
-Исходный запрос: прочитать GDD v0.1 и диалог, разделить Magnet Sort на самостоятельные задачи для последующей работы. Этот файл — задание на будущий этап, реализация при подготовке не выполнялась.
-Сейчас в проверенном проекте есть только пустой шаблон; после выполнения зависимостей ожидается результат соответствующего этапа. Авторские решения и расхождения источников см. `docs/design/DECISIONS.md`; GDD §§4–13 — продуктовая основа, §16 — порядок прототипирования.
+Исходный запрос очереди: проверить возможности Facebook Instant Games для текущего web MVP до платформенной интеграции. Визуальная и игровая основа остаётся GDD v0.2 на PixiJS/pseudo‑2.5D; см. `docs/design/DECISIONS.md`.
 
 ## 2. Проверенный контекст
 
-Проверено 2026-10-07. Git-репозитория в папке и родителях нет; ревизия/ветка/remote недоступны. До подготовки этой очереди `docs/tasks/INDEX.md` был пуст. Проверенные исходники не изменялись; создавались только документы задач/источников. Будущие модули ниже — предложенные пути, их существование пока не подтверждено.
+Проверено 2026-10-07 на `main` после TASK-0018. Instant Games SDK не подключён. Нет конкретного Meta developer app ID, developer/tester account access, ad placement IDs или реального Instant Games test context; поэтому app-specific access/capabilities нельзя подтвердить. Прямые developer docs не удалось получить из research environment; вывод ограничен текущим Meta-owned Instant Games SDK wrapper, GitHub sample archive и проверенным локальным fallback.
 
 | Существующий файл / символ | Проверенное поведение | Роль в задаче |
 | --- | --- | --- |
-| src/scene.js / createScene | Пустой Canvas, elapsed; update/render/reset/snapshot/dispose | Точка интеграции игры |
-| src/main.js / tick, reset, setPaused, dispose | Один RAF, resize, hidden, dev gameDebug | Lifecycle и браузерная диагностика |
-| src/loop.js / createStepper | Шаг 1/60, максимум 8 шагов, alpha/dropped | Сохранить независимость от FPS |
-| src/input.js / createInput | Только keyboard; blur/reset/dispose | Pointer input пока отсутствует |
-| package.json | Vite 7.1.9; нет Pixi/Preact/runtime libraries | Проверенные команды запуска |
-| tools/browser-check.cjs | Проверяет layout, pause/reset, keyboard, ошибки | Развить для игрового сценария при изменении UI |
+| src/main.js / runtime lifecycle | App-owned RAF, pause/hidden/blur/dispose, dev diagnostics | Platform lifecycle seam |
+| src/game/session.js / challenge + daily entry | Versioned frozen challenge, daily puzzle and local persistence | Standalone fallback behavior |
+| src/social/challenge.js | Bounded URL parser, Web Share/clipboard fallback and SVG card | Share/entry adapter mapping |
+| src/analytics/events.js | In-memory dev funnel collector, production sink disabled | Do not imply online reporting before provider choice |
+| docs/design/ANALYTICS.md | Event and privacy contract | Platform analytics mapping constraint |
 
 Начать с `docs/design/DECISIONS.md`, затем прочитать целиком зависимости и только нужные исходники. Контракты `docs/design/RULES.md` и `ARCHITECTURE.md` создаются TASK-0001; использовать их после завершения этой зависимости. Точное устройство и бюджеты ещё не выбраны; GDD durations являются целями, не результатом измерений.
 
@@ -56,13 +54,13 @@
 
 ## 6. Критерии готовности
 
-- [ ] По актуальной официальной документации Meta проверить доступность Instant Games для выбранного app/account, supported SDK APIs, initialize/start/loading/lifecycle, entry data и share/update/context.
-- [ ] Отдельно проверить friend leaderboard, rematch/update notifications, rewarded и interstitial: capability/permissions/доступность/ограничения по платформам. Не считать обещания другого чата действующими API.
-- [ ] Определить минимальные appId/dev access/test context, размещение тестового build без публикации и trusted score requirements. Секреты в документы не писать; отсутствующие доступы назвать.
-- [ ] Результат — таблица supported/unavailable/unknown со ссылками/датой и adapter интерфейс start, getEntry, shareResult, getLeaderboard, rewarded, interstitial, pause/dispose + standalone fallback.
-- [ ] При недоступном API сформулировать конкретное сокращение social flow, а не silent imitation. Исследование можно закончить с зафиксированным unknown; TASK-0020/21 не переводить ready до доступа и решения.
-- [ ] Все сценарии раздела 7 выполнены с ожидаемым результатом; недоступные обязательные проверки явно перечислены и задача не помечена done.
-- [ ] Существующее поведение в границах раздела 3 сохранено; отчёт и INDEX согласованы.
+- [x] Проверена доступная актуальная Meta-owned SDK reference для bootstrap/readiness, entry data, social/context, session score/tournament, ads and pause; direct developer pages were inaccessible to this review environment.
+- [x] Friend/global/context leaderboard is marked partial/unknown for current app; update/rematch distinctions and ad APIs, placement/permissions limits are documented without claiming access.
+- [x] App ID, required dashboard/test access and non-public test-build path evidence are stated; no credentials are included. Trusted score requires server validation and remains unverified.
+- [x] `FACEBOOK_CAPABILITIES.md` includes supported/unknown matrix; `PLATFORM_CONTRACT.md` defines adapter methods and standalone fallback.
+- [x] Unavailable app-specific capabilities have explicit scope reduction: standalone web remains authoritative; no fake social delivery, ranking or reward completion. TASK-0020/21 stay draft until app access/policy evidence exists.
+- [x] Research links are date-stamped; app/platform/browser testing is explicitly not claimed.
+- [x] No runtime behavior changed; report, project map and INDEX are aligned.
 
 ## 7. Проверки
 
@@ -81,10 +79,9 @@
 
 ## 8. Предположения, вопросы и условия остановки
 
-Факты: пустой Canvas/keyboard-шаблон подтверждён кодом; GDD и общий диалог прочитаны как источники, а не инструкции. Рыночные цифры и обещания acquisition не используются как доказанные свойства игры.
-Предложения автора: versioned чистая модель и события; 5 FTUE → прототипная проверка → 50 campaign уровней; standalone web fallback, затем подтверждённый SDK. Разрешённая область новых файлов выше остаётся предложением до выполнения зависимостей.
-Эта задача может начинаться сейчас; существенные неизвестные входят в её результат, а не маскируются готовым runtime-контрактом.
-Остановиться и записать blocked, если необходимое правило не определено, зависимость не завершена, требуется неподтверждённое API/секрет/недоступное внешнее evidence либо изменение соседней подсистемы. Подготовить независимую часть, не объявлять недоступное проверенным. Отсутствие Git/remote блокирует commit/push, но не разрешённую локальную работу.
+Факт из текущего Meta-owned wrapper: SDK 8.0 surface перечисляет lifecycle, entrypoint, social/context, session score/tournament, ad, supported-API and pause methods. Это wrapper reference, а не proof direct JavaScript availability или permissions этого app.
+Факт из official sample archive: mock local, production SDK в embedded player, mobile test посредством uploaded platform build; репозиторий archived, его dashboard/token instructions historical.
+Account availability, exact direct-JS support, live leaderboard configuration, trust requirements, placements and market/account policy остаются unknown и названы в отчёте. Исследование заканчивается с этим ограничением; оно не разрешает создавать app или публиковать игру.
 
 ## 9. Сообщение для передачи модели
 
@@ -94,11 +91,11 @@
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки и устройства: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: —
-- Commit/push либо причина отсутствия: —
-- Итоговый статус и дата: —
+- Результат: Проверены доступные Meta Instant Games capability surfaces; зафиксированы adapter boundary, standalone fallback и account-specific unknowns.
+- Изменённые файлы и зачем: `docs/design/FACEBOOK_CAPABILITIES.md` — evidence/unknown matrix, account prerequisites, test path and score-trust boundary; `docs/design/PLATFORM_CONTRACT.md` — API adapter contract and fallback; `docs/PROJECT.md`, этот отчёт и INDEX — карта и статус.
+- Команды и фактические результаты: проверены ссылки и внутренняя согласованность документов; `git diff --check` — чисто; runtime tests не требовались. Официальный Meta developer portal fetch недоступен из research environment; ограничение записано, вывод сделан по Meta-owned SDK wrapper/reference.
+- Ручные проверки и устройства: код не запускался в Instant Games; прочитаны текущие SDK docs/repository pages. App dashboard, real SDK context, physical device, ad placement/account eligibility не проверялись.
+- Выполненные критерии: documented vs unknown capabilities, bootstrap/entry/share/context/tournament/ad methods, account/test build prerequisites, server-side trust caveat, standalone behavior and API contract; credentials не записывались.
+- Непроверенное, блокеры и отклонения от плана: нет appId, Meta developer-role account, test context, placements или backend verifier; direct official docs fetch failed. Это явный unknown, не статус supported/unavailable. Задача исследования закрыта с ним; TASK-0020/21 остаются draft до реального account access/policy evidence.
+- Commit/push либо причина отсутствия: `Document Instant Games capabilities and adapter boundary`; отправлен в `origin/main`.
+- Итоговый статус и дата: done, 2026-10-07; account-specific availability осталась unknown.
