@@ -1,6 +1,6 @@
 # Очередь Magnet Sort
 
-Подготовлена 2026-10-07 по GDD v0.1 и общему диалогу, обновлена по текущему решению PixiJS/pseudo‑2.5D. TASK-0001–0009 завершены; TASK-0005 закрыта с явным пользовательским waiver физического touch-теста. TASK-0010/0011 проходят такое же документирование.
+Подготовлена 2026-10-07 по GDD v0.1 и общему диалогу, обновлена по текущему решению PixiJS/pseudo‑2.5D. TASK-0001–0010 завершены; TASK-0005 и TASK-0010 имеют явный waiver для физического теста.
 
 Пользователь разрешил пропускать запросы на недоступные замеры и внешнее участие; каждое такое исключение помечено как waiver, а не как собранное evidence. TASK-0011 и последующие задачи в работе. После правок документации требуется `pnpm check:full`. Текущий дизайн: [GDD v0.2](../design/GDD_V0.2.md), [PixiJS rendering contract](../design/PIXI_RENDERING.md), [DECISIONS](../design/DECISIONS.md); оригинал: [GDD_SOURCE](../design/GDD_SOURCE.md).
 
@@ -17,7 +17,7 @@
 | [TASK-0007: Собрать первый полный играбельный цикл](TASK-0007-playable-session.md) | done | high | TASK-0005, TASK-0006 | средняя; высокий |
 | [TASK-0008: Сделать наглядные pull, merge и clear-анимации](TASK-0008-motion-feedback.md) | done | high | TASK-0007 | средняя; высокий |
 | [TASK-0009: Добавить честный score и экран результата](TASK-0009-score-result.md) | done | high | TASK-0007 | средняя; высокий |
-| [TASK-0010: Научить механике через первые пять уровней](TASK-0010-ftue-five-levels.md) | blocked | high | TASK-0008, TASK-0009 | средняя; средний |
+| [TASK-0010: Научить механике через первые пять уровней](TASK-0010-ftue-five-levels.md) | done | high | TASK-0008, TASK-0009 | средняя; средний |
 | [TASK-0011: Проверить прототип и принять решение о расширении](TASK-0011-prototype-gate.md) | blocked | high | TASK-0010 | сильная; высокий |
 | [TASK-0012: Собрать проверенную кампанию из 50 уровней](TASK-0012-campaign-fifty.md) | draft | normal | TASK-0011 | сильная; высокий |
 | [TASK-0013: Сделать Home и устойчивый локальный прогресс](TASK-0013-progress-navigation.md) | draft | normal | TASK-0012 | средняя; высокий |
