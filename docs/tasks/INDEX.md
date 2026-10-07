@@ -18,7 +18,7 @@ TASK-0005 и TASK-0010 реализованы, но ждут обязатель�
 | [TASK-0008: Сделать наглядные pull, merge и clear-анимации](TASK-0008-motion-feedback.md) | done | high | TASK-0007 | средняя; высокий |
 | [TASK-0009: Добавить честный score и экран результата](TASK-0009-score-result.md) | done | high | TASK-0007 | средняя; высокий |
 | [TASK-0010: Научить механике через первые пять уровней](TASK-0010-ftue-five-levels.md) | blocked | high | TASK-0008, TASK-0009 | средняя; средний |
-| [TASK-0011: Проверить прототип и принять решение о расширении](TASK-0011-prototype-gate.md) | draft | high | TASK-0010 | сильная; высокий |
+| [TASK-0011: Проверить прототип и принять решение о расширении](TASK-0011-prototype-gate.md) | blocked | high | TASK-0010 | сильная; высокий |
 | [TASK-0012: Собрать проверенную кампанию из 50 уровней](TASK-0012-campaign-fifty.md) | draft | normal | TASK-0011 | сильная; высокий |
 | [TASK-0013: Сделать Home и устойчивый локальный прогресс](TASK-0013-progress-navigation.md) | draft | normal | TASK-0012 | средняя; высокий |
 | [TASK-0014: Сделать web-ссылку на тот же puzzle и rematch](TASK-0014-friend-challenge.md) | draft | normal | TASK-0009, TASK-0011 | средняя; высокий |
@@ -33,7 +33,7 @@ TASK-0005 и TASK-0010 реализованы, но ждут обязатель�
 
 ## Следующий шаг
 
-TASK-0010 реализована и отправляется, но остаётся blocked до ручного первого прохождения на desktop и физическом телефоне. После проверки — TASK-0011. TASK-0005 также ждёт touch-проверку.
+TASK-0010 и зависимая TASK-0011 реализованы/подготовлены, но blocked до ручного first-time прохождения на телефоне, трёх новых тестеров и baseline-замеров. Протокол TASK-0011 подготовлен в `../reports/PROTOTYPE_GATE.md`; после сбора evidence принять go/rework/no-go, затем перейти к TASK-0012. TASK-0005 также ждёт touch-проверку.
 
 ## Покрытие GDD и границы
 
