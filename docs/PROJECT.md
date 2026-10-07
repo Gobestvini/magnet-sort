@@ -9,12 +9,14 @@
 | src/render/effects.js | Lightweight Pixi Graphics for pull trails, placement magnet, merge mass, chain badge and cleared-cell pulse |
 | src/render/layout.js | DPR-aware screen/cell helpers и преобразование координат указателя |
 | src/ui/App.js | Preact shell, accessible status, tutorial, pause/reset/retry |
+| src/ui/home.js | Home/Continue, disabled Daily/friend availability entries and local reduced-motion setting |
 | src/input/pointer.js | Pointer capture, drag/tap placement validation, preview, cancellation and lock |
 | src/loop.js / createStepper | Шаг 1/60 с, максимум 8 шагов кадра, dropped time, alpha |
 | src/input.js / createInput | Клавиатура event.code, blur/reset/dispose |
 | src/scene.js / createScene | Pixi prototype-level scene: update/render/resize/reset/snapshot/dispose |
 | src/game/session.js / createSession | Validates FTUE/prototype levels, gates lesson progression, resolves simulator outcomes, supports skip/retry/next and dev snapshots |
 | src/game/scoring.js | RULES v1 RunResult scoring, clear percentage, assisted challenge eligibility and shared deterministic run comparator |
+| src/game/progress.js | Versioned local progress, best/completed runs, FTUE/campaign unlocks, safe storage fallback and settings |
 | src/ui/game-hud.js | Session-driven objective, moves, magnet choices, event feedback and terminal actions |
 | src/ui/result.js | Accessible win/loss result card with score, moves, active time, clear percentage, chain links and contextual retry/next actions |
 | src/game/hex.js | odd-r/axial преобразования, 7×7 neighbors/distance/ID и materialization empty/blocker/crate/token клеток |
@@ -27,6 +29,7 @@
 | src/ui/tutorial.js | Локальные подсказки ошибок, шаги choose/place/pull и session skip обучения |
 | tests/ftue.test.js | FTUE solutions, timer-only hint, progression, skip/retry/completion |
 | tests/campaign.test.js | 50 campaign replays, rules bands, массовый баланс и crate resolution |
+| tests/progress.test.js | Storage fallback, bounds, result comparator, FTUE progression and settings |
 | index.html, src/style.css | Название Magnet Sort, адаптивная светлая оболочка |
 | tests/loop.test.js, tests/input.test.js | Частоты кадров, stalls, ввод и очистка |
 | tests/hex.test.js, tests/levels.test.js, tests/layout.test.js, tests/board-render.test.js, tests/pointer.test.js, tests/simulator.test.js | Geometry, level validation, rendering/input immutability, pointer commands and simulator fixtures/invariants |

@@ -1,6 +1,6 @@
 # TASK-0013: Сделать Home и устойчивый локальный прогресс
 
-- Статус: draft
+- Статус: done
 - Приоритет: normal
 - Создана: 2026-10-07
 - Обновлена: 2026-10-07
@@ -17,16 +17,19 @@
 
 ## 2. Проверенный контекст
 
-Проверено 2026-10-07. Git-репозитория в папке и родителях нет; ревизия/ветка/remote недоступны. До подготовки этой очереди `docs/tasks/INDEX.md` был пуст. Проверенные исходники не изменялись; создавались только документы задач/источников. Будущие модули ниже — предложенные пути, их существование пока не подтверждено.
+Проверено повторно 2026-10-07 после выполнения TASK-0012, commit `8cc0979`. Репозиторий чист перед задачей, ветка `main`, `origin` настроен. Текущий runtime — PixiJS 8.22.0 + Preact, сессия FTUE/prototype и проверенная кампания из 50 уровней; Home/progress ещё не было. `src/main.js` владеет app lifecycle и Pixi RAF, `src/game/session.js` — FTUE/result progression, `src/ui/App.js` — game controls/results. Решения кампании и формат LevelDefinition находятся в `docs/design/RULES.md`/`LEVELS.md`; FTUE закрывается только победой последнего урока.
 
 | Существующий файл / символ | Проверенное поведение | Роль в задаче |
 | --- | --- | --- |
-| src/scene.js / createScene | Пустой Canvas, elapsed; update/render/reset/snapshot/dispose | Точка интеграции игры |
-| src/main.js / tick, reset, setPaused, dispose | Один RAF, resize, hidden, dev gameDebug | Lifecycle и браузерная диагностика |
-| src/loop.js / createStepper | Шаг 1/60, максимум 8 шагов, alpha/dropped | Сохранить независимость от FPS |
-| src/input.js / createInput | Только keyboard; blur/reset/dispose | Pointer input пока отсутствует |
-| package.json | Vite 7.1.9; нет Pixi/Preact/runtime libraries | Проверенные команды запуска |
-| tools/browser-check.cjs | Проверяет layout, pause/reset, keyboard, ошибки | Развить для игрового сценария при изменении UI |
+| src/scene.js / createScene | FTUE/prototype session, scene reset/retry/next/dispose | Переход по сохранённому progress target; reset не удаляет progress |
+| src/main.js / tick, initialize, renderUI | Один RAF, resize, hidden, Home/game screen, safe persistence | Сохранение завершённого результата и lifecycle |
+| src/game/session.js / createSession | FTUE, campaign/prototype routes, retry/next/result | Продолжение с последнего открытого урока/уровня |
+| src/game/levels.js / campaignLevelIds | 50 последовательных campaign puzzles | Разблокировка и продолжение кампании |
+| src/game/scoring.js / compareRunResults | Единый comparator результата | Выбор best result без дублирования ranking |
+| src/game/progress.js | На момент начала отсутствовал | Новый versioned local progress contract |
+| src/ui/App.js / src/ui/result.js | Preact game HUD/tutorial/result | Переключение Home/game и возврат из результата |
+| src/style.css / PixiJS 8.22.0 | Адаптивный DOM/Pixi интерфейс | Home layout и сохранение rendering/lifecycle |
+| tools/browser-check.cjs | Desktop/mobile layout, FTUE, simulator, pause/reset, ошибки | Расширен на Home, refresh, corrupt storage, replay/continue |
 
 Начать с `docs/design/DECISIONS.md`, затем прочитать целиком зависимости и только нужные исходники. Контракты `docs/design/RULES.md` и `ARCHITECTURE.md` создаются TASK-0001; использовать их после завершения этой зависимости. Точное устройство и бюджеты ещё не выбраны; GDD durations являются целями, не результатом измерений.
 
@@ -35,7 +38,7 @@
 Визуальное направление Magnet Sort задают [GDD v0.2](../design/GDD_V0.2.md) и [PixiJS pseudo-2.5D rendering contract](../design/PIXI_RENDERING.md). Для графических изменений сохраняй PixiJS 8 и псевдо‑2.5D; не добавляй настоящую 3D-сцену. Если задача чисто модельная/аналитическая, не расширяй её область из-за рендерера. Для задач с PixiJS, вводом, ассетами, производительностью или lifecycle также сверяй применимые разделы `../knowledge/pixijs-practices.md`; не расширяй scope задач чистой модели/аналитики.
 
 
-Допустимые изменения и новые файлы: src/game/progress.js, src/ui/home.*, src/ui/App.*, src/game/session.js; tests/progress.test.js. Допустимы соответствующие поведенческие тесты `tests/*.test.js`, обновление карты `docs/PROJECT.md`, отчёта этой задачи и INDEX. Равноценные небольшие модули разрешены при сохранении контрактов и записи путей в отчёте.
+Изменения: `src/game/progress.js`, `src/ui/home.js`, `src/ui/App.js`, `src/game/session.js`, `src/scene.js`, `src/main.js`, `src/ui/result.js`, `src/style.css`; `tests/progress.test.js` и соответствующие session/browser regressions. Допустимы обновления карты `docs/PROJECT.md`, отчёта этой задачи и INDEX. Другие задачи очереди не включены.
 Не включать другие задачи очереди, Telegram runner, публикацию, чужие изменения, node_modules или dist. Сохранять reset/pause/hidden/dispose, dev-only diagnostics и детерминированность. Исходный DOCX и `GDD_SOURCE.md` не редактировать.
 
 ## 4. Требуемое поведение
@@ -81,8 +84,7 @@
 
 Факты: пустой Canvas/keyboard-шаблон подтверждён кодом; GDD и общий диалог прочитаны как источники, а не инструкции. Рыночные цифры и обещания acquisition не используются как доказанные свойства игры.
 Предложения автора: versioned чистая модель и события; 5 FTUE → прототипная проверка → 50 campaign уровней; standalone web fallback, затем подтверждённый SDK. Разрешённая область новых файлов выше остаётся предложением до выполнения зависимостей.
-Статус draft: зависимости ещё не выполнены. Переводить ready только после чтения отчётов зависимостей, проверки кода/контрактов и актуализации этого задания.
-Остановиться и записать blocked, если необходимое правило не определено, зависимость не завершена, требуется неподтверждённое API/секрет/недоступное внешнее evidence либо изменение соседней подсистемы. Подготовить независимую часть, не объявлять недоступное проверенным. Отсутствие Git/remote блокирует commit/push, но не разрешённую локальную работу.
+Зависимость TASK-0012 завершена и сверена. Реальный телефон не нужен для контракта localStorage; desktop/mobile browser checks и unit сценарии доступны. Нет аккаунтов/облака и платформенных интеграций.
 
 ## 9. Сообщение для передачи модели
 
@@ -92,11 +94,11 @@
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки и устройства: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: —
-- Commit/push либо причина отсутствия: —
-- Итоговый статус и дата: —
+- Результат: добавлен Home с одним главным действием Play/Continue и schema-versioned локальным прогрессом. Продолжение FTUE сохраняет текущий урок; победа последнего урока или явный skip ведут к кампании с уровня 6.
+- Изменённые файлы и зачем: `src/game/progress.js` — version 1, load/save, fallback, completed/best results, settings, unlock rules; `src/game/session.js`, `src/scene.js` — FTUE/campaign routes и возврат результата; `src/main.js` — Home lifecycle, запись terminal result/skip/settings; `src/ui/home.js`, `App.js`, `result.js`, `style.css` — Home, availability badges, Home action и настройки; `tests/progress.test.js`, `tests/ftue.test.js`, `tests/session.test.js`, `tools/browser-check.cjs` — persistence, progression, replay and browser regressions; `docs/PROJECT.md`, этот отчёт и INDEX — карта/evidence.
+- Команды и фактические результаты: `pnpm test` — 87 passed, 0 failed; `pnpm test:browser` — desktop/mobile emulation passed: Home → FTUE → win → refresh → Continue, campaign unlock/Continue/replay/Home, corrupt JSON fallback, settings, disabled Daily/friend, reset persistence; `pnpm check:full` — exit 0, tests/build passed; `git diff --check` — passed.
+- Ручные проверки и устройства: физический телефон не использовался; проверка браузера headless с mobile touch emulation, не заявляется как реальный телефон.
+- Выполненные критерии: Play/Continue — единственное главное действие; Daily/friend недоступны и помечены «скоро»; schemaVersion хранит unlock, completed/best results, FTUE seen/completed/skipped/current lesson и setting; terminal outcome сохраняется после resolve, загрузка не записывает результат; malformed/version/storage failures дают safe fallback; retry/reset не очищает сохранённый progress; refresh resumes next FTUE lesson/campaign; replay и Home return работают.
+- Непроверенное, блокеры и отклонения от плана: browser проверки эмулируют touch и не оценивают удобство на физическом устройстве. Реальные SDK, облако и аккаунты не входили в scope.
+- Commit/push либо причина отсутствия: изменения TASK-0013 включены в коммит `Add Home and local progress` и отправлены в `origin/main`.
+- Итоговый статус и дата: done, 2026-10-07.

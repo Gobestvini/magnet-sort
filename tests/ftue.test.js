@@ -88,7 +88,7 @@ test('completion is recorded only after winning lesson five; then campaign opens
   assert.equal(session.nextPuzzle(), true);
   assert.equal(session.snapshot().tutorial.active, false);
   assert.equal(session.snapshot().tutorial.completed, true);
-  assert.equal(session.snapshot().puzzleId, 'prototype-01-clear-all');
+  assert.equal(session.snapshot().puzzleId, 'campaign-06');
 });
 
 test('skip and explicit challenge entry bypass the tutorial without marking it complete', () => {
@@ -97,7 +97,7 @@ test('skip and explicit challenge entry bypass the tutorial without marking it c
   assert.equal(skipped.snapshot().tutorial.active, false);
   assert.equal(skipped.snapshot().tutorial.skipped, true);
   assert.equal(skipped.snapshot().tutorial.completed, false);
-  assert.equal(skipped.snapshot().puzzleId, 'prototype-01-clear-all');
+  assert.equal(skipped.snapshot().puzzleId, 'campaign-06');
   const challenge = createSession({ initialPuzzleId: 'prototype-02-clear-count' });
   assert.equal(challenge.snapshot().puzzleId, 'prototype-02-clear-count');
   assert.equal(challenge.snapshot().tutorial.active, false);

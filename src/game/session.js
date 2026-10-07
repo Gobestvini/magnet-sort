@@ -1,5 +1,5 @@
 import { applyAction, createInitialState } from './simulator.js';
-import { ftueLevelIds, loadFtueLevel, loadPrototypeLevel, prototypeLevelIds, validateLevelDefinition } from './levels.js';
+import { campaignLevelIds, ftueLevelIds, loadCampaignLevel, loadFtueLevel, loadPrototypeLevel, prototypeLevelIds, validateLevelDefinition } from './levels.js';
 import { cloneState } from './state.js';
 import { createRunResult } from './scoring.js';
 
@@ -11,12 +11,14 @@ function phaseForState(state) {
   return 'playing';
 }
 
-export function createSession({ initialPuzzleId, skipTutorial = false, resolveSeconds = DEFAULT_RESOLVE_SECONDS } = {}) {
+export function createSession({ initialPuzzleId, campaignPuzzleId, ftuePuzzleId, skipTutorial = false, resolveSeconds = DEFAULT_RESOLVE_SECONDS } = {}) {
   const puzzleIds = prototypeLevelIds();
+  const campaignIds = campaignLevelIds();
   const lessonIds = ftueLevelIds();
-  let route = skipTutorial || initialPuzzleId ? 'prototype' : 'ftue';
+  let route = campaignPuzzleId ? 'campaign' : skipTutorial || initialPuzzleId ? 'prototype' : 'ftue';
   let puzzleIndex = Math.max(0, puzzleIds.indexOf(initialPuzzleId ?? puzzleIds[0]));
-  let lessonIndex = 0;
+  let campaignIndex = Math.max(0, campaignIds.indexOf(campaignPuzzleId ?? campaignIds[0]));
+  let lessonIndex = Math.max(0, lessonIds.indexOf(ftuePuzzleId ?? lessonIds[0]));
   let tutorialSkipped = Boolean(skipTutorial || initialPuzzleId);
   let tutorialCompleted = false;
   let level = null;
@@ -57,9 +59,9 @@ export function createSession({ initialPuzzleId, skipTutorial = false, resolveSe
   }
 
   function loadCurrent() {
-    return route === 'ftue'
-      ? installLevel(loadFtueLevel(lessonIds[lessonIndex]))
-      : installLevel(loadPrototypeLevel(puzzleIds[puzzleIndex]));
+    if (route === 'ftue') return installLevel(loadFtueLevel(lessonIds[lessonIndex]));
+    if (route === 'campaign') return installLevel(loadCampaignLevel(campaignIds[campaignIndex]));
+    return installLevel(loadPrototypeLevel(puzzleIds[puzzleIndex]));
   }
 
   function settleResolution() {
@@ -122,7 +124,10 @@ export function createSession({ initialPuzzleId, skipTutorial = false, resolveSe
       if (route === 'ftue') {
         if (phase !== 'won') return false;
         if (lessonIndex < lessonIds.length - 1) lessonIndex += 1;
-        else { route = 'prototype'; puzzleIndex = 0; }
+        else { route = 'campaign'; campaignIndex = Math.min(5, campaignIds.length - 1); }
+      } else if (route === 'campaign') {
+        if (phase !== 'won' || campaignIndex >= campaignIds.length - 1) return false;
+        campaignIndex += 1;
       } else {
         if (!['won', 'lost'].includes(phase)) return false;
         puzzleIndex = (puzzleIndex + 1) % puzzleIds.length;
@@ -131,9 +136,21 @@ export function createSession({ initialPuzzleId, skipTutorial = false, resolveSe
     },
     skipTutorial() {
       if (route !== 'ftue' || phase !== 'playing') return false;
-      route = 'prototype';
+      route = 'campaign';
       tutorialSkipped = true;
-      puzzleIndex = 0;
+      campaignIndex = Math.min(5, campaignIds.length - 1);
+      return loadCurrent();
+    },
+    startFromProgress({ campaignPuzzleId: nextCampaignId, ftuePuzzleId: nextFtueId } = {}) {
+      if (nextCampaignId && campaignIds.includes(nextCampaignId)) {
+        route = 'campaign';
+        campaignIndex = campaignIds.indexOf(nextCampaignId);
+        tutorialSkipped = false;
+      } else {
+        route = 'ftue';
+        lessonIndex = Math.max(0, lessonIds.indexOf(nextFtueId ?? lessonIds[0]));
+        tutorialSkipped = false;
+      }
       return loadCurrent();
     },
     loadTestLevel(testLevel) {
@@ -146,6 +163,7 @@ export function createSession({ initialPuzzleId, skipTutorial = false, resolveSe
         phase,
         error,
         puzzleId: level?.puzzleId ?? puzzleIds[puzzleIndex],
+        campaignNumber: level?.campaignNumber ?? null,
         goal: level ? { ...level.goal } : null,
         colors: level ? [...level.colors] : [],
         state: state ? cloneState(state) : null,

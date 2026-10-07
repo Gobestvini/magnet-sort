@@ -5,6 +5,8 @@ import { createInput } from './input.js';
 import { createPointerController } from './input/pointer.js';
 import { createScene } from './scene.js';
 import { createPixiApplication } from './render/application.js';
+import { campaignLevelIds, ftueLevelIds } from './game/levels.js';
+import { loadProgress, recordRunResult, saveProgress, setProgressSetting } from './game/progress.js';
 import { App } from './ui/App.js';
 
 const uiRoot = document.querySelector('#ui-root');
@@ -30,6 +32,73 @@ let tickCount = 0;
 let observer = null;
 let pointer = null;
 let reducedMotionOverride = null;
+let screen = 'home';
+let progress = loadProgress().progress;
+const savedResults = new Set();
+
+function progressTarget(value = progress) {
+  if (value.ftue.completed || value.ftue.skipped) {
+    const ids = campaignLevelIds();
+    return { campaignPuzzleId: ids[Math.min(ids.length - 1, value.unlockedCampaignLevel - 1)] };
+  }
+  const ids = ftueLevelIds();
+  return { ftuePuzzleId: ids[Math.min(ids.length - 1, value.ftue.unlockedLesson - 1)] };
+}
+
+function persistProgress() {
+  const saved = saveProgress(progress);
+  progress = saved.progress;
+}
+
+function startGame() {
+  if (!scene || !renderer) return;
+  pointer?.cancel();
+  scene.startFromProgress(progressTarget());
+  if (!progress.ftue.seen && !progress.ftue.completed && !progress.ftue.skipped) {
+    progress = { ...progress, ftue: { ...progress.ftue, seen: true } };
+    persistProgress();
+  }
+  screen = 'game';
+  paused = false;
+  syncPointerLock();
+  clearTiming();
+  renderUI();
+  resize();
+  renderScene(0);
+  scheduleFrame();
+}
+
+function goHome() {
+  if (!scene) return;
+  screen = 'home';
+  pointer?.cancel();
+  cancelFrame();
+  clearTiming();
+  paused = false;
+  renderUI();
+}
+
+function handleTerminalResult() {
+  const session = scene?.getSession();
+  if (!session?.result) return;
+  const resultKey = JSON.stringify(session.result);
+  if (savedResults.has(resultKey)) return;
+  const tutorial = session.tutorial;
+  progress = recordRunResult(progress, session.result, {
+    campaignNumber: session.campaignNumber,
+    ftueSeen: tutorial.active,
+    ftueLesson: tutorial.active ? tutorial.lessonIndex : undefined,
+    ftueCompleted: tutorial.completed,
+  });
+  persistProgress();
+  savedResults.add(resultKey);
+}
+
+function toggleReducedMotion(event) {
+  progress = setProgressSetting(progress, 'reducedMotion', event.currentTarget.checked);
+  reducedMotionOverride = progress.settings.reducedMotion ? true : null;
+  persistProgress();
+}
 
 function clearTiming() {
   previous = null;
@@ -43,7 +112,7 @@ function cancelFrame() {
 }
 
 function scheduleFrame() {
-  if (!disposed && renderer && scene && !paused && !document.hidden && frame === null) {
+  if (!disposed && screen === 'game' && renderer && scene && !paused && !document.hidden && frame === null) {
     frame = requestAnimationFrame(tick);
   }
 }
@@ -67,6 +136,8 @@ function currentStatus() {
 function renderUI() {
   if (disposed) return;
   render(h(App, {
+    screen,
+    progress,
     paused,
     ready: Boolean(renderer && scene && !error),
     initializing,
@@ -80,9 +151,14 @@ function renderUI() {
     onReset: reset,
     onRetry: retry,
     onRetryRenderer: initialize,
-    onNextPuzzle: nextPuzzle,
     onChooseColor: (color) => pointer?.chooseColor(color),
     onSkipTutorial: skipTutorial,
+    onPlay: startGame,
+    onHome: goHome,
+    onDaily() {},
+    onFriend() {},
+    onToggleReducedMotion: toggleReducedMotion,
+    onNextPuzzle: advancePuzzle,
   }), uiRoot);
 }
 
@@ -149,8 +225,22 @@ function nextPuzzle() {
   scheduleFrame();
 }
 
+function advancePuzzle() {
+  if (!scene) return;
+  pointer?.cancel();
+  const advanced = scene.nextPuzzle();
+  if (!advanced) { goHome(); return; }
+  syncPointerLock();
+  clearTiming();
+  renderScene(0);
+  renderUI();
+  scheduleFrame();
+}
+
 function skipTutorial() {
   if (!scene?.skipTutorial()) return;
+  progress = { ...progress, unlockedCampaignLevel: Math.max(6, progress.unlockedCampaignLevel), ftue: { ...progress.ftue, seen: true, skipped: true } };
+  persistProgress();
   pointer?.cancel();
   syncPointerLock();
   clearTiming();
@@ -161,7 +251,7 @@ function skipTutorial() {
 
 function tick(now) {
   frame = null;
-  if (disposed || paused || document.hidden || !scene || !renderer) return;
+  if (disposed || screen !== 'game' || paused || document.hidden || !scene || !renderer) return;
   const delta = previous === null ? 0 : (now - previous) / 1000;
   previous = now;
   let phaseChanged = false;
@@ -169,6 +259,7 @@ function tick(now) {
   tickCount += 1;
   renderScene(result.alpha);
   if (phaseChanged) {
+    handleTerminalResult();
     syncPointerLock();
     renderUI();
   }
@@ -212,7 +303,7 @@ async function initialize() {
       return;
     }
     renderer = candidate;
-    scene = createScene(renderer.stage, { reducedMotion: prefersReducedMotion });
+    scene = createScene(renderer.stage, { ...progressTarget(), reducedMotion: prefersReducedMotion });
     pointer = createPointerController(canvasElement, {
       getLayout: () => scene.getLayout(),
       getLevel: () => scene.getLevel(),
@@ -275,6 +366,8 @@ function snapshot() {
     moves: scene?.getSession().movesUsed ?? 0,
     tutorial: scene?.getSession().tutorial ?? null,
     result: scene?.getSession().result ?? null,
+    progress,
+    screen,
     activeTimeMs: scene?.getSession().activeTimeMs ?? 0,
     assistedFlags: scene?.getSession().assistedFlags ?? {},
     paused,
