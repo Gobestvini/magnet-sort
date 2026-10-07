@@ -5,6 +5,8 @@
 | src/main.js | App-owned RAF, Preact controls, resize/hidden/blur/HMR, dev gameDebug |
 | src/render/application.js | PixiJS Application lifecycle; render обслуживается app-owned RAF |
 | src/render/board.js | PixiJS 7×7 hex board view с псевдо‑2.5D слоями cells/tokens/magnet из LevelDefinition |
+| src/render/resolution-player.js | Replays simulator events into visual token poses; deterministic presentation timeline with reduced-motion profile and cancellation |
+| src/render/effects.js | Lightweight Pixi Graphics for pull trails, placement magnet, merge mass, chain badge and cleared-cell pulse |
 | src/render/layout.js | DPR-aware screen/cell helpers и преобразование координат указателя |
 | src/ui/App.js | Preact shell, accessible status, pause/reset/retry |
 | src/input/pointer.js | Pointer capture, drag/tap placement validation, preview, cancellation and lock |
@@ -27,7 +29,7 @@
 | docs/knowledge/pixijs-practices.md | Курсы и проверенные практики PixiJS 8 для Magnet Sort |
 | docs/knowledge/threejs-journey.md | Только общие переносимые инженерные советы из Three.js Journey |
 | docs/design/PIXI_RENDERING.md | Rendering-контракт Magnet Sort: PixiJS 8 и псевдо‑2.5D |
-| tools/browser-check.cjs | Desktop/mobile/landscape layout, pause/reset, hidden/blur, HMR disposer, ошибки |
+| tools/browser-check.cjs | Desktop/mobile/landscape layout, session win/loss/retry, animation resolve/cancel, pause/reset, hidden/blur, HMR disposer, ошибки |
 | docs/design/GDD_SOURCE.md | Полный текст исходного GDD v0.1 с SHA-256 DOCX |
 | docs/design/GDD_V0.2.md, docs/design/PIXI_RENDERING.md | Текущая спецификация PixiJS/pseudo‑2.5D и rendering contract |
 | docs/design/DECISIONS.md | Источники, расхождения и границы MVP |

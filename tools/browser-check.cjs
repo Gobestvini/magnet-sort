@@ -56,6 +56,16 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
         await page.mouse.up();
       }
       await page.waitForFunction(() => window.gameDebug.snapshot().pointer.actionCount === 1);
+      await page.waitForFunction(() => window.gameDebug.snapshot().animation?.stage === 'slide');
+      const moving = await page.evaluate(() => window.gameDebug.snapshot());
+      assert.equal(moving.phase, 'resolving');
+      assert.equal(moving.animation.active, true);
+      assert.equal(moving.animation.tokens.length, initialState.tokens.length);
+      const blockedDuringResolve = await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 4, row: 4 } }));
+      assert.equal(blockedDuringResolve.accepted, false);
+      assert.equal(blockedDuringResolve.reason, 'session-resolving');
+      await page.waitForTimeout(70);
+      await page.screenshot({ path: `artifacts/screenshots/${name}-resolving.png` });
       await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
       const won = await page.evaluate(() => window.gameDebug.snapshot());
       assert.equal(won.puzzleId, 'prototype-03-blocker');
@@ -100,6 +110,27 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
       await page.waitForFunction(() => window.gameDebug.snapshot().elapsed > 0);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+
+      await page.evaluate(() => {
+        window.gameDebug.setReducedMotion(true);
+        window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 3, row: 0 } });
+      });
+      await page.waitForFunction(() => window.gameDebug.snapshot().animation?.active === true);
+      const animationBeforeReset = await page.evaluate(() => window.gameDebug.snapshot());
+      assert.equal(animationBeforeReset.phase, 'resolving');
+      if (touch) await page.getByRole('button', { name: 'Пауза', exact: true }).click();
+      else await page.locator('#pause').evaluate((button) => button.click());
+      const frozenAnimation = await page.evaluate(() => window.gameDebug.snapshot());
+      await page.waitForTimeout(150);
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).animation.progress, frozenAnimation.animation.progress);
+      if (touch) await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
+      else await page.locator('#pause').evaluate((button) => button.click());
+      await page.getByRole('button', { name: 'Сброс', exact: true }).click();
+      const animationAfterReset = await page.evaluate(() => window.gameDebug.snapshot());
+      assert.equal(animationAfterReset.phase, 'playing');
+      assert.equal(animationAfterReset.moves, 0);
+      assert.equal(animationAfterReset.animation.active, false);
+      await page.evaluate(() => window.gameDebug.setReducedMotion(false));
 
       const lossLevel = {
         schemaVersion: 1, rulesVersion: 1, puzzleId: 'browser-loss-fixture', seed: 'browser-loss-v1', contentVersion: 1,

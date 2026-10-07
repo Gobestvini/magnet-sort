@@ -42,6 +42,7 @@ function summarizeEvents(session) {
   if (moved) parts.push(`Сдвинуто фишек: ${moved}`);
   if (merged.length) parts.push(`Объединено стеков: ${merged.length}`);
   if (cleared.length) parts.push(`Очищено фишек: ${cleared.reduce((sum, event) => sum + event.mass, 0)}`);
+  if (session.state?.chainLinks > 0) parts.push(`Цепочки: ${session.state.chainLinks}`);
   if (session.phase === 'won') parts.push('Цель выполнена');
   if (session.phase === 'lost') parts.push('Попытки закончились');
   return parts.length ? parts.join(' · ') : 'Фишки не сдвинулись — попробуй другое свободное поле.';

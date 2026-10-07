@@ -29,6 +29,7 @@ let error = null;
 let tickCount = 0;
 let observer = null;
 let pointer = null;
+let reducedMotionOverride = null;
 
 function clearTiming() {
   previous = null;
@@ -45,6 +46,10 @@ function scheduleFrame() {
   if (!disposed && renderer && scene && !paused && !document.hidden && frame === null) {
     frame = requestAnimationFrame(tick);
   }
+}
+
+function prefersReducedMotion() {
+  return reducedMotionOverride ?? window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
 function currentStatus() {
@@ -196,7 +201,7 @@ async function initialize() {
       return;
     }
     renderer = candidate;
-    scene = createScene(renderer.stage);
+    scene = createScene(renderer.stage, { reducedMotion: prefersReducedMotion });
     pointer = createPointerController(canvasElement, {
       getLayout: () => scene.getLayout(),
       getLevel: () => scene.getLevel(),
@@ -295,6 +300,7 @@ if (import.meta.env.DEV) {
     retry,
     nextPuzzle,
     setPaused,
+    setReducedMotion(value) { reducedMotionOverride = Boolean(value); },
     loadTestLevel(level) {
       pointer?.cancel();
       scene?.loadTestLevel(level);

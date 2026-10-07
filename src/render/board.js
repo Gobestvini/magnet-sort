@@ -1,5 +1,6 @@
 import { Graphics } from 'pixi.js';
 import { allCells } from '../game/hex.js';
+import { drawResolutionEffects } from './effects.js';
 import { cellToScreen } from './layout.js';
 
 const COLORS = { red: 0xef6b62, blue: 0x5388d8, yellow: 0xf2c64e, green: 0x54b995 };
@@ -14,18 +15,24 @@ export function createBoardRenderer(root) {
   function render(level, state, layout, interaction = {}) {
     if (disposed) return;
     grid.clear(); pieces.clear(); preview.clear();
-    const cells = allCells({ blockedCells: level.blockedCells, tokens: state.tokens });
+    const animation = interaction.animation;
+    const renderTokens = animation?.active ? animation.tokens : state.tokens;
+    const animatedById = new Map(renderTokens.map((token) => [token.tokenId, token]));
+    const cells = allCells({ blockedCells: level.blockedCells, tokens: renderTokens });
     for (const entry of cells) {
-      const { x, y } = cellToScreen(entry.cell, layout);
+        const token = animatedById.get(entry.tokenId) ?? state.tokens.find((item) => item.tokenId === entry.tokenId);
+        const { x, y } = token?.x !== undefined
+          ? cellToScreen({ col: token.x, row: token.y }, layout)
+          : cellToScreen(entry.cell, layout);
       const r = layout.radius * 0.91;
       if (entry.kind === 'token') {
-        grid.roundRect(x - r * 0.9, y - r * 0.78, r * 1.8, r * 1.78, r * 0.42).fill({ color: 0x8a7462, alpha: 0.12 });
-        drawHex(grid, x, y - r * 0.06, r, COLORS[state.tokens.find((token) => token.tokenId === entry.tokenId)?.color] ?? 0x888888, true);
-        const token = state.tokens.find((item) => item.tokenId === entry.tokenId);
-        drawPattern(pieces, token.color, x, y - r * 0.18, r * 0.28);
-        pieces.roundRect(x - r * 0.3, y + r * 0.17, r * 0.6, r * 0.38, r * 0.16).fill({ color: 0xffffff, alpha: 0.9 });
+        const alpha = token?.alpha ?? 1;
+        grid.roundRect(x - r * 0.9, y - r * 0.78, r * 1.8, r * 1.78, r * 0.42).fill({ color: 0x8a7462, alpha: 0.12 * alpha });
+        drawHex(grid, x, y - r * 0.06, r, COLORS[token?.color] ?? 0x888888, true, alpha);
+        drawPattern(pieces, token?.color, x, y - r * 0.18, r * 0.28, alpha);
+        pieces.roundRect(x - r * 0.3, y + r * 0.17, r * 0.6, r * 0.38, r * 0.16).fill({ color: 0xffffff, alpha: 0.9 * alpha });
         // Numeric mass is rendered as vector bars so the canvas remains self-contained.
-        drawNumber(pieces, token.mass, x, y + r * 0.36, r * 0.1);
+        drawNumber(pieces, token?.mass ?? 1, x, y + r * 0.36, r * 0.1, alpha);
       } else if (entry.kind === 'blocked') {
         drawHex(grid, x, y, r, 0xb5ac9f, false);
         grid.moveTo(x - r * 0.25, y - r * 0.25).lineTo(x + r * 0.25, y + r * 0.25)
@@ -44,6 +51,9 @@ export function createBoardRenderer(root) {
     if (interaction.dragging && interaction.pointerPoint && interaction.selectedColor) {
       drawDraggedMagnet(preview, interaction.pointerPoint.x, interaction.pointerPoint.y - 34, layout.radius, COLORS[interaction.selectedColor] ?? COLORS.red);
     }
+    const effects = [...(animation?.effects ?? [])];
+    if (interaction.placementFeedback) effects.push(interaction.placementFeedback);
+    drawResolutionEffects(preview, effects, layout);
   }
 
   return {
@@ -67,32 +77,32 @@ function drawDraggedMagnet(graphics, x, y, boardRadius, color) {
     .stroke({ color: 0x5d5860, width: radius * 0.17, cap: 'round' });
 }
 
-function drawHex(graphics, x, y, radius, color, raised) {
-  if (raised) graphics.ellipse(x, y + radius * 0.12, radius * 0.94, radius * 0.86).fill({ color: 0xb5886a, alpha: 0.16 });
+function drawHex(graphics, x, y, radius, color, raised, alpha = 1) {
+  if (raised) graphics.ellipse(x, y + radius * 0.12, radius * 0.94, radius * 0.86).fill({ color: 0xb5886a, alpha: 0.16 * alpha });
   for (let corner = 0; corner < 6; corner++) {
     const angle = Math.PI / 3 * corner - Math.PI / 6;
     const px = x + Math.cos(angle) * radius;
     const py = y + Math.sin(angle) * radius;
     if (corner === 0) graphics.moveTo(px, py); else graphics.lineTo(px, py);
   }
-  graphics.closePath().fill({ color });
-  graphics.stroke({ color: raised ? 0xffffff : 0xe9ddce, width: Math.max(1, radius * 0.07), alpha: raised ? 0.95 : 0.9 });
+  graphics.closePath().fill({ color, alpha });
+  graphics.stroke({ color: raised ? 0xffffff : 0xe9ddce, width: Math.max(1, radius * 0.07), alpha: (raised ? 0.95 : 0.9) * alpha });
 }
 
-function drawPattern(graphics, color, x, y, size) {
+function drawPattern(graphics, color, x, y, size, alpha = 1) {
   if (color === 'red') {
-    graphics.circle(x, y, size).fill({ color: 0xffffff, alpha: 0.93 });
-    graphics.circle(x, y, size * 0.42).fill({ color: COLORS.red });
+    graphics.circle(x, y, size).fill({ color: 0xffffff, alpha: 0.93 * alpha });
+    graphics.circle(x, y, size * 0.42).fill({ color: COLORS.red, alpha });
   } else if (color === 'blue') {
-    for (let i = -1; i <= 1; i++) graphics.moveTo(x - size, y + i * size * 0.55).lineTo(x + size, y + i * size * 0.55).stroke({ color: 0xffffff, width: Math.max(1.5, size * 0.22), alpha: 0.95 });
+    for (let i = -1; i <= 1; i++) graphics.moveTo(x - size, y + i * size * 0.55).lineTo(x + size, y + i * size * 0.55).stroke({ color: 0xffffff, width: Math.max(1.5, size * 0.22), alpha: 0.95 * alpha });
   } else if (color === 'yellow') {
-    graphics.star(x, y, 5, size, size * 0.48).fill({ color: 0xffffff, alpha: 0.96 });
+    graphics.star(x, y, 5, size, size * 0.48).fill({ color: 0xffffff, alpha: 0.96 * alpha });
   } else {
-    graphics.moveTo(x, y - size).lineTo(x, y + size).moveTo(x - size, y).lineTo(x + size, y).stroke({ color: 0xffffff, width: Math.max(1.5, size * 0.25) });
+    graphics.moveTo(x, y - size).lineTo(x, y + size).moveTo(x - size, y).lineTo(x + size, y).stroke({ color: 0xffffff, width: Math.max(1.5, size * 0.25), alpha });
   }
 }
 
-function drawNumber(graphics, value, x, y, unit) {
+function drawNumber(graphics, value, x, y, unit, alpha = 1) {
   // Seven-segment glyphs for masses 1–9, the supported level range.
   const digits = [
     [1,1,1,1,1,1,0], [0,1,1,0,0,0,0], [1,1,0,1,1,0,1],
@@ -110,7 +120,7 @@ function drawNumber(graphics, value, x, y, unit) {
       [cx-w,y-h,cx+w,y-h], [cx+w,y-h,cx+w,y], [cx+w,y,cx+w,y+h], [cx-w,y+h,cx+w,y+h],
       [cx-w,y,cx-w,y+h], [cx-w,y-h,cx-w,y], [cx-w,y,cx+w,y],
     ];
-    for (let i = 0; i < 7; i++) if (segments[i]) graphics.moveTo(paths[i][0],paths[i][1]).lineTo(paths[i][2],paths[i][3]).stroke({ color: 0x4d4850, width: Math.max(1.5, unit * 0.28), cap: 'round' });
+    for (let i = 0; i < 7; i++) if (segments[i]) graphics.moveTo(paths[i][0],paths[i][1]).lineTo(paths[i][2],paths[i][3]).stroke({ color: 0x4d4850, width: Math.max(1.5, unit * 0.28), cap: 'round', alpha });
   }
 }
 

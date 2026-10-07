@@ -71,6 +71,11 @@ export function createSession({ initialPuzzleId = 'prototype-03-blocker', resolv
       if (resolveRemaining === 0) settleResolution();
       return true;
     },
+    finishResolution() {
+      if (phase !== 'resolving') return false;
+      settleResolution();
+      return true;
+    },
     reset() {
       if (!level) return loadCurrent();
       return installLevel(level);
