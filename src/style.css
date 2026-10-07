@@ -36,6 +36,9 @@ button { font: inherit; }
 .booster-hint { margin-top: 10px; padding: 10px 12px; border: 1px solid #e2bd80; border-radius: 14px; background: #fff7e8; }
 .booster-hint p, .booster-notice, .booster-provider-note { margin: 6px 0; color: #72614a; font-size: .84rem; line-height: 1.45; }
 .booster-provider-note { color: #89838a; font-size: .75rem; }
+.feedback-settings { display: flex; flex-wrap: wrap; gap: 16px; padding-top: 4px; color: #77747b; font-size: .78rem; }
+.feedback-settings label { display: flex; align-items: center; gap: 6px; }
+.feedback-settings input { width: 18px; height: 18px; accent-color: #5388d8; }
 .home-setting { display: flex; align-items: center; gap: 9px; color: #6f6d75; font-size: 0.88rem; }
 .home-setting input { width: 18px; height: 18px; accent-color: #5388d8; }
 .home-footer { font-size: 0.78rem; }

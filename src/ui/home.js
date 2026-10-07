@@ -1,6 +1,6 @@
 import { h } from 'preact';
 
-export function Home({ progress, daily, ready, error, initializing, onPlay, onRetryRenderer, onDaily, onFriend, onToggleReducedMotion }) {
+export function Home({ progress, daily, ready, error, initializing, onPlay, onRetryRenderer, onDaily, onFriend, onToggleReducedMotion, onToggleSound, onToggleHaptics }) {
   const hasProgress = progress.completedPuzzles.length > 0;
   const dailyBest = daily ? progress.dailyResults[daily.dailyId] : null;
   return h('section', { className: 'home-card', 'aria-label': 'Главное меню' },
@@ -27,5 +27,11 @@ export function Home({ progress, daily, ready, error, initializing, onPlay, onRe
     h('label', { className: 'home-setting' },
       h('input', { type: 'checkbox', checked: progress.settings.reducedMotion, onChange: onToggleReducedMotion }),
       'Уменьшить движение'),
+    h('label', { className: 'home-setting' },
+      h('input', { type: 'checkbox', checked: progress.settings.soundEnabled, onChange: onToggleSound }),
+      'Звук'),
+    h('label', { className: 'home-setting' },
+      h('input', { type: 'checkbox', checked: progress.settings.hapticsEnabled, onChange: onToggleHaptics }),
+      'Вибрация, если доступна'),
     h('p', { className: 'home-footer' }, 'Прогресс хранится на этом устройстве.'));
 }

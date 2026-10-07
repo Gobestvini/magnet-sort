@@ -75,9 +75,14 @@ test('FTUE advancement and settings persist independently of a fresh run', () =>
 test('version 1 progress migrates without losing campaign data; daily bests stay separate by UTC id', () => {
   const legacy = { ...createDefaultProgress(), schemaVersion: 1, unlockedCampaignLevel: 8, bestResults: { 'campaign-01': win } };
   const migrated = normalizeProgress(legacy);
-  assert.equal(migrated.schemaVersion, 2);
+  assert.equal(migrated.schemaVersion, 3);
   assert.equal(migrated.unlockedCampaignLevel, 8);
   assert.deepEqual(migrated.dailyResults, {});
+  assert.equal(migrated.settings.soundEnabled, true);
+  const dailySchema = normalizeProgress({ ...migrated, schemaVersion: 2, settings: { reducedMotion: true }, dailyResults: { '2026-10-07': { result: win, assisted: false } } });
+  assert.equal(dailySchema.settings.reducedMotion, true);
+  assert.equal(dailySchema.settings.hapticsEnabled, true);
+  assert.equal(dailySchema.dailyResults['2026-10-07'].result.score, win.score);
   assert.equal(normalizeProgress({ ...migrated, dailyResults: { '2026-02-30': { result: win, assisted: false } } }), null);
 
   let progress = recordDailyRunResult(migrated, '2026-10-07', win);

@@ -23,13 +23,19 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       await page.waitForFunction(() => window.gameDebug?.snapshot().rendererReady);
       assert.equal(await page.getByRole('region', { name: 'Главное меню' }).count(), 1);
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).screen, 'home');
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).feedback.contextCreated, false);
       assert.equal(await page.locator('[aria-label="Играть в ежедневное поле"]').isEnabled(), true);
       assert.equal(await page.locator('[aria-label="Испытание с другом скоро появится"]').isDisabled(), true);
       if (!touch) {
         await page.getByLabel('Уменьшить движение').check();
+        await page.getByRole('region', { name: 'Главное меню' }).getByLabel('Звук', { exact: true }).uncheck();
+        await page.getByRole('region', { name: 'Главное меню' }).getByLabel('Вибрация, если доступна').uncheck();
         assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).settings.reducedMotion, true);
+        assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).settings.soundEnabled, false);
+        assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).settings.hapticsEnabled, false);
       } else {
         assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).unlockedCampaignLevel, 1);
+        assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).settings.soundEnabled, true);
       }
       const dailyPuzzle = await page.evaluate(() => window.gameDebug.snapshot().dailyPreview);
       assert.match(await page.locator('.home-daily').innerText(), new RegExp(dailyPuzzle.dailyId));
@@ -39,6 +45,8 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       assert.equal(dailyStarted.dailyId, dailyPuzzle.dailyId);
       assert.equal(dailyStarted.puzzleId, dailyPuzzle.puzzleId);
       assert.equal(dailyStarted.tutorial.active, false);
+      if (touch) assert.equal(dailyStarted.feedback.contextCreated, await page.evaluate(() => typeof window.AudioContext === 'function' || typeof window.webkitAudioContext === 'function'));
+      else assert.equal(dailyStarted.feedback.contextCreated, false);
       const dailyLevel = await page.evaluate(async (puzzleId) => (await import(`/src/levels/campaign/${puzzleId}.json`)).default, dailyPuzzle.puzzleId);
       await page.evaluate(async (level) => {
         for (const action of level.solution.actions) {
@@ -71,6 +79,23 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       assert.equal(firstLaunch.puzzleId, 'ftue-01-place');
       assert.equal(await page.locator('.tutorial-panel h2').innerText(), 'Поставь магнит');
       assert.equal(firstLaunch.moves, 0);
+      const soundSwitch = page.getByRole('region', { name: 'Состояние уровня' }).getByLabel('Звук', { exact: true });
+      if (touch) {
+        await soundSwitch.uncheck();
+        assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).feedback.soundEnabled, false);
+        await soundSwitch.check();
+      } else {
+        await soundSwitch.check();
+        const audioSupported = await page.evaluate(() => typeof window.AudioContext === 'function' || typeof window.webkitAudioContext === 'function');
+        assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).feedback.contextCreated, audioSupported);
+        await soundSwitch.uncheck();
+      }
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).progress.settings.soundEnabled, touch);
+      await page.locator('#game-canvas').evaluate(canvas => canvas.scrollIntoView({ block: 'center' }));
+      await page.waitForFunction(() => {
+        const rect = document.querySelector('#game-canvas').getBoundingClientRect();
+        return rect.top >= 0 && rect.bottom <= window.innerHeight;
+      });
       const lessonTarget = await page.evaluate(() => {
         const canvas = document.querySelector('#game-canvas');
         const rect = canvas.getBoundingClientRect();
@@ -91,7 +116,10 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
         await page.mouse.move(lessonTray.x, lessonTray.y); await page.mouse.down();
         await page.mouse.move(lessonTarget.x, lessonTarget.y, { steps: 4 }); await page.mouse.up();
       }
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
+      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won', null, { timeout: 30000 }).catch(async (error) => {
+        throw new Error(`${error.message}\ninput diagnostic: ${JSON.stringify(await page.evaluate(() => ({ snapshot: window.gameDebug.snapshot(), canvas: document.querySelector('#game-canvas').getBoundingClientRect().toJSON() })))}`);
+      });
+      assert.ok((await page.evaluate(() => window.gameDebug.snapshot())).feedback.seenEventCount > 0);
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).tutorial.completed, false);
       const savedFtue = await page.evaluate(() => window.gameDebug.snapshot().progress);
       assert.equal(savedFtue.completedPuzzles.includes('ftue-01-place'), true);
@@ -100,6 +128,9 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       await page.reload();
       await page.waitForFunction(() => window.gameDebug?.snapshot().rendererReady);
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).screen, 'home');
+      const savedFeedback = await page.evaluate(() => window.gameDebug.snapshot().progress.settings);
+      assert.equal(savedFeedback.soundEnabled, touch);
+      assert.equal(savedFeedback.hapticsEnabled, touch);
       assert.equal(await page.getByRole('button', { name: 'Продолжить' }).count(), 1, JSON.stringify(await page.evaluate(() => ({ progress: window.gameDebug.snapshot().progress, stored: localStorage.getItem('magnet-sort.progress') }))));
       await page.getByRole('button', { name: 'Продолжить' }).click();
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).puzzleId, 'ftue-02-pull');
@@ -257,6 +288,9 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       }
       if (touch) await page.getByRole('button', { name: 'Пауза', exact: true }).click();
       else await page.locator('#pause').evaluate((button) => button.click());
+      if ((await page.evaluate(() => window.gameDebug.snapshot())).feedback.contextCreated) {
+        await page.waitForFunction(() => window.gameDebug.snapshot().feedback.contextState === 'suspended');
+      }
       const paused = await page.evaluate(() => window.gameDebug.snapshot());
       assert.equal(paused.paused, true);
       assert.equal(paused.rafScheduled, false);
@@ -360,6 +394,9 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
         document.dispatchEvent(new Event('visibilitychange'));
       });
       await page.waitForFunction(() => !window.gameDebug.snapshot().rafScheduled);
+      if ((await page.evaluate(() => window.gameDebug.snapshot())).feedback.contextCreated) {
+        await page.waitForFunction(() => window.gameDebug.snapshot().feedback.contextState === 'suspended');
+      }
       const hiddenElapsed = await page.evaluate(() => window.gameDebug.snapshot().elapsed);
       await page.waitForTimeout(120);
       assert.equal(await page.evaluate(() => window.gameDebug.snapshot().elapsed), hiddenElapsed);

@@ -10,6 +10,7 @@ import { loadProgress, recordDailyRunResult, recordRunResult, saveProgress, setP
 import { compareRunResults } from './game/scoring.js';
 import { createChallengeCardSvg, createChallengeUrl, parseChallengeUrl, shareChallenge } from './social/challenge.js';
 import { getDailyPuzzle } from './social/daily.js';
+import { createAudioFeedback } from './audio/feedback.js';
 import { App } from './ui/App.js';
 
 const uiRoot = document.querySelector('#ui-root');
@@ -43,6 +44,12 @@ let shareStatus = null;
 let boosterNotice = null;
 let screen = challenge ? 'challenge' : 'home';
 let progress = loadProgress().progress;
+const feedback = createAudioFeedback({
+  AudioContext: window.AudioContext ?? window.webkitAudioContext,
+  navigator: window.navigator,
+  soundEnabled: progress.settings.soundEnabled,
+  hapticsEnabled: progress.settings.hapticsEnabled,
+});
 const savedResults = new Set();
 
 function progressTarget(value = progress) {
@@ -61,6 +68,8 @@ function persistProgress() {
 
 function startGame({ daily = null } = {}) {
   if (!scene || !renderer) return;
+  feedback.beginRun();
+  void feedback.activateFromGesture();
   pointer?.cancel();
   if (challenge) scene.startChallenge(challenge.puzzleId);
   else if (daily) scene.startDaily(daily.dailyId, daily.puzzleId);
@@ -96,6 +105,7 @@ function goHome() {
   cancelFrame();
   clearTiming();
   paused = false;
+  void feedback.suspend();
   renderUI();
 }
 
@@ -157,6 +167,16 @@ function toggleReducedMotion(event) {
   progress = setProgressSetting(progress, 'reducedMotion', event.currentTarget.checked);
   reducedMotionOverride = progress.settings.reducedMotion ? true : null;
   persistProgress();
+}
+
+function toggleFeedbackSetting(key, event) {
+  progress = setProgressSetting(progress, key, event.currentTarget.checked);
+  persistProgress();
+  feedback.setSettings({
+    soundEnabled: progress.settings.soundEnabled,
+    hapticsEnabled: progress.settings.hapticsEnabled,
+  });
+  if (key === 'soundEnabled' && progress.settings.soundEnabled) void feedback.activateFromGesture();
 }
 
 function clearTiming() {
@@ -230,6 +250,8 @@ function renderUI() {
     onDaily: startDaily,
     onFriend() {},
     onToggleReducedMotion: toggleReducedMotion,
+    onToggleSound: (event) => toggleFeedbackSetting('soundEnabled', event),
+    onToggleHaptics: (event) => toggleFeedbackSetting('hapticsEnabled', event),
     onNextPuzzle: advancePuzzle,
     onShareChallenge: shareCurrentChallenge,
   }), uiRoot);
@@ -253,6 +275,8 @@ function resize() {
 function setPaused(value) {
   if (!renderer || !scene) return;
   paused = Boolean(value);
+  if (paused) void feedback.suspend();
+  else void feedback.activateFromGesture();
   syncPointerLock();
   clearTiming();
   if (paused) cancelFrame();
@@ -268,6 +292,8 @@ function syncPointerLock() {
 function reset() {
   if (!scene) return;
   pointer?.cancel();
+  feedback.beginRun();
+  void feedback.activateFromGesture();
   scene.reset();
   syncPointerLock();
   clearTiming();
@@ -280,6 +306,8 @@ function retry() {
   if (!scene) return;
   handleTerminalResult({ force: true });
   pointer?.cancel();
+  feedback.beginRun();
+  void feedback.activateFromGesture();
   scene.retry();
   syncPointerLock();
   clearTiming();
@@ -291,6 +319,8 @@ function retry() {
 function nextPuzzle() {
   if (!scene) return;
   pointer?.cancel();
+  feedback.beginRun();
+  void feedback.activateFromGesture();
   scene.nextPuzzle();
   syncPointerLock();
   clearTiming();
@@ -303,6 +333,8 @@ function advancePuzzle() {
   if (!scene) return;
   handleTerminalResult({ force: true });
   pointer?.cancel();
+  feedback.beginRun();
+  void feedback.activateFromGesture();
   const advanced = scene.nextPuzzle();
   if (!advanced) { goHome(); return; }
   syncPointerLock();
@@ -314,6 +346,8 @@ function advancePuzzle() {
 
 function skipTutorial() {
   if (!scene?.skipTutorial()) return;
+  feedback.beginRun();
+  void feedback.activateFromGesture();
   progress = { ...progress, unlockedCampaignLevel: Math.max(6, progress.unlockedCampaignLevel), ftue: { ...progress.ftue, seen: true, skipped: true } };
   persistProgress();
   pointer?.cancel();
@@ -351,6 +385,7 @@ function applyHint() {
   pointer?.cancel();
   const result = scene?.applyHint();
   if (!result?.accepted) return;
+  feedback.playEvents(result.events);
   syncPointerLock();
   clearTiming();
   renderScene(0);
@@ -398,7 +433,9 @@ function handleVisibility() {
   syncPointerLock();
   clearTiming();
   cancelFrame();
+  if (document.hidden) void feedback.suspend();
   if (!document.hidden) {
+    void feedback.resumeAfterVisibility();
     renderScene(0);
     scheduleFrame();
   }
@@ -438,6 +475,7 @@ async function initialize() {
       onAction: (action) => {
         const result = scene?.submitAction(action);
         if (result?.accepted) {
+          feedback.playEvents(result.events);
           syncPointerLock();
           renderScene(0);
           renderUI();
@@ -490,6 +528,7 @@ function snapshot() {
     tutorial: scene?.getSession().tutorial ?? null,
     result: scene?.getSession().result ?? null,
     progress,
+    feedback: feedback.snapshot(),
     screen,
     challenge: scene?.getSession().challenge ?? false,
     daily: scene?.getSession().daily ?? false,
@@ -520,6 +559,7 @@ function dispose() {
   window.removeEventListener('blur', handleBlur);
   document.removeEventListener('visibilitychange', handleVisibility);
   input.dispose();
+    feedback.dispose();
   scene?.dispose();
   renderer?.destroy();
   scene = null;

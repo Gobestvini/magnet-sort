@@ -2,7 +2,7 @@ import { h } from 'preact';
 
 const COLOR_NAMES = { red: 'Красный', blue: 'Синий', yellow: 'Жёлтый', green: 'Зелёный' };
 
-export function GameHud({ session, interaction, ready, boosterNotice, onChooseColor, onUndo, onHint, onApplyHint, onExtraMove }) {
+export function GameHud({ session, interaction, ready, boosterNotice, feedbackSettings, onToggleSound, onToggleHaptics, onChooseColor, onUndo, onHint, onApplyHint, onExtraMove }) {
   if (!session) return null;
   const state = session.state;
   const remainingMass = state?.tokens.reduce((sum, token) => sum + token.mass, 0) ?? 0;
@@ -30,6 +30,9 @@ export function GameHud({ session, interaction, ready, boosterNotice, onChooseCo
       boosters.undoAvailable && h('button', { type: 'button', onClick: onUndo, disabled: !ready }, 'Отменить ход'),
       h('button', { type: 'button', onClick: onHint, disabled: !ready || !boosters.hintAvailable }, boosters.hintAvailable ? 'Подсказка' : 'Подсказка использована'),
       boosters.extraMoveAvailable && h('button', { type: 'button', onClick: onExtraMove, disabled: !ready }, 'Ещё ход · тест')),
+    h('div', { className: 'feedback-settings', 'aria-label': 'Настройки обратной связи' },
+      h('label', null, h('input', { type: 'checkbox', checked: Boolean(feedbackSettings?.soundEnabled), onChange: onToggleSound }), 'Звук'),
+      h('label', null, h('input', { type: 'checkbox', checked: Boolean(feedbackSettings?.hapticsEnabled), onChange: onToggleHaptics }), 'Вибрация')),
     session.hintAction && h('div', { className: 'booster-hint', role: 'status', 'aria-live': 'polite' },
       h('p', null, `Попробуй ${COLOR_NAMES[session.hintAction.color] ?? session.hintAction.color} магнит: столбец ${session.hintAction.cell.col + 1}, ряд ${session.hintAction.cell.row + 1}.`),
       h('button', { type: 'button', onClick: onApplyHint, disabled: !ready || session.phase !== 'playing' }, 'Применить этот ход')),

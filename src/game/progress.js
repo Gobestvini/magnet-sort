@@ -1,6 +1,6 @@
 import { compareRunResults } from './scoring.js';
 
-export const PROGRESS_SCHEMA_VERSION = 2;
+export const PROGRESS_SCHEMA_VERSION = 3;
 export const PROGRESS_STORAGE_KEY = 'magnet-sort.progress';
 const MAX_CAMPAIGN_LEVEL = 50;
 
@@ -12,13 +12,13 @@ export function createDefaultProgress() {
     bestResults: {},
     dailyResults: {},
     ftue: { seen: false, completed: false, skipped: false, unlockedLesson: 1 },
-    settings: { reducedMotion: false },
+    settings: { reducedMotion: false, soundEnabled: true, hapticsEnabled: true },
   };
 }
 
 export function normalizeProgress(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-  if (![1, PROGRESS_SCHEMA_VERSION].includes(value.schemaVersion)) return null;
+  if (![1, 2, PROGRESS_SCHEMA_VERSION].includes(value.schemaVersion)) return null;
   if (!Number.isInteger(value.unlockedCampaignLevel) || value.unlockedCampaignLevel < 1
     || value.unlockedCampaignLevel > MAX_CAMPAIGN_LEVEL) return null;
   if (!Array.isArray(value.completedPuzzles) || value.completedPuzzles.some((id) => typeof id !== 'string' || !id.trim())) return null;
@@ -37,6 +37,8 @@ export function normalizeProgress(value) {
     || typeof value.ftue.skipped !== 'boolean' || !Number.isInteger(value.ftue.unlockedLesson)
     || value.ftue.unlockedLesson < 1 || value.ftue.unlockedLesson > 5) return null;
   if (!value.settings || typeof value.settings.reducedMotion !== 'boolean') return null;
+  if (value.schemaVersion === PROGRESS_SCHEMA_VERSION
+    && (typeof value.settings.soundEnabled !== 'boolean' || typeof value.settings.hapticsEnabled !== 'boolean')) return null;
   return {
     schemaVersion: PROGRESS_SCHEMA_VERSION,
     unlockedCampaignLevel: value.unlockedCampaignLevel,
@@ -44,7 +46,11 @@ export function normalizeProgress(value) {
     bestResults: structuredClone(value.bestResults),
     dailyResults: structuredClone(dailyResults),
     ftue: { seen: value.ftue.seen, completed: value.ftue.completed, skipped: value.ftue.skipped, unlockedLesson: value.ftue.unlockedLesson },
-    settings: { reducedMotion: value.settings.reducedMotion },
+    settings: {
+      reducedMotion: value.settings.reducedMotion,
+      soundEnabled: value.schemaVersion === PROGRESS_SCHEMA_VERSION ? value.settings.soundEnabled : true,
+      hapticsEnabled: value.schemaVersion === PROGRESS_SCHEMA_VERSION ? value.settings.hapticsEnabled : true,
+    },
   };
 }
 
@@ -127,7 +133,7 @@ export function recordDailyRunResult(progress, dailyId, result) {
 
 export function setProgressSetting(progress, key, value) {
   const current = normalizeProgress(progress) ?? createDefaultProgress();
-  if (key !== 'reducedMotion' || typeof value !== 'boolean') return current;
+  if (!['reducedMotion', 'soundEnabled', 'hapticsEnabled'].includes(key) || typeof value !== 'boolean') return current;
   return { ...current, settings: { ...current.settings, [key]: value } };
 }
 
