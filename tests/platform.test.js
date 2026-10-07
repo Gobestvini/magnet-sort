@@ -9,8 +9,9 @@ import { createChallengePayload, encodeChallengePayload } from '../src/social/ch
 
 function challengeEntry() {
   const level = loadCampaignLevel('campaign-36');
-  const result = applyAction(createInitialState(level), level.solution.actions[0]);
-  return encodeChallengePayload(createChallengePayload(level, createRunResult(result.state, 1000)));
+  let state = createInitialState(level);
+  for (const action of level.solution.actions) state = applyAction(state, action).state;
+  return encodeChallengePayload(createChallengePayload(level, createRunResult(state, 1000)));
 }
 
 function fakeSdk({ apis, entryData = null, startGameAsync = async () => {}, shareAsync = async () => {}, methods = {} } = {}) {

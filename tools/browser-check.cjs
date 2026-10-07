@@ -3,6 +3,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
+async function playReplay(page, level, start = 0) {
+  for (const action of level.solution.actions.slice(start)) {
+    await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'playing');
+    await page.evaluate(action => window.gameDebug.playTestAction(action), action);
+    await page.waitForFunction(() => window.gameDebug.snapshot().phase !== 'resolving');
+  }
+}
 (async () => {
   const options = { headless: true };
   if (process.env.BROWSER_CHANNEL) options.channel = process.env.BROWSER_CHANNEL;
@@ -152,6 +159,9 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       await page.getByRole('button', { name: 'Подсказка' }).click();
       assert.match(await page.locator('.booster-hint').innerText(), /магнит: столбец/);
       await page.getByRole('button', { name: 'Применить этот ход' }).click();
+      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'playing');
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).moves, 1);
+      await playReplay(page, campaignSix, 1);
       await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).result.eligibleForChallenge, false);
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).progress.unlockedCampaignLevel, 7);
@@ -189,7 +199,7 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot())).screen, 'game');
       assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot())).challenge, true);
       assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot().analytics)).some(event => event.name === 'challenge_started'), true);
-      await challengePage.evaluate((level) => window.gameDebug.playTestAction(level.solution.actions[0]), campaignSix);
+      await playReplay(challengePage, campaignSix);
       await challengePage.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
       assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot().analytics)).some(event => event.name === 'challenge_completed' && event.outcome === 'win'), true);
       assert.match(await challengePage.locator('.challenge-result-comparison').innerText(), /только для забегов без помощи/);
@@ -203,7 +213,7 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       await page.getByRole('button', { name: 'Повторить уровень' }).click();
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).puzzleId, 'campaign-06');
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).moves, 0);
-      await page.evaluate((level) => window.gameDebug.playTestAction(level.solution.actions[0]), campaignSix);
+      await playReplay(page, campaignSix);
       await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
       await page.getByRole('button', { name: 'Домой' }).click();
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).screen, 'home');
@@ -403,6 +413,21 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       assert.equal(landscapeLayout.layout.height, landscapeLayout.height);
       await page.setViewportSize(originalViewport);
       await page.waitForFunction(() => window.gameDebug.snapshot().rafScheduled);
+
+      const lateLevel = await page.evaluate(async () => (await import('/src/levels/campaign/campaign-50.json')).default);
+      await page.evaluate(level => window.gameDebug.loadTestLevel(level), lateLevel);
+      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'playing');
+      await page.screenshot({ path: `artifacts/screenshots/${name}-campaign-50.png` });
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).state.tokens.length, 18);
+      await playReplay(page, lateLevel);
+      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
+      const lateResult = await page.evaluate(() => window.gameDebug.snapshot());
+      assert.equal(lateResult.result.movesUsed, lateLevel.solution.actions.length);
+      assert.equal(lateResult.result.clearPercent, 100);
+      assert.ok(lateResult.state.crates.length < lateLevel.crates.length);
+      await page.getByRole('button', { name: 'Повторить уровень' }).click();
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).state.tokens.length, 18);
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).remainingMoves, lateLevel.moveLimit);
 
       await page.evaluate(() => {
         Object.defineProperty(document, 'hidden', { configurable: true, value: true });

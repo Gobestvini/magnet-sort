@@ -3,8 +3,8 @@
   "rulesVersion": 1,
   "puzzleId": "campaign-32",
   "campaignNumber": 32,
-  "seed": "magnet-campaign-v1-32",
-  "contentVersion": 1,
+  "seed": "magnet-campaign-v2-32",
+  "contentVersion": 2,
   "geometry": {
     "kind": "odd-r",
     "rows": 7,
@@ -18,43 +18,218 @@
   ],
   "blockedCells": [
     {
+      "col": 1,
+      "row": 0
+    },
+    {
+      "col": 2,
+      "row": 5
+    },
+    {
+      "col": 5,
+      "row": 6
+    },
+    {
+      "col": 1,
+      "row": 5
+    },
+    {
       "col": 4,
+      "row": 3
+    },
+    {
+      "col": 0,
       "row": 1
     },
     {
+      "col": 5,
+      "row": 4
+    },
+    {
       "col": 6,
+      "row": 6
+    },
+    {
+      "col": 3,
+      "row": 2
+    },
+    {
+      "col": 6,
+      "row": 2
+    },
+    {
+      "col": 6,
+      "row": 5
+    },
+    {
+      "col": 0,
+      "row": 5
+    },
+    {
+      "col": 2,
+      "row": 4
+    },
+    {
+      "col": 2,
+      "row": 2
+    },
+    {
+      "col": 2,
+      "row": 1
+    },
+    {
+      "col": 3,
       "row": 4
     }
   ],
   "crates": [],
   "tokens": [
     {
-      "tokenId": "red-pair-a",
-      "color": "red",
-      "mass": 2,
+      "tokenId": "green-0",
+      "color": "green",
+      "mass": 1,
       "cell": {
-        "col": 1,
+        "col": 4,
         "row": 2
       }
     },
     {
-      "tokenId": "red-pair-b",
+      "tokenId": "green-1",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 2,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "green-2",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "green-3",
+      "color": "green",
+      "mass": 1,
+      "cell": {
+        "col": 0,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "green-4",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 6,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "green-5",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 2,
+        "row": 6
+      }
+    },
+    {
+      "tokenId": "red-0",
       "color": "red",
-      "mass": 3,
+      "mass": 1,
+      "cell": {
+        "col": 6,
+        "row": 1
+      }
+    },
+    {
+      "tokenId": "red-1",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 1,
+        "row": 6
+      }
+    },
+    {
+      "tokenId": "red-2",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "yellow-0",
+      "color": "yellow",
+      "mass": 1,
+      "cell": {
+        "col": 6,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "yellow-1",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 2,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "yellow-2",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "blue-0",
+      "color": "blue",
+      "mass": 1,
+      "cell": {
+        "col": 1,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "blue-1",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 1,
+        "row": 1
+      }
+    },
+    {
+      "tokenId": "blue-2",
+      "color": "blue",
+      "mass": 2,
       "cell": {
         "col": 3,
-        "row": 2
+        "row": 1
       }
     }
   ],
   "goal": {
     "kind": "clearAll"
   },
-  "moveLimit": 12,
+  "moveLimit": 5,
   "magnetSchedule": [
     {
       "options": [
+        "green",
         "red",
+        "yellow",
         "blue"
       ]
     }
@@ -64,22 +239,61 @@
     "actions": [
       {
         "type": "placeMagnet",
+        "color": "green",
+        "cell": {
+          "col": 4,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "yellow",
+        "cell": {
+          "col": 4,
+          "row": 4
+        }
+      },
+      {
+        "type": "placeMagnet",
         "color": "red",
+        "cell": {
+          "col": 5,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "blue",
         "cell": {
           "col": 4,
           "row": 2
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "green",
+        "cell": {
+          "col": 2,
+          "row": 0
         }
       }
     ],
     "expected": {
       "outcome": "win",
-      "clearedMass": 5,
-      "movesUsed": 1
+      "clearedMass": 25,
+      "movesUsed": 5
     }
   },
   "design": {
     "band": "magnet-choice",
-    "concept": "Уровень 32: Выбери правильный цвет среди двух.",
-    "aha": "Поставь магнит за стеком 3: стек 2 сделает один шаг, соединится и очистит массу 5."
+    "concept": "Уровень 32: Очисти все цвета в ограниченное число ходов.",
+    "aha": "Планируй порядок цветов и положение магнита: чужие фишки перекрывают путь, а пустой ход расходует запас.",
+    "difficulty": {
+      "minimumAuthoredMoves": 5,
+      "authoredMoves": 5,
+      "randomPolicyRuns": 80,
+      "randomPolicyWinRate": 0,
+      "randomPlacementWinRate": 0.0125
+    }
   }
 }

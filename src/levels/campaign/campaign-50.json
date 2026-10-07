@@ -3,8 +3,8 @@
   "rulesVersion": 2,
   "puzzleId": "campaign-50",
   "campaignNumber": 50,
-  "seed": "magnet-campaign-v1-50",
-  "contentVersion": 1,
+  "seed": "magnet-campaign-v2-50",
+  "contentVersion": 2,
   "geometry": {
     "kind": "odd-r",
     "rows": 7,
@@ -16,41 +16,257 @@
     "yellow",
     "green"
   ],
-  "blockedCells": [],
-  "crates": [
+  "blockedCells": [
+    {
+      "col": 3,
+      "row": 3
+    },
+    {
+      "col": 5,
+      "row": 2
+    },
+    {
+      "col": 0,
+      "row": 1
+    },
+    {
+      "col": 4,
+      "row": 4
+    },
+    {
+      "col": 2,
+      "row": 6
+    },
+    {
+      "col": 6,
+      "row": 3
+    },
+    {
+      "col": 3,
+      "row": 2
+    },
     {
       "col": 2,
       "row": 0
+    },
+    {
+      "col": 2,
+      "row": 4
+    },
+    {
+      "col": 2,
+      "row": 3
+    },
+    {
+      "col": 0,
+      "row": 4
+    },
+    {
+      "col": 6,
+      "row": 6
+    },
+    {
+      "col": 0,
+      "row": 2
+    },
+    {
+      "col": 5,
+      "row": 3
+    }
+  ],
+  "crates": [
+    {
+      "col": 3,
+      "row": 5
+    },
+    {
+      "col": 5,
+      "row": 4
+    },
+    {
+      "col": 5,
+      "row": 6
+    },
+    {
+      "col": 1,
+      "row": 4
     }
   ],
   "tokens": [
     {
-      "tokenId": "yellow-pair-a",
-      "color": "yellow",
+      "tokenId": "red-0",
+      "color": "red",
+      "mass": 1,
+      "cell": {
+        "col": 0,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "red-1",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 6,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "red-2",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 4,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "red-3",
+      "color": "red",
+      "mass": 1,
+      "cell": {
+        "col": 2,
+        "row": 5
+      }
+    },
+    {
+      "tokenId": "red-4",
+      "color": "red",
       "mass": 2,
       "cell": {
         "col": 1,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "red-5",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 1,
+        "row": 5
+      }
+    },
+    {
+      "tokenId": "blue-0",
+      "color": "blue",
+      "mass": 1,
+      "cell": {
+        "col": 1,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "blue-1",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 5
+      }
+    },
+    {
+      "tokenId": "blue-2",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 6,
         "row": 1
       }
     },
     {
-      "tokenId": "yellow-pair-b",
-      "color": "yellow",
-      "mass": 3,
+      "tokenId": "blue-3",
+      "color": "blue",
+      "mass": 1,
+      "cell": {
+        "col": 2,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "blue-4",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 1,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "blue-5",
+      "color": "blue",
+      "mass": 2,
       "cell": {
         "col": 3,
         "row": 1
+      }
+    },
+    {
+      "tokenId": "yellow-0",
+      "color": "yellow",
+      "mass": 1,
+      "cell": {
+        "col": 6,
+        "row": 5
+      }
+    },
+    {
+      "tokenId": "yellow-1",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 4,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "yellow-2",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 6,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "green-0",
+      "color": "green",
+      "mass": 1,
+      "cell": {
+        "col": 0,
+        "row": 6
+      }
+    },
+    {
+      "tokenId": "green-1",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 1
+      }
+    },
+    {
+      "tokenId": "green-2",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 3,
+        "row": 0
       }
     }
   ],
   "goal": {
     "kind": "clearAll"
   },
-  "moveLimit": 12,
+  "moveLimit": 6,
   "magnetSchedule": [
     {
       "options": [
-        "yellow"
+        "red",
+        "blue",
+        "yellow",
+        "green"
       ]
     }
   ],
@@ -59,22 +275,69 @@
     "actions": [
       {
         "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 0,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "red",
+        "cell": {
+          "col": 1,
+          "row": 3
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "green",
+        "cell": {
+          "col": 0,
+          "row": 3
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 0,
+          "row": 3
+        }
+      },
+      {
+        "type": "placeMagnet",
         "color": "yellow",
         "cell": {
-          "col": 4,
-          "row": 1
+          "col": 0,
+          "row": 3
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "red",
+        "cell": {
+          "col": 0,
+          "row": 0
         }
       }
     ],
     "expected": {
       "outcome": "win",
-      "clearedMass": 5,
-      "movesUsed": 1
+      "clearedMass": 30,
+      "movesUsed": 6
     }
   },
   "design": {
     "band": "crates",
-    "concept": "Уровень 50: Очистка рядом ломает ящик.",
-    "aha": "Поставь магнит за стеком 3: стек 2 сделает один шаг, соединится и очистит массу 5."
+    "concept": "Уровень 50: Разрушь ящики и расчисти смешанное поле.",
+    "aha": "Планируй порядок цветов и положение магнита: чужие фишки перекрывают путь, а пустой ход расходует запас.",
+    "difficulty": {
+      "minimumAuthoredMoves": 6,
+      "authoredMoves": 6,
+      "randomPolicyRuns": 80,
+      "randomPolicyWinRate": 0,
+      "randomPlacementWinRate": 0
+    }
   }
 }

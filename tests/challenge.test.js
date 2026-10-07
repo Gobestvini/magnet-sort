@@ -13,8 +13,9 @@ import {
 
 function fixture() {
   const level = loadCampaignLevel('campaign-36');
-  const result = applyAction(createInitialState(level), level.solution.actions[0]);
-  return { level, result: createRunResult(result.state, 3200) };
+  let state = createInitialState(level);
+  for (const action of level.solution.actions) state = applyAction(state, action).state;
+  return { level, result: createRunResult(state, 3200) };
 }
 
 test('challenge URLs round-trip a frozen level and untrusted challenger target', () => {

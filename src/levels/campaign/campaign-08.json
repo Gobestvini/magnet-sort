@@ -3,8 +3,8 @@
   "rulesVersion": 1,
   "puzzleId": "campaign-08",
   "campaignNumber": 8,
-  "seed": "magnet-campaign-v1-08",
-  "contentVersion": 1,
+  "seed": "magnet-campaign-v2-8",
+  "contentVersion": 2,
   "geometry": {
     "kind": "odd-r",
     "rows": 7,
@@ -18,11 +18,19 @@
   ],
   "blockedCells": [
     {
-      "col": 1,
-      "row": 2
+      "col": 5,
+      "row": 0
     },
     {
       "col": 5,
+      "row": 2
+    },
+    {
+      "col": 0,
+      "row": 2
+    },
+    {
+      "col": 6,
       "row": 1
     },
     {
@@ -31,34 +39,101 @@
     },
     {
       "col": 2,
-      "row": 0
+      "row": 6
     },
     {
-      "col": 4,
+      "col": 2,
+      "row": 4
+    },
+    {
+      "col": 2,
       "row": 3
     },
     {
-      "col": 6,
-      "row": 6
+      "col": 0,
+      "row": 3
     }
   ],
   "crates": [],
   "tokens": [
     {
-      "tokenId": "red-pair-a",
-      "color": "red",
+      "tokenId": "blue-0",
+      "color": "blue",
+      "mass": 1,
+      "cell": {
+        "col": 4,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "blue-1",
+      "color": "blue",
       "mass": 2,
       "cell": {
         "col": 1,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "blue-2",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "yellow-0",
+      "color": "yellow",
+      "mass": 1,
+      "cell": {
+        "col": 0,
         "row": 5
       }
     },
     {
-      "tokenId": "red-pair-b",
-      "color": "red",
-      "mass": 3,
+      "tokenId": "yellow-1",
+      "color": "yellow",
+      "mass": 2,
       "cell": {
-        "col": 3,
+        "col": 4,
+        "row": 6
+      }
+    },
+    {
+      "tokenId": "yellow-2",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "red-0",
+      "color": "red",
+      "mass": 1,
+      "cell": {
+        "col": 1,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "red-1",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 6,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "red-2",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 4,
         "row": 5
       }
     }
@@ -66,10 +141,12 @@
   "goal": {
     "kind": "clearAll"
   },
-  "moveLimit": 12,
+  "moveLimit": 3,
   "magnetSchedule": [
     {
       "options": [
+        "blue",
+        "yellow",
         "red"
       ]
     }
@@ -79,22 +156,45 @@
     "actions": [
       {
         "type": "placeMagnet",
-        "color": "red",
+        "color": "blue",
+        "cell": {
+          "col": 0,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "yellow",
         "cell": {
           "col": 4,
-          "row": 5
+          "row": 3
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "red",
+        "cell": {
+          "col": 0,
+          "row": 0
         }
       }
     ],
     "expected": {
       "outcome": "win",
-      "clearedMass": 5,
-      "movesUsed": 1
+      "clearedMass": 15,
+      "movesUsed": 3
     }
   },
   "design": {
     "band": "obstacles",
-    "concept": "Уровень 8: Проложи путь среди препятствий.",
-    "aha": "Поставь магнит за стеком 3: стек 2 сделает один шаг, соединится и очистит массу 5."
+    "concept": "Уровень 8: Очисти все цвета в ограниченное число ходов.",
+    "aha": "Планируй порядок цветов и положение магнита: чужие фишки перекрывают путь, а пустой ход расходует запас.",
+    "difficulty": {
+      "minimumAuthoredMoves": 3,
+      "authoredMoves": 3,
+      "randomPolicyRuns": 80,
+      "randomPolicyWinRate": 0.025,
+      "randomPlacementWinRate": 0.1875
+    }
   }
 }

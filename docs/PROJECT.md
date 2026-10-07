@@ -35,7 +35,8 @@
 | src/game/simulator.js | Pure deterministic pull→merge→clear/crate resolution and canonical replay serialization |
 | src/levels/prototype/*.json | Три versioned prototype puzzles с goal и авторским решением |
 | src/levels/ftue/*.json | Пять первых campaign-уровней с tutorial metadata и проверенными решениями |
-| src/levels/campaign/*.json | Уровни 6–50 со статическими решениями, bands и crate puzzles rules v2 |
+| src/levels/campaign/*.json | Уровни 6–50 contentVersion 2: несколько цветов, тесный лимит, статические решения и crate puzzles rules v2 |
+| tools/rebalance-campaign.mjs | Офлайн-авторинг кампании через simulator, поиск решений и отбор по случайной игре/размещениям; runtime не генерирует поля |
 | src/ui/tutorial.js | Локальные подсказки ошибок, шаги choose/place/pull и session skip обучения |
 | tests/ftue.test.js | FTUE solutions, timer-only hint, progression, skip/retry/completion |
 | tests/campaign.test.js | 50 campaign replays, rules bands, массовый баланс и crate resolution |

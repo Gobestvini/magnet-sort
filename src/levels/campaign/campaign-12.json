@@ -3,8 +3,8 @@
   "rulesVersion": 1,
   "puzzleId": "campaign-12",
   "campaignNumber": 12,
-  "seed": "magnet-campaign-v1-12",
-  "contentVersion": 1,
+  "seed": "magnet-campaign-v2-12",
+  "contentVersion": 2,
   "geometry": {
     "kind": "odd-r",
     "rows": 7,
@@ -16,36 +16,178 @@
     "yellow",
     "green"
   ],
-  "blockedCells": [],
+  "blockedCells": [
+    {
+      "col": 2,
+      "row": 3
+    },
+    {
+      "col": 4,
+      "row": 2
+    },
+    {
+      "col": 0,
+      "row": 5
+    },
+    {
+      "col": 4,
+      "row": 0
+    },
+    {
+      "col": 2,
+      "row": 2
+    },
+    {
+      "col": 6,
+      "row": 6
+    },
+    {
+      "col": 4,
+      "row": 6
+    },
+    {
+      "col": 3,
+      "row": 3
+    },
+    {
+      "col": 4,
+      "row": 3
+    },
+    {
+      "col": 6,
+      "row": 3
+    },
+    {
+      "col": 6,
+      "row": 2
+    },
+    {
+      "col": 1,
+      "row": 1
+    }
+  ],
   "crates": [],
   "tokens": [
     {
-      "tokenId": "red-pair-a",
+      "tokenId": "red-0",
+      "color": "red",
+      "mass": 1,
+      "cell": {
+        "col": 5,
+        "row": 5
+      }
+    },
+    {
+      "tokenId": "red-1",
       "color": "red",
       "mass": 2,
       "cell": {
-        "col": 1,
+        "col": 5,
         "row": 2
       }
     },
     {
-      "tokenId": "red-pair-b",
+      "tokenId": "red-2",
       "color": "red",
-      "mass": 3,
+      "mass": 2,
+      "cell": {
+        "col": 2,
+        "row": 6
+      }
+    },
+    {
+      "tokenId": "blue-0",
+      "color": "blue",
+      "mass": 1,
+      "cell": {
+        "col": 2,
+        "row": 5
+      }
+    },
+    {
+      "tokenId": "blue-1",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 0,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "blue-2",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 0,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "green-0",
+      "color": "green",
+      "mass": 1,
+      "cell": {
+        "col": 2,
+        "row": 1
+      }
+    },
+    {
+      "tokenId": "green-1",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "green-2",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 6,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "yellow-0",
+      "color": "yellow",
+      "mass": 1,
       "cell": {
         "col": 3,
-        "row": 2
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "yellow-1",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 0,
+        "row": 6
+      }
+    },
+    {
+      "tokenId": "yellow-2",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 4,
+        "row": 1
       }
     }
   ],
   "goal": {
     "kind": "clearAll"
   },
-  "moveLimit": 10,
+  "moveLimit": 4,
   "magnetSchedule": [
     {
       "options": [
-        "red"
+        "red",
+        "blue",
+        "green",
+        "yellow"
       ]
     }
   ],
@@ -54,22 +196,53 @@
     "actions": [
       {
         "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 1,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "yellow",
+        "cell": {
+          "col": 0,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
         "color": "red",
         "cell": {
-          "col": 4,
-          "row": 2
+          "col": 0,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "green",
+        "cell": {
+          "col": 0,
+          "row": 0
         }
       }
     ],
     "expected": {
       "outcome": "win",
-      "clearedMass": 5,
-      "movesUsed": 1
+      "clearedMass": 20,
+      "movesUsed": 4
     }
   },
   "design": {
     "band": "move-limits",
-    "concept": "Уровень 12: Ограничение ходов задаёт темп.",
-    "aha": "Поставь магнит за стеком 3: стек 2 сделает один шаг, соединится и очистит массу 5."
+    "concept": "Уровень 12: Очисти все цвета в ограниченное число ходов.",
+    "aha": "Планируй порядок цветов и положение магнита: чужие фишки перекрывают путь, а пустой ход расходует запас.",
+    "difficulty": {
+      "authoredMoves": 4,
+      "randomPolicyRuns": 80,
+      "randomPolicyWinRate": 0,
+      "minimumAuthoredMoves": 4,
+      "randomPlacementWinRate": 0.0125
+    }
   }
 }

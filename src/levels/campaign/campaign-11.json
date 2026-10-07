@@ -3,8 +3,8 @@
   "rulesVersion": 1,
   "puzzleId": "campaign-11",
   "campaignNumber": 11,
-  "seed": "magnet-campaign-v1-11",
-  "contentVersion": 1,
+  "seed": "magnet-campaign-v2-11",
+  "contentVersion": 2,
   "geometry": {
     "kind": "odd-r",
     "rows": 7,
@@ -18,18 +18,106 @@
   ],
   "blockedCells": [
     {
-      "col": 4,
+      "col": 0,
+      "row": 0
+    },
+    {
+      "col": 1,
+      "row": 6
+    },
+    {
+      "col": 6,
+      "row": 6
+    },
+    {
+      "col": 0,
+      "row": 5
+    },
+    {
+      "col": 3,
+      "row": 2
+    },
+    {
+      "col": 2,
+      "row": 5
+    },
+    {
+      "col": 3,
+      "row": 6
+    },
+    {
+      "col": 1,
       "row": 1
     },
     {
       "col": 6,
-      "row": 4
+      "row": 2
+    },
+    {
+      "col": 5,
+      "row": 3
+    },
+    {
+      "col": 0,
+      "row": 2
+    },
+    {
+      "col": 5,
+      "row": 2
+    },
+    {
+      "col": 2,
+      "row": 0
+    },
+    {
+      "col": 2,
+      "row": 3
+    },
+    {
+      "col": 4,
+      "row": 3
     }
   ],
   "crates": [],
   "tokens": [
     {
-      "tokenId": "green-pair-a",
+      "tokenId": "red-0",
+      "color": "red",
+      "mass": 1,
+      "cell": {
+        "col": 6,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "red-1",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 4,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "red-2",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 6,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "green-0",
+      "color": "green",
+      "mass": 1,
+      "cell": {
+        "col": 1,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "green-1",
       "color": "green",
       "mass": 2,
       "cell": {
@@ -38,23 +126,80 @@
       }
     },
     {
-      "tokenId": "green-pair-b",
+      "tokenId": "green-2",
       "color": "green",
-      "mass": 3,
+      "mass": 2,
+      "cell": {
+        "col": 4,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "blue-0",
+      "color": "blue",
+      "mass": 1,
+      "cell": {
+        "col": 4,
+        "row": 5
+      }
+    },
+    {
+      "tokenId": "blue-1",
+      "color": "blue",
+      "mass": 2,
       "cell": {
         "col": 3,
         "row": 4
+      }
+    },
+    {
+      "tokenId": "blue-2",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 1
+      }
+    },
+    {
+      "tokenId": "yellow-0",
+      "color": "yellow",
+      "mass": 1,
+      "cell": {
+        "col": 5,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "yellow-1",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "yellow-2",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 3,
+        "row": 5
       }
     }
   ],
   "goal": {
     "kind": "clearAll"
   },
-  "moveLimit": 9,
+  "moveLimit": 6,
   "magnetSchedule": [
     {
       "options": [
-        "green"
+        "red",
+        "green",
+        "blue",
+        "yellow"
       ]
     }
   ],
@@ -65,20 +210,67 @@
         "type": "placeMagnet",
         "color": "green",
         "cell": {
-          "col": 4,
-          "row": 4
+          "col": 3,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 1,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "red",
+        "cell": {
+          "col": 5,
+          "row": 1
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "yellow",
+        "cell": {
+          "col": 3,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "red",
+        "cell": {
+          "col": 3,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 3,
+          "row": 0
         }
       }
     ],
     "expected": {
       "outcome": "win",
-      "clearedMass": 5,
-      "movesUsed": 1
+      "clearedMass": 20,
+      "movesUsed": 6
     }
   },
   "design": {
     "band": "move-limits",
-    "concept": "Уровень 11: Ограничение ходов задаёт темп.",
-    "aha": "Поставь магнит за стеком 3: стек 2 сделает один шаг, соединится и очистит массу 5."
+    "concept": "Уровень 11: Очисти все цвета в ограниченное число ходов.",
+    "aha": "Планируй порядок цветов и положение магнита: чужие фишки перекрывают путь, а пустой ход расходует запас.",
+    "difficulty": {
+      "minimumAuthoredMoves": 4,
+      "authoredMoves": 6,
+      "randomPolicyRuns": 80,
+      "randomPolicyWinRate": 0,
+      "randomPlacementWinRate": 0.075
+    }
   }
 }

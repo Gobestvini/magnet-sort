@@ -3,8 +3,8 @@
   "rulesVersion": 2,
   "puzzleId": "campaign-43",
   "campaignNumber": 43,
-  "seed": "magnet-campaign-v1-43",
-  "contentVersion": 1,
+  "seed": "magnet-campaign-v2-43",
+  "contentVersion": 2,
   "geometry": {
     "kind": "odd-r",
     "rows": 7,
@@ -16,45 +16,265 @@
     "yellow",
     "green"
   ],
-  "blockedCells": [],
-  "crates": [
-    {
-      "col": 2,
-      "row": 4
-    },
+  "blockedCells": [
     {
       "col": 4,
       "row": 6
+    },
+    {
+      "col": 4,
+      "row": 1
+    },
+    {
+      "col": 6,
+      "row": 6
+    },
+    {
+      "col": 0,
+      "row": 4
+    },
+    {
+      "col": 5,
+      "row": 6
+    },
+    {
+      "col": 5,
+      "row": 3
+    },
+    {
+      "col": 3,
+      "row": 4
+    },
+    {
+      "col": 2,
+      "row": 6
+    },
+    {
+      "col": 0,
+      "row": 2
+    },
+    {
+      "col": 1,
+      "row": 1
+    },
+    {
+      "col": 4,
+      "row": 0
+    },
+    {
+      "col": 1,
+      "row": 3
+    },
+    {
+      "col": 3,
+      "row": 1
+    },
+    {
+      "col": 3,
+      "row": 6
+    },
+    {
+      "col": 6,
+      "row": 4
+    },
+    {
+      "col": 2,
+      "row": 3
+    },
+    {
+      "col": 6,
+      "row": 1
+    }
+  ],
+  "crates": [
+    {
+      "col": 6,
+      "row": 2
+    },
+    {
+      "col": 1,
+      "row": 5
+    },
+    {
+      "col": 2,
+      "row": 1
     }
   ],
   "tokens": [
     {
-      "tokenId": "green-pair-a",
+      "tokenId": "red-0",
+      "color": "red",
+      "mass": 1,
+      "cell": {
+        "col": 5,
+        "row": 1
+      }
+    },
+    {
+      "tokenId": "red-1",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 4,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "red-2",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 0,
+        "row": 1
+      }
+    },
+    {
+      "tokenId": "red-3",
+      "color": "red",
+      "mass": 1,
+      "cell": {
+        "col": 1,
+        "row": 6
+      }
+    },
+    {
+      "tokenId": "red-4",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 4,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "red-5",
+      "color": "red",
+      "mass": 2,
+      "cell": {
+        "col": 0,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "green-0",
+      "color": "green",
+      "mass": 1,
+      "cell": {
+        "col": 4,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "green-1",
       "color": "green",
       "mass": 2,
       "cell": {
         "col": 1,
+        "row": 4
+      }
+    },
+    {
+      "tokenId": "green-2",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 6,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "green-3",
+      "color": "green",
+      "mass": 1,
+      "cell": {
+        "col": 3,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "green-4",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "green-5",
+      "color": "green",
+      "mass": 2,
+      "cell": {
+        "col": 3,
         "row": 5
       }
     },
     {
-      "tokenId": "green-pair-b",
-      "color": "green",
-      "mass": 3,
+      "tokenId": "yellow-0",
+      "color": "yellow",
+      "mass": 1,
       "cell": {
-        "col": 3,
+        "col": 0,
+        "row": 0
+      }
+    },
+    {
+      "tokenId": "yellow-1",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 5,
         "row": 5
+      }
+    },
+    {
+      "tokenId": "yellow-2",
+      "color": "yellow",
+      "mass": 2,
+      "cell": {
+        "col": 6,
+        "row": 3
+      }
+    },
+    {
+      "tokenId": "blue-0",
+      "color": "blue",
+      "mass": 1,
+      "cell": {
+        "col": 2,
+        "row": 5
+      }
+    },
+    {
+      "tokenId": "blue-1",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 1,
+        "row": 2
+      }
+    },
+    {
+      "tokenId": "blue-2",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 2,
+        "row": 2
       }
     }
   ],
   "goal": {
     "kind": "clearAll"
   },
-  "moveLimit": 12,
+  "moveLimit": 6,
   "magnetSchedule": [
     {
       "options": [
-        "green"
+        "red",
+        "green",
+        "yellow",
+        "blue"
       ]
     }
   ],
@@ -63,22 +283,69 @@
     "actions": [
       {
         "type": "placeMagnet",
+        "color": "red",
+        "cell": {
+          "col": 1,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
         "color": "green",
         "cell": {
-          "col": 4,
-          "row": 5
+          "col": 2,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 3,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "green",
+        "cell": {
+          "col": 5,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "red",
+        "cell": {
+          "col": 2,
+          "row": 0
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "yellow",
+        "cell": {
+          "col": 1,
+          "row": 0
         }
       }
     ],
     "expected": {
       "outcome": "win",
-      "clearedMass": 5,
-      "movesUsed": 1
+      "clearedMass": 30,
+      "movesUsed": 6
     }
   },
   "design": {
     "band": "crates",
-    "concept": "Уровень 43: Очистка рядом ломает ящик.",
-    "aha": "Поставь магнит за стеком 3: стек 2 сделает один шаг, соединится и очистит массу 5."
+    "concept": "Уровень 43: Разрушь ящики и расчисти смешанное поле.",
+    "aha": "Планируй порядок цветов и положение магнита: чужие фишки перекрывают путь, а пустой ход расходует запас.",
+    "difficulty": {
+      "authoredMoves": 6,
+      "randomPolicyRuns": 80,
+      "randomPolicyWinRate": 0,
+      "minimumAuthoredMoves": 6,
+      "randomPlacementWinRate": 0.0375
+    }
   }
 }
