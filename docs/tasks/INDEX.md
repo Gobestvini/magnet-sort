@@ -1,8 +1,8 @@
 # Очередь Magnet Sort
 
-Подготовлена 2026-10-07 по GDD v0.1 и общему диалогу, обновлена по текущему решению PixiJS/pseudo‑2.5D. 22 задачи; TASK-0001–0004 и TASK-0006 завершены, TASK-0005 реализована и ждёт физической touch-проверки.
+Подготовлена 2026-10-07 по GDD v0.1 и общему диалогу, обновлена по текущему решению PixiJS/pseudo‑2.5D. 22 задачи; TASK-0001–0004 и TASK-0006–0007 завершены, TASK-0005 реализована и ждёт физической touch-проверки.
 
-Сначала закрыть TASK-0005 на физическом touch-телефоне, затем продолжить TASK-0007. TASK-0019 можно исследовать независимо. Mobile emulation не считается evidence физического touch-телефона. После правок документации требуется `pnpm check:full`. Текущий дизайн: [GDD v0.2](../design/GDD_V0.2.md), [PixiJS rendering contract](../design/PIXI_RENDERING.md), [DECISIONS](../design/DECISIONS.md); оригинал: [GDD_SOURCE](../design/GDD_SOURCE.md).
+TASK-0005 реализована и ждёт физической touch-проверки; эта блокировка не мешает завершённой TASK-0007. TASK-0019 можно исследовать независимо. Mobile emulation не считается evidence физического touch-телефона. После правок документации требуется `pnpm check:full`. Текущий дизайн: [GDD v0.2](../design/GDD_V0.2.md), [PixiJS rendering contract](../design/PIXI_RENDERING.md), [DECISIONS](../design/DECISIONS.md); оригинал: [GDD_SOURCE](../design/GDD_SOURCE.md).
 
 Порядок продукта: первый цикл TASK-0001–0007 → анимации/score/FTUE TASK-0008–0010 → проверка TASK-0011 → кампания и web/social MVP → реальная платформа/реклама → приёмка TASK-0022. До go не начинать массовый контент, монетизацию и интеграции. Наличие отдельной задачи исследования платформы не требует ранней реализации SDK.
 
@@ -14,7 +14,7 @@
 | [TASK-0004: Нарисовать читаемое поле и стеки](TASK-0004-board-render.md) | done | high | TASK-0002, TASK-0003 | средняя; средний |
 | [TASK-0005: Сделать drag и tap-to-place для магнитов](TASK-0005-magnet-input.md) | blocked | high | TASK-0004 | средняя; высокий |
 | [TASK-0006: Реализовать детерминированный ход pull → merge → clear](TASK-0006-deterministic-simulator.md) | done | high | TASK-0001, TASK-0002 | сильная; высокий |
-| [TASK-0007: Собрать первый полный играбельный цикл](TASK-0007-playable-session.md) | draft | high | TASK-0005, TASK-0006 | средняя; высокий |
+| [TASK-0007: Собрать первый полный играбельный цикл](TASK-0007-playable-session.md) | done | high | TASK-0005, TASK-0006 | средняя; высокий |
 | [TASK-0008: Сделать наглядные pull, merge и clear-анимации](TASK-0008-motion-feedback.md) | draft | high | TASK-0007 | средняя; высокий |
 | [TASK-0009: Добавить честный score и экран результата](TASK-0009-score-result.md) | draft | high | TASK-0007 | средняя; высокий |
 | [TASK-0010: Научить механике через первые пять уровней](TASK-0010-ftue-five-levels.md) | draft | high | TASK-0008, TASK-0009 | средняя; средний |
@@ -33,7 +33,7 @@
 
 ## Следующий шаг
 
-Закрыть TASK-0005 на физическом touch-телефоне; после этого продолжить TASK-0007.
+Следующая по порядку — TASK-0008: анимации pull, merge и clear. Отдельно запросить физическую touch-проверку TASK-0005 до прототипного gate TASK-0011.
 
 ## Покрытие GDD и границы
 

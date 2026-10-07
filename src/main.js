@@ -50,7 +50,13 @@ function scheduleFrame() {
 function currentStatus() {
   if (error) return 'Нужен повторный запуск';
   if (!renderer) return initializing ? 'Загрузка поля…' : 'Готово к запуску';
-  return paused ? 'Пауза' : 'Готово';
+  if (paused) return 'Пауза';
+  const phase = scene?.getSession().phase;
+  if (phase === 'resolving') return 'Магнит притягивает фишки…';
+  if (phase === 'won') return 'Уровень пройден!';
+  if (phase === 'lost') return 'Ходы закончились';
+  if (phase === 'error') return 'Не удалось загрузить уровень';
+  return 'Готово';
 }
 
 function renderUI() {
@@ -60,13 +66,17 @@ function renderUI() {
     ready: Boolean(renderer && scene && !error),
     initializing,
     error,
+    session: scene?.getSession(),
     status: currentStatus(),
     interaction: scene?.snapshot().interaction,
     surfaceRef,
     canvasRef,
     onTogglePause: () => setPaused(!paused),
     onReset: reset,
-    onRetry: initialize,
+    onRetry: retry,
+    onRetryRenderer: initialize,
+    onNextPuzzle: nextPuzzle,
+    onChooseColor: (color) => pointer?.chooseColor(color),
   }), uiRoot);
 }
 
@@ -88,20 +98,49 @@ function resize() {
 function setPaused(value) {
   if (!renderer || !scene) return;
   paused = Boolean(value);
-  if (paused) pointer?.cancel();
+  syncPointerLock();
   clearTiming();
   if (paused) cancelFrame();
   renderUI();
   if (!paused) scheduleFrame();
 }
 
+function syncPointerLock() {
+  const phase = scene?.getSession().phase;
+  pointer?.setLocked(paused || document.hidden || (phase !== undefined && phase !== 'playing'));
+}
+
 function reset() {
   if (!scene) return;
   pointer?.cancel();
   scene.reset();
+  syncPointerLock();
   clearTiming();
   renderScene(0);
   renderUI();
+  scheduleFrame();
+}
+
+function retry() {
+  if (!scene) return;
+  pointer?.cancel();
+  scene.retry();
+  syncPointerLock();
+  clearTiming();
+  renderScene(0);
+  renderUI();
+  scheduleFrame();
+}
+
+function nextPuzzle() {
+  if (!scene) return;
+  pointer?.cancel();
+  scene.nextPuzzle();
+  syncPointerLock();
+  clearTiming();
+  renderScene(0);
+  renderUI();
+  scheduleFrame();
 }
 
 function tick(now) {
@@ -109,14 +148,25 @@ function tick(now) {
   if (disposed || paused || document.hidden || !scene || !renderer) return;
   const delta = previous === null ? 0 : (now - previous) / 1000;
   previous = now;
-  const result = stepper.advance(delta, (dt) => scene.update(dt, input));
+  let phaseChanged = false;
+  const result = stepper.advance(delta, (dt) => { phaseChanged = scene.update(dt, input) || phaseChanged; });
   tickCount += 1;
   renderScene(result.alpha);
+  if (phaseChanged) {
+    syncPointerLock();
+    renderUI();
+  }
+  const phase = scene.getSession().phase;
+  if (phase === 'won' || phase === 'lost' || phase === 'error') {
+    cancelFrame();
+    return;
+  }
   scheduleFrame();
 }
 
 function handleVisibility() {
   pointer?.cancel();
+  syncPointerLock();
   clearTiming();
   cancelFrame();
   if (!document.hidden) {
@@ -156,7 +206,16 @@ async function initialize() {
         renderScene(0);
         renderUI();
       },
+      onAction: (action) => {
+        const result = scene?.submitAction(action);
+        if (result?.accepted) {
+          syncPointerLock();
+          renderScene(0);
+          renderUI();
+        }
+      },
     });
+    pointer.setLocked(paused || document.hidden);
     scene.resize(gameHost.clientWidth, gameHost.clientHeight);
     resize();
     renderUI();
@@ -194,6 +253,10 @@ if (typeof ResizeObserver !== 'undefined') {
 function snapshot() {
   return {
     ...(scene?.snapshot() ?? { elapsed: 0 }),
+    puzzleId: scene?.getSession().puzzleId ?? null,
+    state: scene?.getSession().state ?? null,
+    phase: scene?.getSession().phase ?? 'loading',
+    moves: scene?.getSession().movesUsed ?? 0,
     paused,
     keys: [...input.keys].sort(),
     rendererReady: Boolean(renderer),
@@ -226,7 +289,29 @@ function dispose() {
 }
 
 if (import.meta.env.DEV) {
-  window.gameDebug = { snapshot, reset, setPaused, dispose };
+  window.gameDebug = {
+    snapshot,
+    reset,
+    retry,
+    nextPuzzle,
+    setPaused,
+    loadTestLevel(level) {
+      pointer?.cancel();
+      scene?.loadTestLevel(level);
+      renderUI();
+      renderScene(0);
+    },
+    playTestAction(action) {
+      const result = scene?.submitAction(action);
+      if (result?.accepted) {
+        syncPointerLock();
+        renderUI();
+        renderScene(0);
+      }
+      return result;
+    },
+    dispose,
+  };
 }
 void initialize();
 

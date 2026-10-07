@@ -1,17 +1,18 @@
 import { Container, Graphics } from 'pixi.js';
-import { loadPrototypeLevel } from './game/levels.js';
+import { createSession } from './game/session.js';
 import { createBoardRenderer } from './render/board.js';
 import { createBoardLayout } from './render/layout.js';
 
 // The scene owns its nodes; the application owns the stage and renderer.
-export function createScene(stage) {
+export function createScene(stage, { initialPuzzleId } = {}) {
   let elapsed = 0;
   let width = 1;
   let height = 1;
   let resolution = 1;
   let disposed = false;
-  const level = loadPrototypeLevel('prototype-03-blocker');
-  let state = initialState();
+  const session = createSession({ ...(initialPuzzleId ? { initialPuzzleId } : {}) });
+  const level = session.getLevel();
+  const state = session.getState();
   let interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null };
   let layout = createBoardLayout(width, height, resolution);
   const root = new Container();
@@ -20,19 +21,23 @@ export function createScene(stage) {
   const board = createBoardRenderer(root);
   stage.addChild(root);
 
-  function initialState() {
-    return { tokens: level.tokens.map((token) => ({ ...token, cell: { ...token.cell } })) };
-  }
-
   function draw() {
     if (disposed) return;
     backdrop.clear().rect(0, 0, width, height).fill({ color: 0xfffaf2 });
     layout = createBoardLayout(width, height, resolution);
-    board.render(level, state, layout, interaction);
+    const currentLevel = session.getLevel();
+    const currentState = session.getState();
+    if (currentLevel && currentState) board.render(currentLevel, currentState, layout, interaction);
   }
 
   return {
-    update(dt) { if (!disposed) elapsed += dt; },
+    update(dt) {
+      if (disposed) return false;
+      elapsed += dt;
+      const previousPhase = session.snapshot().phase;
+      session.update(dt);
+      return session.snapshot().phase !== previousPhase;
+    },
     resize(nextWidth, nextHeight, nextResolution = 1) {
       width = Math.max(1, nextWidth);
       height = Math.max(1, nextHeight);
@@ -40,7 +45,15 @@ export function createScene(stage) {
       draw();
     },
     render(renderer) { if (!disposed) renderer.render(); },
-    reset() { elapsed = 0; state = initialState(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null }; draw(); },
+    reset() { elapsed = 0; session.reset(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null }; draw(); },
+    retry() { elapsed = 0; session.retry(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null }; draw(); },
+    nextPuzzle() { elapsed = 0; session.nextPuzzle(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null }; draw(); },
+    submitAction(action) {
+      const result = session.dispatch(action);
+      if (result.accepted) draw();
+      return result;
+    },
+    loadTestLevel(testLevel) { elapsed = 0; session.loadTestLevel(testLevel); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null }; draw(); },
     setInteraction(next) {
       interaction = {
         selectedColor: next.selectedColor ?? null,
@@ -51,13 +64,15 @@ export function createScene(stage) {
       };
       draw();
     },
-    getLevel() { return level; },
-    getState() { return state; },
+    getLevel() { return session.getLevel() ?? level; },
+    getState() { return session.getState() ?? state; },
+    getSession() { return session.snapshot(); },
     getLayout() { return layout; },
     snapshot() {
       return {
         elapsed,
-        board: { rows: level.geometry.rows, cols: level.geometry.cols, renderedCells: 49, tokens: state.tokens.length, blockers: level.blockedCells.length },
+        board: { rows: level.geometry.rows, cols: level.geometry.cols, renderedCells: 49, tokens: session.getState()?.tokens.length ?? 0, blockers: session.getLevel()?.blockedCells.length ?? 0 },
+        session: session.snapshot(),
         layout: { width: layout.width, height: layout.height, radius: layout.radius, originX: layout.originX, originY: layout.originY },
         interaction: {
           selectedColor: interaction.selectedColor,

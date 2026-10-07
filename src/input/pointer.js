@@ -30,7 +30,8 @@ export function createPointerController(target, { getLayout, getLevel, getState,
   function validCell(cell, color) {
     if (!cell || !color || locked) return false;
     const level = getLevel();
-    if (!level.magnetSchedule[0].options.includes(color)) return false;
+    const options = getState().selectedMagnetOptions ?? level.magnetSchedule[0].options;
+    if (!options.includes(color)) return false;
     const id = cellId(cell);
     if (level.blockedCells.some((blocked) => cellId(blocked) === id)) return false;
     return !getState().tokens.some((token) => cellId(token.cell) === id);
@@ -48,7 +49,7 @@ export function createPointerController(target, { getLayout, getLevel, getState,
     const point = pointFrom(event);
     const layout = getLayout();
     if (isMagnetTrayPoint(point, layout)) {
-      const options = getLevel().magnetSchedule[0].options;
+      const options = getState().selectedMagnetOptions ?? getLevel().magnetSchedule[0].options;
       const color = options.find((option) => getLevel().colors.includes(option));
       if (!color) return;
       selectedColor = color;
@@ -114,6 +115,16 @@ export function createPointerController(target, { getLayout, getLevel, getState,
 
   return {
     cancel,
+    chooseColor(color) {
+      const options = getState().selectedMagnetOptions ?? getLevel().magnetSchedule[0].options;
+      if (disposed || locked || pointerId !== null || !options.includes(color)) return false;
+      selectedColor = color;
+      lastAction = null;
+      previewCell = null;
+      pointerPoint = null;
+      notify();
+      return true;
+    },
     setLocked(value) { locked = Boolean(value); if (locked) cancel(); },
     snapshot() { return { pointerId, dragging, locked, selectedColor, previewCell: previewCell ? { ...previewCell } : null, pointerPoint: pointerPoint ? { ...pointerPoint } : null, action: lastAction ? structuredClone(lastAction) : null, actionCount }; },
     dispose() {

@@ -1,6 +1,7 @@
 import { h } from 'preact';
+import { GameHud } from './game-hud.js';
 
-export function App({ paused, ready, initializing, error, status, interaction, surfaceRef, canvasRef, onTogglePause, onReset, onRetry }) {
+export function App({ paused, ready, initializing, error, status, session, interaction, surfaceRef, canvasRef, onTogglePause, onReset, onRetry, onRetryRenderer, onNextPuzzle, onChooseColor }) {
   return h('main', { className: 'app-shell' },
     h('header', { className: 'app-header' },
       h('div', null,
@@ -16,22 +17,25 @@ export function App({ paused, ready, initializing, error, status, interaction, s
             ? h('div', { className: 'error-content' },
               h('strong', null, 'Не удалось открыть игровое поле.'),
               h('span', null, 'Проверьте поддержку WebGL и попробуйте ещё раз.'),
-              h('button', { type: 'button', onClick: onRetry, disabled: initializing }, initializing ? 'Запуск…' : 'Повторить запуск'))
+              h('button', { type: 'button', onClick: onRetryRenderer, disabled: initializing }, initializing ? 'Запуск…' : 'Повторить запуск'))
             : h('span', null, initializing ? 'Загрузка игрового поля…' : 'Подготовка…'))),
       h('aside', { className: 'game-controls', 'aria-label': 'Управление игрой' },
         h('p', { className: 'control-label' }, 'Сессия'),
         h('p', { id: 'status', role: 'status', 'aria-live': 'polite' }, status),
+        h(GameHud, { session, interaction, ready, onChooseColor }),
         h('div', { className: 'controls' },
           h('button', {
             id: 'pause', type: 'button', onClick: onTogglePause,
             disabled: !ready, 'aria-pressed': paused,
           }, paused ? 'Продолжить' : 'Пауза'),
           h('button', { id: 'reset', type: 'button', onClick: onReset, disabled: !ready }, 'Сброс')),
-        interaction?.action
-          ? h('p', { id: 'action-preview', className: 'action-preview', role: 'status', 'aria-live': 'polite' },
-            `Предпросмотр команды · ${interaction.action.type}(${interaction.action.color}, r${interaction.action.cell.row}c${interaction.action.cell.col}) — без симуляции`)
-          : h('p', { className: 'helper-text' }, interaction?.selectedColor
+        session && ['won', 'lost', 'error'].includes(session.phase) && h('div', { className: 'result-controls' },
+          h('button', { type: 'button', onClick: onRetry, disabled: !ready }, 'Повторить уровень'),
+          h('button', { type: 'button', className: 'next-puzzle', onClick: onNextPuzzle, disabled: !ready }, 'Следующий уровень')),
+        h('p', { className: 'helper-text' }, session?.phase === 'won' || session?.phase === 'lost'
+          ? 'Можно повторить этот уровень или перейти к следующему.'
+          : interaction?.selectedColor
             ? 'Магнит выбран. Перетащи его на свободную клетку или коснись клетки.'
-            : 'Перетащи магнит на свободную клетку или коснись магнита, затем клетки.'))),
+            : 'Перетащи магнит на свободную клетку или выбери его, затем коснись клетки.'))),
     h('footer', { className: 'app-footer' }, 'Играй в своём темпе'));
 }

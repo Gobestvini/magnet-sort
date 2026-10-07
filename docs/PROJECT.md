@@ -11,6 +11,8 @@
 | src/loop.js / createStepper | Шаг 1/60 с, максимум 8 шагов кадра, dropped time, alpha |
 | src/input.js / createInput | Клавиатура event.code, blur/reset/dispose |
 | src/scene.js / createScene | Pixi prototype-level scene: update/render/resize/reset/snapshot/dispose |
+| src/game/session.js / createSession | Validates and loads prototype levels, gates actions by phase, resolves simulator outcomes, supports retry/next and dev snapshots |
+| src/ui/game-hud.js | Session-driven objective, moves, magnet choices, event feedback and terminal actions |
 | src/game/hex.js | odd-r/axial преобразования, 7×7 neighbors/distance/ID и 49-cell materialization |
 | src/game/levels.js | LevelDefinition validation, deterministic normalization и загрузка prototype levels |
 | src/game/state.js | Immutable simulator state creation/copy and legal-placement invariants |

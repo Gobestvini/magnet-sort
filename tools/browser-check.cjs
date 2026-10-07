@@ -23,6 +23,7 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       assert.equal(await page.evaluate(() => window.gameDebug.snapshot().canvasCount), 1);
       assert.equal(await page.locator('#game-canvas').getAttribute('data-renderer'), 'pixi');
       assert.deepEqual(await page.evaluate(() => window.gameDebug.snapshot().board), { rows: 7, cols: 7, renderedCells: 49, tokens: 1, blockers: 5 });
+      const initialState = await page.evaluate(() => window.gameDebug.snapshot().state);
       const initialLayout = await page.evaluate(() => window.gameDebug.snapshot().layout);
       assert.equal(initialLayout.width, await page.locator('#game-canvas').evaluate((canvas) => canvas.clientWidth));
       assert.equal(initialLayout.height, await page.locator('#game-canvas').evaluate((canvas) => canvas.clientHeight));
@@ -55,29 +56,37 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
         await page.mouse.up();
       }
       await page.waitForFunction(() => window.gameDebug.snapshot().pointer.actionCount === 1);
-      assert.deepEqual(await page.evaluate(() => window.gameDebug.snapshot().pointer.action), {
-        type: 'placeMagnet', color: 'red', cell: { col: 3, row: 0 },
-      });
-      assert.match(await page.locator('#action-preview').innerText(), /без симуляции/);
+      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
+      const won = await page.evaluate(() => window.gameDebug.snapshot());
+      assert.equal(won.puzzleId, 'prototype-03-blocker');
+      assert.equal(won.state.terminal.outcome, 'win');
+      assert.equal(won.moves, 1);
+      assert.equal(won.state.tokens.length, 0);
+      assert.match(await page.locator('#status').innerText(), /пройден/);
       for (const location of [inputPoints.blocked, inputPoints.occupied, inputPoints.outside]) {
         if (touch) await page.touchscreen.tap(location.x, location.y);
         else await page.mouse.click(location.x, location.y);
       }
       assert.equal(await page.evaluate(() => window.gameDebug.snapshot().pointer.actionCount), 1);
-      await page.evaluate((point) => {
-        const canvas = document.querySelector('#game-canvas');
-        const send = (type) => canvas.dispatchEvent(new PointerEvent(type, {
-          bubbles: true, cancelable: true, pointerId: 55, isPrimary: true, pointerType: 'touch', button: 0,
-          clientX: point.x, clientY: point.y,
-        }));
-        send('pointerdown'); send('pointermove');
-      }, inputPoints.tray);
-      await page.getByRole('button', { name: 'Пауза', exact: true }).click();
+      await page.getByRole('button', { name: 'Повторить уровень' }).click();
+      const retried = await page.evaluate(() => window.gameDebug.snapshot());
+      assert.equal(retried.phase, 'playing');
+      assert.equal(retried.puzzleId, won.puzzleId);
+      assert.deepEqual(retried.state.tokens, initialState.tokens);
+      if (!touch) {
+        await page.mouse.move(inputPoints.tray.x, inputPoints.tray.y);
+        await page.mouse.down();
+        await page.mouse.move(inputPoints.target.x, inputPoints.target.y, { steps: 4 });
+        await page.waitForFunction(() => window.gameDebug.snapshot().pointer.dragging);
+      }
+      if (touch) await page.getByRole('button', { name: 'Пауза', exact: true }).click();
+      else await page.locator('#pause').evaluate((button) => button.click());
       const paused = await page.evaluate(() => window.gameDebug.snapshot());
       assert.equal(paused.paused, true);
       assert.equal(paused.rafScheduled, false);
       assert.equal(paused.pointer.pointerId, null);
       assert.equal(paused.pointer.selectedColor, null);
+      if (!touch) await page.mouse.up();
       await page.waitForTimeout(150);
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).elapsed, paused.elapsed);
       assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).tickCount, paused.tickCount);
@@ -91,6 +100,26 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
       await page.waitForFunction(() => window.gameDebug.snapshot().elapsed > 0);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+
+      const lossLevel = {
+        schemaVersion: 1, rulesVersion: 1, puzzleId: 'browser-loss-fixture', seed: 'browser-loss-v1', contentVersion: 1,
+        geometry: { kind: 'odd-r', rows: 7, cols: 7 }, colors: ['red', 'blue', 'yellow'], blockedCells: [],
+        tokens: [{ tokenId: 'small-red', color: 'red', mass: 1, cell: { col: 0, row: 0 } }],
+        goal: { kind: 'clearCount', mass: 2 }, moveLimit: 1, magnetSchedule: [{ options: ['red'] }], mode: 'prototype',
+      };
+      await page.evaluate((level) => window.gameDebug.loadTestLevel(level), lossLevel);
+      await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 6, row: 6 } }));
+      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'lost');
+      const lost = await page.evaluate(() => window.gameDebug.snapshot());
+      assert.equal(lost.state.terminal.reason, 'move-limit');
+      assert.equal(lost.moves, 1);
+      await page.getByRole('button', { name: 'Повторить уровень' }).click();
+      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().phase), 'playing');
+      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().puzzleId), 'browser-loss-fixture');
+      await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 6, row: 6 } }));
+      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'lost');
+      await page.getByRole('button', { name: 'Следующий уровень' }).click();
+      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().puzzleId), 'prototype-01-clear-all');
 
       const originalViewport = page.viewportSize();
       await page.setViewportSize({ width: 844, height: 390 });
