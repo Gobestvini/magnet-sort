@@ -18,7 +18,7 @@ export function createBoardRenderer(root) {
     const animation = interaction.animation;
     const renderTokens = animation?.active ? animation.tokens : state.tokens;
     const animatedById = new Map(renderTokens.map((token) => [token.tokenId, token]));
-    const cells = allCells({ blockedCells: level.blockedCells, tokens: renderTokens });
+    const cells = allCells({ blockedCells: level.blockedCells, crates: level.crates, tokens: renderTokens });
     for (const entry of cells) {
         const token = animatedById.get(entry.tokenId) ?? state.tokens.find((item) => item.tokenId === entry.tokenId);
         const { x, y } = token?.x !== undefined
@@ -38,6 +38,16 @@ export function createBoardRenderer(root) {
         grid.moveTo(x - r * 0.25, y - r * 0.25).lineTo(x + r * 0.25, y + r * 0.25)
           .moveTo(x + r * 0.25, y - r * 0.25).lineTo(x - r * 0.25, y + r * 0.25)
           .stroke({ color: 0x77716b, width: Math.max(2, r * 0.09), cap: 'round' });
+      } else if (entry.kind === 'crate') {
+        drawHex(grid, x, y, r, 0x9b6a3d, true);
+        grid.roundRect(x - r * 0.48, y - r * 0.42, r * 0.96, r * 0.76, r * 0.08)
+          .fill({ color: 0xb77a43 }).stroke({ color: 0x704522, width: Math.max(1.5, r * 0.08) });
+        for (const offset of [-0.2, 0.2]) {
+          grid.moveTo(x + offset * r, y - r * 0.4).lineTo(x + offset * r, y + r * 0.31)
+            .stroke({ color: 0x704522, width: Math.max(1.5, r * 0.07) });
+        }
+        grid.moveTo(x - r * 0.43, y - r * 0.1).lineTo(x + r * 0.43, y - r * 0.1)
+          .stroke({ color: 0xd8a36b, width: Math.max(1.2, r * 0.045) });
       } else {
         drawHex(grid, x, y, r, 0xf4eadc, false);
         drawHex(grid, x, y, r * 0.81, 0xfffcf7, false);
