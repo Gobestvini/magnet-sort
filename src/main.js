@@ -82,6 +82,7 @@ function renderUI() {
     onRetryRenderer: initialize,
     onNextPuzzle: nextPuzzle,
     onChooseColor: (color) => pointer?.chooseColor(color),
+    onSkipTutorial: skipTutorial,
   }), uiRoot);
 }
 
@@ -141,6 +142,16 @@ function nextPuzzle() {
   if (!scene) return;
   pointer?.cancel();
   scene.nextPuzzle();
+  syncPointerLock();
+  clearTiming();
+  renderScene(0);
+  renderUI();
+  scheduleFrame();
+}
+
+function skipTutorial() {
+  if (!scene?.skipTutorial()) return;
+  pointer?.cancel();
   syncPointerLock();
   clearTiming();
   renderScene(0);
@@ -262,6 +273,7 @@ function snapshot() {
     state: scene?.getSession().state ?? null,
     phase: scene?.getSession().phase ?? 'loading',
     moves: scene?.getSession().movesUsed ?? 0,
+    tutorial: scene?.getSession().tutorial ?? null,
     result: scene?.getSession().result ?? null,
     activeTimeMs: scene?.getSession().activeTimeMs ?? 0,
     assistedFlags: scene?.getSession().assistedFlags ?? {},
@@ -302,6 +314,7 @@ if (import.meta.env.DEV) {
     reset,
     retry,
     nextPuzzle,
+    skipTutorial,
     setPaused,
     setReducedMotion(value) { reducedMotionOverride = Boolean(value); },
     loadTestLevel(level) {

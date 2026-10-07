@@ -19,7 +19,7 @@ const losingLevel = {
 };
 
 test('accepted actions enter resolving, then settle to the simulator outcome', () => {
-  const session = createSession();
+  const session = createSession({ initialPuzzleId: 'prototype-03-blocker' });
   assert.equal(session.snapshot().phase, 'playing');
   assert.equal(session.snapshot().puzzleId, 'prototype-03-blocker');
   const result = session.dispatch({ type: 'placeMagnet', color: 'red', cell: { col: 3, row: 3 } });
@@ -37,7 +37,7 @@ test('accepted actions enter resolving, then settle to the simulator outcome', (
 });
 
 test('reset cancels a pending resolution and retry starts the same puzzle', () => {
-  const session = createSession();
+  const session = createSession({ initialPuzzleId: 'prototype-03-blocker' });
   session.dispatch({ type: 'placeMagnet', color: 'red', cell: { col: 3, row: 3 } });
   session.reset();
   assert.equal(session.snapshot().phase, 'playing');
@@ -52,7 +52,7 @@ test('reset cancels a pending resolution and retry starts the same puzzle', () =
 });
 
 test('loss state and next prototype puzzle are available to the UI', () => {
-  const session = createSession();
+  const session = createSession({ initialPuzzleId: 'prototype-03-blocker' });
   assert.equal(session.loadTestLevel(losingLevel), true);
   const lost = session.dispatch({ type: 'placeMagnet', color: 'red', cell: { col: 6, row: 6 } });
   assert.equal(lost.accepted, true);
@@ -62,13 +62,15 @@ test('loss state and next prototype puzzle are available to the UI', () => {
   assert.equal(session.retry(), true);
   assert.equal(session.snapshot().phase, 'playing');
   assert.equal(session.snapshot().movesUsed, 0);
+  assert.equal(session.dispatch({ type: 'placeMagnet', color: 'red', cell: { col: 6, row: 6 } }).accepted, true);
+  session.update(1);
   assert.equal(session.nextPuzzle(), true);
   assert.equal(session.snapshot().puzzleId, 'prototype-01-clear-all');
   assert.deepEqual(session.snapshot().availableColors, ['red']);
 });
 
 test('invalid level data enters recoverable error phase', () => {
-  const session = createSession();
+  const session = createSession({ initialPuzzleId: 'prototype-03-blocker' });
   assert.equal(session.loadTestLevel({ puzzleId: 'bad' }), false);
   assert.equal(session.snapshot().phase, 'error');
   assert.match(session.snapshot().error, /LevelDefinition/);
@@ -77,7 +79,7 @@ test('invalid level data enters recoverable error phase', () => {
 });
 
 test('session finalizes one immutable scored result and resets assisted flags and active time', () => {
-  const session = createSession();
+  const session = createSession({ initialPuzzleId: 'prototype-03-blocker' });
   assert.equal(session.markAssisted('hint'), true);
   session.advanceActiveTime(0.4);
   session.dispatch({ type: 'placeMagnet', color: 'red', cell: { col: 3, row: 3 } });

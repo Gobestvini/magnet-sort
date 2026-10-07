@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "puzzleId": "ftue-02-pull",
+  "seed": "magnet-ftue-v1-02",
+  "contentVersion": 1,
+  "geometry": { "kind": "odd-r", "rows": 7, "cols": 7 },
+  "colors": ["red", "blue", "yellow"],
+  "blockedCells": [],
+  "tokens": [{ "tokenId": "yellow-five", "color": "yellow", "mass": 5, "cell": { "col": 0, "row": 0 } }],
+  "goal": { "kind": "clearAll" },
+  "moveLimit": 3,
+  "magnetSchedule": [{ "options": ["yellow"] }],
+  "mode": "campaign",
+  "tutorial": {
+    "title": "Притяжение",
+    "instruction": "Жёлтая фишка скользит к магниту по свободным клеткам.",
+    "focus": { "color": "yellow", "cell": { "col": 4, "row": 3 }, "tokenCell": { "col": 0, "row": 0 } }
+  },
+  "solution": {
+    "actions": [{ "type": "placeMagnet", "color": "yellow", "cell": { "col": 4, "row": 3 } }],
+    "expected": { "outcome": "win", "clearedMass": 5, "movesUsed": 1 }
+  }
+}

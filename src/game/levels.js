@@ -1,12 +1,18 @@
 import clearAll from '../levels/prototype/prototype-01-clear-all.json' with { type: 'json' };
 import clearCount from '../levels/prototype/prototype-02-clear-count.json' with { type: 'json' };
 import blockerLesson from '../levels/prototype/prototype-03-blocker.json' with { type: 'json' };
+import ftue01 from '../levels/ftue/ftue-01-place.json' with { type: 'json' };
+import ftue02 from '../levels/ftue/ftue-02-pull.json' with { type: 'json' };
+import ftue03 from '../levels/ftue/ftue-03-merge.json' with { type: 'json' };
+import ftue04 from '../levels/ftue/ftue-04-color-choice.json' with { type: 'json' };
+import ftue05 from '../levels/ftue/ftue-05-chain.json' with { type: 'json' };
 import { allCells, cellId, isCell } from './hex.js';
 
 const SUPPORTED_COLORS = new Set(['red', 'blue', 'yellow', 'green']);
 const SUPPORTED_MODES = new Set(['campaign', 'challenge', 'daily', 'prototype']);
 
 const PROTOTYPE_LEVELS = new Map([clearAll, clearCount, blockerLesson].map((level) => [level.puzzleId, level]));
+const FTUE_LEVELS = new Map([ftue01, ftue02, ftue03, ftue04, ftue05].map((level) => [level.puzzleId, level]));
 
 export function prototypeLevelIds() {
   return [...PROTOTYPE_LEVELS.keys()].sort(compareIds);
@@ -15,6 +21,16 @@ export function prototypeLevelIds() {
 export function loadPrototypeLevel(puzzleId) {
   const level = PROTOTYPE_LEVELS.get(puzzleId);
   if (!level) throw new TypeError(`LevelDefinition ${String(puzzleId)}.puzzleId: unknown prototype level`);
+  return validateLevelDefinition(level);
+}
+
+export function ftueLevelIds() {
+  return [...FTUE_LEVELS.keys()].sort(compareIds);
+}
+
+export function loadFtueLevel(puzzleId) {
+  const level = FTUE_LEVELS.get(puzzleId);
+  if (!level) throw new TypeError(`LevelDefinition ${String(puzzleId)}.puzzleId: unknown FTUE level`);
   return validateLevelDefinition(level);
 }
 

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "puzzleId": "ftue-01-place",
+  "seed": "magnet-ftue-v1-01",
+  "contentVersion": 1,
+  "geometry": { "kind": "odd-r", "rows": 7, "cols": 7 },
+  "colors": ["red", "blue", "yellow"],
+  "blockedCells": [],
+  "tokens": [{ "tokenId": "red-five", "color": "red", "mass": 5, "cell": { "col": 2, "row": 3 } }],
+  "goal": { "kind": "clearAll" },
+  "moveLimit": 3,
+  "magnetSchedule": [{ "options": ["red"] }],
+  "mode": "campaign",
+  "tutorial": {
+    "title": "Поставь магнит",
+    "instruction": "Выбери красный магнит и поставь его рядом с красной фишкой.",
+    "focus": { "color": "red", "cell": { "col": 3, "row": 3 }, "tokenCell": { "col": 2, "row": 3 } }
+  },
+  "solution": {
+    "actions": [{ "type": "placeMagnet", "color": "red", "cell": { "col": 3, "row": 3 } }],
+    "expected": { "outcome": "win", "clearedMass": 5, "movesUsed": 1 }
+  }
+}

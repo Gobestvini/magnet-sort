@@ -9,6 +9,8 @@ export function createPointerController(target, { getLayout, getLevel, getState,
   let previewCell = null;
   let pointerPoint = null;
   let lastAction = null;
+  let invalidReason = null;
+  let hoverReason = null;
   let actionCount = 0;
   let disposed = false;
 
@@ -24,23 +26,29 @@ export function createPointerController(target, { getLayout, getLevel, getState,
       pointerPoint: pointerPoint ? { ...pointerPoint } : null,
       dragging,
       action: lastAction ? structuredClone(lastAction) : null,
+      invalidReason,
     });
   }
 
-  function validCell(cell, color) {
-    if (!cell || !color || locked) return false;
+  function invalidCellReason(cell, color) {
+    if (!cell) return 'outside';
+    if (!color) return 'unavailableColor';
+    if (locked) return 'locked';
     const level = getLevel();
     const options = getState().selectedMagnetOptions ?? level.magnetSchedule[0].options;
-    if (!options.includes(color)) return false;
+    if (!options.includes(color)) return 'unavailableColor';
     const id = cellId(cell);
-    if (level.blockedCells.some((blocked) => cellId(blocked) === id)) return false;
-    return !getState().tokens.some((token) => cellId(token.cell) === id);
+    if (level.blockedCells.some((blocked) => cellId(blocked) === id)) return 'blocked';
+    if (getState().tokens.some((token) => cellId(token.cell) === id)) return 'occupied';
+    return null;
   }
 
   function updatePreview(event) {
     pointerPoint = pointFrom(event);
     const cell = screenToCell(pointerPoint, getLayout());
-    previewCell = validCell(cell, selectedColor) ? cell : null;
+    hoverReason = invalidCellReason(cell, selectedColor);
+    previewCell = hoverReason ? null : cell;
+    if (!hoverReason) invalidReason = null;
     notify();
   }
 
@@ -84,6 +92,10 @@ export function createPointerController(target, { getLayout, getLevel, getState,
     const cell = previewCell;
     const color = selectedColor;
     const beganAtTray = dragging;
+    const releasedOnTray = isMagnetTrayPoint(pointFrom(event), getLayout());
+    if (cell && (!beganAtTray || !releasedOnTray)) invalidReason = null;
+    else if (beganAtTray && releasedOnTray) invalidReason = null;
+    else invalidReason = hoverReason ?? 'outside';
     clearPointer();
     // A tray tap selects; dropping a tray drag (or tapping a cell after selection) emits one Action.
     if (cell && (!beganAtTray || !isMagnetTrayPoint(pointFrom(event), getLayout()))) {
@@ -100,6 +112,8 @@ export function createPointerController(target, { getLayout, getLevel, getState,
     clearPointer();
     selectedColor = null;
     lastAction = null;
+    invalidReason = null;
+    hoverReason = null;
     notify();
   }
 
@@ -120,13 +134,15 @@ export function createPointerController(target, { getLayout, getLevel, getState,
       if (disposed || locked || pointerId !== null || !options.includes(color)) return false;
       selectedColor = color;
       lastAction = null;
+      invalidReason = null;
+      hoverReason = null;
       previewCell = null;
       pointerPoint = null;
       notify();
       return true;
     },
     setLocked(value) { locked = Boolean(value); if (locked) cancel(); },
-    snapshot() { return { pointerId, dragging, locked, selectedColor, previewCell: previewCell ? { ...previewCell } : null, pointerPoint: pointerPoint ? { ...pointerPoint } : null, action: lastAction ? structuredClone(lastAction) : null, actionCount }; },
+    snapshot() { return { pointerId, dragging, locked, selectedColor, previewCell: previewCell ? { ...previewCell } : null, pointerPoint: pointerPoint ? { ...pointerPoint } : null, action: lastAction ? structuredClone(lastAction) : null, actionCount, invalidReason }; },
     dispose() {
       if (disposed) return;
       cancel();

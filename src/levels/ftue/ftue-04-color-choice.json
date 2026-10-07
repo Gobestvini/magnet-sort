@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "puzzleId": "ftue-04-color-choice",
+  "seed": "magnet-ftue-v1-04",
+  "contentVersion": 1,
+  "geometry": {
+    "kind": "odd-r",
+    "rows": 7,
+    "cols": 7
+  },
+  "colors": [
+    "red",
+    "blue",
+    "yellow"
+  ],
+  "blockedCells": [],
+  "tokens": [
+    {
+      "tokenId": "red-five",
+      "color": "red",
+      "mass": 5,
+      "cell": {
+        "col": 1,
+        "row": 1
+      }
+    },
+    {
+      "tokenId": "blue-two",
+      "color": "blue",
+      "mass": 2,
+      "cell": {
+        "col": 5,
+        "row": 5
+      }
+    },
+    {
+      "tokenId": "blue-one",
+      "color": "blue",
+      "mass": 3,
+      "cell": {
+        "col": 1,
+        "row": 5
+      }
+    }
+  ],
+  "goal": {
+    "kind": "clearAll"
+  },
+  "moveLimit": 3,
+  "magnetSchedule": [
+    {
+      "options": [
+        "red"
+      ]
+    },
+    {
+      "options": [
+        "blue"
+      ]
+    }
+  ],
+  "mode": "campaign",
+  "tutorial": {
+    "title": "Выбери цвет",
+    "instruction": "Выбери магнит нужного цвета, затем очисти вторую фишку.",
+    "focus": {
+      "color": "red",
+      "cell": {
+        "col": 2,
+        "row": 1
+      },
+      "tokenCell": {
+        "col": 1,
+        "row": 1
+      }
+    }
+  },
+  "solution": {
+    "actions": [
+      {
+        "type": "placeMagnet",
+        "color": "red",
+        "cell": {
+          "col": 2,
+          "row": 1
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 3,
+          "row": 5
+        }
+      }
+    ],
+    "expected": {
+      "outcome": "win",
+      "clearedMass": 10,
+      "movesUsed": 2
+    }
+  }
+}

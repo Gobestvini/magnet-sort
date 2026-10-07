@@ -20,6 +20,40 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       page.on('response', response => { if (response.status() >= 400 && response.url().startsWith(baseUrl)) errors.push(`HTTP ${response.status()}`); });
       await page.goto(baseUrl);
       await page.waitForFunction(() => window.gameDebug?.snapshot().rendererReady && window.gameDebug.snapshot().elapsed > 0);
+      const firstLaunch = await page.evaluate(() => window.gameDebug.snapshot());
+      assert.equal(firstLaunch.tutorial.active, true);
+      assert.equal(firstLaunch.puzzleId, 'ftue-01-place');
+      assert.equal(await page.locator('.tutorial-panel h2').innerText(), 'Поставь магнит');
+      assert.equal(firstLaunch.moves, 0);
+      const lessonTarget = await page.evaluate(() => {
+        const canvas = document.querySelector('#game-canvas');
+        const rect = canvas.getBoundingClientRect();
+        const layout = window.gameDebug.snapshot().layout;
+        return { x: rect.left + layout.originX + Math.sqrt(3) * layout.radius * 3.5,
+          y: rect.top + layout.originY + layout.radius * 4.5 };
+      });
+      const lessonTray = await page.evaluate(() => {
+        const canvas = document.querySelector('#game-canvas');
+        const rect = canvas.getBoundingClientRect();
+        const layout = window.gameDebug.snapshot().layout;
+        return { x: rect.left + layout.width / 2, y: rect.top + Math.min(layout.height - layout.radius * 0.72, layout.originY + layout.radius * 11 + layout.radius * 0.9) };
+      });
+      if (touch) {
+        await page.touchscreen.tap(lessonTray.x, lessonTray.y);
+        await page.touchscreen.tap(lessonTarget.x, lessonTarget.y);
+      } else {
+        await page.mouse.move(lessonTray.x, lessonTray.y); await page.mouse.down();
+        await page.mouse.move(lessonTarget.x, lessonTarget.y, { steps: 4 }); await page.mouse.up();
+      }
+      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).tutorial.completed, false);
+      await page.getByRole('button', { name: 'Следующий урок' }).click();
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).puzzleId, 'ftue-02-pull');
+      await page.getByRole('button', { name: 'Пропустить обучение' }).click();
+      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).tutorial.skipped, true);
+      const blockerLevel = await page.evaluate(async () => (await import('/src/levels/prototype/prototype-03-blocker.json')).default);
+      await page.evaluate((level) => window.gameDebug.loadTestLevel(level), blockerLevel);
+      await page.waitForFunction(() => window.gameDebug.snapshot().elapsed > 0);
       assert.equal(await page.evaluate(() => window.gameDebug.snapshot().canvasCount), 1);
       assert.equal(await page.locator('#game-canvas').getAttribute('data-renderer'), 'pixi');
       assert.deepEqual(await page.evaluate(() => window.gameDebug.snapshot().board), { rows: 7, cols: 7, renderedCells: 49, tokens: 1, blockers: 5 });
@@ -53,9 +87,10 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
           return interaction.dragging && interaction.pointerPoint && interaction.previewCell?.col === 3 && interaction.previewCell?.row === 0;
         });
         assert.equal(await page.evaluate(() => window.gameDebug.snapshot().interaction.dragging), true);
+        await page.screenshot({ path: `artifacts/screenshots/${name}-dragging.png` });
         await page.mouse.up();
       }
-      await page.waitForFunction(() => window.gameDebug.snapshot().pointer.actionCount === 1);
+      await page.waitForFunction(() => window.gameDebug.snapshot().pointer.actionCount === 2);
       await page.waitForFunction(() => window.gameDebug.snapshot().animation?.stage === 'slide');
       const moving = await page.evaluate(() => window.gameDebug.snapshot());
       assert.equal(moving.phase, 'resolving');
@@ -94,7 +129,7 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
         if (touch) await page.touchscreen.tap(location.x, location.y);
         else await page.mouse.click(location.x, location.y);
       }
-      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().pointer.actionCount), 1);
+      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().pointer.actionCount), 2);
       await page.getByRole('button', { name: 'Повторить уровень' }).click();
       const retried = await page.evaluate(() => window.gameDebug.snapshot());
       assert.equal(retried.phase, 'playing');
@@ -175,7 +210,7 @@ const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 6, row: 6 } }));
       await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'lost');
       await page.getByRole('button', { name: 'Следующий уровень' }).click();
-      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().puzzleId), 'prototype-01-clear-all');
+      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().puzzleId), 'prototype-02-clear-count');
 
       const originalViewport = page.viewportSize();
       await page.setViewportSize({ width: 844, height: 390 });

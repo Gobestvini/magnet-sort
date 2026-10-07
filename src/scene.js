@@ -5,18 +5,18 @@ import { createBoardLayout } from './render/layout.js';
 import { createResolutionPlayer } from './render/resolution-player.js';
 
 // The scene owns its nodes; the application owns the stage and renderer.
-export function createScene(stage, { initialPuzzleId, reducedMotion = () => false } = {}) {
+export function createScene(stage, { initialPuzzleId, skipTutorial = false, reducedMotion = () => false } = {}) {
   let elapsed = 0;
   let width = 1;
   let height = 1;
   let deviceResolution = 1;
   let disposed = false;
-  const session = createSession({ ...(initialPuzzleId ? { initialPuzzleId } : {}) });
+  const session = createSession({ ...(initialPuzzleId ? { initialPuzzleId } : {}), skipTutorial });
   const resolution = createResolutionPlayer();
   let placementFeedback = null;
   const level = session.getLevel();
   const state = session.getState();
-  let interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null };
+  let interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null };
   let layout = createBoardLayout(width, height, deviceResolution);
   const root = new Container();
   const backdrop = new Graphics();
@@ -28,11 +28,12 @@ export function createScene(stage, { initialPuzzleId, reducedMotion = () => fals
     if (disposed) return;
     backdrop.clear().rect(0, 0, width, height).fill({ color: 0xfffaf2 });
     layout = createBoardLayout(width, height, deviceResolution);
-    const currentLevel = session.getLevel();
+      const currentLevel = session.getLevel();
     const currentState = session.getState();
     if (currentLevel && currentState) {
+        const snapshot = session.snapshot();
       const animation = resolution.snapshot();
-      board.render(currentLevel, currentState, layout, { ...interaction, animation, placementFeedback });
+        board.render(currentLevel, currentState, layout, { ...interaction, animation, placementFeedback, tutorialHint: snapshot.tutorial.hint });
     }
   }
 
@@ -41,6 +42,7 @@ export function createScene(stage, { initialPuzzleId, reducedMotion = () => fals
       if (disposed) return false;
       elapsed += dt;
       session.advanceActiveTime(dt);
+      const hintActive = session.snapshot().tutorial.hint?.active ?? false;
       const previousPhase = session.snapshot().phase;
       const animation = resolution.snapshot();
       if (animation.active) resolution.update(dt);
@@ -49,7 +51,7 @@ export function createScene(stage, { initialPuzzleId, reducedMotion = () => fals
         if (placementFeedback.progress >= 1) placementFeedback = null;
       }
       if (!resolution.snapshot().active && !placementFeedback && session.snapshot().phase === 'resolving') session.finishResolution();
-      if (animation.active || placementFeedback) draw();
+      if (animation.active || placementFeedback || hintActive || session.snapshot().tutorial.hint?.active) draw();
       return session.snapshot().phase !== previousPhase;
     },
     resize(nextWidth, nextHeight, nextResolution = 1) {
@@ -59,9 +61,10 @@ export function createScene(stage, { initialPuzzleId, reducedMotion = () => fals
       draw();
     },
     render(renderer) { if (!disposed) renderer.render(); },
-    reset() { elapsed = 0; resolution.cancel(); placementFeedback = null; session.reset(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null }; draw(); },
-    retry() { elapsed = 0; resolution.cancel(); placementFeedback = null; session.retry(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null }; draw(); },
-    nextPuzzle() { elapsed = 0; resolution.cancel(); placementFeedback = null; session.nextPuzzle(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null }; draw(); },
+    reset() { elapsed = 0; resolution.cancel(); placementFeedback = null; session.reset(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); },
+    retry() { elapsed = 0; resolution.cancel(); placementFeedback = null; session.retry(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); },
+    nextPuzzle() { elapsed = 0; resolution.cancel(); placementFeedback = null; session.nextPuzzle(); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); },
+    skipTutorial() { elapsed = 0; resolution.cancel(); placementFeedback = null; const skipped = session.skipTutorial(); if (skipped) { interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); } return skipped; },
     submitAction(action) {
       const before = session.getState();
       const result = session.dispatch(action);
@@ -72,7 +75,7 @@ export function createScene(stage, { initialPuzzleId, reducedMotion = () => fals
       }
       return result;
     },
-    loadTestLevel(testLevel) { elapsed = 0; resolution.cancel(); placementFeedback = null; session.loadTestLevel(testLevel); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null }; draw(); },
+    loadTestLevel(testLevel) { elapsed = 0; resolution.cancel(); placementFeedback = null; session.loadTestLevel(testLevel); interaction = { selectedColor: null, previewCell: null, pointerPoint: null, dragging: false, action: null, invalidReason: null }; draw(); },
     setInteraction(next) {
       interaction = {
         selectedColor: next.selectedColor ?? null,
@@ -80,6 +83,7 @@ export function createScene(stage, { initialPuzzleId, reducedMotion = () => fals
         pointerPoint: next.pointerPoint ? { ...next.pointerPoint } : null,
         dragging: Boolean(next.dragging),
         action: next.action ? { ...next.action, cell: { ...next.action.cell } } : null,
+        invalidReason: next.invalidReason ?? null,
       };
       draw();
     },
@@ -99,6 +103,7 @@ export function createScene(stage, { initialPuzzleId, reducedMotion = () => fals
           pointerPoint: interaction.pointerPoint ? { ...interaction.pointerPoint } : null,
           dragging: interaction.dragging,
           action: interaction.action ? { ...interaction.action, cell: { ...interaction.action.cell } } : null,
+          invalidReason: interaction.invalidReason,
         },
         animation: resolution.snapshot(),
       };

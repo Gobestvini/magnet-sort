@@ -20,7 +20,7 @@ export function GameHud({ session, interaction, ready, onChooseColor }) {
       session.availableColors.map((color) => h('button', {
         key: color,
         type: 'button',
-        className: `magnet-choice magnet-choice-${color}`,
+        className: `magnet-choice magnet-choice-${color}${session.tutorial?.hint?.active && session.tutorial.hint.color === color ? ' tutorial-focus' : ''}`,
         'aria-pressed': interaction?.selectedColor === color,
         disabled: !ready || session.phase !== 'playing',
         onClick: () => onChooseColor?.(color),

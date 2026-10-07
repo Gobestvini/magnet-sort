@@ -1,6 +1,6 @@
 import { h } from 'preact';
 
-export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle }) {
+export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle, nextLabel = 'Следующий уровень', allowNextOnLoss = true }) {
   if (!result) return null;
   const won = result.outcome === 'win';
   const duration = formatDuration(result.activeTimeMs);
@@ -22,11 +22,12 @@ export function ResultCard({ result, chainLinks = 0, onRetry, onNextPuzzle }) {
     : 'Забег с помощью · не участвует в испытании'),
   h('div', { className: 'result-actions' },
     won
-      ? h('button', { type: 'button', className: 'result-primary', onClick: onNextPuzzle }, 'Следующий уровень')
+      ? h('button', { type: 'button', className: 'result-primary', onClick: onNextPuzzle }, nextLabel)
       : h('button', { type: 'button', className: 'result-primary', onClick: onRetry }, 'Попробовать ещё раз'),
-    won
-      ? h('button', { type: 'button', className: 'result-secondary', onClick: onRetry }, 'Повторить уровень')
-      : h('button', { type: 'button', className: 'result-secondary', onClick: onNextPuzzle }, 'Следующий уровень')),
+    won && h('button', { type: 'button', className: 'result-secondary', onClick: onRetry }, 'Повторить уровень'),
+    !won && allowNextOnLoss
+      ? h('button', { type: 'button', className: 'result-secondary', onClick: onNextPuzzle }, 'Следующий уровень')
+      : null),
   h('p', { className: 'result-challenge-slot', 'aria-label': 'Испытание с другом' }, 'Ссылку на это поле можно будет отправить в будущих испытаниях.'));
 }
 

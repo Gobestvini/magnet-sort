@@ -1,6 +1,6 @@
 import { Graphics } from 'pixi.js';
 import { allCells } from '../game/hex.js';
-import { drawResolutionEffects } from './effects.js';
+import { drawResolutionEffects, drawTutorialHint } from './effects.js';
 import { cellToScreen } from './layout.js';
 
 const COLORS = { red: 0xef6b62, blue: 0x5388d8, yellow: 0xf2c64e, green: 0x54b995 };
@@ -46,7 +46,7 @@ export function createBoardRenderer(root) {
     drawTray(pieces, layout);
     if (interaction.previewCell) {
       const { x, y } = cellToScreen(interaction.previewCell, layout);
-      preview.circle(x, y, layout.radius * 0.64).stroke({ color: COLORS[interaction.selectedColor] ?? 0x5b84c9, width: Math.max(2.5, layout.radius * 0.1), alpha: 0.95 });
+      drawDropTarget(preview, x, y, layout.radius, COLORS[interaction.selectedColor] ?? 0x5b84c9);
     }
     if (interaction.dragging && interaction.pointerPoint && interaction.selectedColor) {
       drawDraggedMagnet(preview, interaction.pointerPoint.x, interaction.pointerPoint.y - 34, layout.radius, COLORS[interaction.selectedColor] ?? COLORS.red);
@@ -54,6 +54,7 @@ export function createBoardRenderer(root) {
     const effects = [...(animation?.effects ?? [])];
     if (interaction.placementFeedback) effects.push(interaction.placementFeedback);
     drawResolutionEffects(preview, effects, layout);
+    drawTutorialHint(preview, interaction.tutorialHint, layout);
   }
 
   return {
@@ -64,29 +65,67 @@ export function createBoardRenderer(root) {
 
 function drawDraggedMagnet(graphics, x, y, boardRadius, color) {
   const radius = Math.min(26, Math.max(17, boardRadius * 0.48));
-  graphics.ellipse(x, y + radius * 0.62, radius * 1.05, radius * 0.34).fill({ color: 0x55483f, alpha: 0.22 });
-  graphics.circle(x, y, radius * 1.12).fill({ color: 0xfffcf7, alpha: 0.96 }).stroke({ color: 0xffffff, width: 2.5, alpha: 0.98 });
+  graphics.ellipse(x + radius * 0.18, y + radius * 1.02, radius * 1.2, radius * 0.42)
+    .fill({ color: 0x55483f, alpha: 0.25 });
+  graphics.circle(x, y + radius * 0.2, radius * 1.12).fill({ color: 0xbdb2a6, alpha: 0.98 });
+  graphics.circle(x, y + radius * 0.04, radius * 1.1).fill({ color: 0xfffcf7, alpha: 0.99 })
+    .stroke({ color: 0xffffff, width: 2.5, alpha: 0.98 });
+  graphics.arc(x, y + radius * 0.12, radius * 0.56, Math.PI * 1.08, Math.PI * 1.92)
+    .stroke({ color: 0xffffff, width: Math.max(1.5, radius * 0.09), alpha: 0.95 });
   graphics.moveTo(x - radius * 0.42, y + radius * 0.12)
     .arc(x, y + radius * 0.12, radius * 0.42, Math.PI, 0)
-    .stroke({ color, width: radius * 0.27, cap: 'round' });
+    .stroke({ color: shade(color, -0.2), width: radius * 0.3, cap: 'round' });
   graphics.moveTo(x - radius * 0.42, y + radius * 0.12).lineTo(x - radius * 0.42, y + radius * 0.48)
     .moveTo(x + radius * 0.42, y + radius * 0.12).lineTo(x + radius * 0.42, y + radius * 0.48)
-    .stroke({ color, width: radius * 0.27, cap: 'round' });
+    .stroke({ color: shade(color, -0.2), width: radius * 0.3, cap: 'round' });
+  graphics.moveTo(x - radius * 0.42, y + radius * 0.12)
+    .arc(x, y + radius * 0.12, radius * 0.42, Math.PI, 0)
+    .stroke({ color, width: radius * 0.19, cap: 'round' });
+  graphics.moveTo(x - radius * 0.42, y + radius * 0.12).lineTo(x - radius * 0.42, y + radius * 0.48)
+    .moveTo(x + radius * 0.42, y + radius * 0.12).lineTo(x + radius * 0.42, y + radius * 0.48)
+    .stroke({ color, width: radius * 0.19, cap: 'round' });
   graphics.moveTo(x - radius * 0.54, y + radius * 0.49).lineTo(x - radius * 0.3, y + radius * 0.49)
     .moveTo(x + radius * 0.3, y + radius * 0.49).lineTo(x + radius * 0.54, y + radius * 0.49)
     .stroke({ color: 0x5d5860, width: radius * 0.17, cap: 'round' });
 }
 
+function drawDropTarget(graphics, x, y, radius, color) {
+  const size = radius * 0.78;
+  drawHex(graphics, x, y + radius * 0.2, size, shade(color, -0.28), true, 0.95);
+  drawHex(graphics, x, y, size * 0.94, 0xfff9eb, true, 0.98);
+  graphics.circle(x, y, size * 0.68)
+    .stroke({ color, width: Math.max(2.5, radius * 0.1), alpha: 0.95 });
+  graphics.moveTo(x - size * 0.45, y - size * 0.5).lineTo(x + size * 0.04, y - size * 0.5)
+    .stroke({ color: 0xffffff, width: Math.max(1.5, radius * 0.045), alpha: 0.9, cap: 'round' });
+}
+
+function shade(color, amount) {
+  const channels = [16, 8, 0].map((shift) => (color >> shift) & 0xff);
+  return channels.reduce((result, channel, index) => {
+    const adjusted = Math.max(0, Math.min(255, Math.round(channel * (1 + amount))));
+    return result | (adjusted << [16, 8, 0][index]);
+  }, 0);
+}
+
 function drawHex(graphics, x, y, radius, color, raised, alpha = 1) {
-  if (raised) graphics.ellipse(x, y + radius * 0.12, radius * 0.94, radius * 0.86).fill({ color: 0xb5886a, alpha: 0.16 * alpha });
-  for (let corner = 0; corner < 6; corner++) {
+  const depth = radius * (raised ? 0.2 : 0.12);
+  const points = Array.from({ length: 6 }, (_, corner) => {
     const angle = Math.PI / 3 * corner - Math.PI / 6;
-    const px = x + Math.cos(angle) * radius;
-    const py = y + Math.sin(angle) * radius;
-    if (corner === 0) graphics.moveTo(px, py); else graphics.lineTo(px, py);
-  }
+    return { x: x + Math.cos(angle) * radius, y: y + Math.sin(angle) * radius };
+  });
+  if (raised) graphics.ellipse(x + radius * 0.04, y + depth * 1.2, radius * 0.98, radius * 0.8)
+    .fill({ color: 0x8b715d, alpha: 0.2 * alpha });
+  // Dark lower edge and a lighter top face make each hex read as a small tile.
+  graphics.moveTo(points[0].x, points[0].y + depth);
+  for (let corner = 1; corner < points.length; corner++) graphics.lineTo(points[corner].x, points[corner].y + depth);
+  graphics.closePath().fill({ color: shade(color, -0.2), alpha });
+  graphics.moveTo(points[0].x, points[0].y);
+  for (let corner = 1; corner < points.length; corner++) graphics.lineTo(points[corner].x, points[corner].y);
   graphics.closePath().fill({ color, alpha });
-  graphics.stroke({ color: raised ? 0xffffff : 0xe9ddce, width: Math.max(1, radius * 0.07), alpha: (raised ? 0.95 : 0.9) * alpha });
+  graphics.stroke({ color: raised ? 0xffffff : 0xe9ddce, width: Math.max(1, radius * 0.07), alpha: (raised ? 0.98 : 0.95) * alpha });
+  graphics.moveTo(points[5].x * 0.65 + points[0].x * 0.35, points[5].y * 0.65 + points[0].y * 0.35)
+    .lineTo(points[0].x * 0.65 + points[1].x * 0.35, points[0].y * 0.65 + points[1].y * 0.35)
+    .stroke({ color: 0xffffff, width: Math.max(1, radius * 0.035), alpha: (raised ? 0.75 : 0.5) * alpha, cap: 'round' });
 }
 
 function drawPattern(graphics, color, x, y, size, alpha = 1) {

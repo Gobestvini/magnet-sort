@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "puzzleId": "ftue-05-chain",
+  "seed": "magnet-ftue-v1-05",
+  "contentVersion": 1,
+  "geometry": { "kind": "odd-r", "rows": 7, "cols": 7 },
+  "colors": ["red", "blue", "yellow"],
+  "blockedCells": [],
+  "tokens": [
+    { "tokenId": "red-five", "color": "red", "mass": 5, "cell": { "col": 4, "row": 3 } },
+    { "tokenId": "red-four", "color": "red", "mass": 4, "cell": { "col": 2, "row": 3 } },
+    { "tokenId": "red-one", "color": "red", "mass": 1, "cell": { "col": 0, "row": 3 } }
+  ],
+  "goal": { "kind": "clearAll" },
+  "moveLimit": 1,
+  "magnetSchedule": [{ "options": ["red"] }],
+  "mode": "campaign",
+  "tutorial": {
+    "title": "Цепная реакция",
+    "instruction": "Освободившаяся клетка откроет путь для следующего слияния.",
+    "focus": { "color": "red", "cell": { "col": 6, "row": 3 }, "tokenCell": { "col": 4, "row": 3 } }
+  },
+  "solution": {
+    "actions": [{ "type": "placeMagnet", "color": "red", "cell": { "col": 6, "row": 3 } }],
+    "expected": { "outcome": "win", "clearedMass": 10, "movesUsed": 1 }
+  }
+}

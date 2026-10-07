@@ -95,3 +95,21 @@ test('pointercancel, pause lock, and dispose release capture and preview', () =>
   assert.equal(ctx.captures.size, 0);
   assert.equal(ctx.previews.at(-1).selectedColor, null);
 });
+
+
+test('invalid placements expose a local reason and a valid hover clears it', () => {
+  const ctx = setup();
+  const occupied = cellToScreen({ col: 1, row: 3 }, ctx.layout);
+  ctx.send('pointerdown', ctx.tray); ctx.send('pointerup', ctx.tray);
+  ctx.send('pointerdown', occupied); ctx.send('pointerup', occupied);
+  assert.equal(ctx.controller.snapshot().invalidReason, 'occupied');
+  const blocked = cellToScreen({ col: 2, row: 2 }, ctx.layout);
+  ctx.send('pointerdown', blocked); ctx.send('pointerup', blocked);
+  assert.equal(ctx.controller.snapshot().invalidReason, 'blocked');
+  const outside = { x: 1, y: 1 };
+  ctx.send('pointerdown', outside); ctx.send('pointerup', outside);
+  assert.equal(ctx.controller.snapshot().invalidReason, 'outside');
+  const valid = cellToScreen({ col: 3, row: 0 }, ctx.layout);
+  ctx.send('pointerdown', valid); ctx.send('pointermove', valid);
+  assert.equal(ctx.controller.snapshot().invalidReason, null);
+});

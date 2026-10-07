@@ -1,8 +1,9 @@
 import { h } from 'preact';
 import { GameHud } from './game-hud.js';
 import { ResultCard } from './result.js';
+import { TutorialPanel } from './tutorial.js';
 
-export function App({ paused, ready, initializing, error, status, session, interaction, surfaceRef, canvasRef, onTogglePause, onReset, onRetry, onRetryRenderer, onNextPuzzle, onChooseColor }) {
+export function App({ paused, ready, initializing, error, status, session, interaction, surfaceRef, canvasRef, onTogglePause, onReset, onRetry, onRetryRenderer, onNextPuzzle, onChooseColor, onSkipTutorial }) {
   return h('main', { className: `app-shell${session?.result ? ' app-shell-result' : ''}` },
     h('header', { className: 'app-header' },
       h('div', null,
@@ -23,15 +24,23 @@ export function App({ paused, ready, initializing, error, status, session, inter
       h('aside', { className: 'game-controls', 'aria-label': 'Управление игрой' },
         h('p', { className: 'control-label' }, 'Сессия'),
         h('p', { id: 'status', role: 'status', 'aria-live': 'polite' }, status),
+        !session?.result && h(TutorialPanel, { tutorial: session?.tutorial, interaction, onSkip: onSkipTutorial, disabled: session?.phase !== 'playing' }),
         !session?.result && h(GameHud, { session, interaction, ready, onChooseColor }),
-        h(ResultCard, { result: session?.result, chainLinks: session?.state?.chainLinks ?? 0, onRetry, onNextPuzzle }),
+        h(ResultCard, {
+          result: session?.result,
+          chainLinks: session?.state?.chainLinks ?? 0,
+          onRetry,
+          onNextPuzzle: session?.tutorial?.active && session.phase !== 'won' ? null : onNextPuzzle,
+          nextLabel: session?.tutorial?.nextLabel,
+          allowNextOnLoss: !session?.tutorial?.active,
+        }),
         !session?.result && h('div', { className: 'controls' },
           h('button', {
             id: 'pause', type: 'button', onClick: onTogglePause,
             disabled: !ready, 'aria-pressed': paused,
           }, paused ? 'Продолжить' : 'Пауза'),
           h('button', { id: 'reset', type: 'button', onClick: onReset, disabled: !ready }, 'Сброс')),
-        h('p', { className: 'helper-text' }, session?.phase === 'won' || session?.phase === 'lost'
+        !session?.result && h('p', { className: 'helper-text' }, session?.phase === 'won' || session?.phase === 'lost'
           ? 'Можно повторить этот уровень или перейти к следующему.'
           : interaction?.selectedColor
             ? 'Магнит выбран. Перетащи его на свободную клетку или коснись клетки.'

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": 1,
+  "puzzleId": "ftue-03-merge",
+  "seed": "magnet-ftue-v1-03",
+  "contentVersion": 1,
+  "geometry": { "kind": "odd-r", "rows": 7, "cols": 7 },
+  "colors": ["red", "blue", "yellow"],
+  "blockedCells": [],
+  "tokens": [
+    { "tokenId": "red-two", "color": "red", "mass": 2, "cell": { "col": 2, "row": 3 } },
+    { "tokenId": "red-three", "color": "red", "mass": 3, "cell": { "col": 4, "row": 3 } }
+  ],
+  "goal": { "kind": "clearCount", "mass": 5 },
+  "moveLimit": 3,
+  "magnetSchedule": [{ "options": ["red"] }],
+  "mode": "campaign",
+  "tutorial": {
+    "title": "Слияние",
+    "instruction": "Совместимые красные стеки объединятся и очистят цель.",
+    "focus": { "color": "red", "cell": { "col": 5, "row": 3 }, "tokenCell": { "col": 2, "row": 3 } }
+  },
+  "solution": {
+    "actions": [{ "type": "placeMagnet", "color": "red", "cell": { "col": 5, "row": 3 } }],
+    "expected": { "outcome": "win", "clearedMass": 5, "movesUsed": 1 }
+  }
+}

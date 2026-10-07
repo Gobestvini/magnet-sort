@@ -52,6 +52,40 @@ export function drawResolutionEffects(graphics, effects, layout) {
   }
 }
 
+export function drawTutorialHint(graphics, hint, layout) {
+  if (!hint?.active) return;
+  const target = cellToScreen(hint.cell, layout);
+  const token = cellToScreen(hint.tokenCell, layout);
+  const tray = {
+    x: layout.width / 2,
+    y: Math.min(layout.height - layout.radius * 0.72, layout.originY + layout.boardHeight + layout.radius * 0.9),
+  };
+  const color = COLORS[hint.color] ?? COLORS.red;
+  const seconds = hint.elapsed;
+  if (seconds < 1) {
+    const pulse = 0.5 + 0.5 * Math.sin(seconds * Math.PI * 3);
+    graphics.circle(tray.x, tray.y, layout.radius * (0.64 + pulse * 0.12))
+      .stroke({ color, width: Math.max(2, layout.radius * 0.09), alpha: 0.8 });
+  } else if (seconds < 2) {
+    const progress = seconds - 1;
+    const x = tray.x + (target.x - tray.x) * progress;
+    const y = tray.y + (target.y - tray.y) * progress;
+    drawHintMagnet(graphics, x, y, layout.radius * 0.28, color, 0.85);
+    graphics.moveTo(tray.x, tray.y).lineTo(target.x, target.y)
+      .stroke({ color, width: Math.max(1.5, layout.radius * 0.04), alpha: 0.22 });
+  } else {
+    const progress = seconds - 2;
+    drawHintMagnet(graphics, target.x, target.y, layout.radius * 0.27, color, 0.85);
+    graphics.moveTo(token.x, token.y).lineTo(target.x, target.y)
+      .stroke({ color, width: Math.max(2, layout.radius * 0.07), alpha: 0.55 });
+    const x = token.x + (target.x - token.x) * progress;
+    const y = token.y + (target.y - token.y) * progress;
+    graphics.circle(x, y, layout.radius * 0.24).fill({ color, alpha: 0.35 })
+      .stroke({ color: 0xffffff, width: Math.max(1.5, layout.radius * 0.06), alpha: 0.9 });
+    graphics.circle(x, y, layout.radius * 0.09).fill({ color: 0xffffff, alpha: 0.9 });
+  }
+}
+
 function drawBadge(graphics, x, y, value, color, alpha, kind) {
   if (alpha <= 0.01) return;
   const text = String(value);
@@ -65,6 +99,18 @@ function drawBadge(graphics, x, y, value, color, alpha, kind) {
   } else {
     drawNumber(graphics, value, x, y + 3.2, 3.3, alpha);
   }
+}
+
+function drawHintMagnet(graphics, x, y, radius, color, alpha) {
+  graphics.ellipse(x, y + radius * 0.72, radius * 1.12, radius * 0.36)
+    .fill({ color: 0x55483f, alpha: alpha * 0.24 });
+  graphics.circle(x, y, radius * 1.18).fill({ color: 0xfffcf7, alpha: alpha * 0.96 });
+  graphics.moveTo(x - radius * 0.42, y + radius * 0.12)
+    .arc(x, y + radius * 0.12, radius * 0.42, Math.PI, 0)
+    .stroke({ color, width: radius * 0.28, cap: 'round', alpha });
+  graphics.moveTo(x - radius * 0.42, y + radius * 0.12).lineTo(x - radius * 0.42, y + radius * 0.48)
+    .moveTo(x + radius * 0.42, y + radius * 0.12).lineTo(x + radius * 0.42, y + radius * 0.48)
+    .stroke({ color, width: radius * 0.28, cap: 'round', alpha });
 }
 
 function drawNumber(graphics, value, x, y, unit, alpha) {
