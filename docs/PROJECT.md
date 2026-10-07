@@ -18,6 +18,7 @@
 | src/game/scoring.js | RULES v1 RunResult scoring, clear percentage, assisted challenge eligibility and shared deterministic run comparator |
 | src/game/boosters.js | One-per-run booster policy, bounded authored-solution hint resolver, extra-move eligibility and standalone test grant provider |
 | src/game/progress.js | Versioned local progress, best/completed runs, FTUE/campaign unlocks, safe storage fallback and settings |
+| src/analytics/events.js | Allowlisted funnel event schema, bounded development collector, disabled injectable sink and verified rewarded completion gate |
 | src/audio/feedback.js | Gesture-started synthesized Web Audio cues, event dedupe/order, optional Vibration API, mute/pause/hidden/dispose lifecycle |
 | src/social/challenge.js | Versioned challenge links, bounded/safe URL decoding, frozen puzzle resolution, explicit Web Share/clipboard fallback and local SVG result card |
 | src/social/daily.js | UTC dailyId and versioned deterministic rotation across reviewed frozen campaign puzzles |
@@ -37,6 +38,7 @@
 | tests/campaign.test.js | 50 campaign replays, rules bands, массовый баланс и crate resolution |
 | tests/boosters.test.js | Full-state Undo, bounded legal hints, cancellation, grant provider, assisted flags and extra-move eligibility |
 | tests/audio-feedback.test.js | Audio unlock timing, cue order/deduplication, bounded voices, settings, unsupported API and cleanup |
+| tests/analytics.test.js | Event schemas/dedupe, payload privacy, bounded collection, async sink failures and rewarded completion validation |
 | tests/daily.test.js | UTC date identity, deterministic frozen daily mapping, active-run continuity across midnight, and rotation bounds |
 | tests/progress.test.js | Storage fallback, v1→v2 migration, per-day best/assisted result, comparator, FTUE progression and settings |
 | tests/challenge.test.js | Challenge URL safety/versioning, frozen board/session, result comparator, card, and share fallback |
@@ -55,6 +57,7 @@
 | docs/design/DECISIONS.md | Источники, расхождения и границы MVP |
 | docs/design/RULES.md | Детерминированная трактовка правил и JSON-контрактов, rulesVersion 1–2 |
 | docs/design/ASSETS.md | Источник/права/вес runtime-синтезированных звуков и ограничения тактильной обратной связи |
+| docs/design/ANALYTICS.md | Event semantics, collection lifecycle, privacy allowlist and hypothesis denominators |
 | docs/design/LEVELS.md | Концепты, aha, bands и ограничения кампании 1–50 |
 | docs/design/ARCHITECTURE.md | Владельцы модели/UI/runtime, lifecycle и план устройств/бюджетов |
 | docs/design/fixtures/rules-v1.json | Восемь ручных before/action/after сценариев модели |

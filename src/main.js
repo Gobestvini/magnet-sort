@@ -11,6 +11,7 @@ import { compareRunResults } from './game/scoring.js';
 import { createChallengeCardSvg, createChallengeUrl, parseChallengeUrl, shareChallenge } from './social/challenge.js';
 import { getDailyPuzzle } from './social/daily.js';
 import { createAudioFeedback } from './audio/feedback.js';
+import { createAnalytics } from './analytics/events.js';
 import { App } from './ui/App.js';
 
 const uiRoot = document.querySelector('#ui-root');
@@ -44,6 +45,11 @@ let shareStatus = null;
 let boosterNotice = null;
 let screen = challenge ? 'challenge' : 'home';
 let progress = loadProgress().progress;
+const analytics = createAnalytics({ enabled: import.meta.env.DEV });
+let activeRunId = null;
+let ftueFlowId = null;
+let ftueStarted = false;
+let challengeOpened = false;
 const feedback = createAudioFeedback({
   AudioContext: window.AudioContext ?? window.webkitAudioContext,
   navigator: window.navigator,
@@ -59,6 +65,47 @@ function progressTarget(value = progress) {
   }
   const ids = ftueLevelIds();
   return { ftuePuzzleId: ids[Math.min(ids.length - 1, value.ftue.unlockedLesson - 1)] };
+}
+
+function analyticsContext(session = scene?.getSession(), runId = activeRunId) {
+  if (!session) return {};
+  const state = session.state;
+  return {
+    ...(runId ? { runId } : {}),
+    ...(ftueFlowId && session.tutorial?.active ? { flowId: ftueFlowId } : {}),
+    puzzleId: session.puzzleId ?? state?.puzzleId,
+    contentVersion: state?.contentVersion,
+    rulesVersion: state?.rulesVersion,
+    mode: session.challenge ? 'challenge' : session.daily ? 'daily' : session.tutorial?.active ? 'ftue' : state?.mode ?? 'campaign',
+    assisted: Object.values(session.assistedFlags ?? {}).some(Boolean),
+  };
+}
+
+function beginAnalyticsRun({ keepChallengeRun = false } = {}) {
+  const session = scene?.getSession();
+  if (!session) return;
+  if (!keepChallengeRun || !activeRunId) activeRunId = analytics.createId('run');
+  if (session.tutorial?.active && !ftueStarted) {
+    ftueFlowId = analytics.createId('ftue');
+    ftueStarted = true;
+    analytics.track('ftue_start', analyticsContext(session));
+  }
+  analytics.track('level_start', analyticsContext(session));
+  if (session.challenge) analytics.track('challenge_started', analyticsContext(session));
+  if (!session.tutorial?.active) ftueFlowId = null;
+}
+
+function recordAnalyticsTerminal(session) {
+  const payload = {
+    ...analyticsContext(session),
+    outcome: session.result.outcome,
+    score: session.result.score,
+    movesUsed: session.result.movesUsed,
+    eligibleForChallenge: session.result.eligibleForChallenge,
+  };
+  analytics.track('level_complete', payload);
+  if (session.challenge) analytics.track('challenge_completed', payload);
+  if (session.tutorial?.completed && session.result.outcome === 'win') analytics.track('ftue_complete', payload);
 }
 
 function persistProgress() {
@@ -81,6 +128,7 @@ function startGame({ daily = null } = {}) {
   screen = 'game';
   challengeError = null;
   if (hasChallengeQuery && !challenge) clearChallengeFromUrl();
+  beginAnalyticsRun({ keepChallengeRun: Boolean(challenge && challengeOpened) });
   paused = false;
   syncPointerLock();
   clearTiming();
@@ -111,8 +159,10 @@ function goHome() {
 
 function handleTerminalResult({ force = false } = {}) {
   const session = scene?.getSession();
-  if (!session?.result || session.challenge) return;
+  if (!session?.result) return;
   if (!force && session.phase === 'lost' && (session.boosters.undoAvailable || session.boosters.extraMoveAvailable)) return;
+  recordAnalyticsTerminal(session);
+  if (session.challenge) return;
   const resultKey = JSON.stringify([session.dailyId ?? 'campaign', session.result]);
   if (savedResults.has(resultKey)) return;
   const tutorial = session.tutorial;
@@ -149,8 +199,11 @@ async function shareCurrentChallenge() {
   const session = scene?.getSession();
   const level = scene?.getLevel();
   if (!level || !session?.result) return;
+  const payload = analyticsContext(session);
+  analytics.track('share_clicked', payload, { dedupeKey: analytics.createId('share') });
   try {
     const url = createChallengeUrl(level, session.result, window.location.href);
+    analytics.track('challenge_created', payload);
     const cardSvg = createChallengeCardSvg(level, session.result);
     const outcome = await shareChallenge({ url, cardSvg }, { navigator: window.navigator, clipboard: window.navigator.clipboard, File: window.File });
     shareStatus = outcome.status === 'shared' ? 'Вызов отправлен в меню «Поделиться».'
@@ -291,10 +344,13 @@ function syncPointerLock() {
 
 function reset() {
   if (!scene) return;
+  const previousSession = scene.getSession();
+  analytics.track('retry', { ...analyticsContext(previousSession), ...(previousSession.result ? { outcome: previousSession.result.outcome } : {}) }, { dedupeKey: analytics.createId('retry') });
   pointer?.cancel();
   feedback.beginRun();
   void feedback.activateFromGesture();
   scene.reset();
+  beginAnalyticsRun();
   syncPointerLock();
   clearTiming();
   renderScene(0);
@@ -304,11 +360,14 @@ function reset() {
 
 function retry() {
   if (!scene) return;
+  const previousSession = scene.getSession();
   handleTerminalResult({ force: true });
+  analytics.track('retry', { ...analyticsContext(previousSession), ...(previousSession.result ? { outcome: previousSession.result.outcome } : {}) }, { dedupeKey: analytics.createId('retry') });
   pointer?.cancel();
   feedback.beginRun();
   void feedback.activateFromGesture();
   scene.retry();
+  beginAnalyticsRun();
   syncPointerLock();
   clearTiming();
   renderScene(0);
@@ -322,6 +381,7 @@ function nextPuzzle() {
   feedback.beginRun();
   void feedback.activateFromGesture();
   scene.nextPuzzle();
+  beginAnalyticsRun();
   syncPointerLock();
   clearTiming();
   renderScene(0);
@@ -337,6 +397,7 @@ function advancePuzzle() {
   void feedback.activateFromGesture();
   const advanced = scene.nextPuzzle();
   if (!advanced) { goHome(); return; }
+  beginAnalyticsRun();
   syncPointerLock();
   clearTiming();
   renderScene(0);
@@ -346,6 +407,7 @@ function advancePuzzle() {
 
 function skipTutorial() {
   if (!scene?.skipTutorial()) return;
+  beginAnalyticsRun();
   feedback.beginRun();
   void feedback.activateFromGesture();
   progress = { ...progress, unlockedCampaignLevel: Math.max(6, progress.unlockedCampaignLevel), ftue: { ...progress.ftue, seen: true, skipped: true } };
@@ -463,6 +525,11 @@ async function initialize() {
     }
     renderer = candidate;
     scene = createScene(renderer.stage, { ...progressTarget(), ...(challenge ? { challengePuzzleId: challenge.puzzleId } : {}), reducedMotion: prefersReducedMotion });
+    if (challenge && !challengeOpened) {
+      challengeOpened = true;
+      activeRunId = analytics.createId('run');
+      analytics.track('challenge_opened', analyticsContext(scene.getSession()));
+    }
     pointer = createPointerController(canvasElement, {
       getLayout: () => scene.getLayout(),
       getLevel: () => scene.getLevel(),
@@ -529,6 +596,7 @@ function snapshot() {
     result: scene?.getSession().result ?? null,
     progress,
     feedback: feedback.snapshot(),
+    analytics: analytics.snapshot(),
     screen,
     challenge: scene?.getSession().challenge ?? false,
     daily: scene?.getSession().daily ?? false,
@@ -560,6 +628,7 @@ function dispose() {
   document.removeEventListener('visibilitychange', handleVisibility);
   input.dispose();
     feedback.dispose();
+  analytics.dispose();
   scene?.dispose();
   renderer?.destroy();
   scene = null;

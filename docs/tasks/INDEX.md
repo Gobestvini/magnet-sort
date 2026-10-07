@@ -25,7 +25,7 @@
 | [TASK-0015: Добавить ежедневное общее поле и локальный рекорд](TASK-0015-daily-puzzle.md) | done | normal | TASK-0012, TASK-0013, TASK-0014 | средняя; высокий |
 | [TASK-0016: Добавить Undo, Hint и Extra Move с учётом assisted runs](TASK-0016-boosters.md) | done | normal | TASK-0012, TASK-0014 | сильная; высокий |
 | [TASK-0017: Добавить звук и доступную обратную связь](TASK-0017-sound-haptics.md) | done | normal | TASK-0008, TASK-0013 | средняя; средний |
-| [TASK-0018: Инструментировать воронку игры и challenge](TASK-0018-analytics.md) | draft | normal | TASK-0010, TASK-0014, TASK-0015, TASK-0016 | средняя; высокий |
+| [TASK-0018: Инструментировать воронку игры и challenge](TASK-0018-analytics.md) | done | normal | TASK-0010, TASK-0014, TASK-0015, TASK-0016 | средняя; высокий |
 | [TASK-0019: Проверить возможности Facebook Instant Games для MVP](TASK-0019-facebook-capabilities.md) | ready | high | нет | сильная; высокий |
 | [TASK-0020: Подключить Instant Games и доступные социальные функции](TASK-0020-facebook-social.md) | draft | normal | TASK-0014, TASK-0015, TASK-0018, TASK-0019 | сильная; высокий |
 | [TASK-0021: Подключить подтверждённые rewarded и ограниченные interstitial](TASK-0021-rewarded-ads.md) | draft | normal | TASK-0016, TASK-0018, TASK-0019, TASK-0020 | сильная; высокий |
@@ -33,7 +33,7 @@
 
 ## Следующий шаг
 
-TASK-0010/0011 закрыты с явно записанным waiver недоступных физических тестов. Gate вынес `rework` для публичного масштабирования; пользователь разрешил продолжать внутреннюю очередь. TASK-0012 добавила кампанию из 50 уровней с rules v2 crates. TASK-0013 добавила Home и локальное сохранение FTUE/campaign progress. TASK-0014 добавила web challenge/rematch; TASK-0015 — UTC daily rotation и локальный per-day рекорд; TASK-0016 — per-run Undo/Hint/Extra Move с assisted gate; TASK-0017 — ordered Web Audio cues и optional haptics. Следующая — TASK-0018, воронка аналитики.
+TASK-0010/0011 закрыты с явно записанным waiver недоступных физических тестов. Gate вынес `rework` для публичного масштабирования; пользователь разрешил продолжать внутреннюю очередь. TASK-0012 добавила кампанию из 50 уровней с rules v2 crates. TASK-0013 добавила Home и локальное сохранение FTUE/campaign progress. TASK-0014 добавила web challenge/rematch; TASK-0015 — UTC daily rotation и локальный per-day рекорд; TASK-0016 — per-run Undo/Hint/Extra Move с assisted gate; TASK-0017 — ordered Web Audio cues и optional haptics; TASK-0018 — privacy-safe dev analytics с disabled production sink. Следующая — TASK-0019, исследование Facebook Instant Games.
 
 ## Покрытие GDD и границы
 
