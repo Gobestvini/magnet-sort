@@ -1,12 +1,13 @@
 import { Texture } from 'pixi.js';
 import { artUrl, cellSvg, chipSvg, magnetSvg, PALETTE } from './art.js';
+import { MAX_VISUAL_STACK_LAYERS } from './stack-art.js';
 
 export async function createVisualAssets() {
   const textures = new Map();
   try {
     const sources = [['empty', cellSvg()], ['blocked', cellSvg('blocked')], ['crate', cellSvg('crate')]];
     for (const color of Object.keys(PALETTE)) {
-      for (const layers of [1, 2, 3]) sources.push([color + '-' + layers, chipSvg(color, layers, false)]);
+      for (let layers = 1; layers <= MAX_VISUAL_STACK_LAYERS; layers += 1) sources.push([color + '-' + layers, chipSvg(color, layers, false)]);
       sources.push(['magnet-' + color, magnetSvg(color)]);
     }
     const results = await Promise.allSettled(sources.map(async ([key, svg]) => {

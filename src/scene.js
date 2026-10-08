@@ -26,7 +26,7 @@ export function createScene(stage, { initialPuzzleId, campaignPuzzleId, challeng
 
   function draw() {
     if (disposed) return;
-    backdrop.clear().rect(0, 0, width, height).fill({ color: 0xfff2e2 });
+    backdrop.clear().rect(0, 0, width, height).fill({ color: 0x74241b });
     layout = createBoardLayout(width, height, deviceResolution);
       const currentLevel = session.getLevel();
     const currentState = session.getState();

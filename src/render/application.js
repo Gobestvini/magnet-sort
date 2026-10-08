@@ -18,7 +18,7 @@ export async function createPixiApplication(host, canvas) {
       autoStart: false,
       sharedTicker: false,
       antialias: true,
-      backgroundColor: 0xfffaf2,
+      backgroundColor: 0x74241b,
       preference: 'webgl',
     });
     // The application runtime owns the only RAF. Pixi's private ticker stays stopped.

@@ -5,7 +5,7 @@
 | src/main.js | App-owned RAF, Preact controls, resize/hidden/blur/HMR, dev gameDebug |
 | src/render/application.js | PixiJS Application lifecycle; render обслуживается app-owned RAF |
 | src/render/board.js | PixiJS 7×7 hex board view с псевдо‑2.5D слоями cells/tokens/magnet из LevelDefinition |
-| src/render/art.js, src/render/visual-assets.js | Оригинальные SVG фишек/ячеек/магнита, общие запечённые текстуры и cleanup; общий стиль Pixi и DOM |
+| src/render/art.js, src/render/stack-art.js, src/render/visual-assets.js | Оригинальная SVG-графика, общий cap из шести отображаемых слоёв, запечённые варианты текстур на цвет и cleanup; общий стиль Pixi/DOM |
 | src/render/resolution-player.js | Replays simulator events into visual token poses; deterministic presentation timeline with reduced-motion profile and cancellation |
 | src/render/effects.js | Lightweight Pixi Graphics for pull trails, placement magnet, merge mass, chain badge and cleared-cell pulse |
 | src/render/layout.js | DPR-aware screen/cell helpers и преобразование координат указателя |

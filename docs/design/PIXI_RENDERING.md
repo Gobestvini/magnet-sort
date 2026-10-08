@@ -24,6 +24,10 @@
 - Preact/DOM: HUD и доступные controls.
 - Общий assets module (если вводится): загрузка, кэш, scale variants, ошибки загрузки и владение общими текстурами.
 
+### Визуальная тема 2026-10-08
+
+Pixi field использует красно-коричневый фон, тёмные углублённые клетки и оригинальные ячейки/стопки с шестью переиспользуемыми текстурами слоёв на цвет. `visualStackLayers(mass)` выбирает слой только для presentation; полная масса из state остаётся точной. DOM theme tokens определены в `src/style.css`; фон сцены задаётся отдельно в `src/scene.js`, где Pixi рисует собственный backdrop поверх renderer clear color. Наблюдения и неизвестные состояния: [`HEXA_STACK_REFERENCE.md`](../reports/HEXA_STACK_REFERENCE.md).
+
 ## Definition of Done для псевдо‑2.5D
 
 На реальном viewport board, tokens, blockers и magnet различимы без опоры только на цвет; псевдо‑объём улучшает считывание и не скрывает ячейки. Drag/tap placement остаётся точным при resize/DPR. Pause/reset/hidden/dispose не оставляют зависших эффектов и ресурсов. Производительность подтверждается одинаковым сценарием и устройством, а не общими обещаниями PixiJS.

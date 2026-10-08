@@ -188,3 +188,146 @@ input[type='checkbox'] { accent-color: #1b9bee; width: 16px; height: 16px; }
   .app-shell-result .game-layout { display: block; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; } }
+
+/* Magnet Sort's own warm, recessed hex board theme. */
+:root { color: #fff1d5; background: #621d17; font-synthesis: none; }
+body { min-height: 100svh; color: #fff1d5; background: radial-gradient(ellipse at 50% 42%, #973020 0%, #79251c 60%, #521916 100%); }
+button, .share-tools a { border-color: #833e26; background: linear-gradient(#f3a447, #c65e29); color: #fff7e5; box-shadow: inset 0 2px #ffcf83, inset 0 -2px #9d4121, 0 3px 0 #492019; }
+button:active:not(:disabled), .share-tools a:active { box-shadow: inset 0 2px 5px #67281988; }
+button:focus-visible, a:focus-visible { outline-color: #ffe08a; }
+.app-shell { width: min(100%, 1100px); min-height: 100svh; margin: 0 auto; padding: 10px 14px 16px; overflow: visible; border: 0; border-radius: 0; color: #fff0d4; background: linear-gradient(180deg, #74241b 0%, #8a2a1e 44%, #682019 100%); box-shadow: none; }
+.game-surface { background: #74241b; }
+.game-topbar { height: 66px; align-items: center; padding: 0 8px; }
+.square-button, .moves-card { border-color: #af592e; border-radius: 14px; background: linear-gradient(#e88a39, #b95128); box-shadow: inset 0 2px #ffc66b, inset 0 -2px #93401f, 0 3px #4f2119; color: #fff6df; }
+.square-button .icon { color: #fff0ca; }
+.level-heading h1 { color: #fff2d6; text-shadow: 0 2px #552017; }
+.goal-progress { border-color: #713b28; background: #54251e; box-shadow: inset 0 2px 4px #260f0d88; }
+.goal-progress-fill { border-color: #edb454; background: linear-gradient(#ffe68a, #e89035); }
+.goal-star { filter: drop-shadow(0 1px #60321e); }
+.moves-card { min-width: 62px; padding: 4px 10px; }
+.moves-card span { font-size: 12px; color: #ffe6bb; }
+.moves-card strong { font-size: 28px; color: #fff8e9; }
+.game-surface { height: clamp(260px, calc(100svh - 430px), 480px); }
+.tool-tray { flex-direction: column; gap: 9px; padding: 9px; border: 1px solid #a9522c; border-radius: 12px; background: linear-gradient(#d56e30, #a94727); box-shadow: inset 0 2px #ffbd62, inset 0 -3px #7e3020, 0 4px #441a15; }
+.magnet-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.booster-actions { display: flex; flex-direction: column; gap: 7px; }
+.tool-tray button { min-height: 54px; height: auto; border-color: #7e4029; border-radius: 9px; background: linear-gradient(#f2b454, #cf7431); box-shadow: inset 0 2px #ffdf91, inset 0 -2px #a94c26, 0 2px #77311f; }
+.magnet-choice { min-width: 0 !important; }
+.magnet-choice img { width: 48px; height: 48px; margin: -2px 0; }
+.magnet-choice[aria-pressed='true'], .tutorial-focus { border-color: #ffdb79; background: linear-gradient(#ffd16d, #e78a39); box-shadow: inset 0 0 0 2px #fff1bc, 0 0 0 2px #ffcb59, 0 2px #78381f; }
+.tool-label { color: #fff5db; font-size: 10px; }
+.booster-actions .icon { width: 27px; height: 27px; margin-bottom: 1px; }
+.booster-actions button:nth-child(2) .icon, .booster-actions button:nth-child(3) .icon { color: #fff0c8; filter: none; }
+.tool-count { border-color: #fff1d0; background: #69281e; color: #fff4d5; }
+.feedback-settings { flex-wrap: wrap; gap: 3px 9px; margin-top: 5px; color: #ffe2b5; }
+.feedback-settings label, .home-setting { min-height: 32px; padding: 3px 5px; border-radius: 7px; background: #793020; }
+.feedback-settings label, .home-setting { min-height: 44px; }
+input[type='checkbox'] { accent-color: #e79a3d; }
+.helper-text { color: #f8d6ae; }
+.game-footnote button { width: 44px; min-height: 44px; color: #ffe6c3; }
+.tutorial-panel { padding-top: 0; height: 88px; color: #fff0d4; }
+.tutorial-count { color: #ffc76e; }
+.tutorial-panel h2 { color: #ffcf75; }
+.tutorial-instruction { color: #fff1d7; }
+.tutorial-sequence { color: #ffd27a; }
+.tutorial-skip { color: #ffd39c; }
+.tutorial-skip, .booster-hint button { min-height: 44px; }
+.green-button, .home-primary { border-color: #8f4523; color: #fff4d6; background: linear-gradient(#f6ae45, #d66c2d 55%, #a84424); box-shadow: inset 0 3px #ffd47b, inset 0 -3px #85351e, 0 4px #451b16; text-shadow: 0 1px #76321c; }
+.app-shell-result { background: linear-gradient(#9a3926, #75241b 200px, #6a211a); }
+.result-stars .star-icon { filter: drop-shadow(0 4px #a54e1b) drop-shadow(0 0 8px #ffd45c99); }
+.result-ribbon { background: linear-gradient(#f7bb59, #e47a31 58%, #ac4224); border-color: #ffce76; box-shadow: inset 0 3px #ffe39a, inset 0 -5px #8d331c, 0 5px #441a15; text-shadow: 0 2px #78321d; }
+.result-ribbon::before, .result-ribbon::after { background: linear-gradient(#e48b39, #a94124); }
+.score-caption { color: #ffe9c3; }
+.result-score { color: #ffcb4e; text-shadow: 0 3px #78351b, 1px 0 #78351b, -1px 0 #78351b; }
+.result-score strong { -webkit-text-stroke-color: #71341d; }
+.result-score > span, .result-metrics dt { color: #edcda9; }
+.result-metrics > div, .result-board, .home-daily { border-color: #a24e2b; background: linear-gradient(#a7462a, #77271d); box-shadow: inset 0 1px #e48c49, 0 2px #481b16; color: #ffecd0; }
+.result-metrics dd { color: #fff1d4; }
+.result-metrics > div > .icon { background: #8e3824; box-shadow: 0 2px #562116; }
+.result-details, .result-eligibility, .challenge-unverified, .challenge-result-comparison, .challenge-share-status, .daily-run-label { color: #f0caa5; }
+.challenge-share-status, .challenge-result-comparison { color: #ffd47e; }
+.result-primary { border-color: #a24b26; color: #fff6df; background: linear-gradient(#f5ac43, #d66a2c); box-shadow: inset 0 2px #ffd888, 0 2px #74301c; }
+.home-art { height: 190px; }
+.home-card h2 { color: #ffcb64; text-shadow: 0 3px #73331f, 0 -1px #fff0c9; }
+.home-intro, .home-progress, .home-footer { color: #f2d0ae; }
+.home-daily .eyebrow { color: #ffca6b; }
+.challenge-entry { color: #fff0d4; }
+.challenge-target-score { color: #ffcf67; }
+.surface-message, .pause-curtain { border: 1px solid #f1a248; border-radius: 14px; background: #592019e8; color: #fff0d4; }
+.pause-curtain { backdrop-filter: blur(4px); }
+.booster-hint, .booster-notice { color: #ffe8c5; }
+@media (max-width: 759px) {
+  .app-shell { padding: 8px 10px 12px; }
+  .game-topbar { height: 62px; gap: 8px; }
+  .square-button { width: 46px; height: 46px; }
+  .level-heading h1 { font-size: 21px; }
+  .moves-card { min-width: 54px; padding-inline: 6px; }
+  .moves-card strong { font-size: 25px; }
+  .app-shell .game-surface, .app-shell-tutorial .game-surface { height: clamp(190px, calc(100svh - 425px), 455px); }
+  .app-shell-tutorial .tutorial-panel { height: 82px; }
+  .game-controls { display: flex; flex-direction: column; align-items: stretch; gap: 2px; }
+  .tool-tray { gap: 7px; padding: 7px; }
+  .magnet-options { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+  .booster-actions { flex-direction: row; justify-content: center; gap: 6px; }
+  .booster-actions button { width: clamp(48px, 16vw, 62px); }
+  .tool-tray button { min-height: 48px; padding: 3px 2px; }
+  .magnet-choice img { width: 42px; height: 42px; }
+  .tool-label { font-size: 9px; }
+  .feedback-settings { margin-top: 2px; }
+  .feedback-settings label, .home-setting { min-height: 44px; }
+  .game-footnote { margin-top: 2px; }
+  .app-shell-result { padding: 10px 12px; }
+  .result-ribbon { margin-bottom: 9px; }
+  .result-metrics > div { background: linear-gradient(#a7462a, #77271d); }
+}
+@media (min-width: 760px) {
+  .app-shell { padding: 12px 18px 18px; }
+  .game-layout { display: grid; grid-template-columns: minmax(0, 1fr) 164px; gap: 4px 15px; align-items: center; }
+  .game-topbar, .tutorial-panel { grid-column: 1 / -1; }
+  .game-topbar { height: 68px; }
+  .app-shell .game-surface { grid-column: 1; grid-row: 3; height: clamp(360px, calc(100svh - 290px), 590px); }
+  .game-controls { grid-column: 2; grid-row: 3; align-self: stretch; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+  .game-controls > .game-hud { width: 100%; }
+  .tool-tray { gap: 10px; }
+  .magnet-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .booster-actions { flex-direction: column; }
+  .app-shell-result { width: min(100%, 510px); min-height: auto; margin: 10px auto; padding: 14px 20px; border: 1px solid #c96732; border-radius: 13px; box-shadow: 0 7px #451b16; }
+  .app-shell-result .game-layout { display: block; }
+  .app-shell-result .result-metrics > div { background: linear-gradient(#a7462a, #77271d); }
+  .app-shell-home, .app-shell-challenge { width: min(100%, 620px); min-height: 100svh; display: grid; align-items: center; }
+}
+@media (max-width: 759px) and (max-height: 640px) {
+  .app-shell .game-surface, .app-shell-tutorial .game-surface { height: clamp(190px, calc(100svh - 340px), 250px); }
+  .tutorial-panel, .app-shell-tutorial .tutorial-panel { height: 68px; padding-bottom: 3px; }
+  .tutorial-instruction { font-size: 11px; }
+  .home-art { height: 145px; }
+  .home-art img { width: 108px; height: 108px; }
+  .home-art .home-magnet { width: 158px; height: 158px; left: calc(50% - 79px); }
+}
+@media (max-height: 500px) and (min-width: 760px) {
+  .app-shell { min-height: 0; }
+  .game-layout { grid-template-columns: minmax(0, 1fr) 164px; grid-template-rows: 52px 58px minmax(220px, 1fr); gap: 2px 12px; }
+  .game-topbar { grid-column: 1; grid-row: 1; height: 52px; }
+  .tutorial-panel { grid-column: 1; grid-row: 2; height: 58px; padding-bottom: 2px; }
+  .game-layout .game-surface, .app-shell-tutorial .game-surface { grid-column: 1; grid-row: 3; height: 230px; }
+  .game-controls { grid-column: 2; grid-row: 1 / span 3; }
+  .tool-tray { padding: 6px; }
+  .magnet-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tool-tray button { min-height: 44px; }
+  .magnet-choice img { width: 36px; height: 36px; }
+}
+.tutorial-panel { position: relative; z-index: 1; height: auto; min-height: 0; padding-bottom: 3px; }
+.app-shell-tutorial .tutorial-panel { height: auto; min-height: 0; }
+.app-shell-tutorial .game-surface { height: clamp(250px, calc(100svh - 490px), 430px); }
+@media (max-width: 759px) {
+  .app-shell-tutorial .tutorial-panel { height: auto; min-height: 0; }
+  .app-shell-tutorial .game-surface { height: clamp(230px, calc(100svh - 490px), 390px); }
+}
+@media (max-width: 759px) and (max-height: 640px) {
+  .app-shell-tutorial .tutorial-panel { height: auto; min-height: 0; }
+}
+@media (max-height: 500px) and (min-width: 760px) {
+  .game-layout { grid-template-rows: 52px auto minmax(200px, 1fr); }
+  .tutorial-panel { grid-row: 2; }
+  .app-shell-tutorial .game-surface { height: 210px; }
+}

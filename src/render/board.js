@@ -2,6 +2,7 @@ import { Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
 import { allCells, cellId } from '../game/hex.js';
 import { drawResolutionEffects, drawTutorialHint } from './effects.js';
 import { cellToScreen } from './layout.js';
+import { visualStackLayers } from './stack-art.js';
 
 export function createBoardRenderer(root, assets = null) {
   const grid = new Container({ eventMode: 'none' });
@@ -59,10 +60,10 @@ export function createBoardRenderer(root, assets = null) {
         const from = cellToScreen(token.fromCell, layout), to = cellToScreen(token.toCell, layout);
         point = { x: from.x + (to.x - from.x) * token.moveProgress, y: from.y + (to.y - from.y) * token.moveProgress };
       }
-      const layers = Math.min(3, Math.max(1, token.mass));
+      const layers = visualStackLayers(token.mass);
       view.sprite.texture = texture(token.color + '-' + layers);
       view.mass.text = String(token.mass);
-      view.mass.position.set(44, 27 - (layers - 1) * 10);
+      view.mass.position.set(44, 27 - (layers - 1) * 6);
       view.node.position.set(point.x, point.y);
       view.node.scale.set(scale * (token.scale ?? 1));
       view.node.alpha = token.alpha ?? 1;
@@ -76,7 +77,7 @@ export function createBoardRenderer(root, assets = null) {
     const trayY = Math.min(layout.height - layout.radius * 0.72, layout.originY + layout.boardHeight + layout.radius * 0.9);
     const trayWidth = Math.max(92, layout.radius * 3.8);
     effectsView.roundRect(layout.width / 2 - trayWidth / 2, trayY - 26, trayWidth, 52, 18)
-      .fill({ color: 0xfffcf5, alpha: 0.9 }).stroke({ color: 0xe9caaa, width: 2 });
+      .fill({ color: 0xa64924, alpha: 0.96 }).stroke({ color: 0xf0ae56, width: 2 });
     tray.texture = texture('magnet-' + color);
     tray.position.set(layout.width / 2, trayY - 3);
     tray.scale.set(Math.max(0.22, scale * 0.78));
