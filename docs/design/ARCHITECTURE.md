@@ -1,5 +1,17 @@
 # Архитектура прототипа Magnet Sort
 
+## Активная архитектура v0.3 / rulesVersion 3 — 2026-10-09
+
+`src/main.js` → `src/prototype/runtime.js` → чистые model/levels/motion, Three board и Preact App. Владельцы и lifecycle описаны в [THREE_RENDERING](THREE_RENDERING.md); правила — [GDD v0.3](GDD_V0.3.md).
+
+Input → controller phase/placement gate → immutable applyMagnet → final state + ordered unit events → timeline → Three meshes. Runtime владеет единственным RAF, fixed step и DOM listeners; renderer не вызывает setAnimationLoop. Idle рендерится по событиям, animation — по RAF. Pause/blur/hidden замораживают время; reset/смена поля отменяют timeline. Shared geometry/material и shadow targets принадлежат board и явно освобождаются при dispose.
+
+Старый единый token.mass заменён массивом units снизу вверх. Сохранения и frozen puzzles v1–2 остаются отдельными; текущий прототип не использует прежние daily/challenge/ads/progress. Three.js 0.186.1 закреплён lockfile, PixiJS остаётся для legacy-кода и тестов.
+
+## Историческая архитектура MVP v0.2
+
+Следующие разделы относятся к сохранённым `src/legacy-main.js`, `src/scene.js`, `src/render/*` и модели v1–2. Они не ограничивают активный 3D-прототип.
+
 Версия контракта: `rulesVersion: 1`, `schemaVersion: 1`. Этот документ задаёт владельцев и потоки данных. Реализация и целевая архитектура: PixiJS 8.22.0 + Preact 11.0.0.
 
 ## Слои и владельцы

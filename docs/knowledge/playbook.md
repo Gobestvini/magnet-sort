@@ -2,7 +2,7 @@
 
 Это адаптированные инженерные решения, а не гарантия качества или универсальные настройки. Применяй релевантные разделы. Числа зависят от паспорта новой игры.
 
-Для текущей игры см. [PixiJS course practices](pixijs-practices.md): практики сверены с официальными PixiJS 8 guides/tutorials и применены к 2.5D Magnet Sort. [Three.js Journey](threejs-journey.md) оставлен как краткий список общих renderer-agnostic инженерных принципов; Three.js не выбран для этой игры.
+С 2026-10-09 текущая игра использует Three.js: [GDD v0.3](../design/GDD_V0.3.md), [THREE_RENDERING](../design/THREE_RENDERING.md). [PixiJS course practices](pixijs-practices.md) применяются только к сохранённым legacy-модулям; переносимые правила владения, ввода и lifecycle сохраняются. [Three.js Journey](threejs-journey.md) — общие инженерные принципы, API проверяются отдельно по официальной документации.
 
 ## Сначала играбельность
 

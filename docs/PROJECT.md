@@ -1,8 +1,32 @@
 # Карта проекта
 
+## Активный 3D-прототип — 2026-10-09
+
 | Путь | Назначение |
 | --- | --- |
-| src/main.js | App-owned RAF, Preact controls, resize/hidden/blur/HMR, dev gameDebug |
+| `src/main.js` | Entry только нового прототипа |
+| `src/prototype/runtime.js` | Единственный RAF/fixed step, input gate, tap/drag/capture, keyboard, pause/hidden/resize/reset/dispose |
+| `src/prototype/model.js` | Rules v3: ordered units, immutable applyMagnet, BFS, верхний цвет, очистка по 6, победа/поражение |
+| `src/prototype/levels.js` | Три авторских поля и детерминированные решения |
+| `src/prototype/motion.js` | Поэлементная timeline: запуск, соседний полёт, посадка, очистка, reduced motion |
+| `src/prototype/board.js` | Three.js 0.186.1, OrthographicCamera, процедурные meshes/materials/shadows, raycasting, GPU cleanup |
+| `src/prototype/App.js`, `prototype.css` | Preact HUD, магниты, правила, hint/result/retry, адаптивная композиция |
+| `src/game/hex.js`, `src/loop.js` | Переиспользуемые чистые hex helpers и fixed step |
+| `tests/prototype-v3.test.js` | Соседство каждого переноса, открытые слои, масса, immutable state, все legal first placements, решения и timeline |
+| `tools/browser-check.cjs` | Новый desktop/mobile viewport сценарий Three.js; `pnpm test:browser` |
+| `src/legacy-main.js`, `tools/legacy-browser-check.cjs` | Сохранённые entry/браузерный сценарий прежнего MVP, не подключённые новым entry |
+| `docs/design/GDD_V0.3.md`, `THREE_RENDERING.md` | Актуальные правила и renderer contract |
+| `docs/reports/THREE_PROTOTYPE.md` | Референс, реализованный объём и фактические проверки |
+
+Команды из корня: `pnpm dev`, `node --test tests/prototype-v3.test.js`, `pnpm check:full`, `pnpm test:browser`. Для нестандартного порта установить `GAME_BASE_URL`. Старый прогресс не изменяется, v1–2 не сравниваются с v3.
+
+## Legacy MVP v0.2 — сохранённые исходники
+
+Таблица ниже описывает прежнюю PixiJS-игру и её исторические проверки, а не активный import graph. PixiJS пока нужен её тестам; новая сборка использует Three.js.
+
+| Путь | Назначение |
+| --- | --- |
+| src/legacy-main.js | Прежний app-owned RAF, Preact controls, resize/hidden/blur/HMR, dev gameDebug |
 | src/render/application.js | PixiJS Application lifecycle; render обслуживается app-owned RAF |
 | src/render/board.js | PixiJS 7×7 hex board view с псевдо‑2.5D слоями cells/tokens/magnet из LevelDefinition |
 | src/render/art.js, src/render/stack-art.js, src/render/visual-assets.js | Оригинальная SVG-графика, общий cap из шести отображаемых слоёв, запечённые варианты текстур на цвет и cleanup; общий стиль Pixi/DOM |

@@ -1,465 +1,155 @@
-// Optional tool: set PLAYWRIGHT_MODULE or install Playwright separately.
+// Three.js v3 prototype. The previous MVP suite is legacy-browser-check.cjs.
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const baseUrl = process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
-async function playReplay(page, level, start = 0) {
-  for (const action of level.solution.actions.slice(start)) {
-    await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'playing');
-    await page.evaluate(action => window.gameDebug.playTestAction(action), action);
-    await page.waitForFunction(() => window.gameDebug.snapshot().phase !== 'resolving');
-  }
-}
+const output = 'artifacts/three-browser';
+
 (async () => {
-  const options = { headless: true };
-  if (process.env.BROWSER_CHANNEL) options.channel = process.env.BROWSER_CHANNEL;
-  const browser = await chromium.launch(options);
+  const browser = await chromium.launch({ headless: true, ...(process.env.BROWSER_CHANNEL ? { channel: process.env.BROWSER_CHANNEL } : {}) });
+  fs.mkdirSync(output, { recursive: true });
+  const reports = [];
   try {
-    fs.mkdirSync('artifacts/screenshots', { recursive: true });
-    for (const [name, viewport, touch] of [
-      ['desktop', { width: 1280, height: 900 }, false],
-      ['mobile', { width: 390, height: 844 }, true],
-    ]) {
+    for (const [name, viewport, touch] of [['desktop', { width: 1280, height: 900 }, false], ['mobile', { width: 390, height: 844 }, true]]) {
       const page = await browser.newPage({ viewport, hasTouch: touch, isMobile: touch });
-      if (touch) await page.addInitScript(() => { if (!localStorage.getItem('magnet-sort.progress')) localStorage.setItem('magnet-sort.progress', '{'); });
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-      page.on('response', response => { if (response.status() >= 400 && response.url().startsWith(baseUrl)) errors.push(`HTTP ${response.status()}`); });
+      page.on('response', response => { if (response.status() >= 400 && response.url().startsWith(baseUrl)) errors.push(`HTTP ${response.status()}: ${response.url()}`); });
       await page.goto(baseUrl);
-      await page.waitForFunction(() => window.gameDebug?.snapshot().rendererReady);
-      assert.equal(await page.getByRole('region', { name: 'Главное меню' }).count(), 1);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).screen, 'home');
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).feedback.contextCreated, false);
-      assert.equal(await page.locator('[aria-label="Играть в ежедневное поле"]').isEnabled(), true);
-      assert.equal(await page.locator('[aria-label="Испытание с другом скоро появится"]').isDisabled(), true);
-      if (!touch) {
-        await page.getByLabel('Уменьшить движение').check();
-        await page.getByRole('region', { name: 'Главное меню' }).getByLabel('Звук', { exact: true }).uncheck();
-        await page.getByRole('region', { name: 'Главное меню' }).getByLabel('Вибрация, если доступна').uncheck();
-        assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).settings.reducedMotion, true);
-        assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).settings.soundEnabled, false);
-        assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).settings.hapticsEnabled, false);
-      } else {
-        assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).unlockedCampaignLevel, 1);
-        assert.equal((await page.evaluate(() => window.gameDebug.snapshot().progress)).settings.soundEnabled, true);
-      }
-      const dailyPuzzle = await page.evaluate(() => window.gameDebug.snapshot().dailyPreview);
-      assert.match(await page.locator('.home-daily').innerText(), new RegExp(dailyPuzzle.dailyId));
-      await page.getByRole('button', { name: 'Играть в ежедневное поле' }).click();
-      const dailyStarted = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(dailyStarted.daily, true);
-      assert.equal(dailyStarted.dailyId, dailyPuzzle.dailyId);
-      assert.equal(dailyStarted.puzzleId, dailyPuzzle.puzzleId);
-      assert.equal(dailyStarted.tutorial.active, false);
-      assert.equal(dailyStarted.analytics.some(event => event.name === 'level_start' && event.mode === 'daily' && event.runId), true);
-      if (touch) assert.equal(dailyStarted.feedback.contextCreated, await page.evaluate(() => typeof window.AudioContext === 'function' || typeof window.webkitAudioContext === 'function'));
-      else assert.equal(dailyStarted.feedback.contextCreated, false);
-      const dailyLevel = await page.evaluate(async (puzzleId) => (await import(`/src/levels/campaign/${puzzleId}.json`)).default, dailyPuzzle.puzzleId);
-      await page.evaluate(async (level) => {
-        for (const action of level.solution.actions) {
-          window.gameDebug.playTestAction(action);
-          while (window.gameDebug.snapshot().phase === 'resolving') await new Promise(resolve => setTimeout(resolve, 20));
-        }
-      }, dailyLevel);
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot().analytics)).some(event => event.name === 'level_complete' && event.mode === 'daily' && event.outcome === 'win'), true);
-      const dailyProgress = await page.evaluate(() => window.gameDebug.snapshot().progress);
-      assert.equal(dailyProgress.dailyResults[dailyPuzzle.dailyId].result.score > 0, true);
-      assert.equal(dailyProgress.dailyResults[dailyPuzzle.dailyId].assisted, false);
-      assert.equal(dailyProgress.completedPuzzles.includes(dailyPuzzle.puzzleId), false);
-      assert.equal(dailyProgress.unlockedCampaignLevel, 1);
-      await page.getByRole('button', { name: 'Повторить уровень' }).click();
-      const dailyRetry = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(dailyRetry.dailyId, dailyPuzzle.dailyId);
-      assert.equal(dailyRetry.analytics.some(event => event.name === 'retry' && event.outcome === 'win'), true);
-      await page.evaluate(async (level) => {
-        for (const action of level.solution.actions) {
-          window.gameDebug.playTestAction(action);
-          while (window.gameDebug.snapshot().phase === 'resolving') await new Promise(resolve => setTimeout(resolve, 20));
-        }
-      }, dailyLevel);
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
-      await page.getByRole('button', { name: 'Домой' }).click();
-      assert.match(await page.locator('.home-daily-best').innerText(), /Лучший результат/);
-      await page.screenshot({ path: `artifacts/screenshots/${name}-daily-home.png` });
-      await page.getByRole('button', { name: 'Играть', exact: true }).click();
-      await page.waitForFunction(() => window.gameDebug.snapshot().elapsed > 0);
-      const firstLaunch = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(firstLaunch.tutorial.active, true);
-      assert.equal(firstLaunch.puzzleId, 'ftue-01-place');
-      assert.equal(await page.locator('.tutorial-panel h2').innerText(), 'Поставь магнит');
-      assert.equal(firstLaunch.moves, 0);
-      assert.equal(firstLaunch.analytics.some(event => event.name === 'ftue_start' && event.flowId && event.mode === 'ftue'), true);
-      assert.equal(firstLaunch.analytics.some(event => event.name === 'level_start' && event.puzzleId === 'ftue-01-place'), true);
-      const soundSwitch = page.getByRole('region', { name: 'Состояние уровня' }).getByLabel('Звук', { exact: true });
-      if (touch) {
-        await soundSwitch.uncheck();
-        assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).feedback.soundEnabled, false);
-        await soundSwitch.check();
-      } else {
-        await soundSwitch.check();
-        const audioSupported = await page.evaluate(() => typeof window.AudioContext === 'function' || typeof window.webkitAudioContext === 'function');
-        assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).feedback.contextCreated, audioSupported);
-        await soundSwitch.uncheck();
-      }
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).progress.settings.soundEnabled, touch);
-      await page.locator('#game-canvas').evaluate(canvas => canvas.scrollIntoView({ block: 'center' }));
-      await page.waitForFunction(() => {
-        const rect = document.querySelector('#game-canvas').getBoundingClientRect();
-        return rect.top >= 0 && rect.bottom <= window.innerHeight;
-      });
-      const lessonTarget = await page.evaluate(() => {
-        const canvas = document.querySelector('#game-canvas');
-        const rect = canvas.getBoundingClientRect();
-        const layout = window.gameDebug.snapshot().layout;
-        return { x: rect.left + layout.originX + layout.radius * 4.5,
-          y: rect.top + layout.originY + Math.sqrt(3) * layout.radius * 3.5 };
-      });
-      const lessonTray = await page.evaluate(() => {
-        const canvas = document.querySelector('#game-canvas');
-        const rect = canvas.getBoundingClientRect();
-        const layout = window.gameDebug.snapshot().layout;
-        return { x: rect.left + layout.width / 2, y: rect.top + Math.min(layout.height - layout.radius * 0.72, layout.originY + layout.boardHeight + layout.radius * 0.9) };
-      });
-      if (touch) {
-        await page.touchscreen.tap(lessonTray.x, lessonTray.y);
-        await page.touchscreen.tap(lessonTarget.x, lessonTarget.y);
-      } else {
-        await page.mouse.move(lessonTray.x, lessonTray.y); await page.mouse.down();
-        await page.mouse.move(lessonTarget.x, lessonTarget.y, { steps: 4 }); await page.mouse.up();
-      }
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won', null, { timeout: 30000 }).catch(async (error) => {
-        throw new Error(`${error.message}\ninput diagnostic: ${JSON.stringify(await page.evaluate(() => ({ snapshot: window.gameDebug.snapshot(), canvas: document.querySelector('#game-canvas').getBoundingClientRect().toJSON() })))}`);
-      });
-      assert.ok((await page.evaluate(() => window.gameDebug.snapshot())).feedback.seenEventCount > 0);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).tutorial.completed, false);
-      const savedFtue = await page.evaluate(() => window.gameDebug.snapshot().progress);
-      assert.equal(savedFtue.completedPuzzles.includes('ftue-01-place'), true);
-      assert.equal(savedFtue.ftue.unlockedLesson, 2);
-      if (!touch) assert.equal(savedFtue.settings.reducedMotion, true);
-      await page.reload();
-      await page.waitForFunction(() => window.gameDebug?.snapshot().rendererReady);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).screen, 'home');
-      const savedFeedback = await page.evaluate(() => window.gameDebug.snapshot().progress.settings);
-      assert.equal(savedFeedback.soundEnabled, touch);
-      assert.equal(savedFeedback.hapticsEnabled, touch);
-      assert.equal(await page.getByRole('button', { name: 'Продолжить' }).count(), 1, JSON.stringify(await page.evaluate(() => ({ progress: window.gameDebug.snapshot().progress, stored: localStorage.getItem('magnet-sort.progress') }))));
-      await page.getByRole('button', { name: 'Продолжить' }).click();
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).puzzleId, 'ftue-02-pull');
-      await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'yellow', cell: { col: 4, row: 3 } }));
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot().analytics)).some(event => event.name === 'level_complete' && event.puzzleId === 'ftue-02-pull' && event.outcome === 'win'), true);
-      await page.getByRole('button', { name: 'Следующий урок' }).click();
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).puzzleId, 'ftue-03-merge');
-      await page.getByRole('button', { name: 'Пропустить обучение' }).click();
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).tutorial.skipped, true);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).puzzleId, 'campaign-06');
-      const campaignSix = await page.evaluate(async () => (await import('/src/levels/campaign/campaign-06.json')).default);
-      await page.getByRole('button', { name: 'Подсказка' }).click();
-      assert.match(await page.locator('.booster-hint').innerText(), /магнит: столбец/);
-      await page.getByRole('button', { name: 'Применить этот ход' }).click();
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'playing');
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).moves, 1);
-      await playReplay(page, campaignSix, 1);
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).result.eligibleForChallenge, false);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).progress.unlockedCampaignLevel, 7);
-      await page.evaluate(() => {
-        Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
-        Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { async writeText(value) { window.__challengeUrl = value; } } });
-      });
-      assert.equal(await page.locator('.challenge-card-preview').count(), 1);
-      await page.getByRole('button', { name: 'Поделиться вызовом' }).click();
-      await page.waitForFunction(() => document.querySelector('.challenge-share-status')?.textContent === 'Ссылка скопирована.');
-      const challengeCreationEvents = await page.evaluate(() => window.gameDebug.snapshot().analytics);
-      assert.equal(challengeCreationEvents.some(event => event.name === 'share_clicked'), true);
-      assert.equal(challengeCreationEvents.some(event => event.name === 'challenge_created'), true);
-      assert.equal(challengeCreationEvents.some(event => Object.keys(event).some(key => /url|friend|email/i.test(key))), false);
-      const challengeUrl = await page.evaluate(() => window.__challengeUrl);
-      assert.ok(challengeUrl.includes('?challenge='));
-      const challengePage = await browser.newPage({ viewport, hasTouch: touch, isMobile: touch });
-      challengePage.on('pageerror', error => errors.push(error.message));
-      challengePage.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-      await challengePage.addInitScript(() => {
-        Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
-        Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { async writeText(value) { window.__replyUrl = value; } } });
-      });
-      await challengePage.goto(challengeUrl);
-      await challengePage.waitForFunction(() => window.gameDebug?.snapshot().rendererReady);
-      const openedChallenge = await challengePage.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(openedChallenge.screen, 'challenge');
-      assert.equal(openedChallenge.analytics.some(event => event.name === 'challenge_opened' && event.puzzleId === 'campaign-06'), true);
-      assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot())).puzzleId, 'campaign-06');
-      assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot())).tutorial.active, false);
-      assert.equal(await challengePage.locator('.challenge-entry button').count(), 1);
-      assert.equal(await challengePage.getByRole('button', { name: 'Домой' }).count(), 0);
-      await challengePage.screenshot({ path: `artifacts/screenshots/${name}-challenge-entry.png` });
-      await challengePage.getByRole('button', { name: 'Играть' }).click();
-      assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot())).screen, 'game');
-      assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot())).challenge, true);
-      assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot().analytics)).some(event => event.name === 'challenge_started'), true);
-      await playReplay(challengePage, campaignSix);
-      await challengePage.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
-      assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot().analytics)).some(event => event.name === 'challenge_completed' && event.outcome === 'win'), true);
-      assert.match(await challengePage.locator('.challenge-result-comparison').innerText(), /только для забегов без помощи/);
-      await challengePage.screenshot({ path: `artifacts/screenshots/${name}-challenge-result.png` });
-      assert.equal((await challengePage.evaluate(() => window.gameDebug.snapshot())).progress.completedPuzzles.includes('campaign-06'), false);
-      await challengePage.getByRole('button', { name: 'Ответить вызовом' }).click();
-      await challengePage.waitForFunction(() => document.querySelector('.challenge-share-status')?.textContent === 'Ссылка скопирована.');
-      const replyLink = await challengePage.evaluate(() => window.__replyUrl);
-      assert.ok(replyLink.includes('?challenge='));
-      await challengePage.close();
-      await page.getByRole('button', { name: 'Повторить уровень' }).click();
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).puzzleId, 'campaign-06');
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).moves, 0);
-      await playReplay(page, campaignSix);
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
-      await page.getByRole('button', { name: 'Домой' }).click();
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).screen, 'home');
-      await page.getByRole('button', { name: 'Продолжить' }).click();
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).puzzleId, 'campaign-07');
-      const blockerLevel = await page.evaluate(async () => (await import('/src/levels/prototype/prototype-03-blocker.json')).default);
-      await page.evaluate((level) => window.gameDebug.loadTestLevel(level), blockerLevel);
-      await page.waitForFunction(() => window.gameDebug.snapshot().elapsed > 0);
-      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().canvasCount), 1);
-      assert.equal(await page.locator('#game-canvas').getAttribute('data-renderer'), 'pixi');
-      assert.deepEqual(await page.evaluate(() => window.gameDebug.snapshot().board), { rows: 7, cols: 7, renderedCells: 49, tokens: 1, blockers: 5 });
-      const initialState = await page.evaluate(() => window.gameDebug.snapshot().state);
-      const initialLayout = await page.evaluate(() => window.gameDebug.snapshot().layout);
-      assert.equal(initialLayout.width, await page.locator('#game-canvas').evaluate((canvas) => canvas.clientWidth));
-      assert.equal(initialLayout.height, await page.locator('#game-canvas').evaluate((canvas) => canvas.clientHeight));
-      assert.ok(initialLayout.radius > 0);
-      const inputPoints = await page.evaluate(() => {
-        const canvas = document.querySelector('#game-canvas');
-        const rect = canvas.getBoundingClientRect();
-        const layout = window.gameDebug.snapshot().layout;
-        const point = (col, row) => ({
-          x: rect.left + layout.originX + layout.radius * 1.5 * row,
-          y: rect.top + layout.originY + Math.sqrt(3) * layout.radius * (col + (row % 2) / 2),
-        });
-        return {
-          tray: { x: rect.left + layout.width / 2, y: rect.top + Math.min(layout.height - layout.radius * 0.72, layout.originY + layout.boardHeight + layout.radius * 0.9) },
-          target: point(3, 0), blocked: point(2, 2), occupied: point(1, 3), outside: { x: rect.left + 2, y: rect.top + 2 },
-        };
-      });
-      if (touch) {
-        await page.touchscreen.tap(inputPoints.tray.x, inputPoints.tray.y);
-        await page.touchscreen.tap(inputPoints.target.x, inputPoints.target.y);
-      } else {
-        await page.mouse.move(inputPoints.tray.x, inputPoints.tray.y);
-        await page.mouse.down();
-        await page.mouse.move(inputPoints.target.x, inputPoints.target.y, { steps: 4 });
-        await page.waitForFunction(() => {
-          const interaction = window.gameDebug.snapshot().interaction;
-          return interaction.dragging && interaction.pointerPoint && interaction.previewCell?.col === 3 && interaction.previewCell?.row === 0;
-        });
-        assert.equal(await page.evaluate(() => window.gameDebug.snapshot().interaction.dragging), true);
-        await page.screenshot({ path: `artifacts/screenshots/${name}-dragging.png` });
-        await page.mouse.up();
-      }
-      await page.waitForFunction(() => window.gameDebug.snapshot().pointer.actionCount === 1);
-      await page.waitForFunction(() => window.gameDebug.snapshot().animation?.stage === 'slide');
-      const moving = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(moving.phase, 'resolving');
-      assert.equal(moving.animation.active, true);
-      assert.equal(moving.result, null);
-      assert.equal(moving.animation.tokens.length, initialState.tokens.length);
-      const blockedDuringResolve = await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 4, row: 4 } }));
-      assert.equal(blockedDuringResolve.accepted, false);
-      assert.equal(blockedDuringResolve.reason, 'session-resolving');
-      await page.waitForTimeout(70);
-      await page.screenshot({ path: `artifacts/screenshots/${name}-resolving.png` });
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
-      const won = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(won.puzzleId, 'prototype-03-blocker');
-      assert.equal(won.state.terminal.outcome, 'win');
-      assert.equal(won.moves, 1);
-      assert.equal(won.state.tokens.length, 0);
-      assert.deepEqual(won.result && {
-        score: won.result.score, movesUsed: won.result.movesUsed, clearPercent: won.result.clearPercent,
-        activeTimeMs: won.result.activeTimeMs, outcome: won.result.outcome,
-      }, { score: 500, movesUsed: 1, clearPercent: 100, activeTimeMs: won.result.activeTimeMs, outcome: 'win' });
-      assert.ok(won.result.activeTimeMs > 0);
-      const resultText = await page.locator('.result-card').innerText();
-      assert.match(resultText, /500\s+очков/);
-      assert.match(resultText, /100%/);
-      assert.match(resultText, /Цепочки/);
-      assert.deepEqual(await page.locator('.result-actions button').allTextContents(), ['Следующий уровень', 'Повторить уровень', 'Домой']);
-      await page.screenshot({ path: `artifacts/screenshots/${name}-result.png` });
-      const resultViewport = await page.locator('.result-card').evaluate((card) => ({
-        bottom: card.getBoundingClientRect().bottom, height: card.getBoundingClientRect().height,
-        innerHeight, scrollY, shellHeight: document.querySelector('.app-shell').getBoundingClientRect().height,
-      }));
-      assert.ok(resultViewport.bottom <= resultViewport.innerHeight, JSON.stringify(resultViewport));
-      assert.match(await page.locator('#status').innerText(), /пройден/);
-      for (const location of [inputPoints.blocked, inputPoints.occupied, inputPoints.outside]) {
-        await page.locator('#game-canvas').evaluate((canvas, point) => {
-          for (const type of ['pointerdown', 'pointerup']) canvas.dispatchEvent(new PointerEvent(type, {
-            clientX: point.x, clientY: point.y, pointerId: 1, isPrimary: true, pointerType: 'mouse', button: 0, bubbles: true,
-          }));
-        }, location);
-      }
-      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().pointer.actionCount), 1);
-      await page.getByRole('button', { name: 'Повторить уровень' }).click();
-      const retried = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(retried.phase, 'playing');
-      assert.equal(retried.puzzleId, won.puzzleId);
-      assert.equal(retried.result, null);
-      assert.equal(retried.activeTimeMs, 0);
-      assert.deepEqual(retried.state.tokens, initialState.tokens);
-      if (!touch) {
-        await page.mouse.move(inputPoints.tray.x, inputPoints.tray.y);
-        await page.mouse.down();
-        await page.mouse.move(inputPoints.target.x, inputPoints.target.y, { steps: 4 });
-        await page.waitForFunction(() => window.gameDebug.snapshot().pointer.dragging);
-      }
-      if (touch) await page.getByRole('button', { name: 'Пауза', exact: true }).click();
-      else await page.locator('#pause').evaluate((button) => button.click());
-      if ((await page.evaluate(() => window.gameDebug.snapshot())).feedback.contextCreated) {
-        await page.waitForFunction(() => window.gameDebug.snapshot().feedback.contextState === 'suspended');
-      }
-      const paused = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(paused.paused, true);
-      assert.equal(paused.rafScheduled, false);
-      assert.equal(paused.pointer.pointerId, null);
-      assert.equal(paused.pointer.selectedColor, null);
-      if (!touch) await page.mouse.up();
-      await page.waitForTimeout(150);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).elapsed, paused.elapsed);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).tickCount, paused.tickCount);
-      await page.keyboard.down('KeyW');
-      assert.ok((await page.evaluate(() => window.gameDebug.snapshot().keys)).includes('KeyW'));
+      await page.waitForFunction(() => window.gameDebug?.snapshot().renderer?.engine === 'Three.js');
+      await page.evaluate(() => document.fonts.ready);
+      const snap = () => page.evaluate(() => window.gameDebug.snapshot());
+      const at = cell => page.evaluate(cell => window.gameDebug.screenPosition(cell), cell);
+      const clickCell = async cell => { const pos = await at(cell); if (touch) await page.touchscreen.tap(pos.x, pos.y); else await page.mouse.click(pos.x, pos.y); };
+      const settled = () => page.waitForFunction(() => window.gameDebug.snapshot().phase !== 'resolving', null, { timeout: 20000 });
+      assert.equal((await snap()).canvasCount, 1);
+      assert.equal((await snap()).renderer.meshes, 12);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+      await page.screenshot({ path: `${output}/${name}-initial.png`, fullPage: true });
+
+      await clickCell({ col: 2, row: 2 });
+      assert.equal((await snap()).state.turn, 0, 'occupied placement rejected');
+      await page.getByRole('button', { name: 'Фиолетовый магнит', exact: true }).click();
+      await clickCell({ col: 3, row: 3 });
+      assert.equal((await snap()).phase, 'resolving');
+      assert.equal((await snap()).state.turn, 1);
+      assert.equal(await page.getByRole('region', { name: 'Результат', exact: true }).count(), 0, 'result waits for last landing');
+      await page.waitForFunction(() => window.gameDebug.snapshot().timeline?.activeUnits > 1);
+      await page.screenshot({ path: `${output}/${name}-transfer.png`, fullPage: true });
+      assert.equal((await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'violet', cell: { col: 1, row: 1 } }))).accepted, false);
+      await page.getByRole('button', { name: 'Пауза', exact: true }).click();
+      const pausedTime = (await snap()).timeline.elapsed;
+      await page.waitForTimeout(220);
+      assert.equal((await snap()).timeline.elapsed, pausedTime);
+      assert.equal((await snap()).rafScheduled, false);
+      await page.getByRole('button', { name: 'Продолжить', exact: true }).last().click();
+      await settled();
+      assert.equal((await snap()).phase, 'won');
+      assert.equal((await snap()).renderer.meshes, 0);
+      await page.screenshot({ path: `${output}/${name}-won.png`, fullPage: true });
+      await page.getByRole('button', { name: 'Следующее поле →', exact: true }).click();
+      assert.equal((await snap()).levelIndex, 1);
+
+      // Mouse drag from a DOM tool to a raycast tile; touch tap is covered above.
+      const tool = await page.getByRole('button', { name: 'Фиолетовый магнит', exact: true }).boundingBox();
+      const target = await at({ col: 3, row: 3 });
+      await page.mouse.move(tool.x + tool.width / 2, tool.y + tool.height / 2);
+      await page.mouse.down(); await page.mouse.move(target.x, target.y, { steps: 9 }); await page.mouse.up();
+      assert.equal((await snap()).phase, 'resolving');
+      await page.getByRole('button', { name: '↻ Начать заново', exact: true }).click();
+      assert.equal((await snap()).phase, 'playing');
+      assert.equal((await snap()).timeline, null);
+      assert.equal((await snap()).state.turn, 0);
+      assert.equal((await snap()).renderer.meshes, 18);
+      await page.waitForTimeout(200);
+      assert.equal((await snap()).state.turn, 0, 'cancelled timeline never completes into a stale result');
+
+      const cancelTarget = await at({ col: 3, row: 3 });
+      await page.mouse.move(cancelTarget.x, cancelTarget.y); await page.mouse.down();
+      assert.equal((await snap()).gesture, true);
+      await page.evaluate(() => window.dispatchEvent(new PointerEvent('pointercancel', { pointerId: 999 })));
+      assert.equal((await snap()).gesture, true, 'a second pointer cannot cancel the captured primary gesture');
+      await page.evaluate(() => window.dispatchEvent(new PointerEvent('pointercancel', { pointerId: window.gameDebug.snapshot().pointerId })));
+      await page.mouse.up();
+      assert.equal((await snap()).gesture, false);
+      assert.equal((await snap()).state.turn, 0, 'cancelled pointer spends no move');
+
+      await page.getByRole('button', { name: '✧ Подсказка', exact: true }).click();
+      await page.locator('canvas').focus(); await page.keyboard.press('Enter');
+      assert.equal((await snap()).phase, 'resolving');
       await page.evaluate(() => window.dispatchEvent(new Event('blur')));
-      assert.deepEqual(await page.evaluate(() => window.gameDebug.snapshot().keys), []);
-      await page.keyboard.up('KeyW');
-      await page.getByRole('button', { name: 'Сброс', exact: true }).click();
-      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().elapsed), 0);
-      await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
-      await page.waitForFunction(() => window.gameDebug.snapshot().elapsed > 0);
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+      assert.equal((await snap()).paused, true);
+      const blurTime = (await snap()).timeline.elapsed;
+      await page.waitForTimeout(100);
+      assert.equal((await snap()).timeline.elapsed, blurTime);
+      await page.evaluate(() => window.gameDebug.setPaused(false));
+      await settled();
 
+      await page.getByRole('button', { name: 'Голубой магнит', exact: true }).click();
+      await clickCell({ col: 3, row: 3 });
       await page.evaluate(() => {
-        window.gameDebug.setReducedMotion(true);
-        window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 3, row: 0 } });
-      });
-      await page.waitForFunction(() => window.gameDebug.snapshot().animation?.active === true);
-      const animationBeforeReset = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(animationBeforeReset.phase, 'resolving');
-      if (touch) await page.getByRole('button', { name: 'Пауза', exact: true }).click();
-      else await page.locator('#pause').evaluate((button) => button.click());
-      const frozenAnimation = await page.evaluate(() => window.gameDebug.snapshot());
-      await page.waitForTimeout(150);
-      const stillPaused = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(stillPaused.animation.progress, frozenAnimation.animation.progress);
-      assert.equal(stillPaused.activeTimeMs, frozenAnimation.activeTimeMs);
-      if (touch) await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
-      else await page.locator('#pause').evaluate((button) => button.click());
-      await page.getByRole('button', { name: 'Сброс', exact: true }).click();
-      const animationAfterReset = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(animationAfterReset.phase, 'playing');
-      assert.equal(animationAfterReset.moves, 0);
-      assert.equal(animationAfterReset.animation.active, false);
-      await page.evaluate(() => window.gameDebug.setReducedMotion(false));
-
-      const lossLevel = {
-        schemaVersion: 1, rulesVersion: 1, puzzleId: 'browser-loss-fixture', seed: 'browser-loss-v1', contentVersion: 1,
-        geometry: { kind: 'odd-r', rows: 7, cols: 7 }, colors: ['red', 'blue', 'yellow'], blockedCells: [],
-        tokens: [{ tokenId: 'small-red', color: 'red', mass: 1, cell: { col: 0, row: 0 } }],
-        goal: { kind: 'clearCount', mass: 2 }, moveLimit: 1, magnetSchedule: [{ options: ['red'] }], mode: 'prototype',
-      };
-      await page.evaluate((level) => window.gameDebug.loadTestLevel(level), lossLevel);
-      await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 0, row: 6 } }));
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'lost');
-      const lost = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(lost.state.terminal.reason, 'move-limit');
-      assert.equal(lost.moves, 1);
-      assert.equal(lost.result.outcome, 'loss');
-      assert.equal(lost.result.clearPercent, 0);
-      assert.match(await page.locator('.result-card').innerText(), /Цель не достигнута/);
-      assert.deepEqual(await page.locator('.result-actions button').allTextContents(), ['Попробовать ещё раз', 'Отменить последний ход', 'Ещё ход · тестовая награда', 'Следующий уровень', 'Домой']);
-      await page.getByRole('button', { name: 'Отменить последний ход' }).click();
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).moves, 0);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).assistedFlags.undo, true);
-      assert.equal(await page.getByRole('button', { name: 'Отменить ход' }).isDisabled(), true);
-      await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 6, row: 6 } }));
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'lost');
-      await page.getByRole('button', { name: 'Ещё ход · тестовая награда' }).click();
-      const extended = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(extended.phase, 'playing');
-      assert.equal(extended.remainingMoves, 1);
-      assert.equal(extended.assistedFlags.extraMove, true);
-      assert.match(await page.locator('.booster-notice').innerText(), /тестовой наградой/);
-      await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 0, row: 6 } }));
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'lost');
-      await page.getByRole('button', { name: 'Попробовать ещё раз' }).click();
-      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().phase), 'playing');
-      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().puzzleId), 'browser-loss-fixture');
-      await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'red', cell: { col: 6, row: 6 } }));
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'lost');
-      await page.getByRole('button', { name: 'Следующий уровень' }).click();
-      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().puzzleId), 'prototype-02-clear-count');
-
-      const originalViewport = page.viewportSize();
-      await page.setViewportSize({ width: 844, height: 390 });
-      await page.waitForFunction(() => {
-        const canvas = document.querySelector('#game-canvas');
-        const layout = window.gameDebug?.snapshot().layout;
-        return canvas?.clientWidth > 300 && layout?.width === canvas.clientWidth && layout?.height === canvas.clientHeight;
-      });
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-      const landscapeLayout = await page.evaluate(() => {
-        const canvas = document.querySelector('#game-canvas');
-        return { layout: window.gameDebug.snapshot().layout, width: canvas.clientWidth, height: canvas.clientHeight };
-      });
-      assert.equal(landscapeLayout.layout.width, landscapeLayout.width);
-      assert.equal(landscapeLayout.layout.height, landscapeLayout.height);
-      await page.setViewportSize(originalViewport);
-      await page.waitForFunction(() => window.gameDebug.snapshot().rafScheduled);
-
-      const lateLevel = await page.evaluate(async () => (await import('/src/levels/campaign/campaign-50.json')).default);
-      await page.evaluate(level => window.gameDebug.loadTestLevel(level), lateLevel);
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'playing');
-      await page.screenshot({ path: `artifacts/screenshots/${name}-campaign-50.png` });
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).state.tokens.length, 18);
-      await playReplay(page, lateLevel);
-      await page.waitForFunction(() => window.gameDebug.snapshot().phase === 'won');
-      const lateResult = await page.evaluate(() => window.gameDebug.snapshot());
-      assert.equal(lateResult.result.movesUsed, lateLevel.solution.actions.length);
-      assert.equal(lateResult.result.clearPercent, 100);
-      assert.ok(lateResult.state.crates.length < lateLevel.crates.length);
-      await page.getByRole('button', { name: 'Повторить уровень' }).click();
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).state.tokens.length, 18);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).remainingMoves, lateLevel.moveLimit);
-
-      await page.evaluate(() => {
-        Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+        Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
         document.dispatchEvent(new Event('visibilitychange'));
       });
-      await page.waitForFunction(() => !window.gameDebug.snapshot().rafScheduled);
-      if ((await page.evaluate(() => window.gameDebug.snapshot())).feedback.contextCreated) {
-        await page.waitForFunction(() => window.gameDebug.snapshot().feedback.contextState === 'suspended');
+      const hiddenTime = (await snap()).timeline.elapsed;
+      await page.waitForTimeout(100);
+      assert.equal((await snap()).paused, true);
+      assert.equal((await snap()).timeline.elapsed, hiddenTime);
+      await page.evaluate(() => { delete document.hidden; window.gameDebug.setPaused(false); });
+      await settled();
+
+      await page.getByLabel('Меньше движения').check();
+      // Replay each authored puzzle, including the mixed-colour lower layers.
+      for (let index = 0; index < 3; index++) {
+        await page.evaluate(index => window.gameDebug.loadLevel(index), index);
+        const level = await page.evaluate(() => window.gameDebug.getLevel());
+        for (const command of level.solution) {
+          await page.getByRole('button', { name: `${({ violet: 'Фиолетовый', blue: 'Голубой', coral: 'Коралловый' })[command.color]} магнит`, exact: true }).click();
+          await clickCell(command.cell); await settled();
+        }
+        assert.equal((await snap()).phase, 'won');
       }
-      const hiddenElapsed = await page.evaluate(() => window.gameDebug.snapshot().elapsed);
-      await page.waitForTimeout(120);
-      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().elapsed), hiddenElapsed);
+
+      await page.evaluate(() => window.gameDebug.loadLevel(2));
+      const baseline = (await snap()).renderer.geometries;
+      const baselineTextures = (await snap()).renderer.textures;
+      for (let i = 0; i < 20; i++) await page.evaluate(() => window.gameDebug.reset());
+      assert.equal((await snap()).renderer.geometries, baseline, 'reset reuses GPU geometry');
+      assert.equal((await snap()).renderer.textures, baselineTextures, 'reset reuses shadow targets');
+      assert.equal((await snap()).canvasCount, 1);
+      await page.screenshot({ path: `${output}/${name}-mixed.png`, fullPage: true });
+      if (touch) {
+        await page.setViewportSize({ width: 844, height: 390 });
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+        await clickCell({ col: 3, row: 3 }); await settled();
+        assert.equal((await snap()).state.turn, 1, 'raycast survives orientation resize');
+        await page.screenshot({ path: `${output}/landscape.png`, fullPage: true });
+      }
+      // Invalid/no-effect colour placements exhaust the limit without phantom victory.
+      await page.evaluate(() => window.gameDebug.loadLevel(2));
+      for (const cell of [{ col: 3, row: 3 }, { col: 5, row: 5 }, { col: 4, row: 5 }, { col: 5, row: 4 }, { col: 4, row: 4 }]) {
+        await page.evaluate(cell => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'violet', cell }), cell);
+        await settled();
+      }
+      assert.equal((await snap()).phase, 'lost');
+      await page.getByRole('button', { name: 'Попробовать ещё раз', exact: true }).click();
+      assert.equal((await snap()).phase, 'playing');
+      // Surrogate hidden event exercises lifecycle handling without claiming a real device/tab test.
       await page.evaluate(() => {
-        delete document.hidden;
+        Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
         document.dispatchEvent(new Event('visibilitychange'));
       });
-      await page.waitForFunction(() => window.gameDebug.snapshot().rafScheduled);
-
-      // Call the same disposer that Vite invokes for HMR, then verify a fresh mount.
-      await page.evaluate(() => window.gameDebug.dispose());
-      await page.waitForFunction(() => !window.gameDebug && document.querySelectorAll('#game-canvas').length === 0);
-      await page.reload();
-      await page.waitForFunction(() => window.gameDebug?.snapshot().rendererReady);
-      assert.equal((await page.evaluate(() => window.gameDebug.snapshot())).screen, 'home');
-      assert.equal(await page.evaluate(() => window.gameDebug.snapshot().canvasCount), 1);
-      await page.screenshot({ path: `artifacts/screenshots/${name}.png` });
+      assert.equal((await snap()).paused, true);
+      assert.equal((await snap()).rafScheduled, false);
+      await page.evaluate(() => { delete document.hidden; window.gameDebug.dispose(); });
+      assert.equal(await page.locator('canvas').count(), 0);
+      assert.equal(await page.evaluate(() => typeof window.gameDebug), 'undefined');
       assert.deepEqual(errors, []);
+      reports.push({ name, errors, geometryStableAfterResets: baseline, scenarios: 'tap, drag, invalid, lock, pause/resume, reset-mid-transfer, pointercancel, blur, synthetic hidden, keyboard, authored solutions, reduced motion, loss/retry, resize, dispose' });
       await page.close();
     }
-    console.log('Desktop/mobile layout, pause/reset, input and runtime errors: passed.');
+    fs.writeFileSync(`${output}/report.json`, JSON.stringify(reports, null, 2));
+    console.log('Three.js desktop and mobile viewport browser checks passed; real-device performance not measured.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
