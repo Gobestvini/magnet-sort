@@ -16,6 +16,7 @@
 | `tools/browser-check.cjs` | Новый desktop/mobile viewport сценарий Three.js; `pnpm test:browser` |
 | `src/legacy-main.js`, `tools/legacy-browser-check.cjs` | Сохранённые entry/браузерный сценарий прежнего MVP, не подключённые новым entry |
 | `docs/design/GDD_V0.3.md`, `THREE_RENDERING.md` | Актуальные правила и renderer contract |
+| `docs/design/mockups/2026-10-09-facebook-casual/index.html` | Галерея 12 AI-мокапов состояний; предложение оформления, не runtime UI |
 | `docs/reports/THREE_PROTOTYPE.md` | Референс, реализованный объём и фактические проверки |
 
 Команды из корня: `pnpm dev`, `node --test tests/prototype-v3.test.js`, `pnpm check:full`, `pnpm test:browser`. Для нестандартного порта установить `GAME_BASE_URL`. Старый прогресс не изменяется, v1–2 не сравниваются с v3.
