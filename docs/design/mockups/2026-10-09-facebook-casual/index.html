@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Magnet Sort · 12 состояний</title>
+<title>Magnet Sort · 12 game states</title>
 <style>
 :root{color-scheme:dark;font-family:Inter,system-ui,sans-serif;background:#12121b;color:#f6f3ff}
 *{box-sizing:border-box}body{margin:0}button,a{-webkit-tap-highlight-color:transparent}
@@ -30,37 +30,37 @@ dialog::backdrop{background:#08060be8;backdrop-filter:blur(8px)}.viewer{display:
 </style>
 </head>
 <body>
-<header><div class="eyebrow">Визуальная концепция · 09 октября 2026</div>
+<header><div class="eyebrow">Visual concept · 09 October 2026 · English revision</div>
 <h1>Magnet Sort</h1>
-<p>12 мобильных экранов в ярком casual-стиле. Объёмные элементы, магниты и короткие перелёты по одному. Нажми на экран, чтобы рассмотреть детали.</p>
-<nav aria-label="Фильтр состояний">
-<button data-filter="all" aria-pressed="true">Все · 12</button>
-<button data-filter="play" aria-pressed="false">Игра · 7</button>
-<button data-filter="overlay" aria-pressed="false">Пауза и результат · 3</button>
-<button data-filter="service" aria-pressed="false">Запуск · 2</button>
+<p>12 mobile screens in a bright casual style. Glossy pieces, plain color-coded magnets and quick one-piece transfers. Select a screen to explore the details.</p>
+<nav aria-label="Filter game states">
+<button data-filter="all" aria-pressed="true">All · 12</button>
+<button data-filter="play" aria-pressed="false">Gameplay · 7</button>
+<button data-filter="overlay" aria-pressed="false">Pause & results · 3</button>
+<button data-filter="service" aria-pressed="false">Launch · 2</button>
 </nav></header>
 <main><div class="grid" id="grid"></div></main>
-<footer>Мокапы сгенерированы через imagegen; интерфейс игры пока не изменён. Геометрия и раскладка поля иллюстративны — реализация использует реальные данные уровня.
-<br><a href="README.md">Описание и ограничения</a> · <a href="prompts.json">Все промпты</a></footer>
+<footer>Generated with imagegen; the game UI has not been changed. Board geometry and layouts are illustrative; implementation uses actual level data.
+<br><a href="README.md">Notes & limitations</a> · <a href="prompts.json">Prompt set</a></footer>
 <dialog id="detail" aria-labelledby="detail-title"><div class="viewer">
-<div class="toolbar"><h2 id="detail-title"></h2><button class="close" id="close" aria-label="Закрыть">×</button></div>
+<div class="toolbar"><h2 id="detail-title"></h2><button class="close" id="close" aria-label="Close">×</button></div>
 <div class="stage"><img id="full" alt=""></div>
-<div class="controls"><button id="prev" aria-label="Предыдущий экран">← Назад</button><a class="link" id="download" download>Скачать PNG</a><button id="next" aria-label="Следующий экран">Далее →</button></div>
+<div class="controls"><button id="prev" aria-label="Previous screen">← Previous</button><a class="link" id="download" download>Download PNG</a><button id="next" aria-label="Next screen">Next →</button></div>
 <p class="caption" id="caption"></p></div></dialog>
 <script>
-const screens=[{"id":"01-loading","label":"Загрузка","filename":"01-loading.png","category":"service","number":1,"note":"Первый запуск и подготовка поля."},{"id":"02-tutorial","label":"Обучение","filename":"02-tutorial.png","category":"play","number":2,"note":"Первое размещение магнита на пустую клетку."},{"id":"03-playing","label":"Поле готово","filename":"03-playing.png","category":"play","number":3,"note":"Ожидание выбора цвета и клетки."},{"id":"04-placement-valid","label":"Допустимое размещение","filename":"04-placement-valid.png","category":"play","number":4,"note":"Магнит над допустимой пустой клеткой."},{"id":"05-placement-invalid","label":"Недопустимое размещение","filename":"05-placement-invalid.png","category":"play","number":5,"note":"Занятая клетка: ход сохраняется."},{"id":"06-pulling","label":"Притяжение по одному","filename":"06-pulling.png","category":"play","number":6,"note":"Быстрые перелёты отдельных элементов в соседнюю клетку."},{"id":"07-clearing","label":"Очистка группы","filename":"07-clearing.png","category":"play","number":7,"note":"Шесть элементов собраны, группа исчезает."},{"id":"08-hint","label":"Подсказка","filename":"08-hint.png","category":"play","number":8,"note":"Подсвечен следующий допустимый ход."},{"id":"09-paused","label":"Пауза","filename":"09-paused.png","category":"overlay","number":9,"note":"Продолжение, перезапуск и уменьшение движения."},{"id":"10-victory","label":"Победа","filename":"10-victory.png","category":"overlay","number":10,"note":"Поле очищено, переход к следующему."},{"id":"11-defeat","label":"Поражение","filename":"11-defeat.png","category":"overlay","number":11,"note":"Ходы закончились, повтор уровня."},{"id":"12-render-error","label":"Ошибка и повтор","filename":"12-render-error.png","category":"service","number":12,"note":"Повтор запуска после ошибки 3D."}];
+const screens=[{"id":"01-loading","label":"Loading","filename":"01-loading.png","category":"service","number":1,"note":"First launch and board preparation."},{"id":"02-tutorial","label":"Tutorial","filename":"02-tutorial.png","category":"play","number":2,"note":"Place the first magnet on an empty tile."},{"id":"03-playing","label":"Ready to play","filename":"03-playing.png","category":"play","number":3,"note":"Choose a magnet color and an empty tile."},{"id":"04-placement-valid","label":"Valid placement","filename":"04-placement-valid.png","category":"play","number":4,"note":"A magnet over a valid empty tile."},{"id":"05-placement-invalid","label":"Invalid placement","filename":"05-placement-invalid.png","category":"play","number":5,"note":"An occupied tile: no move is spent."},{"id":"06-pulling","label":"Pulling one by one","filename":"06-pulling.png","category":"play","number":6,"note":"Individual pieces flip quickly to the neighboring tile."},{"id":"07-clearing","label":"Clearing a group","filename":"07-clearing.png","category":"play","number":7,"note":"Six collected pieces disappear."},{"id":"08-hint","label":"Hint","filename":"08-hint.png","category":"play","number":8,"note":"A suggested empty tile, before a move is spent."},{"id":"09-paused","label":"Paused","filename":"09-paused.png","category":"overlay","number":9,"note":"Resume, restart and reduced motion."},{"id":"10-victory","label":"Victory","filename":"10-victory.png","category":"overlay","number":10,"note":"The board is clear; continue to the next puzzle."},{"id":"11-defeat","label":"Out of moves","filename":"11-defeat.png","category":"overlay","number":11,"note":"Moves have run out; try the puzzle again."},{"id":"12-render-error","label":"Launch error","filename":"12-render-error.png","category":"service","number":12,"note":"Retry after a 3D initialization error."}];
 const grid=document.getElementById('grid'),dialog=document.getElementById('detail');
 let selected=0,filter='all';
 function visible(){return screens.filter(s=>filter==='all'||s.category===filter)}
 function render(){grid.replaceChildren(...visible().map(s=>{
  const card=document.createElement('figure');card.className='card';
- const button=document.createElement('button');button.className='preview';button.setAttribute('aria-label','Открыть: '+s.label);
- const img=document.createElement('img');img.src=s.filename;img.alt=s.label+' — '+s.note;img.loading='lazy';img.width=941;img.height=1672;button.append(img);
+ const button=document.createElement('button');button.className='preview';button.setAttribute('aria-label','Open: '+s.label);
+ const img=document.createElement('img');img.src=s.filename+'?v=en-plain-2';img.alt=s.label+' — '+s.note;img.loading='lazy';img.width=941;img.height=1672;button.append(img);
  button.addEventListener('click',()=>{selected=screens.indexOf(s);show();dialog.showModal()});
  const caption=document.createElement('figcaption'),title=document.createElement('h2'),num=document.createElement('span'),note=document.createElement('p');
  num.className='number';num.textContent=String(s.number).padStart(2,'0');title.append(num,document.createTextNode(s.label));note.textContent=s.note;caption.append(title,note);card.append(button,caption);return card
 }))}
-function show(){const s=screens[selected];document.getElementById('detail-title').textContent=String(s.number).padStart(2,'0')+' / 12 · '+s.label;const img=document.getElementById('full');img.src=s.filename;img.alt=s.label;document.getElementById('download').href=s.filename;document.getElementById('caption').textContent=s.note}
+function show(){const s=screens[selected];document.getElementById('detail-title').textContent=String(s.number).padStart(2,'0')+' / 12 · '+s.label;const img=document.getElementById('full');img.src=s.filename+'?v=en-plain-2';img.alt=s.label;document.getElementById('download').href=s.filename;document.getElementById('caption').textContent=s.note}
 function step(offset){const list=visible(),index=list.indexOf(screens[selected]);selected=screens.indexOf(list[(index+offset+list.length)%list.length]);show()}
 document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{filter=button.dataset.filter;document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));render()}));
 document.getElementById('close').onclick=()=>dialog.close();
