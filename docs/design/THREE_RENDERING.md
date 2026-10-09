@@ -26,6 +26,8 @@ View не вызывает симулятор. Модель не знает о T
 
 ## Lifecycle и стоимость
 
+Casual-перенос 2026-10-09: общие ExtrudeGeometry со скруглённым hex-контуром, керамическая рамка клеток и hex-отверстия колец. RoomEnvironment/PMREM создаются один раз при инициализации board; временные room/generator освобождаются сразу, render target принадлежит board и освобождается вместе с остальными ресурсами. Новые RAF/загрузчики текстур не добавлены. DOM рисует краткий +6 из активного события очистки, не вычисляет игровой результат. Фон — оригинальный локальный SVG, логотип и UI-магниты — SVG/DOM/CSS.
+
 RAF принадлежит runtime и нужен только при активной timeline. Pause/hidden сбрасывают накопитель и предыдущий timestamp. Reset удаляет presentation и восстанавливает исходные units, переиспользуя renderer и GPU-ресурсы. При смене уровня mesh-экземпляры пересоздаются, shared buffers остаются.
 
 Владелец board освобождает geometries/materials, shadow render target и renderer; runtime удаляет listeners/observer, отменяет pointer и RAF, размонтирует Preact. Ошибка WebGL имеет DOM-экран и retry; context lost останавливает ввод. Автовозобновление после blur/hidden не выполняется — пользователь нажимает «Продолжить».

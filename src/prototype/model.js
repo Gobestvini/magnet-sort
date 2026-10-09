@@ -1,9 +1,9 @@
 import { cellId, isCell, neighborCells } from '../game/hex.js';
 
 export const COLORS = Object.freeze({
-  violet: { label: 'Фиолетовый', symbol: '◆', hex: '#9463ed' },
-  blue: { label: 'Голубой', symbol: '●', hex: '#37b8ed' },
-  coral: { label: 'Коралловый', symbol: '✚', hex: '#ff826c' },
+  violet: { label: 'Violet', hex: '#7800e8' },
+  blue: { label: 'Blue', hex: '#0087f5' },
+  coral: { label: 'Coral', hex: '#ff542b' },
 });
 const copy = (value) => structuredClone(value);
 const compareCells = (a, b) => a.row - b.row || a.col - b.col;

@@ -24,40 +24,46 @@ const output = 'artifacts/three-browser';
       const clickCell = async cell => { const pos = await at(cell); if (touch) await page.touchscreen.tap(pos.x, pos.y); else await page.mouse.click(pos.x, pos.y); };
       const settled = () => page.waitForFunction(() => window.gameDebug.snapshot().phase !== 'resolving', null, { timeout: 20000 });
       assert.equal((await snap()).canvasCount, 1);
+      assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+      assert.equal(await page.evaluate(() => /[А-Яа-яЁё]/.test(document.body.innerText)), false, 'live UI is English');
+      assert.equal(await page.getByText('Preparing the board…', { exact: true }).count(), 0, 'boot message is replaced');
       assert.equal((await snap()).renderer.meshes, 12);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       await page.screenshot({ path: `${output}/${name}-initial.png`, fullPage: true });
 
       await clickCell({ col: 2, row: 2 });
       assert.equal((await snap()).state.turn, 0, 'occupied placement rejected');
-      await page.getByRole('button', { name: 'Фиолетовый магнит', exact: true }).click();
+      await page.getByRole('button', { name: 'Violet magnet', exact: true }).click();
       await clickCell({ col: 3, row: 3 });
       assert.equal((await snap()).phase, 'resolving');
       assert.equal((await snap()).state.turn, 1);
-      assert.equal(await page.getByRole('region', { name: 'Результат', exact: true }).count(), 0, 'result waits for last landing');
+      assert.equal(await page.getByRole('region', { name: 'Result', exact: true }).count(), 0, 'result waits for last landing');
       await page.waitForFunction(() => window.gameDebug.snapshot().timeline?.activeUnits > 1);
       await page.screenshot({ path: `${output}/${name}-transfer.png`, fullPage: true });
       assert.equal((await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'violet', cell: { col: 1, row: 1 } }))).accepted, false);
-      await page.getByRole('button', { name: 'Пауза', exact: true }).click();
+      await page.getByRole('button', { name: 'Pause', exact: true }).click();
+      assert.equal(await page.getByRole('dialog', { name: 'Paused', exact: true }).count(), 1);
+      assert.equal(await page.locator('.game-view').evaluate(node => node.inert), true, 'pause blocks background controls');
+      await page.screenshot({ path: `${output}/${name}-paused.png`, fullPage: true });
       const pausedTime = (await snap()).timeline.elapsed;
       await page.waitForTimeout(220);
       assert.equal((await snap()).timeline.elapsed, pausedTime);
       assert.equal((await snap()).rafScheduled, false);
-      await page.getByRole('button', { name: 'Продолжить', exact: true }).last().click();
+      await page.getByRole('button', { name: 'Resume', exact: true }).last().click();
       await settled();
       assert.equal((await snap()).phase, 'won');
       assert.equal((await snap()).renderer.meshes, 0);
       await page.screenshot({ path: `${output}/${name}-won.png`, fullPage: true });
-      await page.getByRole('button', { name: 'Следующее поле →', exact: true }).click();
+      await page.getByRole('button', { name: 'Next puzzle', exact: true }).click();
       assert.equal((await snap()).levelIndex, 1);
 
       // Mouse drag from a DOM tool to a raycast tile; touch tap is covered above.
-      const tool = await page.getByRole('button', { name: 'Фиолетовый магнит', exact: true }).boundingBox();
+      const tool = await page.getByRole('button', { name: 'Violet magnet', exact: true }).boundingBox();
       const target = await at({ col: 3, row: 3 });
       await page.mouse.move(tool.x + tool.width / 2, tool.y + tool.height / 2);
       await page.mouse.down(); await page.mouse.move(target.x, target.y, { steps: 9 }); await page.mouse.up();
       assert.equal((await snap()).phase, 'resolving');
-      await page.getByRole('button', { name: '↻ Начать заново', exact: true }).click();
+      await page.getByRole('button', { name: 'Restart', exact: true }).click();
       assert.equal((await snap()).phase, 'playing');
       assert.equal((await snap()).timeline, null);
       assert.equal((await snap()).state.turn, 0);
@@ -75,7 +81,8 @@ const output = 'artifacts/three-browser';
       assert.equal((await snap()).gesture, false);
       assert.equal((await snap()).state.turn, 0, 'cancelled pointer spends no move');
 
-      await page.getByRole('button', { name: '✧ Подсказка', exact: true }).click();
+      await page.getByRole('button', { name: 'Hint', exact: true }).click();
+      await page.screenshot({ path: `${output}/${name}-hint.png`, fullPage: true });
       await page.locator('canvas').focus(); await page.keyboard.press('Enter');
       assert.equal((await snap()).phase, 'resolving');
       await page.evaluate(() => window.dispatchEvent(new Event('blur')));
@@ -86,7 +93,7 @@ const output = 'artifacts/three-browser';
       await page.evaluate(() => window.gameDebug.setPaused(false));
       await settled();
 
-      await page.getByRole('button', { name: 'Голубой магнит', exact: true }).click();
+      await page.getByRole('button', { name: 'Blue magnet', exact: true }).click();
       await clickCell({ col: 3, row: 3 });
       await page.evaluate(() => {
         Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
@@ -99,13 +106,13 @@ const output = 'artifacts/three-browser';
       await page.evaluate(() => { delete document.hidden; window.gameDebug.setPaused(false); });
       await settled();
 
-      await page.getByLabel('Меньше движения').check();
+      await page.getByLabel('Reduced motion').check();
       // Replay each authored puzzle, including the mixed-colour lower layers.
       for (let index = 0; index < 3; index++) {
         await page.evaluate(index => window.gameDebug.loadLevel(index), index);
         const level = await page.evaluate(() => window.gameDebug.getLevel());
         for (const command of level.solution) {
-          await page.getByRole('button', { name: `${({ violet: 'Фиолетовый', blue: 'Голубой', coral: 'Коралловый' })[command.color]} магнит`, exact: true }).click();
+          await page.getByRole('button', { name: `${({ violet: 'Violet', blue: 'Blue', coral: 'Coral' })[command.color]} magnet`, exact: true }).click();
           await clickCell(command.cell); await settled();
         }
         assert.equal((await snap()).phase, 'won');
@@ -133,7 +140,8 @@ const output = 'artifacts/three-browser';
         await settled();
       }
       assert.equal((await snap()).phase, 'lost');
-      await page.getByRole('button', { name: 'Попробовать ещё раз', exact: true }).click();
+      await page.screenshot({ path: `${output}/${name}-lost.png`, fullPage: true });
+      await page.getByRole('button', { name: 'Try again', exact: true }).click();
       assert.equal((await snap()).phase, 'playing');
       // Surrogate hidden event exercises lifecycle handling without claiming a real device/tab test.
       await page.evaluate(() => {

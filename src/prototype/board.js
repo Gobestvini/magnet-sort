@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { cellId } from '../game/hex.js';
 import { COLORS, canPlaceMagnet } from './model.js';
 import { sampleTransferTimeline } from './motion.js';
@@ -13,15 +14,24 @@ export function cellPosition(cell) {
 
 function hexShape(radius, hole = false) {
   const shape = new THREE.Shape();
+  const points = Array.from({ length: 6 }, (_, i) => ({ x: Math.sin(i * Math.PI / 3) * radius, y: Math.cos(i * Math.PI / 3) * radius }));
   for (let i = 0; i < 6; i++) {
-    const angle = i * Math.PI / 3;
-    const x = Math.sin(angle) * radius, y = Math.cos(angle) * radius;
-    if (!i) shape.moveTo(x, y); else shape.lineTo(x, y);
+    const previous = points[(i + 5) % 6], current = points[i], next = points[(i + 1) % 6];
+    const start = { x: current.x * .87 + previous.x * .13, y: current.y * .87 + previous.y * .13 };
+    const end = { x: current.x * .87 + next.x * .13, y: current.y * .87 + next.y * .13 };
+    if (!i) shape.moveTo(start.x, start.y); else shape.lineTo(start.x, start.y);
+    shape.quadraticCurveTo(current.x, current.y, end.x, end.y);
   }
   shape.closePath();
   if (hole) {
     const path = new THREE.Path();
-    path.absarc(0, 0, .145, 0, Math.PI * 2, true);
+    const inner = typeof hole === 'number' ? hole : .17;
+    for (let i = 6; i >= 0; i--) {
+      const angle = i * Math.PI / 3;
+      const x = Math.sin(angle) * inner, y = Math.cos(angle) * inner;
+      if (i === 6) path.moveTo(x, y); else path.lineTo(x, y);
+    }
+    path.closePath();
     shape.holes.push(path);
   }
   return shape;
@@ -35,13 +45,13 @@ export function createThreeBoard(canvas) {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.25;
+  renderer.toneMappingExposure = 1.05;
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(-4, 4, 4, -4, .1, 60);
   camera.position.set(0, 13, 9);
   camera.lookAt(0, .1, 0);
-  scene.add(new THREE.HemisphereLight(0xf3f4ff, 0x78829e, 2.7));
-  const sun = new THREE.DirectionalLight(0xfff5e6, 3.5);
+  scene.add(new THREE.HemisphereLight(0xf3f4ff, 0x78829e, 1.3));
+  const sun = new THREE.DirectionalLight(0xfff5e6, 2.2);
   sun.position.set(-5, 10, 4);
   sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024);
@@ -52,28 +62,30 @@ export function createThreeBoard(canvas) {
   scene.add(sun);
   const resources = new Set();
   const own = resource => { resources.add(resource); return resource; };
+  const room = new RoomEnvironment();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const environment = own(pmrem.fromScene(room, .04));
+  scene.environment = environment.texture;
+  scene.environmentIntensity = .4;
+  room.dispose(); pmrem.dispose();
   const material = (color, options = {}) => own(new THREE.MeshStandardMaterial({ color, roughness: .42, metalness: .05, ...options }));
   const extrude = (shape, depth, bevel = .025) => {
     const geometry = own(new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true,
-      bevelSize: bevel, bevelThickness: bevel, bevelSegments: 2, steps: 1, curveSegments: 16 }));
+      bevelSize: bevel, bevelThickness: bevel, bevelSegments: 3, steps: 1, curveSegments: 4 }));
     geometry.rotateX(-Math.PI / 2);
     return geometry;
   };
-  const cellGeometry = extrude(hexShape(RADIUS * .94), .14);
-  const lipGeometry = extrude(hexShape(RADIUS * .98), .08);
-  const unitGeometry = extrude(hexShape(RADIUS * .78, true), .075, .018);
+  const cellGeometry = extrude(hexShape(RADIUS * .94), .14, .04);
+  const lipGeometry = extrude(hexShape(RADIUS * .94, RADIUS * .83), .05, .018);
+  const unitGeometry = extrude(hexShape(RADIUS * .75, true), .075, .035);
   const white = material('#fffaf0');
-  const cellMaterial = material('#e2e8f2');
-  const lipMaterial = material('#b8c5d8');
-  const blockedMaterial = material('#647189');
+  const cellMaterial = material('#f5dfbd', { roughness: .35 });
+  const lipMaterial = material('#fff5df', { roughness: .25 });
+  const blockedMaterial = material('#514b6c');
   const validMaterial = material('#d8fff2', { emissive: '#59ccad', emissiveIntensity: .2 });
   const invalidMaterial = material('#ffd2ce');
-  const tokenMaterials = Object.fromEntries(Object.entries(COLORS).map(([key, info]) => [key, material(info.hex, { roughness: .27 })]));
-  const symbolGeometries = {
-    violet: own(new THREE.CylinderGeometry(.065, .065, .012, 4)),
-    blue: own(new THREE.CylinderGeometry(.062, .062, .012, 24)),
-    coral: own(new THREE.BoxGeometry(.115, .012, .035)),
-  };
+  const tokenMaterials = Object.fromEntries(Object.entries(COLORS).map(([key, info]) => [key, material(info.hex, { roughness: .19, metalness: .12 })]));
+  const blockerBar = own(new THREE.BoxGeometry(.115, .012, .035));
   const boardRoot = new THREE.Group();
   const unitsRoot = new THREE.Group();
   scene.add(boardRoot, unitsRoot);
@@ -116,15 +128,15 @@ export function createThreeBoard(canvas) {
     for (const cell of level.cells) {
       const pos = cellPosition(cell), id = cellId(cell);
       const lip = new THREE.Mesh(lipGeometry, lipMaterial);
-      lip.position.set(pos.x, -.055, pos.z); lip.receiveShadow = true; boardRoot.add(lip);
+      lip.position.set(pos.x, .13, pos.z); lip.receiveShadow = true; boardRoot.add(lip);
       const tile = new THREE.Mesh(cellGeometry, blocked.has(id) ? blockedMaterial : cellMaterial);
       tile.position.set(pos.x, 0, pos.z);
       tile.receiveShadow = true; tile.castShadow = true; tile.userData.cell = cell;
       boardRoot.add(tile); pickMeshes.push(tile); cellMeshes.set(id, tile);
       if (blocked.has(id)) {
         for (const rotation of [Math.PI / 4, -Math.PI / 4]) {
-          const bar = new THREE.Mesh(symbolGeometries.coral, white);
-          bar.position.set(pos.x, .172, pos.z); bar.scale.set(3.5, 1, 1.5); bar.rotation.y = rotation;
+          const bar = new THREE.Mesh(blockerBar, white);
+          bar.position.set(pos.x, .202, pos.z); bar.scale.set(3.5, 1, 1.5); bar.rotation.y = rotation;
           boardRoot.add(bar);
         }
       }
@@ -136,11 +148,6 @@ export function createThreeBoard(canvas) {
     const root = new THREE.Group();
     const body = new THREE.Mesh(unitGeometry, tokenMaterials[unit.color]); body.castShadow = true; body.receiveShadow = true;
     root.add(body);
-    const symbol = new THREE.Mesh(symbolGeometries[unit.color], white);
-    symbol.position.set(.28, .105, 0); root.add(symbol);
-    if (unit.color === 'coral') {
-      const vertical = symbol.clone(); vertical.rotation.y = Math.PI / 2; root.add(vertical);
-    }
     unitsRoot.add(root); unitMeshes.set(unit.id, root);
     return root;
   }
@@ -190,7 +197,7 @@ export function createThreeBoard(canvas) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(width, height, false);
     const aspect = width / height;
-    const halfHeight = Math.max(3.25, 3.45 / aspect);
+    const halfHeight = Math.max(2.8, 3.15 / aspect);
     camera.left = -halfHeight * aspect; camera.right = halfHeight * aspect;
     camera.top = halfHeight; camera.bottom = -halfHeight;
     camera.updateProjectionMatrix(); camera.updateMatrixWorld();

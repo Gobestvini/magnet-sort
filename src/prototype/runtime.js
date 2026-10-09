@@ -9,11 +9,14 @@ import { createThreeBoard } from './board.js';
 import { PrototypeApp } from './App.js';
 
 const root = document.querySelector('#ui-root');
+// Preact mounts into an empty host; the static boot message belongs to HTML only.
+root.replaceChildren();
 const stepper = createStepper();
 let reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let levelIndex = 0, level = prototypeLevels[0], state = createPrototypeState(level);
-let selected = level.magnets[0], phase = 'playing', paused = false, notice = 'Выбери пустую клетку для магнита.';
+let selected = level.magnets[0], phase = 'playing', paused = false, notice = 'Choose a magnet and an empty tile.';
 let displayedCleared = 0;
+let clearingCount = 0;
 let canvas = null, host = null, board = null, timeline = null, elapsed = 0, previousElapsed = 0;
 let hover = null, keyboardCell = null, gesture = null, raf = null, previous = null, disposed = false, error = null;
 const canvasRef = node => { canvas = node; };
@@ -26,10 +29,10 @@ function listen(target, name, handler, options) {
 function ui() {
   if (disposed) return;
   render(h(PrototypeApp, { level, levelIndex, totalLevels: prototypeLevels.length, state: { ...state, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
-    canvasRef, hostRef, keyboardCell, error,
+    canvasRef, hostRef, keyboardCell, error, clearingCount,
     onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!paused), onReset: reset,
     onNext: () => loadLevel((levelIndex + 1) % prototypeLevels.length), onHint: hint,
-    onReduced: event => { reduced = event.currentTarget.checked; }, onKeyboard: keyboard,
+    onReduced: event => { reduced = event.currentTarget.checked; ui(); }, onKeyboard: keyboard,
     onRetryRenderer: initializeBoard }), root);
 }
 function draw(alpha = 1) {
@@ -48,11 +51,13 @@ function tick(now) {
   const delta = previous === null ? 0 : Math.max(0, (now - previous) / 1000);
   previous = now;
   const { alpha } = stepper.advance(delta, dt => { previousElapsed = elapsed; elapsed += dt; });
+  const activeClear = timeline?.segments.find(segment => segment.type === 'unitsCleared' && segment.start <= elapsed && segment.end > elapsed)?.units.length ?? 0;
+  if (activeClear !== clearingCount) { clearingCount = activeClear; ui(); }
   const cleared = timeline ? timeline.before.cleared + timeline.segments.filter(segment => segment.type === 'unitsCleared' && segment.end <= elapsed).reduce((sum, segment) => sum + segment.units.length, 0) : state.cleared;
   if (cleared !== displayedCleared) { displayedCleared = cleared; ui(); }
   if (timeline && elapsed >= timeline.duration) {
     timeline = null; phase = state.terminal ?? 'playing';
-    notice = state.terminal === 'won' ? 'Все элементы собраны!' : state.terminal === 'lost' ? 'Попробуй другой порядок магнитов.' : 'Выбери магнит для следующего хода.';
+    notice = state.terminal === 'won' ? 'All pieces cleared!' : state.terminal === 'lost' ? 'Try a different magnet order.' : 'Choose a magnet for the next move.';
     ui();
   }
   draw(alpha); schedule();
@@ -65,13 +70,13 @@ function cancelGesture() {
 function interactive() { return !disposed && board && !error && !paused && !document.hidden && phase === 'playing'; }
 function select(color) {
   if (!interactive() || !state.magnets.includes(color)) return;
-  selected = color; notice = 'Поставь магнит на пустую клетку.'; ui(); draw();
+  selected = color; notice = 'Place a magnet on an empty tile.'; ui(); draw();
 }
 function submit(action) {
   if (!interactive()) return { accepted: false, reason: 'locked' };
   const before = state;
   const resolution = applyMagnet(before, action);
-  if (!resolution.accepted) { notice = 'Магниту нужна пустая клетка.'; ui(); return resolution; }
+  if (!resolution.accepted) { notice = 'This tile is occupied. Choose an empty tile.'; ui(); return resolution; }
   state = resolution.state;
   timeline = makeTransferTimeline(before, resolution, reduced);
   elapsed = 0; previousElapsed = 0; phase = 'resolving';
@@ -124,8 +129,8 @@ function reset() { loadLevel(levelIndex); }
 function loadLevel(index) {
   cancelGesture(); cancelFrame(); timeline = null; elapsed = 0; previousElapsed = 0; keyboardCell = null;
   levelIndex = index; level = prototypeLevels[index]; state = createPrototypeState(level);
-  phase = 'playing'; paused = false; selected = state.magnets[0]; notice = 'Выбери пустую клетку для магнита.';
-  displayedCleared = 0;
+  phase = 'playing'; paused = false; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
+  displayedCleared = 0; clearingCount = 0;
   ui(); draw();
 }
 function hint() {
@@ -134,12 +139,12 @@ function hint() {
   for (const action of level.solution) {
     if (JSON.stringify(expected) === JSON.stringify(state)) {
       selected = action.color; keyboardCell = action.cell;
-      notice = `Подсказка: поставь выбранный магнит в строку ${action.cell.row}, столбец ${action.cell.col}.`;
+      notice = `Hint: place the magnet at row ${action.cell.row}, column ${action.cell.col}.`;
       ui(); draw(); return;
     }
     expected = applyMagnet(expected, action).state;
   }
-  notice = 'Для этого положения готовой подсказки нет. Попробуй открыть нижний цвет.'; ui();
+  notice = 'No hint for this position. Try exposing a lower color.'; ui();
 }
 function resize() {
   cancelGesture(); cancelFrame();
