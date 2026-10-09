@@ -6,6 +6,7 @@ import { createPrototypeState, applyMagnet, canPlaceMagnet } from './model.js';
 import { prototypeLevels } from './levels.js';
 import { makeTransferTimeline } from './motion.js';
 import { createThreeBoard } from './board.js';
+import { loadBoardTextures } from './assets.js';
 import { PrototypeApp } from './App.js';
 
 const root = document.querySelector('#ui-root');
@@ -22,14 +23,19 @@ let hover = null, keyboardCell = null, gesture = null, raf = null, previous = nu
 const canvasRef = node => { canvas = node; };
 const hostRef = node => { host = node; };
 const cleanups = [];
+let boardGeneration = 0, loading = true, loadingProgress = 0;
 function listen(target, name, handler, options) {
   target.addEventListener(name, handler, options);
   cleanups.push(() => target.removeEventListener(name, handler, options));
 }
 function ui() {
   if (disposed) return;
+  const tutorialCell = levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null;
+  const target = board && tutorialCell ? board.screenPosition(tutorialCell) : null;
+  const rect = host?.getBoundingClientRect();
   render(h(PrototypeApp, { level, levelIndex, totalLevels: prototypeLevels.length, state: { ...state, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
-    canvasRef, hostRef, keyboardCell, error, clearingCount,
+    canvasRef, hostRef, keyboardCell, error, clearingCount, loading, loadingProgress,
+    tutorialTarget: target && rect ? { x: target.x - rect.left, y: target.y - rect.top } : null,
     onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!paused), onReset: reset,
     onNext: () => loadLevel((levelIndex + 1) % prototypeLevels.length), onHint: hint,
     onReduced: event => { reduced = event.currentTarget.checked; ui(); }, onKeyboard: keyboard,
@@ -37,7 +43,8 @@ function ui() {
 }
 function draw(alpha = 1) {
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
-  board?.draw(level, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused });
+  board?.draw(level, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
+    hint: levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null });
 }
 function schedule() {
   if (raf === null && !disposed && !paused && !document.hidden && board && timeline) raf = requestAnimationFrame(tick);
@@ -149,22 +156,40 @@ function hint() {
 function resize() {
   cancelGesture(); cancelFrame();
   board?.resize(host.clientWidth, host.clientHeight); draw(); schedule();
+  ui();
 }
-function initializeBoard() {
+async function initializeBoard() {
+  const generation = ++boardGeneration;
+  cancelGesture(); cancelFrame(); loading = true; loadingProgress = 0;
   board?.dispose(); board = null; error = null;
-  try { board = createThreeBoard(canvas); resize(); }
-  catch (failure) { error = failure.message; }
+  ui();
+  let textures;
+  try {
+    textures = await loadBoardTextures(progress => {
+      if (!disposed && generation === boardGeneration) { loadingProgress = progress; ui(); }
+    });
+    if (disposed || generation !== boardGeneration) {
+      Object.values(textures).forEach(texture => texture.dispose()); return;
+    }
+    board = createThreeBoard(canvas, textures); resize();
+  }
+  catch (failure) {
+    if (textures) Object.values(textures).forEach(texture => texture.dispose());
+    if (disposed || generation !== boardGeneration) return;
+    error = failure.message;
+  }
+  loading = false;
   ui();
 }
 function snapshot() {
   return { state: structuredClone(state), phase, selected, paused, levelIndex, puzzleId: level.id,
     timeline: timeline ? { duration: timeline.duration, elapsed, activeUnits: timeline.segments.filter(segment => segment.type === 'unitMoved' && segment.start <= elapsed && segment.end > elapsed).length } : null,
     renderer: board?.snapshot() ?? null, canvasCount: root.querySelectorAll('canvas').length,
-    gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error };
+    gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error, loading };
 }
 function dispose() {
   if (disposed) return;
-  disposed = true; cancelGesture(); cancelFrame(); timeline = null;
+  disposed = true; boardGeneration++; cancelGesture(); cancelFrame(); timeline = null;
   observer.disconnect(); cleanups.forEach(cleanup => cleanup()); board?.dispose(); board = null;
   render(null, root); if (import.meta.env.DEV) delete window.gameDebug;
 }

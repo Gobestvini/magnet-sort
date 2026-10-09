@@ -1,0 +1,30 @@
+[
+  {
+    "name": "background",
+    "transparent": false,
+    "prompt": "Use case: precise-object-edit. Image 1 is an edit target: our approved Magnet Sort screen. Remove ALL foreground UI, logo, board, stacks, magnets, buttons, text and their shadows. Reconstruct ONLY the exact original full-screen purple royal-blue softly luminous hex-pattern background that lies behind the screen. Keep identical palette, texture, subtle bevel of the large background hexes, lighting and original 9:16 portrait composition. This is a clean background plate for layering the existing UI over it. No objects, no letters, no borders, no new design. Full bleed portrait.",
+    "used": true,
+    "mode": "built-in image_gen"
+  },
+  {
+    "name": "logo",
+    "transparent": true,
+    "prompt": "Use case: background-extraction. Image 1 is the edit target. Extract ONLY the existing MAGNET SORT logo at the upper left, including its exact red-blue horseshoe, dimensional yellow MAGNET and blue SORT letters, purple/white outline, and tight original shadow. Preserve the original letter forms and colors exactly, do not redraw or redesign. Remove absolutely everything else. One isolated tightly framed logo asset on genuinely transparent background. No extra words, no backdrop, no board. Logo fills most of image with a small transparent margin.",
+    "used": false,
+    "mode": "built-in image_gen"
+  },
+  {
+    "name": "tile",
+    "transparent": true,
+    "prompt": "Use case: background-extraction. Image 1 is the edit target. Extract ONE empty ivory hexagonal ceramic board tile from the central part of the board, preserving its EXACT perspective, warm cream color, rounded beveled gold-ivory rim, inset smooth face, extrusion underneath and subtle contact shadow. There must be no stack or marker. Only one whole tile, viewed exactly as in the board, centered and large. Remove all neighboring tiles and all UI/background. Genuine transparent background. Do not change perspective or make a top-down tile. No text, no symbols, no frame.",
+    "used": true,
+    "mode": "built-in image_gen"
+  },
+  {
+    "name": "ring-violet",
+    "transparent": true,
+    "prompt": "Use case: background-extraction / precise-object-edit. Image 1 is the edit target. Isolate exactly ONE individual violet hexagonal ring piece from the violet stack on the board. Preserve original rich glossy purple candy material, bright bevel highlights, hexagonal hole, original inclined camera perspective and visible side-wall. Remove the other stack layers, board, shadows of unrelated objects and all UI. One single thin ring only, not an entire stack; its thickness is about 15 percent of its width. No symbols or markings. Genuine transparent background INCLUDING the hex hole. Centered isolated game sprite, large with small transparent margin. Match approved artwork exactly, do not redesign.",
+    "used": false,
+    "mode": "built-in image_gen"
+  }
+]

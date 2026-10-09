@@ -9,7 +9,8 @@
 | `src/prototype/model.js` | Rules v3: ordered units, immutable applyMagnet, BFS, верхний цвет, очистка по 6, победа/поражение |
 | `src/prototype/levels.js` | Три авторских поля и детерминированные решения |
 | `src/prototype/motion.js` | Поэлементная timeline: запуск, соседний полёт, посадка, очистка, reduced motion |
-| `src/prototype/board.js` | Three.js 0.186.1, OrthographicCamera, процедурные meshes/materials/shadows, raycasting, GPU cleanup |
+| `src/prototype/board.js` | Three.js 0.186.1, OrthographicCamera, PNG-плоскости/общие текстуры, raycasting, GPU cleanup |
+| `src/prototype/assets.js`, `public/art/mockup/` | Декодирование PNG до ввода, общие текстуры, nine-slice рамки, manifest вырезок |
 | `src/prototype/App.js`, `prototype.css` | Preact HUD, магниты, правила, hint/result/retry, адаптивная композиция |
 | `src/game/hex.js`, `src/loop.js` | Переиспользуемые чистые hex helpers и fixed step |
 | `tests/prototype-v3.test.js` | Соседство каждого переноса, открытые слои, масса, immutable state, все legal first placements, решения и timeline |

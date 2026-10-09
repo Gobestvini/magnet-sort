@@ -29,6 +29,7 @@ const output = 'artifacts/three-browser';
       assert.equal(await page.getByText('Preparing the board…', { exact: true }).count(), 0, 'boot message is replaced');
       assert.equal((await snap()).renderer.meshes, 12);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+      await page.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode().catch(()=>{}))));
       await page.screenshot({ path: `${output}/${name}-initial.png`, fullPage: true });
 
       await clickCell({ col: 2, row: 2 });
@@ -39,11 +40,13 @@ const output = 'artifacts/three-browser';
       assert.equal((await snap()).state.turn, 1);
       assert.equal(await page.getByRole('region', { name: 'Result', exact: true }).count(), 0, 'result waits for last landing');
       await page.waitForFunction(() => window.gameDebug.snapshot().timeline?.activeUnits > 1);
+      await page.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode().catch(()=>{}))));
       await page.screenshot({ path: `${output}/${name}-transfer.png`, fullPage: true });
       assert.equal((await page.evaluate(() => window.gameDebug.playTestAction({ type: 'placeMagnet', color: 'violet', cell: { col: 1, row: 1 } }))).accepted, false);
       await page.getByRole('button', { name: 'Pause', exact: true }).click();
       assert.equal(await page.getByRole('dialog', { name: 'Paused', exact: true }).count(), 1);
       assert.equal(await page.locator('.game-view').evaluate(node => node.inert), true, 'pause blocks background controls');
+      await page.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode().catch(()=>{}))));
       await page.screenshot({ path: `${output}/${name}-paused.png`, fullPage: true });
       const pausedTime = (await snap()).timeline.elapsed;
       await page.waitForTimeout(220);
@@ -53,6 +56,7 @@ const output = 'artifacts/three-browser';
       await settled();
       assert.equal((await snap()).phase, 'won');
       assert.equal((await snap()).renderer.meshes, 0);
+      await page.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode().catch(()=>{}))));
       await page.screenshot({ path: `${output}/${name}-won.png`, fullPage: true });
       await page.getByRole('button', { name: 'Next puzzle', exact: true }).click();
       assert.equal((await snap()).levelIndex, 1);
@@ -82,6 +86,7 @@ const output = 'artifacts/three-browser';
       assert.equal((await snap()).state.turn, 0, 'cancelled pointer spends no move');
 
       await page.getByRole('button', { name: 'Hint', exact: true }).click();
+      await page.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode().catch(()=>{}))));
       await page.screenshot({ path: `${output}/${name}-hint.png`, fullPage: true });
       await page.locator('canvas').focus(); await page.keyboard.press('Enter');
       assert.equal((await snap()).phase, 'resolving');
@@ -106,7 +111,10 @@ const output = 'artifacts/three-browser';
       await page.evaluate(() => { delete document.hidden; window.gameDebug.setPaused(false); });
       await settled();
 
+      // Preferences live in Pause, matching the authored screen.
+      await page.getByRole('button', { name: 'Pause', exact: true }).click();
       await page.getByLabel('Reduced motion').check();
+      await page.getByRole('button', { name: 'Resume', exact: true }).click();
       // Replay each authored puzzle, including the mixed-colour lower layers.
       for (let index = 0; index < 3; index++) {
         await page.evaluate(index => window.gameDebug.loadLevel(index), index);
@@ -123,15 +131,17 @@ const output = 'artifacts/three-browser';
       const baselineTextures = (await snap()).renderer.textures;
       for (let i = 0; i < 20; i++) await page.evaluate(() => window.gameDebug.reset());
       assert.equal((await snap()).renderer.geometries, baseline, 'reset reuses GPU geometry');
-      assert.equal((await snap()).renderer.textures, baselineTextures, 'reset reuses shadow targets');
+      assert.equal((await snap()).renderer.textures, baselineTextures, 'reset reuses artwork textures');
       assert.equal((await snap()).canvasCount, 1);
+      await page.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode().catch(()=>{}))));
       await page.screenshot({ path: `${output}/${name}-mixed.png`, fullPage: true });
       if (touch) {
         await page.setViewportSize({ width: 844, height: 390 });
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await clickCell({ col: 3, row: 3 }); await settled();
         assert.equal((await snap()).state.turn, 1, 'raycast survives orientation resize');
-        await page.screenshot({ path: `${output}/landscape.png`, fullPage: true });
+        await page.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode().catch(()=>{}))));
+      await page.screenshot({ path: `${output}/landscape.png`, fullPage: true });
       }
       // Invalid/no-effect colour placements exhaust the limit without phantom victory.
       await page.evaluate(() => window.gameDebug.loadLevel(2));
@@ -140,6 +150,7 @@ const output = 'artifacts/three-browser';
         await settled();
       }
       assert.equal((await snap()).phase, 'lost');
+      await page.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode().catch(()=>{}))));
       await page.screenshot({ path: `${output}/${name}-lost.png`, fullPage: true });
       await page.getByRole('button', { name: 'Try again', exact: true }).click();
       assert.equal((await snap()).phase, 'playing');

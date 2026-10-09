@@ -1,0 +1,590 @@
+{
+  "version": 1,
+  "reference": "English mockups revision 2",
+  "method": "Exact rectangular crops and nine-slice assembly; generated extraction only where occluded",
+  "assets": [
+    {
+      "name": "background",
+      "file": "background.png",
+      "width": 941,
+      "height": 1672,
+      "source": "imagegen extraction",
+      "generatedOriginal": "exec-59f401f4-efcf-43c6-a3f2-1420e56009cb.png"
+    },
+    {
+      "name": "logo",
+      "file": "logo.png",
+      "width": 640,
+      "height": 360,
+      "source": "imagegen extraction",
+      "generatedOriginal": "exec-76ce51d8-62bb-4d13-ae0b-af9bb9078e20.png"
+    },
+    {
+      "name": "tile",
+      "file": "tile.png",
+      "width": 256,
+      "height": 248,
+      "source": "imagegen extraction",
+      "generatedOriginal": "exec-a723bc37-1013-4e55-9f4c-c9fc144c45b3.png"
+    },
+    {
+      "name": "magnet-violet",
+      "file": "magnet-violet.png",
+      "width": 208,
+      "height": 187,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 95,
+        "top": 1260,
+        "width": 208,
+        "height": 187
+      }
+    },
+    {
+      "name": "magnet-blue",
+      "file": "magnet-blue.png",
+      "width": 208,
+      "height": 187,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 373,
+        "top": 1260,
+        "width": 208,
+        "height": 187
+      }
+    },
+    {
+      "name": "magnet-coral",
+      "file": "magnet-coral.png",
+      "width": 208,
+      "height": 187,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 639,
+        "top": 1260,
+        "width": 208,
+        "height": 187
+      }
+    },
+    {
+      "name": "loading-art",
+      "file": "loading-art.png",
+      "width": 941,
+      "height": 1220,
+      "source": "01-loading.png",
+      "rect": {
+        "left": 0,
+        "top": 0,
+        "width": 941,
+        "height": 1220
+      }
+    },
+    {
+      "name": "loading-track",
+      "file": "loading-track.png",
+      "width": 720,
+      "height": 95,
+      "source": "01-loading.png",
+      "rect": {
+        "left": 111,
+        "top": 1398,
+        "width": 720,
+        "height": 95
+      },
+      "slice": [
+        44,
+        45,
+        44,
+        45
+      ],
+      "blankColumn": 685
+    },
+    {
+      "name": "loading-fill",
+      "file": "loading-fill.png",
+      "width": 508,
+      "height": 73,
+      "source": "01-loading.png",
+      "rect": {
+        "left": 125,
+        "top": 1410,
+        "width": 508,
+        "height": 73
+      }
+    },
+    {
+      "name": "tutorial-arrow",
+      "file": "tutorial-arrow.png",
+      "width": 173,
+      "height": 394,
+      "source": "02-tutorial.png",
+      "rect": {
+        "left": 252,
+        "top": 748,
+        "width": 173,
+        "height": 394
+      }
+    },
+    {
+      "name": "tutorial-hand",
+      "file": "tutorial-hand.png",
+      "width": 172,
+      "height": 175,
+      "source": "02-tutorial.png",
+      "rect": {
+        "left": 507,
+        "top": 1468,
+        "width": 172,
+        "height": 175
+      }
+    },
+    {
+      "name": "logo-exact",
+      "file": "logo-exact.png",
+      "width": 371,
+      "height": 228,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 48,
+        "top": 20,
+        "width": 371,
+        "height": 228
+      }
+    },
+    {
+      "name": "panel",
+      "file": "panel.png",
+      "width": 321,
+      "height": 89,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 442,
+        "top": 107,
+        "width": 321,
+        "height": 89
+      },
+      "slice": [
+        41,
+        45,
+        41,
+        45
+      ],
+      "blankColumn": 49
+    },
+    {
+      "name": "button-purple",
+      "file": "button-purple.png",
+      "width": 390,
+      "height": 112,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 491,
+        "top": 1515,
+        "width": 390,
+        "height": 112
+      },
+      "slice": [
+        53,
+        45,
+        53,
+        45
+      ],
+      "blankColumn": 50
+    },
+    {
+      "name": "button-green",
+      "file": "button-green.png",
+      "width": 577,
+      "height": 145,
+      "source": "09-paused.png",
+      "rect": {
+        "left": 182,
+        "top": 869,
+        "width": 577,
+        "height": 145
+      },
+      "slice": [
+        69,
+        85,
+        69,
+        85
+      ],
+      "blankColumn": 90
+    },
+    {
+      "name": "button-light",
+      "file": "button-light.png",
+      "width": 469,
+      "height": 104,
+      "source": "09-paused.png",
+      "rect": {
+        "left": 236,
+        "top": 1035,
+        "width": 469,
+        "height": 104
+      },
+      "slice": [
+        49,
+        65,
+        49,
+        65
+      ],
+      "blankColumn": 61
+    },
+    {
+      "name": "modal",
+      "file": "modal.png",
+      "width": 708,
+      "height": 775,
+      "source": "11-defeat.png",
+      "slice": [
+        90,
+        90,
+        90,
+        90
+      ]
+    },
+    {
+      "name": "switch-off",
+      "file": "switch-off.png",
+      "width": 144,
+      "height": 69,
+      "source": "09-paused.png",
+      "rect": {
+        "left": 596,
+        "top": 1171,
+        "width": 144,
+        "height": 69
+      }
+    },
+    {
+      "name": "switch-thumb",
+      "file": "switch-thumb.png",
+      "width": 65,
+      "height": 65,
+      "source": "09-paused.png",
+      "rect": {
+        "left": 600,
+        "top": 1175,
+        "width": 65,
+        "height": 65
+      }
+    },
+    {
+      "name": "pause",
+      "file": "pause.png",
+      "width": 108,
+      "height": 108,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 795,
+        "top": 99,
+        "width": 108,
+        "height": 108
+      }
+    },
+    {
+      "name": "close",
+      "file": "close.png",
+      "width": 121,
+      "height": 120,
+      "source": "09-paused.png",
+      "rect": {
+        "left": 705,
+        "top": 487,
+        "width": 121,
+        "height": 120
+      }
+    },
+    {
+      "name": "hint",
+      "file": "hint.png",
+      "width": 56,
+      "height": 69,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 137,
+        "top": 1535,
+        "width": 56,
+        "height": 69
+      }
+    },
+    {
+      "name": "restart",
+      "file": "restart.png",
+      "width": 68,
+      "height": 72,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 578,
+        "top": 1534,
+        "width": 68,
+        "height": 72
+      }
+    },
+    {
+      "name": "ring-violet",
+      "file": "ring-violet.png",
+      "width": 116,
+      "height": 75,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 239,
+        "top": 436,
+        "width": 116,
+        "height": 75
+      }
+    },
+    {
+      "name": "ring-blue",
+      "file": "ring-blue.png",
+      "width": 116,
+      "height": 75,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 588,
+        "top": 436,
+        "width": 116,
+        "height": 75
+      }
+    },
+    {
+      "name": "ring-coral",
+      "file": "ring-coral.png",
+      "width": 116,
+      "height": 75,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 167,
+        "top": 774,
+        "width": 116,
+        "height": 75
+      }
+    },
+    {
+      "name": "blocker",
+      "file": "blocker.png",
+      "width": 140,
+      "height": 141,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 398,
+        "top": 432,
+        "width": 140,
+        "height": 141
+      }
+    },
+    {
+      "name": "tool-neutral-frame",
+      "file": "tool-neutral-frame.png",
+      "width": 254,
+      "height": 240,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 346,
+        "top": 1228,
+        "width": 254,
+        "height": 240
+      },
+      "slice": [
+        45,
+        28,
+        45,
+        28
+      ],
+      "blankColumn": 30
+    },
+    {
+      "name": "tool-selected-frame",
+      "file": "tool-selected-frame.png",
+      "width": 274,
+      "height": 240,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 58,
+        "top": 1228,
+        "width": 274,
+        "height": 240
+      },
+      "slice": [
+        45,
+        28,
+        45,
+        28
+      ],
+      "blankColumn": 30
+    },
+    {
+      "name": "tool-violet",
+      "file": "tool-violet.png",
+      "width": 274,
+      "height": 240,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 58,
+        "top": 1228,
+        "width": 274,
+        "height": 240
+      }
+    },
+    {
+      "name": "tool-blue",
+      "file": "tool-blue.png",
+      "width": 274,
+      "height": 240,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 346,
+        "top": 1228,
+        "width": 274,
+        "height": 240
+      }
+    },
+    {
+      "name": "tool-coral",
+      "file": "tool-coral.png",
+      "width": 274,
+      "height": 240,
+      "source": "03-playing.png",
+      "rect": {
+        "left": 610,
+        "top": 1228,
+        "width": 274,
+        "height": 240
+      }
+    },
+    {
+      "name": "progress-empty",
+      "file": "progress-empty.png",
+      "width": 500,
+      "height": 32,
+      "source": "03-playing.png",
+      "slice": [
+        15,
+        18,
+        15,
+        18
+      ]
+    },
+    {
+      "name": "progress-full",
+      "file": "progress-full.png",
+      "width": 500,
+      "height": 32,
+      "source": "10-victory.png",
+      "slice": [
+        15,
+        18,
+        15,
+        18
+      ]
+    },
+    {
+      "name": "paused-title",
+      "file": "paused-title.png",
+      "width": 385,
+      "height": 95,
+      "source": "09-paused.png",
+      "rect": {
+        "left": 280,
+        "top": 567,
+        "width": 385,
+        "height": 95
+      },
+      "mask": "connected exterior ivory"
+    },
+    {
+      "name": "defeat-title",
+      "file": "defeat-title.png",
+      "width": 375,
+      "height": 182,
+      "source": "11-defeat.png",
+      "rect": {
+        "left": 285,
+        "top": 572,
+        "width": 375,
+        "height": 182
+      },
+      "mask": "connected exterior ivory"
+    },
+    {
+      "name": "defeat-magnet",
+      "file": "defeat-magnet.png",
+      "width": 462,
+      "height": 211,
+      "source": "11-defeat.png",
+      "rect": {
+        "left": 240,
+        "top": 754,
+        "width": 462,
+        "height": 211
+      },
+      "mask": "connected exterior ivory"
+    },
+    {
+      "name": "victory-ribbon",
+      "file": "victory-ribbon.png",
+      "width": 769,
+      "height": 215,
+      "source": "10-victory.png",
+      "rect": {
+        "left": 94,
+        "top": 645,
+        "width": 769,
+        "height": 215
+      }
+    },
+    {
+      "name": "victory-star",
+      "file": "victory-star.png",
+      "width": 90,
+      "height": 102,
+      "source": "10-victory.png",
+      "rect": {
+        "left": 431,
+        "top": 395,
+        "width": 90,
+        "height": 102
+      }
+    },
+    {
+      "name": "confetti-violet",
+      "file": "confetti-violet.png",
+      "width": 55,
+      "height": 52,
+      "source": "10-victory.png",
+      "rect": {
+        "left": 78,
+        "top": 417,
+        "width": 55,
+        "height": 52
+      }
+    },
+    {
+      "name": "confetti-yellow",
+      "file": "confetti-yellow.png",
+      "width": 40,
+      "height": 53,
+      "source": "10-victory.png",
+      "rect": {
+        "left": 265,
+        "top": 395,
+        "width": 40,
+        "height": 53
+      }
+    },
+    {
+      "name": "confetti-blue",
+      "file": "confetti-blue.png",
+      "width": 42,
+      "height": 61,
+      "source": "10-victory.png",
+      "rect": {
+        "left": 847,
+        "top": 411,
+        "width": 42,
+        "height": 61
+      }
+    }
+  ]
+}
