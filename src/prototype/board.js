@@ -1,18 +1,19 @@
 import * as THREE from 'three';
 import { cellId } from '../game/hex.js';
-import { canPlaceMagnet } from './model.js';
+import { COLORS, canPlaceMagnet } from './model.js';
 import { sampleTransferTimeline } from './motion.js';
+import { createRingGeometry, hexContour, RING_HEIGHT } from './ring.js';
 
-const UNIT_HEIGHT = .17;
+const UNIT_HEIGHT = RING_HEIGHT;
 const FLOOR = .16;
 const RADIUS = .64;
 export function cellPosition(cell) {
   return { x: (cell.col - 3 + (cell.row % 2) * .5 - .25) * Math.sqrt(3) * RADIUS,
-    z: (cell.row - 3) * 1.75 * RADIUS };
+    z: (cell.row - 3) * 1.94 * RADIUS };
 }
 
-// Authored raster layers in a Three scene. Each ring is still an independently
-// positioned object: the model, neighbor routes and transfer timing are unchanged.
+// Raster UI/tiles and solid rings share one Three scene. Every model unit owns
+// one mesh; the authored ring top is mapped without its baked side wall.
 export function createThreeBoard(canvas, textures) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setClearColor(0x000000, 0);
@@ -20,21 +21,39 @@ export function createThreeBoard(canvas, textures) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(-4, 4, 4, -4, .1, 60);
-  camera.position.set(0, 13, 9); camera.lookAt(0, .1, 0);
+  camera.position.set(0, 11, 10); camera.lookAt(0, .1, 0);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x654777, 2));
+  const light = new THREE.DirectionalLight(0xffffff, 2.5);
+  light.position.set(-4, 8, 5); scene.add(light);
   const resources = new Set(Object.values(textures));
   const own = resource => { resources.add(resource); return resource; };
   const plane = own(new THREE.PlaneGeometry(1, 1));
+  const ringGeometry = own(createRingGeometry());
   const materials = Object.fromEntries(Object.entries(textures).map(([name, texture]) => [name,
     own(new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }))]));
+  const ringMaterials = Object.fromEntries(Object.entries(COLORS).map(([color, info]) => {
+    const cap = own(materials['ring-' + color].clone());
+    cap.depthTest = cap.depthWrite = true;
+    const wall = own(new THREE.MeshStandardMaterial({ color: info.hex, roughness: .28, metalness: .08,
+      transparent: true, depthTest: true, depthWrite: true }));
+    return [color, [cap, wall]];
+  }));
+  const tileHeight = 1.18 * textures.tile.image.height / textures.tile.image.width;
   const pickShape = new THREE.Shape();
-  for (let i = 0; i < 6; i++) {
-    const x = Math.sin(i * Math.PI / 3) * RADIUS * .92, y = Math.cos(i * Math.PI / 3) * RADIUS * .92;
-    if (!i) pickShape.moveTo(x, y); else pickShape.lineTo(x, y);
-  }
+  [[0, .5], [.5, .25], [.5, -.25], [0, -.5], [-.5, -.25], [-.5, .25]].forEach(([x, y], index) => {
+    if (!index) pickShape.moveTo(x * 1.18, y * tileHeight); else pickShape.lineTo(x * 1.18, y * tileHeight);
+  });
   pickShape.closePath();
   const pickGeometry = own(new THREE.ShapeGeometry(pickShape));
-  pickGeometry.rotateX(-Math.PI / 2);
   const pickMaterial = own(new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, side: THREE.DoubleSide }));
+  const blockerGeometry = own(new THREE.ShapeGeometry(hexContour(.50)));
+  const blockerPositions = blockerGeometry.attributes.position;
+  const blockerUV = blockerGeometry.attributes.uv;
+  for (let index = 0; index < blockerPositions.count; index++) {
+    blockerUV.setXY(index, (70 + blockerPositions.getX(index) / .50 * 59) / 140,
+      1 - (65 - blockerPositions.getY(index) / .50 * 59) / 141);
+  }
+  blockerGeometry.rotateX(-Math.PI / 2);
   const validMaterial = own(materials.tile.clone()); validMaterial.color.set('#b7ffd3');
   const invalidMaterial = own(materials.tile.clone()); invalidMaterial.color.set('#ffaaa0');
   const tutorialMaterial = own(materials.tile.clone()); tutorialMaterial.color.set('#fff1a6');
@@ -60,19 +79,28 @@ export function createThreeBoard(canvas, textures) {
     const blocked = new Set(level.blockers.map(cellId));
     for (const cell of level.cells) {
       const pos = cellPosition(cell), id = cellId(cell);
-      const tile = artwork(blocked.has(id) ? 'blocker' : 'tile', 1.18);
+      const tile = artwork('tile', 1.18);
       tile.position.set(pos.x, 0, pos.z);
       tile.renderOrder = Math.round(pos.z * 100);
       boardRoot.add(tile); cellMeshes.set(id, tile);
+      if (blocked.has(id)) {
+        const marker = new THREE.Mesh(blockerGeometry, materials.blocker);
+        marker.position.set(pos.x, FLOOR, pos.z); marker.renderOrder = 500;
+        boardRoot.add(marker);
+      }
       const pick = new THREE.Mesh(pickGeometry, pickMaterial);
-      pick.position.set(pos.x, .15, pos.z); pick.userData.cell = cell;
+      pick.quaternion.copy(camera.quaternion);
+      pick.position.set(pos.x, 0, pos.z); pick.userData.cell = cell;
       boardRoot.add(pick); pickMeshes.push(pick);
     }
   }
   function unitMesh(unit) {
     if (unitMeshes.has(unit.id)) return unitMeshes.get(unit.id);
     const root = new THREE.Group();
-    root.add(artwork('ring-' + unit.color, .94));
+    const body = new THREE.Mesh(ringGeometry, ringMaterials[unit.color]);
+    body.renderOrder = 1000; body.userData.unitId = unit.id;
+    body.position.y = -UNIT_HEIGHT / 2;
+    root.add(body);
     unitsRoot.add(root); unitMeshes.set(unit.id, root);
     return root;
   }
@@ -88,7 +116,7 @@ export function createThreeBoard(canvas, textures) {
       if (pose.from) {
         const from = cellPosition(pose.from), to = cellPosition(pose.to);
         const p = pose.progress, ease = p * p * (3 - 2 * p);
-        const fromY = FLOOR + pose.fromIndex * UNIT_HEIGHT, toY = FLOOR + pose.toIndex * UNIT_HEIGHT;
+        const fromY = FLOOR + (pose.fromIndex + .5) * UNIT_HEIGHT, toY = FLOOR + (pose.toIndex + .5) * UNIT_HEIGHT;
         mesh.position.set(THREE.MathUtils.lerp(from.x, to.x, ease), THREE.MathUtils.lerp(fromY, toY, ease), THREE.MathUtils.lerp(from.z, to.z, ease));
         if (!timeline.reduced) {
           mesh.position.y += Math.sin(p * Math.PI) * .54;
@@ -96,15 +124,14 @@ export function createThreeBoard(canvas, textures) {
           mesh.setRotationFromAxisAngle(axis, -Math.PI * 2 * ease);
         }
       } else {
-        const pos = cellPosition(pose.cell); mesh.position.set(pos.x, FLOOR + pose.index * UNIT_HEIGHT, pos.z);
+        const pos = cellPosition(pose.cell); mesh.position.set(pos.x, FLOOR + (pose.index + .5) * UNIT_HEIGHT, pos.z);
       }
-      // Front rows occlude rear rows; a moving piece clears the static board.
-      mesh.children[0].renderOrder = pose.from ? 2000 : Math.round(mesh.position.z * 100) + 40 + pose.index;
+      mesh.userData = { id: pose.id, color: pose.color, cell: pose.cell ?? null, index: pose.index ?? null,
+        moving: Boolean(pose.from), from: pose.from, to: pose.to, progress: pose.progress, scale: pose.scale };
     }
     for (const [id, mesh] of unitMeshes) if (!alive.has(id)) { unitsRoot.remove(mesh); unitMeshes.delete(id); }
     for (const [id, tile] of cellMeshes) {
-      const isBlocked = level.blockers.some(cell => cellId(cell) === id);
-      tile.material = isBlocked ? materials.blocker : materials.tile;
+      tile.material = materials.tile;
       if (hover && cellId(hover) === id && selected && !paused) tile.material = canPlaceMagnet(state, hover) ? validMaterial : invalidMaterial;
       else if (hint && cellId(hint) === id && !paused) tile.material = tutorialMaterial;
     }
@@ -114,7 +141,7 @@ export function createThreeBoard(canvas, textures) {
       const pos = cellPosition(activeMagnet.cell);
       magnet.position.set(pos.x, FLOOR + .12, pos.z);
       magnet.material = materials['magnet-' + activeMagnet.color];
-      magnet.renderOrder = Math.round(pos.z * 100) + 35;
+      magnet.renderOrder = 600;
     }
     scene.updateMatrixWorld(true); renderer.render(scene, camera);
   }
@@ -138,10 +165,11 @@ export function createThreeBoard(canvas, textures) {
     },
     screenPosition(cell) {
       const pos = cellPosition(cell), rect = canvas.getBoundingClientRect();
-      projected.set(pos.x, .15, pos.z).project(camera);
+      projected.set(pos.x, 0, pos.z).project(camera);
       return { x: rect.left + (projected.x + 1) * rect.width / 2, y: rect.top + (1 - projected.y) * rect.height / 2 };
     },
-    snapshot() { return { engine: 'Three.js', revision: THREE.REVISION, artwork: 'mockup-raster', meshes: unitMeshes.size,
+    snapshot() { return { engine: 'Three.js', revision: THREE.REVISION, artwork: 'textured-solid-rings', meshes: unitMeshes.size,
+      units: [...unitMeshes.values()].map(mesh => ({ ...mesh.userData, position: mesh.position.toArray(), height: RING_HEIGHT * mesh.scale.x })),
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, drawCalls: renderer.info.render.calls }; },
     dispose() {
       if (disposed) return;

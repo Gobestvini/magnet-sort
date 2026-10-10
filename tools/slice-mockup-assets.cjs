@@ -14,6 +14,41 @@ async function save(name,pipe,meta={}){
  return buffer;
 }
 async function crop(file,rect){return sharp(path.join(reference,file+'.png')).extract(rect).png().toBuffer()}
+// A restored tile can contain detached coloured pixels outside its silhouette.
+// Keep the main alpha island, including its antialiased edge, before resizing.
+async function connectedSilhouette(pipe){
+ const {data,info}=await pipe.ensureAlpha().raw().toBuffer({resolveWithObject:true});
+ const seen=new Uint8Array(info.width*info.height);let largest=[];
+ for(let seed=0;seed<seen.length;seed++){
+  if(seen[seed]||!data[seed*4+3])continue;
+  const island=[seed];seen[seed]=1;
+  for(let k=0;k<island.length;k++){
+   const i=island[k],x=i%info.width,y=Math.floor(i/info.width);
+   for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+    const nx=x+dx,ny=y+dy,j=ny*info.width+nx;
+    if(nx<0||ny<0||nx>=info.width||ny>=info.height||seen[j]||!data[j*4+3])continue;
+    seen[j]=1;island.push(j);
+   }
+  }
+  if(island.length>largest.length)largest=island;
+ }
+ const keep=new Uint8Array(seen.length);for(const i of largest)keep[i]=1;
+ for(let i=0;i<keep.length;i++)if(!keep[i])data[i*4+3]=0;
+ return sharp(data,{raw:info}).trim({threshold:12});
+}
+// Reconstruct the blank interior from two clear rows of the source artwork.
+// Feather the patch inside the rim so nine-slice joins cannot expose rectangles.
+async function blankInterior(buffer,source,inset,radius,top,bottom,sampleX){
+ const {data,info}=await sharp(source).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+ const w=info.width,h=info.height,x=sampleX??Math.floor(w/2),pixels=Buffer.alloc(w*h*4);
+ for(let y=0;y<h;y++)for(let xx=0;xx<w;xx++)for(let c=0;c<4;c++){
+  const t=Math.max(0,Math.min(1,(y-top)/(bottom-top)));
+  pixels[(y*w+xx)*4+c]=Math.round(data[(top*w+x)*4+c]*(1-t)+data[(bottom*w+x)*4+c]*t);
+ }
+ const mask=await sharp(Buffer.from('<svg width="'+w+'" height="'+h+'"><rect x="'+inset+'" y="'+inset+'" width="'+(w-2*inset)+'" height="'+(h-2*inset)+'" rx="'+radius+'" fill="white"/></svg>')).blur(4).png().toBuffer();
+ const fill=await sharp(pixels,{raw:info}).composite([{input:mask,blend:'dest-in'}]).png().toBuffer();
+ return sharp(buffer).composite([{input:fill}]).png().toBuffer();
+}
 async function masked(name,file,rect,svg){
  const buffer=await crop(file,rect);
  return save(name,sharp(buffer).ensureAlpha().composite([{input:Buffer.from('<svg width="'+rect.width+'" height="'+rect.height+'" xmlns="http://www.w3.org/2000/svg">'+svg+'</svg>'),blend:'dest-in'}]),{source:file+'.png',rect});
@@ -42,7 +77,8 @@ async function blankFrame(name,file,rect,slice,column){
   const fill=await sharp(b).extract({left:column,top:30,width:1,height:1}).resize(w-2*slice,h-70,{fit:'fill',kernel:'nearest'}).toBuffer();
   middle=await sharp(middle).composite([{input:fill,left:0,top:35}]).toBuffer();
  }
- const assembled=await sharp({create:{width:w,height:h,channels:4,background:{r:0,g:0,b:0,alpha:0}}}).composite([{input:left,left:0,top:0},{input:middle,left:slice,top:0},{input:right,left:w-slice,top:0}]).png().toBuffer();
+ let assembled=await sharp({create:{width:w,height:h,channels:4,background:{r:0,g:0,b:0,alpha:0}}}).composite([{input:left,left:0,top:0},{input:middle,left:slice,top:0},{input:right,left:w-slice,top:0}]).png().toBuffer();
+ if(name.startsWith('tool-'))assembled=await blankInterior(assembled,b,18,22,25,h-12);
  const mask=Buffer.from('<svg width="'+w+'" height="'+h+'"><rect width="'+w+'" height="'+h+'" rx="'+(name.startsWith('tool-')?45:Math.floor(h/2)-3)+'" fill="white"/></svg>');
  return save(name,sharp(assembled).composite([{input:mask,blend:'dest-in'}]),{source:file+'.png',rect,slice:[name.startsWith('tool-')?45:Math.floor(h/2)-3,slice,name.startsWith('tool-')?45:Math.floor(h/2)-3,slice],blankColumn:column});
 }
@@ -51,6 +87,7 @@ async function blankFrame(name,file,rect,slice,column){
   const size=id==='background'?941:id==='logo'?640:id==='tile'?256:256;
   const original=fs.existsSync(generated[id]);
   let pipe=sharp(original?generated[id]:path.join(out,id+'.png'));if(original&&id!=='background')pipe=pipe.trim({threshold:12});
+  if(id==='tile')pipe=await connectedSilhouette(pipe);
   await save(id,pipe.resize({width:size,withoutEnlargement:true}),{source:'imagegen extraction',generatedOriginal:path.basename(generated[id])});
  }
  const magnetMask='<path fill="white" d="M28 3L62 6Q79 8 75 23L62 67C48 113 78 135 106 135C139 135 157 111 143 68L134 25Q130 8 146 6L177 1Q189 0 192 14L204 73C221 131 171 183 107 183C41 185-10 132 6 75L21 16Q22 4 28 3Z"/>';
@@ -71,13 +108,16 @@ async function blankFrame(name,file,rect,slice,column){
  const modal=await crop('11-defeat',{left:118,top:539,width:708,height:775});
  const w=708,h=775,edge=90,parts=[];
  for(let row=0;row<3;row++)for(let col=0;col<3;col++){
-  const sx=col===0?0:col===1?edge:w-edge,sy=row===0?0:row===1?200:h-edge;
-  const sw=col===1?1:edge,sh=row===1&&col===1?h-2*edge:row===1?1:edge;
-  let part=sharp(modal).extract({left:col===1&&row===1?31:col===2&&row===0?0:sx,top:col===1&&row===1?edge:sy,width:sw,height:sh});
-  if(col===2&&row===0)part=part.flop();
+  // Reuse one clean corner and its adjoining edge pixels. Mixing source edges
+  // from different heights produces a visible 1–2px step in the golden rim.
+  const sx=col===1?edge:0,sy=row===1?edge:0;
+  const sw=col===1?1:edge,sh=row===1?1:edge;
+  let part=sharp(modal).extract({left:sx,top:sy,width:sw,height:sh});
+  if(col===2)part=part.flop();if(row===2)part=part.flip();
   parts.push({input:await part.resize(col===1?w-edge*2:edge,row===1?h-edge*2:edge,{fit:'fill',kernel:'nearest'}).toBuffer(),left:col===0?0:col===1?edge:w-edge,top:row===0?0:row===1?edge:h-edge});
  }
- const modalFrame=await sharp({create:{width:w,height:h,channels:4,background:{r:0,g:0,b:0,alpha:0}}}).composite(parts).png().toBuffer();
+ let modalFrame=await sharp({create:{width:w,height:h,channels:4,background:{r:0,g:0,b:0,alpha:0}}}).composite(parts).png().toBuffer();
+ modalFrame=await blankInterior(modalFrame,modal,24,65,90,h-90,31);
  await save('modal',sharp(modalFrame).composite([{input:Buffer.from('<svg width="708" height="775"><rect width="708" height="775" rx="90" fill="white"/></svg>'),blend:'dest-in'}]),{source:'11-defeat.png',slice:[90,90,90,90]});
  await masked('switch-off','09-paused',{left:596,top:1171,width:144,height:69},'<rect width="144" height="69" rx="34" fill="white"/>');
  await masked('switch-thumb','09-paused',{left:600,top:1175,width:65,height:65},'<circle cx="32" cy="32" r="31" fill="white"/>');

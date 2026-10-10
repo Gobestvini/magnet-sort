@@ -4,6 +4,8 @@
 
 Перенос casual-мокапов через отдельные PNG-ассеты, nine-slice рамки и графические слои Three.js; английский интерфейс и магниты без символов. [Ассеты](docs/design/MOCKUP_ASSETS.md), [план](docs/design/CASUAL_MIGRATION.md), [результат и проверки](docs/reports/RASTER_DESIGN.md).
 
+Исправления 2026-10-10: объёмные кольца совпадают с ориентацией клеток; каждый видимый слой соответствует одному элементу модели, включая перелёт. Очищены плитки и стыки растровых рамок. [Отчёт](docs/reports/RING_VISUAL_FIXES.md).
+
 ```powershell
 pnpm install --frozen-lockfile
 pnpm dev

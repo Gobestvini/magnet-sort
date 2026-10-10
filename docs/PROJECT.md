@@ -9,12 +9,13 @@
 | `src/prototype/model.js` | Rules v3: ordered units, immutable applyMagnet, BFS, верхний цвет, очистка по 6, победа/поражение |
 | `src/prototype/levels.js` | Три авторских поля и детерминированные решения |
 | `src/prototype/motion.js` | Поэлементная timeline: запуск, соседний полёт, посадка, очистка, reduced motion |
-| `src/prototype/board.js` | Three.js 0.186.1, OrthographicCamera, PNG-плоскости/общие текстуры, raycasting, GPU cleanup |
+| `src/prototype/board.js`, `ring.js` | Three.js 0.186.1, OrthographicCamera, объёмные кольца с PNG-текстурой верха, плитки/магниты, raycasting, GPU cleanup |
 | `src/prototype/assets.js`, `public/art/mockup/` | Декодирование PNG до ввода, общие текстуры, nine-slice рамки, manifest вырезок |
 | `src/prototype/App.js`, `prototype.css` | Preact HUD, магниты, правила, hint/result/retry, адаптивная композиция |
 | `src/game/hex.js`, `src/loop.js` | Переиспользуемые чистые hex helpers и fixed step |
 | `tests/prototype-v3.test.js` | Соседство каждого переноса, открытые слои, масса, immutable state, все legal first placements, решения и timeline |
 | `tools/browser-check.cjs` | Новый desktop/mobile viewport сценарий Three.js; `pnpm test:browser` |
+| `tests/ring.test.js`, `tools/ring-browser-check.cjs` | Сквозное отверстие, толщина кольца, ориентация, UV без боковины; число реально отображаемых элементов и позиции слоёв на 782 кадрах |
 | `src/legacy-main.js`, `tools/legacy-browser-check.cjs` | Сохранённые entry/браузерный сценарий прежнего MVP, не подключённые новым entry |
 | `docs/design/GDD_V0.3.md`, `THREE_RENDERING.md` | Актуальные правила и renderer contract |
 | `docs/design/mockups/2026-10-09-facebook-casual/index.html` | Галерея 12 AI-мокапов состояний; предложение оформления, не runtime UI |
