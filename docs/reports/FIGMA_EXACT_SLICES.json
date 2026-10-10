@@ -1,0 +1,104 @@
+{
+  "screens": 12,
+  "layers": 615,
+  "sourceMaxError": 0,
+  "figmaExportChecked": true,
+  "results": [
+    {
+      "name": "01-loading",
+      "layers": 12,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 14,
+      "figmaMeanChannelError": 0.100587,
+      "figmaPixelsOver2": 15609
+    },
+    {
+      "name": "02-tutorial",
+      "layers": 52,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 34,
+      "figmaMeanChannelError": 0.160563,
+      "figmaPixelsOver2": 38698
+    },
+    {
+      "name": "03-playing",
+      "layers": 62,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 33,
+      "figmaMeanChannelError": 0.180517,
+      "figmaPixelsOver2": 43335
+    },
+    {
+      "name": "04-placement-valid",
+      "layers": 64,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 31,
+      "figmaMeanChannelError": 0.16427,
+      "figmaPixelsOver2": 37287
+    },
+    {
+      "name": "05-placement-invalid",
+      "layers": 66,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 33,
+      "figmaMeanChannelError": 0.174572,
+      "figmaPixelsOver2": 43206
+    },
+    {
+      "name": "06-pulling",
+      "layers": 66,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 34,
+      "figmaMeanChannelError": 0.164095,
+      "figmaPixelsOver2": 39008
+    },
+    {
+      "name": "07-clearing",
+      "layers": 69,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 33,
+      "figmaMeanChannelError": 0.175782,
+      "figmaPixelsOver2": 40615
+    },
+    {
+      "name": "08-hint",
+      "layers": 66,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 34,
+      "figmaMeanChannelError": 0.167937,
+      "figmaPixelsOver2": 38513
+    },
+    {
+      "name": "09-paused",
+      "layers": 54,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 17,
+      "figmaMeanChannelError": 0.075422,
+      "figmaPixelsOver2": 13486
+    },
+    {
+      "name": "10-victory",
+      "layers": 42,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 51,
+      "figmaMeanChannelError": 0.167768,
+      "figmaPixelsOver2": 39253
+    },
+    {
+      "name": "11-defeat",
+      "layers": 51,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 40,
+      "figmaMeanChannelError": 0.161439,
+      "figmaPixelsOver2": 32003
+    },
+    {
+      "name": "12-render-error",
+      "layers": 11,
+      "sourceMaxError": 0,
+      "figmaMaxChannelError": 16,
+      "figmaMeanChannelError": 0.124661,
+      "figmaPixelsOver2": 26871
+    }
+  ]
+}

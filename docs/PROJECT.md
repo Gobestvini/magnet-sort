@@ -19,7 +19,8 @@
 | `src/legacy-main.js`, `tools/legacy-browser-check.cjs` | Сохранённые entry/браузерный сценарий прежнего MVP, не подключённые новым entry |
 | `docs/design/GDD_V0.3.md`, `THREE_RENDERING.md` | Актуальные правила и renderer contract |
 | `docs/design/mockups/2026-10-09-facebook-casual/index.html` | Галерея 12 AI-мокапов состояний; предложение оформления, не runtime UI |
-| `docs/design/FIGMA_ASSEMBLY.md`, `tools/build-figma-screens.cjs`, `tools/figma-screen-importer.js` | 12 экранов импортированы в Figma через браузер; редактируемые текст/векторы/PNG, общая геометрия, воспроизводимый SVG-пакет и дополнительный importer компонентов |
+| `docs/design/FIGMA_ASSEMBLY.md`, `tools/slice-exact-figma.py`, `tools/verify-exact-figma.py` | Актуальная Figma: 12 оригинальных мокапов из 615 растровых слоёв, независимая проверка нарезки и экспорта Figma |
+| `tools/build-figma-screens.cjs`, `tools/figma-screen-importer.js` | Архивная приближённая векторная сборка, отклонена пользователем; не источник текущего оформления |
 | `tools/figma-preview-check.cjs` | Проверка офлайн-превью, изображений, шрифта, внутренних ссылок SVG и обрезания текста; не проверка native Figma |
 | `docs/design/CASUAL_MIGRATION.md`, `docs/reports/CASUAL_DESIGN.md` | План и проверенный первый перенос casual-темы в активную игру |
 | `public/art/casual-hex.svg` | Оригинальный кодовый hex-фон нового UI, не растровый скриншот |
