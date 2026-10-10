@@ -19,7 +19,7 @@
 | `src/legacy-main.js`, `tools/legacy-browser-check.cjs` | Сохранённые entry/браузерный сценарий прежнего MVP, не подключённые новым entry |
 | `docs/design/GDD_V0.3.md`, `THREE_RENDERING.md` | Актуальные правила и renderer contract |
 | `docs/design/mockups/2026-10-09-facebook-casual/index.html` | Галерея 12 AI-мокапов состояний; предложение оформления, не runtime UI |
-| `docs/design/FIGMA_ASSEMBLY.md`, `tools/build-figma-screens.cjs`, `tools/figma-screen-importer.js` | 12 редактируемых офлайн-композиций, общая геометрия и ручной Figma importer. Файл Figma пока пуст: лимит MCP Starter |
+| `docs/design/FIGMA_ASSEMBLY.md`, `tools/build-figma-screens.cjs`, `tools/figma-screen-importer.js` | 12 экранов импортированы в Figma через браузер; редактируемые текст/векторы/PNG, общая геометрия, воспроизводимый SVG-пакет и дополнительный importer компонентов |
 | `tools/figma-preview-check.cjs` | Проверка офлайн-превью, изображений, шрифта, внутренних ссылок SVG и обрезания текста; не проверка native Figma |
 | `docs/design/CASUAL_MIGRATION.md`, `docs/reports/CASUAL_DESIGN.md` | План и проверенный первый перенос casual-темы в активную игру |
 | `public/art/casual-hex.svg` | Оригинальный кодовый hex-фон нового UI, не растровый скриншот |

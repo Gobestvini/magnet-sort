@@ -125,7 +125,7 @@ const pieceCounts={};for(const s of screens){
  const cleared=['clearing','defeat'].includes(s.kind)?12:s.kind==='victory'?18:0;
  const total=s.kind==='tutorial'?12:18;assert.equal(pieces+cleared,total,s.id+' must conserve pieces');pieceCounts[s.id]={visible:pieces,cleared,total};
 }
-const report={screens:screens.length,components:Object.keys(components).length,sharedEdges,pieceCounts,hex:{width:W,height:H,rowPitch:H*.75,columnPitch:W,oddRowOffset:W/2,projectionY:.78,ringWidth:116,ringThickness:THICKNESS},figmaFile:'https://www.figma.com/design/'+fileKey,figmaStatus:'File created; remote construction blocked by Starter MCP call limit. Offline import not yet verified in Figma.'};
+const report={screens:screens.length,components:Object.keys(components).length,sharedEdges,pieceCounts,hex:{width:W,height:H,rowPitch:H*.75,columnPitch:W,oddRowOffset:W/2,projectionY:.78,ringWidth:116,ringThickness:THICKNESS},figmaFile:'https://www.figma.com/design/'+fileKey,figmaStatus:'2026-10-10: 12 screens imported and visually checked through the ordinary browser editor on page 01 Screens. Editable vector groups, text and separate PNG assets; native component library not created.'};
 const spec={version:1,report,palette,components,screens};
 fs.writeFileSync(path.join(out,'design.json'),JSON.stringify(spec,null,2));
 function render(node){
@@ -139,9 +139,27 @@ function render(node){
 const defs=Object.entries(components).map(([id,c])=>`<symbol id="c-${id.replaceAll(' ','-')}" viewBox="0 0 ${c.width} ${c.height}">${c.svg.replace(/<svg[^>]*>|<\/svg>/g,'')}</symbol>`).join('');
 const svg=s=>`<svg xmlns="http://www.w3.org/2000/svg" width="941" height="1672" viewBox="0 0 941 1672" role="img" aria-label="${s.label}"><defs>${defs}<style>@font-face{font-family:Nunito;src:url(assets/Nunito.ttf)}</style></defs>${s.children.map(render).join('')}</svg>`;
 for(const s of screens)fs.writeFileSync(path.join(out,s.id+'.svg'),svg(s));
-fs.writeFileSync(path.join(out,'index.html'),`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Magnet Sort · Editable Figma source</title><style>@font-face{font-family:Nunito;src:url(assets/Nunito.ttf)}*{box-sizing:border-box}body{margin:0;padding:40px;background:#141025;color:#faf3ff;font:18px Nunito}h1{margin:0}p{max-width:950px;color:#c7b7e7}main{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:30px}figure{margin:0;min-width:0}svg{width:100%;height:auto;border-radius:18px}figcaption{margin:12px 0 30px}a{color:#e2c9ff}.badge{color:#ffd17b}@media(max-width:900px){main{grid-template-columns:repeat(2,minmax(0,1fr))}}</style><h1>Magnet Sort · Figma assembly</h1><p>12 editable screen compositions. Cells and rings use the same projected point-up hex. ${sharedEdges} shared grid edges match exactly. English UI, plain magnets.</p><p class="badge">Offline preview. The Figma file is still empty because the Starter MCP quota blocked construction.</p><p><a href="https://www.figma.com/design/${fileKey}">Figma file</a> · <a href="README.md">Import instructions</a> · <a href="design.json">Layer specification</a></p><main>${screens.map(s=>`<figure id="${s.id}">${svg(s)}<figcaption>${s.id.slice(0,2)} · ${s.label}</figcaption></figure>`).join('')}</main></html>`);
-// A standard development plugin is provided for manual import, not executed by
-// the agent as a workaround for the exhausted connector quota.
+// Figma's normal browser importer misinterprets nested <symbol>/<use> assets.
+// Expand every instance into an editable group and keep gradients at root.
+fs.mkdirSync(path.join(out,'browser-import'),{recursive:true});
+let importedGroup=0;
+const importDefs=Object.values(components).flatMap(c=>[...c.svg.matchAll(/<defs>([\s\S]*?)<\/defs>/g)].map(match=>match[1])).join('').replaceAll('x1="0" y1="0" x2="0" y2="1"','x1="0%" y1="0%" x2="0%" y2="100%"');
+function browserLayer(node){
+ const id=esc(node.name.replace(/[^a-zA-Z0-9]+/g,'_'))+'_'+(++importedGroup);
+ const transform=`translate(${node.x} ${node.y})${node.rotation?` rotate(${node.rotation} ${node.width/2} ${node.height/2})`:''}`;
+ if(node.type==='instance'){
+  const c=components[node.component],body=c.svg.replace(/<svg[^>]*>|<\/svg>/g,'').replace(/<defs>[\s\S]*?<\/defs>/g,'');
+  return `<g id="${id}" transform="${transform} scale(${node.width/c.width} ${node.height/c.height})" opacity="${node.opacity??1}">${body}</g>`;
+ }
+ if(node.type==='frame')return `<g id="${id}" transform="${transform}" opacity="${node.opacity??1}">${node.children.map(browserLayer).join('')}</g>`;
+ if(node.type==='image')return `<image id="${id}" xlink:href="data:image/png;base64,${assets[node.asset].base64}" x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" preserveAspectRatio="xMidYMid meet"/>`;
+ if(node.type==='vector')return `<g id="${id}" transform="${transform}">${node.svg.replace(/<svg[^>]*>|<\/svg>/g,'')}</g>`;
+ return render(node);
+}
+for(const s of screens)fs.writeFileSync(path.join(out,'browser-import',s.id+'.svg'),`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="941" height="1672" viewBox="0 0 941 1672"><defs>${importDefs}</defs>${s.children.map(browserLayer).join('')}</svg>`);
+fs.writeFileSync(path.join(out,'index.html'),`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Magnet Sort · Editable Figma source</title><style>@font-face{font-family:Nunito;src:url(assets/Nunito.ttf)}*{box-sizing:border-box}body{margin:0;padding:40px;background:#141025;color:#faf3ff;font:18px Nunito}h1{margin:0}p{max-width:950px;color:#c7b7e7}main{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:30px}figure{margin:0;min-width:0}svg{width:100%;height:auto;border-radius:18px}figcaption{margin:12px 0 30px}a{color:#e2c9ff}.badge{color:#ffd17b}@media(max-width:900px){main{grid-template-columns:repeat(2,minmax(0,1fr))}}</style><h1>Magnet Sort · Figma assembly</h1><p>12 editable screen compositions. Cells and rings use the same projected point-up hex. ${sharedEdges} shared grid edges match exactly. English UI, plain magnets.</p><p class="badge">12 screens also imported into Figma via its browser editor. This gallery is the reproducible offline source.</p><p><a href="https://www.figma.com/design/${fileKey}">Figma file</a> · <a href="README.md">Import instructions</a> · <a href="design.json">Layer specification</a></p><main>${screens.map(s=>`<figure id="${s.id}">${svg(s)}<figcaption>${s.id.slice(0,2)} · ${s.label}</figcaption></figure>`).join('')}</main></html>`);
+// Optional development plugin creates native component masters and variants.
+// The completed browser import uses editable SVG groups instead.
 const plugin=`const design=${JSON.stringify(spec)};\nconst assets=${JSON.stringify(assets)};\n`+fs.readFileSync(path.join(__dirname,'figma-screen-importer.js'),'utf8');
 fs.mkdirSync(path.join(out,'figma-plugin'),{recursive:true});
 fs.writeFileSync(path.join(out,'figma-plugin/code.js'),plugin);
