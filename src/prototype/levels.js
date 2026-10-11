@@ -1,3 +1,4 @@
+import { progressiveLevels } from './progressive-levels.js';
 const cells = Array.from({ length: 25 }, (_, i) => ({ col: i % 5 + 1, row: Math.floor(i / 5) + 1 }));
 const makeStack = (col, row, colors) => ({ cell: { col, row }, units: colors.map((color, i) => ({ id: `r${row}c${col}-${i}`, color })) });
 const repeat = (color, count) => Array(count).fill(color);
@@ -22,4 +23,5 @@ export const prototypeLevels = [
       makeStack(4, 2, [...repeat('coral', 3), ...repeat('blue', 3)]),
       makeStack(2, 4, [...repeat('violet', 3), ...repeat('coral', 3)])],
     solution: [action('violet'), action('blue', 3, 2), action('coral', 3, 4), action('violet', 3, 2)] },
+  ...progressiveLevels,
 ];

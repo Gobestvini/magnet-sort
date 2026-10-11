@@ -1,8 +1,8 @@
 // Tuned for the attached video's rapid, staggered neighbour-to-neighbour flip.
 // These values are our animation profile, not measured reference timings.
 export function makeTransferTimeline(before, resolution, reduced = false) {
-  const flight = reduced ? .09 : .19;
-  const stagger = reduced ? .045 : .055;
+  const flight = reduced ? .09 : .28;
+  const stagger = reduced ? .045 : .105;
   const segments = [];
   let cursor = reduced ? .06 : .16;
   let batch = null, groupStart = cursor, count = 0, groupEnd = cursor;
@@ -37,6 +37,20 @@ export function makeTransferTimeline(before, resolution, reduced = false) {
   }
   return { before, after: resolution.state, magnet: resolution.magnet, segments, reduced,
     duration: Math.max(cursor, groupEnd) + (reduced ? .04 : .38) };
+}
+
+const smooth = p => p * p * (3 - 2 * p);
+// Lift first, turn through one edge, then place the other face flat.
+// The face changes at the edge-on instant; the resting artwork stays upright.
+export function sampleHexFlip(progress, reduced = false) {
+  const p = Math.max(0, Math.min(1, progress));
+  if (reduced) return { travel: smooth(p), lift: 0, angle: 0, reverseFace: false };
+  const turn = smooth(Math.max(0, Math.min(1, (p - .12) / .76)));
+  const travel = smooth(Math.max(0, Math.min(1, (p - .08) / .84)));
+  const lift = p < .22 ? .48 * smooth(p / .22)
+    : p < .72 ? .48 + .10 * Math.sin((p - .22) / .5 * Math.PI)
+    : .48 * (1 - smooth((p - .72) / .28));
+  return { travel, lift, angle: -Math.PI * turn, reverseFace: turn > .5 };
 }
 
 // Only presentation changes: IDs/counts stay intact as layers gather downward.

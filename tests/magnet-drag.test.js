@@ -35,3 +35,21 @@ test('reduced motion tracks directly without lean or lingering release', () => {
   body.released = true;
   assert.ok(dragSettled(body, true));
 });
+
+test('size shrinks and returns monotonically without depending on frame rate',()=>{
+  const results=[30,60,120,144].map(fps=>{
+    const body=createMagnetDrag(0,0,'blue',100),stepper=createStepper();
+    body.targetSize=40;
+    for(let i=0;i<fps;i++) stepper.advance(1/fps,dt=>{
+      const last=body.size;stepMagnetDrag(body,dt);assert.ok(body.size<=last && body.size>=40);
+    });
+    const small=body.size;body.targetSize=body.homeSize;
+    for(let i=0;i<fps;i++) stepper.advance(1/fps,dt=>{
+      const last=body.size;stepMagnetDrag(body,dt);assert.ok(body.size>=last && body.size<=100);
+    });
+    return {small,size:body.size};
+  });
+  for(const result of results) assert.ok(Math.abs(result.small-results[0].small)<1e-8);
+  const body=createMagnetDrag(0,0,'blue',100);body.targetSize=40;stepMagnetDrag(body,0,true);
+  assert.equal(body.size,40);assert.equal(body.previousSize,40);
+});

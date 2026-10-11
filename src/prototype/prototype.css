@@ -14,9 +14,9 @@
 .motion-option input:checked+.switch:after{display:none}.modal-backdrop{align-items:flex-start}
 .loading-frame{width:min(100%,540px);text-align:center}.loading-screen .loading-art{width:100%;max-height:65svh;object-fit:contain}.loading-frame h2{font-size:clamp(32px,7vw,52px);line-height:1;margin:8px 0;color:white;text-shadow:0 3px #b48bea,0 5px #2a0577}.loading-frame p{margin:8px 0 14px;font-size:20px}.loading-progress{margin:0 auto 8px;width:78%;height:40px;padding:5px;border:solid transparent;}.loading-progress>div{height:100%;border:solid transparent;}.loading-frame>strong{font-size:30px;color:white;text-shadow:0 2px #b48bea}
 .first-puzzle .magnet-tray{width:40%;margin:0 auto;padding:8px}.first-puzzle .magnet-tool{max-width:100%}.tutorial-message{color:#260850;text-shadow:none;margin:4px 5% 14px;padding:10px 12px;}.tutorial-message strong,.tutorial-message small{display:block}.tutorial-message small{font-size:.85em;margin-top:4px}.tutorial-arrow{position:absolute;width:76px;height:174px;pointer-events:none;z-index:2}
-.modal-panel{z-index:1}.victory-dialog{background:none;backdrop-filter:none}.celebration{position:fixed;inset:0;overflow:hidden;pointer-events:none}.victory-star{position:absolute;width:50px}.star-0{left:calc(50% - 25px);top:20%}.star-1{left:25%;top:28%;width:30px}.star-2{right:25%;top:30%;width:30px}.confetti{position:absolute;width:24px}.confetti-0{left:8%;top:25%}.confetti-1{left:17%;top:35%;transform:rotate(35deg)}.confetti-2{right:10%;top:28%}.confetti-3{right:8%;top:48%;transform:rotate(80deg)}.confetti-4{left:8%;top:60%;transform:rotate(30deg)}.confetti-5{right:15%;top:75%;transform:rotate(100deg)}.confetti-6{left:14%;top:81%;transform:rotate(50deg)}.confetti-7{right:5%;top:85%}
+.modal-panel{z-index:1}.victory-dialog{background:none;backdrop-filter:none}
 .loading-screen .loading-art{mask-image:linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent)}
-button:disabled{filter:none;opacity:1}.magnet-tool.unavailable{filter:saturate(.25);opacity:.55}.celebration{z-index:2}
+button:disabled{filter:none;opacity:1}.magnet-tool.unavailable{filter:saturate(.25);opacity:.55}
 .show-tutorial .action-row{display:none}.magnet-tool .tutorial-hand{position:absolute;width:75px;height:76px;right:-28px;bottom:-28px;object-fit:contain}.show-tutorial .controls{padding-bottom:28px}
 
 .drag-magnet{position:fixed;left:0;top:0;z-index:20;pointer-events:none;max-width:none;will-change:transform;transform-origin:center}.drag-magnet[hidden]{display:none}
@@ -55,3 +55,13 @@ button:disabled{filter:none;opacity:1}.magnet-tool.unavailable{filter:saturate(.
 @keyframes idle-grid-shine{0%,35%{transform:translate3d(-75%,0,0);opacity:0}40%{opacity:0}48%{opacity:1}67%{opacity:1}76%,100%{transform:translate3d(75%,0,0);opacity:0}}
 @media(prefers-reduced-motion:reduce){.idle-grid{display:none}.idle-grid-sweep{animation:none;will-change:auto}}
 .collection-layer{position:fixed;inset:0;z-index:7;overflow:hidden;pointer-events:none}.collection-effects{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}.collection-hex{position:absolute;left:0;top:0;object-fit:fill;pointer-events:none;filter:drop-shadow(0 3px 3px #320a7855);will-change:transform,opacity}.cleared-count{display:inline-block;transform-origin:center}
+/* Short shared entry: panel appears once per Modal mount. */
+@keyframes popup-panel-in{0%{opacity:0;transform:translateY(18px) scale(.92)}76%{opacity:1;transform:translateY(0) scale(1.015)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes popup-shade-in{from{opacity:0}to{opacity:1}}
+.modal-backdrop{animation:popup-shade-in .2s ease-out both}
+.modal-panel{animation:popup-panel-in .32s cubic-bezier(.2,.75,.3,1) both}
+.modal-backdrop[data-reduced=true],.modal-backdrop[data-reduced=true] .modal-panel{animation:popup-shade-in .08s linear both}
+.victory-particles{position:fixed;inset:0;z-index:9;overflow:hidden;pointer-events:none}
+.victory-particle{position:absolute;top:68%;height:auto;opacity:0;animation:victory-burst var(--duration) cubic-bezier(.16,.55,.5,1) var(--delay) both;will-change:transform,opacity}
+@keyframes victory-burst{0%{opacity:0;transform:translate3d(0,0,0) rotate(0)}8%{opacity:1}44%{opacity:1;transform:translate3d(var(--x-mid),var(--rise),0) rotate(calc(var(--spin)*.45))}78%{opacity:1}100%{opacity:0;transform:translate3d(var(--x),var(--fall),0) rotate(var(--spin))}}
+@media(prefers-reduced-motion:reduce){.modal-backdrop,.modal-panel{animation:popup-shade-in .08s linear both}.victory-particles{display:none}}

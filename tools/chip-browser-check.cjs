@@ -79,6 +79,9 @@ const base=process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       check(snapshot.counts.length===groups.size,'extra/missing counter');
       for(const [id,list]of groups){list.sort((a,b)=>a.index-b.index);check(snapshot.counts.find(c=>c.cell.row+':'+c.cell.col===id)?.count===topColorCount(list),'counter does not describe exposed color');}
       frames++;flights+=moving.size;
+      // Let WebGL drain the submitted work between deterministic samples.
+      // The expanded campaign otherwise queues thousands of draws in one task.
+      if(frames%100===0)await new Promise(requestAnimationFrame);
      }
      state=resolution.state;
     }

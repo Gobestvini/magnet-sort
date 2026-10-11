@@ -6,15 +6,17 @@
 | --- | --- |
 | `src/main.js` | Entry только нового прототипа |
 | `src/prototype/runtime.js` | Единственный RAF/fixed step, input gate, tap/drag/capture, keyboard, pause/hidden/resize/reset/dispose |
-| `src/prototype/drag.js`, `tests/magnet-drag.test.js` | Пружинная физика перетаскиваемого магнита в экранных координатах: инерция, наклон, посадка/возврат; проверки 30/60/120/144 FPS и reduced motion |
+| `src/prototype/drag.js`, `tests/magnet-drag.test.js` | Пружинная физика перетаскиваемого магнита в экранных координатах: инерция, наклон, уменьшение до проекции поля, посадка/возврат; проверки 30/60/120/144 FPS и reduced motion |
 | `src/prototype/magnet-glow.js` | Свечение свободной клетки при drag; при работе магнита — сходящиеся волны и спиральные искры. Фиксированный пул, статичный ореол для reduced motion, ресурсы принадлежат board |
 | `src/prototype/model.js` | Rules v3: ordered units, immutable applyMagnet, BFS, верхний цвет, очистка по 6, победа/поражение |
-| `src/prototype/levels.js` | Три авторских поля и детерминированные решения |
-| `src/prototype/motion.js` | Поэлементная timeline: запуск, соседний полёт, посадка, очистка, reduced motion |
+| `src/prototype/levels.js` | Три учебных и девять прогрессивных полей v3; данные progressive-levels.js, альтернативы и доказанные ошибки в docs/design/V3_LEVELS.md |
+| `src/prototype/motion.js` | Поэлементная timeline: подъём, один переворот через ребро, посадка, очистка, reduced motion; чистый sampleHexFlip |
 | `src/prototype/collection.js`, `tests/collection.test.js`, `tools/collection-browser-check.cjs` | Уплотнение башни, поэлементный сбор в HUD, SVG-шлейф/искры, начисление при прибытии; conservation, pause/reset/resize/reduced/dispose. Отчёт: `docs/reports/COLLECTION_FLIGHT.md` |
 | `src/prototype/board.js`, `chip.js`, `ring.js` | Three.js 0.186.1, OrthographicCamera, полные псевдо‑3D PNG-фишки в проекции плиток, backing prism при перелёте, счётчик верхнего цвета; общий hex-контур, raycasting, GPU cleanup |
 | `src/prototype/assets.js`, `public/art/mockup/` | Декодирование PNG до ввода, общие текстуры, nine-slice рамки, manifest вырезок |
 | `src/prototype/App.js`, `prototype.css` | Preact HUD, магниты, правила, hint/result/retry, адаптивная композиция |
+| `src/prototype/VictoryParticles.js`, `tools/polish-browser-check.cjs` | Одноразовый bounded DOM burst, 42 частицы; девять уровней, popup entry, reduced/hidden, 20 циклов и шесть направлений переворота |
+| `tools/v3-level-search.mjs`, `tools/verify-v3-levels.mjs`, `tests/progressive-levels.test.js` | Offline доказательство нескольких маршрутов и полезных проигрышных развилок; runtime solver не подключён |
 | `src/game/hex.js`, `src/loop.js` | Переиспользуемые чистые hex helpers и fixed step |
 | `tests/prototype-v3.test.js` | Соседство каждого переноса, открытые слои, масса, immutable state, все legal first placements, решения и timeline |
 | `tools/browser-check.cjs` | Новый desktop/mobile viewport сценарий Three.js; `pnpm test:browser` |

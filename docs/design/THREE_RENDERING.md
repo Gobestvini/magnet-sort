@@ -7,7 +7,7 @@
 | Слой | Файл | Ответственность |
 | --- | --- | --- |
 | Чистая модель v3 | `src/prototype/model.js` | Immutable applyMagnet, ordered units, routing, thresholds, turn/result |
-| Авторский контент | `src/prototype/levels.js` | Три поля, обучение, ограничения, проверяемые решения |
+| Авторский контент | `src/prototype/levels.js` | 12 полей: три учебных и девять прогрессивных; проверяемые решения и offline witnesses |
 | Presentation | `src/prototype/motion.js` | Timeline отдельных элементов, stagger/landing/clear, pure sampling |
 | Three view | `src/prototype/board.js` | Renderer, scene/camera, shared PNG textures/geometry/material, meshes, raycasting |
 | Runtime | `src/prototype/runtime.js` | Единственный RAF, fixed step, input gate, pointer capture, pause/reset/hidden/resize/dispose |
@@ -26,7 +26,9 @@ View не вызывает симулятор. Модель не знает о T
 - Resize задаёт CSS размер, drawing buffer с текущим DPR и frustum камеры. Весь board остаётся в кадре portrait/landscape.
 - Pointer переводится из актуального `canvas.getBoundingClientRect()` в NDC, затем Raycaster проверяет плитки. Модель повторно проверяет разрешение на placement; target от view — только cell, не mesh.
 - Drag захватывает pointer, игнорирует второй pointer и отменяется при cancel, lost capture, blur, hidden, resize, pause/reset/dispose. Tap поля с большим перемещением указателя не превращается в случайное размещение.
-- Landing позиции рассчитываются по fromIndex/toIndex, отдельная низкая дуга и вращение не меняют model cells. Reduced motion отключает вращение/подъём.
+- Landing позиции рассчитываются по fromIndex/toIndex. Профиль 2026-10-11: 280 мс на соседний перенос, stagger 105 мс; подъём до 0.58 world unit, один переворот на 180° поперёк экранного направления. Чистый sampleHexFlip задаёт lift/travel/angle. Во второй половине face контрповорачивается на PI в момент ребра: обе стороны показывают upright PNG, конечная поза непрерывно совпадает с неподвижной. Backing виден в перелёте, новые buffers/textures не создаются. Reduced motion отключает вращение/подъём.
+- Drag хранит previous/current/target/home size в CSS px; над любой плиткой цель — magnetScreenSize(), снаружи — home. Экспоненциальное сглаживание rate=20 без overshoot, интерполяция render(alpha); перед передачей к board размер сходится с проекцией.
+- Modal появляется за 320 мс через opacity/translate/scale с небольшим settle; backdrop — 200 мс. Ключ по типу сохраняет одиночный вход и focus trap. Reduced (runtime или system) оставляет fade 80 мс. VictoryParticles принадлежит результату runId, остаётся смонтированным при pause и отменяется без перезапуска при hidden. 42 DOM-частицы, CSS delays 0–280 мс, lifetime 950–1400 мс, removal на animationend/unmount, без отдельного RAF/interval и GPU-ресурсов.
 
 ## Lifecycle и стоимость
 

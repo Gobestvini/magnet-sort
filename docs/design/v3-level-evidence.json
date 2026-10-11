@@ -1,0 +1,1001 @@
+[
+  {
+    "id": "magnet-v3-04",
+    "min": 2,
+    "witnesses": [
+      [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ]
+    ],
+    "winningFirst": 8,
+    "usefulFirst": 16,
+    "losingFirst": 8,
+    "branch": {
+      "prefix": [],
+      "good": {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "bad": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "badResult": "unsolvable"
+    },
+    "differentRoutes": true,
+    "visited": 10,
+    "memo": 10,
+    "milliseconds": 7
+  },
+  {
+    "id": "magnet-v3-05",
+    "min": 2,
+    "witnesses": [
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ]
+    ],
+    "winningFirst": 8,
+    "usefulFirst": 16,
+    "losingFirst": 8,
+    "branch": {
+      "prefix": [],
+      "good": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "bad": {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "badResult": "unsolvable"
+    },
+    "differentRoutes": true,
+    "visited": 10,
+    "memo": 10,
+    "milliseconds": 4
+  },
+  {
+    "id": "magnet-v3-06",
+    "min": 2,
+    "witnesses": [
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ]
+    ],
+    "winningFirst": 8,
+    "usefulFirst": 16,
+    "losingFirst": 8,
+    "branch": {
+      "prefix": [],
+      "good": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "bad": {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "badResult": "unsolvable"
+    },
+    "differentRoutes": true,
+    "visited": 10,
+    "memo": 10,
+    "milliseconds": 3
+  },
+  {
+    "id": "magnet-v3-07",
+    "min": 3,
+    "witnesses": [
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        }
+      ]
+    ],
+    "winningFirst": 7,
+    "usefulFirst": 12,
+    "losingFirst": 5,
+    "branch": {
+      "prefix": [],
+      "good": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 3,
+          "row": 1
+        }
+      },
+      "bad": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "badResult": "unsolvable"
+    },
+    "differentRoutes": true,
+    "visited": 13,
+    "memo": 13,
+    "milliseconds": 8
+  },
+  {
+    "id": "magnet-v3-08",
+    "min": 3,
+    "witnesses": [
+      [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ]
+    ],
+    "winningFirst": 14,
+    "usefulFirst": 21,
+    "losingFirst": 7,
+    "branch": {
+      "prefix": [],
+      "good": {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "bad": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "badResult": "unsolvable"
+    },
+    "differentRoutes": true,
+    "visited": 22,
+    "memo": 22,
+    "milliseconds": 8
+  },
+  {
+    "id": "magnet-v3-09",
+    "min": 3,
+    "witnesses": [
+      [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ]
+    ],
+    "winningFirst": 7,
+    "usefulFirst": 21,
+    "losingFirst": 14,
+    "branch": {
+      "prefix": [],
+      "good": {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "bad": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "badResult": "unsolvable"
+    },
+    "differentRoutes": true,
+    "visited": 26,
+    "memo": 26,
+    "milliseconds": 5
+  },
+  {
+    "id": "magnet-v3-10",
+    "min": 4,
+    "witnesses": [
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        }
+      ]
+    ],
+    "winningFirst": 16,
+    "usefulFirst": 24,
+    "losingFirst": 8,
+    "branch": {
+      "prefix": [],
+      "good": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "bad": {
+        "type": "placeMagnet",
+        "color": "coral",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "badResult": "unsolvable"
+    },
+    "differentRoutes": true,
+    "visited": 309,
+    "memo": 309,
+    "milliseconds": 89
+  },
+  {
+    "id": "magnet-v3-11",
+    "min": 4,
+    "witnesses": [
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 1
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 1
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ]
+    ],
+    "winningFirst": 7,
+    "usefulFirst": 23,
+    "losingFirst": 16,
+    "branch": {
+      "prefix": [],
+      "good": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 4,
+          "row": 2
+        }
+      },
+      "bad": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      "badResult": "unsolvable"
+    },
+    "differentRoutes": true,
+    "visited": 100,
+    "memo": 100,
+    "milliseconds": 24
+  },
+  {
+    "id": "magnet-v3-12",
+    "min": 4,
+    "witnesses": [
+      [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        }
+      ]
+    ],
+    "winningFirst": 6,
+    "usefulFirst": 21,
+    "losingFirst": 15,
+    "branch": {
+      "prefix": [],
+      "good": {
+        "type": "placeMagnet",
+        "color": "coral",
+        "cell": {
+          "col": 2,
+          "row": 3
+        }
+      },
+      "bad": {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 3,
+          "row": 2
+        }
+      },
+      "badResult": "unsolvable"
+    },
+    "differentRoutes": true,
+    "visited": 293,
+    "memo": 293,
+    "milliseconds": 60
+  }
+]

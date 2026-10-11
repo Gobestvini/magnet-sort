@@ -17,6 +17,7 @@ root.replaceChildren();
 const stepper = createStepper();
 let reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let levelIndex = 0, level = prototypeLevels[0], state = createPrototypeState(level);
+let runId = 1;
 let selected = level.magnets[0], phase = 'playing', paused = false, notice = 'Choose a magnet and an empty tile.';
 let displayedCleared = 0;
 const collection = createCollectionView();
@@ -40,7 +41,7 @@ function ui() {
   const tutorialCell = levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null;
   const target = board && tutorialCell ? board.screenPosition(tutorialCell) : null;
   const rect = host?.getBoundingClientRect();
-  render(h(PrototypeApp, { level, levelIndex, totalLevels: prototypeLevels.length, state: { ...state, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
+  render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
     canvasRef, hostRef, dragRef, collectionRef, counterRef, keyboardCell, error, loading, loadingProgress,
     tutorialTarget: target && rect ? { x: target.x - rect.left, y: target.y - rect.top } : null,
     onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!paused), onReset: reset,
@@ -70,7 +71,7 @@ function draw(alpha = 1) {
       const y = drag.previousY + (drag.y - drag.previousY) * alpha;
       const angle = drag.previousAngle + (drag.angle - drag.previousAngle) * alpha;
       const lift = drag.released ? Math.max(0, 1 - drag.age * 5) : 1;
-      dragNode.style.width = drag.size + 'px';
+      dragNode.style.width = (drag.previousSize + (drag.size-drag.previousSize)*alpha) + 'px';
       dragNode.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) rotate(${angle}deg)`;
       dragNode.style.filter = `drop-shadow(0 ${4 + lift * 12}px ${3 + lift * 5}px #200c6866)`;
       const source = art('magnet-' + drag.color);
@@ -146,9 +147,10 @@ function pointerMove(event) {
   keyboardCell = null; hover = board.pick(event.clientX, event.clientY);
   if (gesture) {
     gesture.moved ||= Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) > 7;
-    if (gesture.moved && !drag) drag = createMagnetDrag(gesture.x, gesture.y, selected);
+    if (gesture.moved && !drag) drag = createMagnetDrag(gesture.x, gesture.y, selected, board.magnetScreenSize());
     if (drag && gesture.moved) {
       drag.targetX = event.clientX; drag.targetY = event.clientY - (reduced ? 0 : 32);
+      drag.targetSize = hover ? board.magnetScreenSize() : drag.homeSize;
       if (reduced) stepMagnetDrag(drag, 0, true);
       schedule();
     }
@@ -168,6 +170,7 @@ function pointerUp(event) {
   if (released && moved && !reduced) {
     const target = valid ? board.magnetScreenPosition(cell) : active.home ?? { x: active.x, y: active.y };
     drag = released; drag.targetX = target.x; drag.targetY = target.y; drag.released = true; drag.age = 0;
+    drag.targetSize = valid ? board.magnetScreenSize() : drag.homeSize;
   }
   draw(); schedule();
 }
@@ -188,6 +191,7 @@ function setPaused(value) {
 }
 function reset() { loadLevel(levelIndex); }
 function loadLevel(index) {
+  runId++;
   cancelGesture(); cancelFrame(); timeline = null; elapsed = 0; previousElapsed = 0; keyboardCell = null;
   levelIndex = index; level = prototypeLevels[index]; state = createPrototypeState(level);
   phase = 'playing'; paused = false; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
@@ -240,7 +244,7 @@ function snapshot() {
     timeline: timeline ? { duration: timeline.duration, elapsed, activeUnits: timeline.segments.filter(segment => segment.type === 'unitMoved' && segment.start <= elapsed && segment.end > elapsed).length } : null,
     renderer: board?.snapshot() ?? null, canvasCount: root.querySelectorAll('canvas').length,
     displayedCleared, collection: collection.snapshot(),
-    drag: drag ? { x: drag.x, y: drag.y, targetX: drag.targetX, targetY: drag.targetY, angle: drag.angle, released: drag.released } : null,
+    drag: drag ? { x: drag.x, y: drag.y, targetX: drag.targetX, targetY: drag.targetY, size:drag.size, targetSize:drag.targetSize, homeSize:drag.homeSize, angle: drag.angle, released: drag.released } : null,
     gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error, loading };
 }
 function dispose() {

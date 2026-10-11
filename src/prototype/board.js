@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { cellId } from '../game/hex.js';
 import { COLORS, canPlaceMagnet } from './model.js';
-import { sampleTransferTimeline, collectionPacking } from './motion.js';
+import { sampleTransferTimeline, collectionPacking, sampleHexFlip } from './motion.js';
 import {createChipBodyGeometry,createInsetFaceGeometry,chipLayout,CHIP_HEIGHT,WELL_PIXELS,topColorCount} from './chip.js';
 import { createBlockerPlateGeometry } from './blocker.js';
 import { createMagnetGlow } from './magnet-glow.js';
@@ -82,7 +82,9 @@ export function createThreeBoard(canvas, textures) {
   let currentLevel = null, disposed = false;
   const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
   const axis = new THREE.Vector3(), projected = new THREE.Vector3();
-  const flip=new THREE.Quaternion();
+  const flip=new THREE.Quaternion(), localAxis=new THREE.Vector3();
+  const cameraNormal=new THREE.Vector3(0,0,1).applyQuaternion(camera.quaternion);
+  const cameraInverse=camera.quaternion.clone().invert();
   function artwork(name, width) {
     const mesh = new THREE.Mesh(plane, materials[name]);
     mesh.quaternion.copy(camera.quaternion);
@@ -150,16 +152,26 @@ export function createThreeBoard(canvas, textures) {
       const mesh = unitMesh(pose); alive.add(pose.id);
       const packing = collectionPacking(pose.pack);
       mesh.quaternion.copy(camera.quaternion); mesh.scale.setScalar(pose.scale * packing.scale);
+      const face=mesh.children[1], backing=mesh.children[0];
+      face.quaternion.identity();
+      face.position.set(layout.offsetX,layout.offset,0);
+      backing.position.copy(face.position);
       if (pose.from) {
         const from = cellPosition(pose.from), to = cellPosition(pose.to);
-        const p = pose.progress, ease = p * p * (3 - 2 * p);
+        const motion=sampleHexFlip(pose.progress,timeline.reduced), ease=motion.travel;
         const fromY = FLOOR + (pose.fromIndex + .5) * UNIT_HEIGHT, toY = FLOOR + (pose.toIndex + .5) * UNIT_HEIGHT;
         mesh.position.set(THREE.MathUtils.lerp(from.x, to.x, ease), THREE.MathUtils.lerp(fromY, toY, ease), THREE.MathUtils.lerp(from.z, to.z, ease));
         if (!timeline.reduced) {
-          mesh.position.y += Math.sin(p * Math.PI) * .54;
-          axis.set(to.z - from.z, 0, from.x - to.x).normalize();
-          flip.setFromAxisAngle(axis, -Math.PI * 2 * ease);
+          mesh.position.y += motion.lift;
+          axis.set(to.x-from.x,0,to.z-from.z).cross(cameraNormal).normalize();
+          localAxis.copy(axis).applyQuaternion(cameraInverse);
+          flip.setFromAxisAngle(axis, motion.angle);
           mesh.quaternion.premultiply(flip);
+          // Keep the pivot at the artwork centre. Both sides use the same
+          // authored face; change sides while edge-on, never at touchdown.
+          face.position.applyAxisAngle(localAxis,-motion.angle);
+          backing.position.copy(face.position);
+          if(motion.reverseFace) face.quaternion.setFromAxisAngle(localAxis,Math.PI);
         }
       } else {
         const pos = cellPosition(pose.cell); mesh.position.set(pos.x, FLOOR + (.5 + (pose.layer ?? pose.index)) * UNIT_HEIGHT, pos.z);
@@ -173,6 +185,7 @@ export function createThreeBoard(canvas, textures) {
       mesh.children[0].visible=Boolean(pose.from);
       mesh.userData = { id: pose.id, color: pose.color, cell: pose.cell ?? null, index: pose.index ?? null,
         moving: Boolean(pose.from), from: pose.from, to: pose.to, progress: pose.progress, scale: pose.scale,
+        flipAngle:pose.from ? sampleHexFlip(pose.progress,timeline.reduced).angle : 0,
         pack: pose.pack ?? 0, layer: pose.layer ?? pose.index, anchorOffsetY: screenUp.y * layout.offset * (1 - packing.scale) };
     }
     for (const [id, mesh] of unitMeshes) if (!alive.has(id)) { unitsRoot.remove(mesh); unitMeshes.delete(id); }

@@ -3,13 +3,14 @@ import { useEffect, useRef } from 'preact/hooks';
 import { COLORS, remainingUnits } from './model.js';
 import { art } from './assets.js';
 import { IdleBackdrop } from './IdleBackdrop.js';
+import { VictoryParticles } from './VictoryParticles.js';
 
 export function MagnetIcon({ color = 'violet' }) {
   const key = Object.entries(COLORS).find(([, info]) => info.hex === color)?.[0] ?? color;
   return h('img', { src: art('magnet-' + key), alt: '', draggable: false, decoding: 'sync' });
 }
 
-function Modal({ children, label, onClose, variant = '' }) {
+function Modal({ children, label, onClose, variant = '', reduced = false }) {
   const ref = useRef(null);
   useEffect(() => {
     const previous = document.activeElement;
@@ -26,15 +27,12 @@ function Modal({ children, label, onClose, variant = '' }) {
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
     if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
   }
-  return h('div', { className: 'modal-backdrop ' + variant, role: 'dialog', tabIndex: -1, 'aria-modal': 'true', 'aria-label': label, ref, onKeyDown: keys },
-    variant === 'victory-dialog' && h('div', { className: 'celebration', 'aria-hidden': 'true' },
-      [0, 1, 2].map(index => h('img', { className: 'victory-star star-' + index, src: art('victory-star'), alt: '' })),
-      ['violet', 'yellow', 'blue', 'yellow', 'violet', 'blue', 'yellow', 'violet'].map((color, index) => h('img', { className: 'confetti confetti-' + index, src: art('confetti-' + color), alt: '' }))),
+  return h('div', { className: 'modal-backdrop ' + variant, 'data-reduced':reduced, role: 'dialog', tabIndex: -1, 'aria-modal': 'true', 'aria-label': label, ref, onKeyDown: keys },
     h('div', { className: 'modal-panel' }, onClose && h('button', { className: 'round-button modal-close', onClick: onClose, 'aria-label': 'Close pause' }, h('img', { src: art('close'), alt: '' })), children));
 }
 
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, canvasRef, hostRef, dragRef, collectionRef, counterRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
+  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
   const tutorial = levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
@@ -42,6 +40,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
   const locked = overlay || phase === 'resolving';
   const progress = state.cleared / state.initialUnits * 100;
   return h('main', { className: 'prototype-shell' },
+    result && state.terminal === 'won' && h(VictoryParticles,{key:runId,seed:runId,reduced,active:!paused&&!error&&!loading}),
     h(IdleBackdrop, { active: phase === 'playing' && !paused && !loading && !error && !reduced }),
     h('div', { className: 'collection-layer', ref: collectionRef, 'aria-hidden': 'true' }),
     h('img', { className: 'drag-magnet', ref: dragRef, hidden: true, alt: '', 'aria-hidden': 'true', draggable: false }),
@@ -80,15 +79,15 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
         h('h2', null, 'LOADING'), h('p', { role: 'status' }, 'Loading artwork…'),
         h('div', { className: 'loading-progress', role: 'progressbar', 'aria-label': 'Artwork loading', 'aria-valuenow': loadingProgress, 'aria-valuemin': 0, 'aria-valuemax': 100 },
           h('div', { style: { width: loadingProgress + '%' } })), h('strong', null, loadingProgress + '%'))),
-    error ? h(Modal, { label: 'Launch error' },
+    error ? h(Modal, { key:'error', reduced, label: 'Launch error' },
       h('h2', null, "COULDN'T OPEN THE BOARD"), h('div', { className: 'modal-magnet' }, h(MagnetIcon)),
       h('p', null, 'Please try again'), h('button', { className: 'primary-button', onClick: onRetryRenderer }, 'Retry'),
       h('small', null, 'Check your connection and browser support')) :
-    paused ? h(Modal, { label: 'Paused', onClose: onPause },
+    paused ? h(Modal, { key:'pause', reduced, label: 'Paused', onClose: onPause },
       h('h2', { className: 'live-heading' }, 'PAUSED'), h('div', { className: 'modal-magnet' }, h(MagnetIcon)),
       h('button', { className: 'primary-button', onClick: onPause }, 'Resume'),
       h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Restart')) :
-    result ? h(Modal, { label: state.terminal === 'won' ? 'Victory' : 'Out of moves', variant: state.terminal === 'won' ? 'victory-dialog' : '' },
+    result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Out of moves', variant: state.terminal === 'won' ? 'victory-dialog' : '' },
       h('div', { className: 'result-card', role: 'region', 'aria-label': 'Result' },
         state.terminal === 'won' ? h('div', { className: 'modal-magnet victory-magnet' }, h(MagnetIcon)) : h('h2', { className: 'live-heading defeat-heading' }, 'OUT OF MOVES'),
         state.terminal === 'won' ? h('h2', { className: 'live-ribbon' }, 'BOARD CLEARED!') : h('div', { className: 'modal-magnet resting-magnet' }, h(MagnetIcon)),
