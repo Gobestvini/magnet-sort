@@ -111,12 +111,15 @@ export function createThreeBoard(canvas, textures) {
       if (blocked.has(id)) {
         const marker = new THREE.Group();
         marker.quaternion.copy(camera.quaternion);
-        marker.scale.set(layout.width,layout.height,1);
+        marker.scale.set(layout.width,layout.height,layout.height);
         marker.position.set(pos.x+layout.offsetX, FLOOR, pos.z);
         const rim=new THREE.Mesh(blockerGeometry,blockerRim);rim.renderOrder=500;marker.add(rim);
         const face=new THREE.Mesh(blockerGeometry,blockerFace);face.scale.set(.965,.965,1);face.renderOrder=501;marker.add(face);
         const icon=new THREE.Mesh(plane,materials['blocker-x']);
         const image=textures['blocker-x'].image;
+        // The plate is already drawn in perspective; only the front-facing X
+        // needs the camera-relative tilt to lie in the board's ground plane.
+        icon.rotation.x=-Math.atan2(screenUp.y,-screenUp.z);
         icon.scale.set(.72,.72*layout.width/layout.height*image.height/image.width,1);icon.renderOrder=502;marker.add(icon);
         marker.userData.cell=cell;
         boardRoot.add(marker);blockerMeshes.set(id,marker);
