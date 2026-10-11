@@ -65,15 +65,63 @@ const output = 'artifacts/three-browser';
       const tool = await page.getByRole('button', { name: 'Violet magnet', exact: true }).boundingBox();
       const target = await at({ col: 3, row: 3 });
       await page.mouse.move(tool.x + tool.width / 2, tool.y + tool.height / 2);
-      await page.mouse.down(); await page.mouse.move(target.x, target.y, { steps: 9 }); await page.mouse.up();
+      await page.mouse.down();
+      await page.mouse.move(target.x - 100, target.y + 40, { steps: 5 });
+      await page.waitForTimeout(100);
+      await page.mouse.move(target.x, target.y);
+      const movingDrag = (await snap()).drag;
+      assert.ok(movingDrag && !movingDrag.released);
+      assert.ok(Math.hypot(movingDrag.x - movingDrag.targetX, movingDrag.y - movingDrag.targetY) > 5, 'held magnet has inertia');
+      assert.equal(await page.locator('.drag-magnet').isVisible(), true);
+      await page.waitForTimeout(80);
+      await page.screenshot({ path: `${output}/${name}-inertial-drag.png`, fullPage: true });
+      await page.mouse.up();
       assert.equal((await snap()).phase, 'resolving');
+      assert.equal((await snap()).drag.released, true, 'magnet springs into the chosen tile');
       await page.getByRole('button', { name: 'Restart', exact: true }).click();
       assert.equal((await snap()).phase, 'playing');
       assert.equal((await snap()).timeline, null);
+      assert.equal((await snap()).drag, null, 'reset cancels spring physics');
       assert.equal((await snap()).state.turn, 0);
       assert.equal((await snap()).renderer.meshes, 18);
       await page.waitForTimeout(200);
       assert.equal((await snap()).state.turn, 0, 'cancelled timeline never completes into a stale result');
+
+      // Invalid release returns to the tray without spending a move or leaving RAF alive.
+      await page.mouse.move(tool.x + tool.width / 2, tool.y + tool.height / 2);
+      await page.mouse.down(); await page.mouse.move(5, 5, { steps: 8 }); await page.mouse.up();
+      assert.equal((await snap()).state.turn, 0);
+      assert.equal((await snap()).drag.released, true);
+      await page.waitForFunction(() => !window.gameDebug.snapshot().drag);
+      assert.equal((await snap()).rafScheduled, false);
+      assert.equal(await page.locator('.drag-magnet').isVisible(), false);
+
+      if (touch) {
+        const cdp = await page.context().newCDPSession(page);
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: tool.x + tool.width / 2, y: tool.y + tool.height / 2 }] });
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: target.x, y: target.y }] });
+        assert.ok((await snap()).drag, 'touch swipe picks up the magnet');
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+        assert.equal((await snap()).state.turn, 1, 'touch drag places exactly once');
+        await page.evaluate(() => window.gameDebug.reset());
+        await cdp.detach();
+      }
+
+      await page.mouse.move(tool.x + tool.width / 2, tool.y + tool.height / 2);
+      await page.mouse.down(); await page.mouse.move(target.x, target.y);
+      await page.evaluate(() => window.gameDebug.setPaused(true));
+      assert.equal((await snap()).drag, null, 'pause cancels a held magnet');
+      assert.equal((await snap()).rafScheduled, false);
+      await page.mouse.up();
+      await page.evaluate(() => window.gameDebug.setPaused(false));
+      assert.equal((await snap()).state.turn, 0);
+
+      // A selected magnet can also be dragged directly across the board.
+      const boardStart = await at({ col: 1, row: 1 });
+      await page.mouse.move(boardStart.x, boardStart.y); await page.mouse.down();
+      await page.mouse.move(target.x, target.y, { steps: 5 }); await page.mouse.up();
+      assert.equal((await snap()).state.turn, 1);
+      await page.evaluate(() => window.gameDebug.reset());
 
       const cancelTarget = await at({ col: 3, row: 3 });
       await page.mouse.move(cancelTarget.x, cancelTarget.y); await page.mouse.down();

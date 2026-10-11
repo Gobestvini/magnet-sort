@@ -18,3 +18,5 @@
 .loading-screen .loading-art{mask-image:linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent)}
 button:disabled{filter:none;opacity:1}.magnet-tool.unavailable{filter:saturate(.25);opacity:.55}.celebration{z-index:2}
 .show-tutorial .action-row{display:none}.magnet-tool .tutorial-hand{position:absolute;width:75px;height:76px;right:-28px;bottom:-28px;object-fit:contain}.show-tutorial .controls{padding-bottom:28px}
+
+.drag-magnet{position:fixed;left:0;top:0;z-index:20;pointer-events:none;max-width:none;will-change:transform;transform-origin:center}.drag-magnet[hidden]{display:none}

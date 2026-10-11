@@ -6,7 +6,8 @@ import { createPrototypeState, applyMagnet, canPlaceMagnet } from './model.js';
 import { prototypeLevels } from './levels.js';
 import { makeTransferTimeline } from './motion.js';
 import { createThreeBoard } from './board.js';
-import { loadBoardTextures } from './assets.js';
+import { loadBoardTextures, art } from './assets.js';
+import { createMagnetDrag, stepMagnetDrag, dragSettled } from './drag.js';
 import { PrototypeApp } from './App.js';
 
 const root = document.querySelector('#ui-root');
@@ -23,6 +24,8 @@ let hover = null, keyboardCell = null, gesture = null, raf = null, previous = nu
 const canvasRef = node => { canvas = node; };
 const hostRef = node => { host = node; };
 const cleanups = [];
+let drag = null, dragNode = null;
+const dragRef = node => { dragNode = node; };
 let boardGeneration = 0, loading = true, loadingProgress = 0;
 function listen(target, name, handler, options) {
   target.addEventListener(name, handler, options);
@@ -34,7 +37,7 @@ function ui() {
   const target = board && tutorialCell ? board.screenPosition(tutorialCell) : null;
   const rect = host?.getBoundingClientRect();
   render(h(PrototypeApp, { level, levelIndex, totalLevels: prototypeLevels.length, state: { ...state, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
-    canvasRef, hostRef, keyboardCell, error, clearingCount, loading, loadingProgress,
+    canvasRef, hostRef, dragRef, keyboardCell, error, clearingCount, loading, loadingProgress,
     tutorialTarget: target && rect ? { x: target.x - rect.left, y: target.y - rect.top } : null,
     onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!paused), onReset: reset,
     onNext: () => loadLevel((levelIndex + 1) % prototypeLevels.length), onHint: hint,
@@ -44,10 +47,24 @@ function ui() {
 function draw(alpha = 1) {
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
   board?.draw(level, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
-    hint: levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null });
+    hideMagnet: Boolean(drag), hint: levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null });
+  if (dragNode) {
+    dragNode.hidden = !drag;
+    if (drag) {
+      const x = drag.previousX + (drag.x - drag.previousX) * alpha;
+      const y = drag.previousY + (drag.y - drag.previousY) * alpha;
+      const angle = drag.previousAngle + (drag.angle - drag.previousAngle) * alpha;
+      const lift = drag.released ? Math.max(0, 1 - drag.age * 5) : 1;
+      dragNode.style.width = drag.size + 'px';
+      dragNode.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) rotate(${angle}deg) scale(${1 + lift * .12})`;
+      dragNode.style.filter = `drop-shadow(0 ${4 + lift * 12}px ${3 + lift * 5}px #200c6866)`;
+      const source = art('magnet-' + drag.color);
+      if (dragNode.getAttribute('src') !== source) dragNode.setAttribute('src', source);
+    }
+  }
 }
 function schedule() {
-  if (raf === null && !disposed && !paused && !document.hidden && board && timeline) raf = requestAnimationFrame(tick);
+  if (raf === null && !disposed && !paused && !document.hidden && board && (timeline || drag)) raf = requestAnimationFrame(tick);
 }
 function cancelFrame() {
   if (raf !== null) cancelAnimationFrame(raf);
@@ -57,7 +74,10 @@ function tick(now) {
   raf = null;
   const delta = previous === null ? 0 : Math.max(0, (now - previous) / 1000);
   previous = now;
-  const { alpha } = stepper.advance(delta, dt => { previousElapsed = elapsed; elapsed += dt; });
+  const { alpha } = stepper.advance(delta, dt => {
+    previousElapsed = elapsed; elapsed += dt;
+    if (drag) { stepMagnetDrag(drag, dt, reduced); if (dragSettled(drag, reduced)) drag = null; }
+  });
   const activeClear = timeline?.segments.find(segment => segment.type === 'unitsCleared' && segment.start <= elapsed && segment.end > elapsed)?.units.length ?? 0;
   if (activeClear !== clearingCount) { clearingCount = activeClear; ui(); }
   const cleared = timeline ? timeline.before.cleared + timeline.segments.filter(segment => segment.type === 'unitsCleared' && segment.end <= elapsed).reduce((sum, segment) => sum + segment.units.length, 0) : state.cleared;
@@ -72,6 +92,7 @@ function tick(now) {
 function cancelGesture() {
   const active = gesture;
   gesture = null; hover = null;
+  drag = null;
   if (active?.element.hasPointerCapture?.(active.id)) active.element.releasePointerCapture(active.id);
 }
 function interactive() { return !disposed && board && !error && !paused && !document.hidden && phase === 'playing'; }
@@ -95,10 +116,15 @@ function toolDown(event, color) {
   if (!interactive() || gesture || !event.isPrimary || event.button !== 0) return;
   select(color);
   gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, tool: true, element: event.currentTarget };
+  const rect = event.currentTarget.getBoundingClientRect();
+  gesture.home = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+  drag = createMagnetDrag(gesture.home.x, gesture.home.y, color, Math.min(100, rect.width * .8));
+  draw(); schedule();
   event.currentTarget.setPointerCapture(event.pointerId);
 }
 function boardDown(event) {
   if (!interactive() || gesture || !event.isPrimary || event.button !== 0) return;
+  drag = null;
   keyboardCell = null;
   gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, tool: false, element: canvas };
   canvas.setPointerCapture(event.pointerId);
@@ -106,16 +132,33 @@ function boardDown(event) {
 }
 function pointerMove(event) {
   if (!interactive() || (gesture && gesture.id !== event.pointerId)) return;
-  keyboardCell = null; hover = board.pick(event.clientX, event.clientY); draw();
+  keyboardCell = null; hover = board.pick(event.clientX, event.clientY);
+  if (gesture) {
+    gesture.moved ||= Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) > 7;
+    if (gesture.moved && !drag) drag = createMagnetDrag(gesture.x, gesture.y, selected);
+    if (drag && gesture.moved) {
+      drag.targetX = event.clientX; drag.targetY = event.clientY - (reduced ? 0 : 32);
+      if (reduced) stepMagnetDrag(drag, 0, true);
+      schedule();
+    }
+  }
+  draw();
 }
 function pointerUp(event) {
   if (!gesture || gesture.id !== event.pointerId) return;
   const active = gesture;
   const cell = board.pick(event.clientX, event.clientY);
-  const moved = Math.hypot(event.clientX - active.x, event.clientY - active.y) > 7;
+  const moved = active.moved || Math.hypot(event.clientX - active.x, event.clientY - active.y) > 7;
+  const released = drag;
+  const valid = interactive() && cell && canPlaceMagnet(state, cell);
   cancelGesture();
-  if (interactive() && cell && (active.tool || !moved)) place(cell);
-  draw();
+  if (valid) place(cell);
+  else if (interactive() && cell) { notice = 'This tile is occupied. Choose an empty tile.'; ui(); }
+  if (released && moved && !reduced) {
+    const target = valid ? board.screenPosition(cell) : active.home ?? { x: active.x, y: active.y };
+    drag = released; drag.targetX = target.x; drag.targetY = target.y; drag.released = true; drag.age = 0;
+  }
+  draw(); schedule();
 }
 function keyboard(event) {
   if (!interactive()) return;
@@ -185,6 +228,7 @@ function snapshot() {
   return { state: structuredClone(state), phase, selected, paused, levelIndex, puzzleId: level.id,
     timeline: timeline ? { duration: timeline.duration, elapsed, activeUnits: timeline.segments.filter(segment => segment.type === 'unitMoved' && segment.start <= elapsed && segment.end > elapsed).length } : null,
     renderer: board?.snapshot() ?? null, canvasCount: root.querySelectorAll('canvas').length,
+    drag: drag ? { x: drag.x, y: drag.y, targetX: drag.targetX, targetY: drag.targetY, angle: drag.angle, released: drag.released } : null,
     gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error, loading };
 }
 function dispose() {

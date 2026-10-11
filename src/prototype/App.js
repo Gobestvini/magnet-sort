@@ -33,7 +33,7 @@ function Modal({ children, label, onClose, variant = '' }) {
 }
 
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, clearingCount, canvasRef, hostRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
+  reduced, clearingCount, canvasRef, hostRef, dragRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
   const tutorial = levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
@@ -43,6 +43,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
   const reducedControl = h('label', { className: 'motion-option' }, 'Reduced motion',
     h('input', { type: 'checkbox', checked: reduced, onChange: onReduced }), h('span', { className: 'switch', 'aria-hidden': 'true' }));
   return h('main', { className: 'prototype-shell' },
+    h('img', { className: 'drag-magnet', ref: dragRef, hidden: true, alt: '', 'aria-hidden': 'true', draggable: false }),
     h('div', { className: 'game-view' + (levelIndex === 0 ? ' first-puzzle' : '') + (tutorial ? ' show-tutorial' : ''), inert: Boolean(overlay) },
       h('header', { className: 'topbar' },
         h('a', { className: 'brand', href: '#', onClick: event => event.preventDefault(), 'aria-label': 'Magnet Sort' },

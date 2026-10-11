@@ -6,6 +6,7 @@
 | --- | --- |
 | `src/main.js` | Entry только нового прототипа |
 | `src/prototype/runtime.js` | Единственный RAF/fixed step, input gate, tap/drag/capture, keyboard, pause/hidden/resize/reset/dispose |
+| `src/prototype/drag.js`, `tests/magnet-drag.test.js` | Пружинная физика перетаскиваемого магнита в экранных координатах: инерция, наклон, посадка/возврат; проверки 30/60/120/144 FPS и reduced motion |
 | `src/prototype/model.js` | Rules v3: ordered units, immutable applyMagnet, BFS, верхний цвет, очистка по 6, победа/поражение |
 | `src/prototype/levels.js` | Три авторских поля и детерминированные решения |
 | `src/prototype/motion.js` | Поэлементная timeline: запуск, соседний полёт, посадка, очистка, reduced motion |

@@ -123,7 +123,7 @@ export function createThreeBoard(canvas, textures) {
     unitsRoot.add(root); unitMeshes.set(unit.id, root);
     return root;
   }
-  function draw(level, state, { timeline = null, time = 0, hover = null, selected = null, paused = false, hint = null } = {}) {
+  function draw(level, state, { timeline = null, time = 0, hover = null, selected = null, paused = false, hint = null, hideMagnet = false } = {}) {
     if (disposed) return;
     buildLevel(level);
     const sampled = timeline ? sampleTransferTimeline(timeline, time) : null;
@@ -173,7 +173,7 @@ export function createThreeBoard(canvas, textures) {
       else if (hint && cellId(hint) === id && !paused) tile.material = tutorialMaterial;
     }
     const activeMagnet = sampled?.magnet ?? (!paused && hover && selected && canPlaceMagnet(state, hover) ? { cell: hover, color: selected } : null);
-    magnet.visible = Boolean(activeMagnet);
+    magnet.visible = Boolean(activeMagnet) && !hideMagnet;
     if (activeMagnet) {
       const pos = cellPosition(activeMagnet.cell);
       magnet.position.set(pos.x, FLOOR + .12, pos.z);
