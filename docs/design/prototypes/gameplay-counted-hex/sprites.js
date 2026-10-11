@@ -1,6 +1,7 @@
 import {DESIGN,position,project} from './geometry.js';
 export const SPRITES={
- 'tile-cream':{radius:.995,anchor:.56},
+ // Inner floor centre is y=234 in the 512px asset, not the outer body centre.
+ 'tile-cream':{radius:.995,anchor:234/512},
  'chip-violet':{radius:DESIGN.chipRadius,anchor:.52},
  'chip-blue':{radius:DESIGN.chipRadius,anchor:.52},
  'chip-coral':{radius:DESIGN.chipRadius,anchor:.52},

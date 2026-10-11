@@ -133,10 +133,10 @@
 
 ## 10. Отчёт исполнителя
 
-- Результат: Figma frame 9:89, отдельный counted-hex preview и запись цепочки. 2026-10-11 пользователь уточнил требование соответствия мокапу: финальный вариант point-up с отдельными painted PNG вместо плоских векторов.
+- Результат: Figma frame 11:165, отдельный counted-hex preview и запись цепочки. 2026-10-11 пользователь уточнил требование соответствия мокапу: вариант point-up с painted PNG клеток. Последующее замечание о толщине/свете исправлено в v4: реальные тонкие chip meshes, соответствующие SVG facets в Figma и измеренный inset внутренней клетки.
 - Изменённые файлы и зачем: docs/design/prototypes/gameplay-counted-hex/*, tests/gameplay-counted-hex.test.js, tools/*counted-hex*, дизайн-документ и отчёт. Production src не изменён.
-- Команды и фактические результаты: 5 unit tests PASS; browser 14 combinations/3 viewports PASS; pnpm check:full PASS. Подробности в ../reports/GAMEPLAY_COUNTED_HEX.md.
+- Команды и фактические результаты: 6 unit tests PASS; browser 14 combinations/3 viewports PASS; pnpm check:full PASS. Подробности в ../reports/GAMEPLAY_COUNTED_HEX.md.
 - Ручные проверки: Figma layers/components/native text/export; in-app browser mixed/chain pause/scrub/reduced/tall. Полного ручного прохода всех фаз не заявляем.
 - Выполненные критерии: отдельный Figma frame/export, fixtures/counts/ID phases, normal/reduced preview/controls, production scope preserved.
-- Непроверенное, блокеры и отклонения от плана: pixel-perfect художественная приёмка не выполнена; painted planes вместо универсального solid volume, визуальная разделимость 20 слоёв и все углы flip требуют доработки/приёмки. MCP limit обходился штатной работой через browser UI.
+- Непроверенное, блокеры и отклонения от плана: pixel-perfect художественная приёмка не выполнена; v4 исправляет толщину реальными chip bodies, единым светом и посадкой внутрь бортика; окончательная художественная приёмка остаётся открытой. MCP limit обходился штатной работой через browser UI.
 - Итоговый статус и дата: review, 2026-10-11; не объявляется done.

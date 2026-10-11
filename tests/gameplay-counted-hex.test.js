@@ -4,11 +4,35 @@ import {topRunCount,presentation} from '../docs/design/prototypes/gameplay-count
 import {fixtures,scenario} from '../docs/design/prototypes/gameplay-counted-hex/fixtures.js';
 import {position,contour,geometry,DESIGN,posePosition} from '../docs/design/prototypes/gameplay-counted-hex/geometry.js';
 import {neighborCells,cellId} from '../src/game/hex.js';
+import {chipGeometry,chipFacets} from '../docs/design/prototypes/gameplay-counted-hex/chip.js';
+import {spriteRect} from '../docs/design/prototypes/gameplay-counted-hex/sprites.js';
+import {project} from '../docs/design/prototypes/gameplay-counted-hex/geometry.js';
+import fs from 'node:fs';
 test('count is the uninterrupted top run, not total or all occurrences',()=>{
  const list=colors=>colors.map(color=>({color}));
  assert.equal(topRunCount([]),0);assert.equal(topRunCount(list(['violet','blue','violet'])),1);
  assert.equal(topRunCount(list(['blue','blue','violet','violet','violet'])),3);
  for(const n of [1,6,12,20])assert.equal(topRunCount(list(Array(n).fill('blue'))),n);
+});
+test('real chip bodies fit inside the measured recessed floor, with readable layer pitch',()=>{
+ const sizes=JSON.parse(fs.readFileSync(new URL('../docs/design/prototypes/gameplay-counted-hex/assets/sprite-sizes.json',import.meta.url)));
+ // Measured inner corners of the 471x512 tile image, excluding bevel/border.
+ const inner=[[235,53],[420,155],[420,310],[235,415],[50,310],[50,155]];
+ for(const cell of scenario().before.cells){
+  const rect=spriteRect(cell,DESIGN.floor,'tile-cream',sizes),at=position(cell);
+  const polygon=inner.map(([x,y])=>({x:rect.x+x/471*rect.width,y:rect.y+y/512*rect.height}));
+  for(const point of contour(DESIGN.chipRadius)){
+   const q=project(at.x+point.x,DESIGN.floor+DESIGN.thickness,at.z+point.z);
+   for(let i=0;i<6;i++){const a=polygon[i],b=polygon[(i+1)%6];const cross=(b.x-a.x)*(q.y-a.y)-(b.y-a.y)*(q.x-a.x);assert.ok(cross>0,'single chip top crosses the inner border');}
+  }
+ }
+ for(const color of ['violet','blue','coral']){
+  const g=chipGeometry(color);g.computeBoundingBox();assert.ok(Math.abs(g.boundingBox.min.y)<1e-6);assert.ok(Math.abs(g.boundingBox.max.y-DESIGN.thickness)<1e-6);g.dispose();
+  assert.equal(chipFacets(color).length,20);
+ }
+ const bottom=project(0,DESIGN.floor,0),next=project(0,DESIGN.floor+DESIGN.thickness,0);
+ assert.ok((bottom.y-next.y)*320/DESIGN.width>1,'layer pitch falls below one CSS pixel at 320px');
+ assert.ok(DESIGN.chipRadius+.07<DESIGN.wellRadius);
 });
 test('all fixtures conserve IDs through launch, landing and clear; reverse scrub is pure',()=>{
  for(const fixture of fixtures)for(const reduced of [false,true]){

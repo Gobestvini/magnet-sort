@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-export const DESIGN = { width:941,height:1672,board:{x:30,y:400,width:881,height:720},radius:1,chipRadius:.82,thickness:.066,floor:.12 };
+export const DESIGN = { width:941,height:1672,board:{x:30,y:400,width:881,height:720},radius:1,wellRadius:.78,chipRadius:.68,thickness:.066,floor:.12 };
 export function position(cell) { return { x:Math.sqrt(3)*(cell.col+(cell.row%2)*.5-3.5), z:1.5*(cell.row-3) }; }
 export function contour(radius=1) { return Array.from({length:6},(_,i)=>({x:Math.cos(Math.PI/6+i*Math.PI/3)*radius,z:Math.sin(Math.PI/6+i*Math.PI/3)*radius})); }
 export function camera() {

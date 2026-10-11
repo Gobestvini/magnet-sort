@@ -27,6 +27,16 @@ const fs=require('node:fs');
     }
    }
    countedHex.seek(0);
+   // Read the rendered cap, not just object IDs: catches invisible chips/render queues.
+   const snap=countedHex.snapshot(),canvas=document.querySelector('#board'),probe=document.createElement('canvas');
+   probe.width=canvas.width;probe.height=canvas.height;const ctx=probe.getContext('2d');ctx.drawImage(canvas,0,0);
+   const palette={violet:[171,96,231],blue:[65,159,233],coral:[240,117,100]};
+   for(const stack of snap.sample.stacks){
+    const label=document.querySelector(`.count[data-cell="r${stack.cell.row}c${stack.cell.col}"]`);
+    const x=(parseFloat(label.style.left)-30)*canvas.width/881,y=(parseFloat(label.style.top)-400)*canvas.height/720;
+    const pixel=ctx.getImageData(Math.round(x),Math.round(y),1,1).data,expected=palette[stack.units.at(-1).color];
+    if(expected.some((value,i)=>Math.abs(value-pixel[i])>12)||pixel[3]<250)throw Error('rendered cap missing/wrong color '+stack.units.at(-1).color+' '+[...pixel]);
+   }
    return {units:ids.length,hops:timeline.segments.filter(s=>s.type==='unitMoved').length,maxLandingError,maxGeometries};
   });
   cases.push({id,reduced,...result});
