@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {createChipBodyGeometry,CHIP_DEPTH,CHIP_HEIGHT,chipLayout,topColorCount} from '../src/prototype/chip.js';
 test('backing prism is thin and solid during a flip',()=>{
- const geometry=createChipBodyGeometry();geometry.computeBoundingBox();
+ const geometry=createChipBodyGeometry(.85,.83);geometry.computeBoundingBox();
  assert.ok(Math.abs(geometry.boundingBox.min.z+CHIP_DEPTH)<1e-6);
  assert.ok(Math.abs(geometry.boundingBox.max.z)<1e-6);
  assert.ok(CHIP_DEPTH<.04);
@@ -12,10 +12,10 @@ test('backing prism is thin and solid during a flip',()=>{
  assert.ok(hits.length,'flip exposes a hollow centre');material.dispose();geometry.dispose();
 });
 test('base wafer anchor is stable for each asset aspect and camera tilt',()=>{
- for(const width of [508,509,510])for(const screenUpY of [.4,.54,.8]){
-  const layout=chipLayout({width,height:512},screenUpY);
+ for(const tileWidth of [1,1.103,1.2])for(const screenUpY of [.4,.54,.8]){
+  const layout=chipLayout(screenUpY,tileWidth,tileWidth*512/471);
   const centre=CHIP_HEIGHT*.5*screenUpY+layout.offset;
-  assert.ok(Math.abs(centre-(.52-.5)*layout.height)<1e-9,'base shifts when camera changes');
+  assert.ok(Math.abs(centre)<1e-9,'base shifts when camera changes');
   assert.ok(CHIP_HEIGHT*screenUpY<layout.height*.16,'individual layers became thick');
  }
 });

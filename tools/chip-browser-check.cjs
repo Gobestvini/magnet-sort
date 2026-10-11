@@ -48,6 +48,9 @@ const base=process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       }
       for(const placement of snapshot.placement){
        check(placement.facing>.999999,'resting wafer is tilted relative to the tile');
+       const span=points=>Math.max(...points.map(p=>p[0]))-Math.min(...points.map(p=>p[0]));
+       const coverage=span(placement.footprint)/span(placement.well);
+       if(placement.scale>.999)check(coverage>.97&&coverage<.98,'inset leaves a visible gap or covers the border');
        // All six base vertices must stay inside every edge of the measured
        // inner well. This catches a displaced anchor and projection mismatch.
        for(const point of placement.footprint){
