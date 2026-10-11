@@ -40,8 +40,6 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
   const overlay = paused || result || Boolean(error) || loading;
   const locked = overlay || phase === 'resolving';
   const progress = state.cleared / state.initialUnits * 100;
-  const reducedControl = h('label', { className: 'motion-option' }, 'Reduced motion',
-    h('input', { type: 'checkbox', checked: reduced, onChange: onReduced }), h('span', { className: 'switch', 'aria-hidden': 'true' }));
   return h('main', { className: 'prototype-shell' },
     h('img', { className: 'drag-magnet', ref: dragRef, hidden: true, alt: '', 'aria-hidden': 'true', draggable: false }),
     h('div', { className: 'game-view' + (levelIndex === 0 ? ' first-puzzle' : '') + (tutorial ? ' show-tutorial' : ''), inert: Boolean(overlay) },
@@ -87,8 +85,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
     paused ? h(Modal, { label: 'Paused', onClose: onPause },
       h('h2', { className: 'live-heading' }, 'PAUSED'), h('div', { className: 'modal-magnet' }, h(MagnetIcon)),
       h('button', { className: 'primary-button', onClick: onPause }, 'Resume'),
-      h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Restart'),
-      reducedControl) :
+      h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Restart')) :
     result ? h(Modal, { label: state.terminal === 'won' ? 'Victory' : 'Out of moves', variant: state.terminal === 'won' ? 'victory-dialog' : '' },
       h('div', { className: 'result-card', role: 'region', 'aria-label': 'Result' },
         state.terminal === 'won' ? h('div', { className: 'modal-magnet victory-magnet' }, h(MagnetIcon)) : h('h2', { className: 'live-heading defeat-heading' }, 'OUT OF MOVES'),

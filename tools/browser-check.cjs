@@ -163,10 +163,11 @@ const output = 'artifacts/three-browser';
       await page.evaluate(() => { delete document.hidden; window.gameDebug.setPaused(false); });
       await settled();
 
-      // Preferences live in Pause, matching the authored screen.
+      // Pause contains only game actions; reduced motion remains supported by the runtime.
       await page.getByRole('button', { name: 'Pause', exact: true }).click();
-      await page.getByLabel('Reduced motion').check();
+      assert.equal(await page.getByLabel('Reduced motion').count(), 0, 'pause has no reduced-motion setting');
       await page.getByRole('button', { name: 'Resume', exact: true }).click();
+      await page.evaluate(() => window.gameDebug.setReducedMotion(true));
       // Replay each authored puzzle, including the mixed-colour lower layers.
       for (let index = 0; index < 3; index++) {
         await page.evaluate(index => window.gameDebug.loadLevel(index), index);
