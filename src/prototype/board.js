@@ -162,7 +162,7 @@ export function createThreeBoard(canvas, textures) {
           mesh.quaternion.premultiply(flip);
         }
       } else {
-        const pos = cellPosition(pose.cell); mesh.position.set(pos.x, FLOOR + (.5 + pose.index * packing.pitch) * UNIT_HEIGHT, pos.z);
+        const pos = cellPosition(pose.cell); mesh.position.set(pos.x, FLOOR + (.5 + (pose.layer ?? pose.index)) * UNIT_HEIGHT, pos.z);
         // Shrink about the ground contact, keeping the compact packet in its well.
         mesh.position.x += layout.offsetX * (1 - packing.scale);
         mesh.position.addScaledVector(screenUp, layout.offset * (1 - packing.scale));
@@ -173,7 +173,7 @@ export function createThreeBoard(canvas, textures) {
       mesh.children[0].visible=Boolean(pose.from);
       mesh.userData = { id: pose.id, color: pose.color, cell: pose.cell ?? null, index: pose.index ?? null,
         moving: Boolean(pose.from), from: pose.from, to: pose.to, progress: pose.progress, scale: pose.scale,
-        pack: pose.pack ?? 0, anchorOffsetY: screenUp.y * layout.offset * (1 - packing.scale) };
+        pack: pose.pack ?? 0, layer: pose.layer ?? pose.index, anchorOffsetY: screenUp.y * layout.offset * (1 - packing.scale) };
     }
     for (const [id, mesh] of unitMeshes) if (!alive.has(id)) { unitsRoot.remove(mesh); unitMeshes.delete(id); }
     // Sampled resting pieces only: source loses one on launch, destination gains on landing.
@@ -182,8 +182,8 @@ export function createThreeBoard(canvas, textures) {
     for(const [id,units] of stacks){
       units.sort((a,b)=>a.index-b.index);const count=topColorCount(units),top=units.at(-1),pos=cellPosition(top.cell);
       let badge=labels.get(id);if(!badge){badge=new THREE.Sprite(labelMaterial(count));badge.scale.set(.48,.48,1);badge.renderOrder=20000;scene.add(badge);labels.set(id,badge);}
-      const packing=collectionPacking(top.pack);
-      badge.material=labelMaterial(count);badge.position.set(pos.x+layout.offsetX,FLOOR+(.5+top.index*packing.pitch)*UNIT_HEIGHT,pos.z);
+      badge.visible=!units.some(unit=>unit.pack>0);
+      badge.material=labelMaterial(count);badge.position.set(pos.x+layout.offsetX,FLOOR+(.5+(top.layer??top.index))*UNIT_HEIGHT,pos.z);
       badge.position.addScaledVector(screenUp,layout.offset+.028);badge.userData={cell:top.cell,count};
       let shadow=shadows.get(id);if(!shadow){shadow=new THREE.Mesh(plane,shadowMaterial);shadow.quaternion.copy(camera.quaternion);shadow.scale.set(.99,.8,1);shadow.renderOrder=700;scene.add(shadow);shadows.set(id,shadow);}
       shadow.position.set(pos.x+layout.offsetX,FLOOR,pos.z);shadow.position.addScaledVector(screenUp,-.065);

@@ -22,8 +22,11 @@ export function makeTransferTimeline(before, resolution, reduced = false) {
       const collectDuration = reduced ? .09 : .56;
       const collectStagger = reduced ? .018 : .05;
       const packEnd = cursor + (reduced ? .04 : .48);
+      const pieceDuration = reduced ? .02 : .20;
+      const pieceStagger = (packEnd - cursor - pieceDuration) / Math.max(1, event.units.length - 1);
       const launch = packEnd + (reduced ? 0 : .07);
       const flights = [...event.units].reverse().map((unit, index) => ({ unit,
+        packStart: cursor + index * pieceStagger, packEnd: cursor + index * pieceStagger + pieceDuration,
         index: event.units.length - 1 - index, start: launch + index * collectStagger,
         end: launch + index * collectStagger + collectDuration }));
       const duration = flights.at(-1).end - cursor;
@@ -38,7 +41,7 @@ export function makeTransferTimeline(before, resolution, reduced = false) {
 
 // Only presentation changes: IDs/counts stay intact as layers gather downward.
 export function collectionPacking(pack = 0) {
-  return { pitch: 1 - pack * .94, scale: 1 - pack * .32 };
+  return { pitch: 1 - pack * .94, scale: 1 - pack * .62 };
 }
 
 export function sampleTransferTimeline(timeline, time) {
@@ -56,19 +59,25 @@ export function sampleTransferTimeline(timeline, time) {
         fromIndex: segment.fromIndex, toIndex: segment.toIndex, scale: 1,
         progress: (time - segment.start) / (segment.end - segment.start) });
     } else {
-      const p = Math.min(1, (time - segment.start) / (segment.packEnd - segment.start));
-      const pack = p * p * (3 - 2 * p);
+      const packs = segment.flights.map(flight => {
+        const p = Math.max(0, Math.min(1, (time - flight.packStart) / (flight.packEnd - flight.packStart)));
+        return { ...flight, pack: p * p * (3 - 2 * p) };
+      });
       const burstAge = time - segment.packEnd;
       if (burstAge >= 0 && burstAge < .36) bursts.push({ cell: segment.cell, color: segment.units[0].color, age: burstAge });
-      for (const flight of segment.flights) {
+      for (const flight of packs) {
+        // Height is the sum of the layers underneath. An upper hex cannot
+        // shrink down through another hex whose animation has not started.
+        const layer = packs.filter(lower => lower.index < flight.index)
+          .reduce((height, lower) => height + collectionPacking(lower.pack).pitch, 0);
         if (time >= flight.end) {
           poses.delete(flight.unit.id); collected++;
           lastArrival = Math.max(lastArrival ?? 0, flight.end);
         } else if (time >= flight.start) {
           poses.set(flight.unit.id, { ...flight.unit, cell: segment.cell, index: flight.index,
-            scale: 1, pack: 1, collecting: true, progress: (time - flight.start) / (flight.end - flight.start) });
+            scale: 1, pack: 1, layer, collecting: true, progress: (time - flight.start) / (flight.end - flight.start) });
         } else {
-          poses.set(flight.unit.id, { ...flight.unit, cell: segment.cell, index: flight.index, scale: 1, pack });
+          poses.set(flight.unit.id, { ...flight.unit, cell: segment.cell, index: flight.index, scale: 1, pack: flight.pack, layer });
         }
       }
     }

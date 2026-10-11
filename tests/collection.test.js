@@ -20,7 +20,15 @@ for (const reduced of [false, true]) test(`collection preserves IDs and credits 
     assert.ok(start.units.filter(unit => ids.has(unit.id)).every(unit => unit.pack === 0 && !unit.collecting));
     assert.ok(packed.units.filter(unit => ids.has(unit.id)).every(unit => unit.pack === 1));
     const halfway = sampleTransferTimeline(timeline, (batch.start + batch.packEnd) / 2);
-    assert.ok(halfway.units.filter(unit => ids.has(unit.id)).every(unit => Math.abs(unit.pack - .5) < 1e-10 && !unit.collecting));
+    const pieces = halfway.units.filter(unit => ids.has(unit.id)).sort((a,b)=>b.index-a.index);
+    assert.ok(pieces.every(unit => !unit.collecting));
+    assert.ok(pieces[0].pack > .99 && pieces.at(-1).pack === 0, 'top shrinks while bottom remains full size');
+    assert.ok(new Set(pieces.map(unit => unit.pack)).size > 2, 'each hex has an independent scale phase');
+    for (const piece of pieces) {
+      const below = pieces.filter(unit => unit.index < piece.index);
+      const height = below.reduce((sum, unit) => sum + 1 - unit.pack * .94, 0);
+      assert.ok(Math.abs(piece.layer - height) < 1e-10, 'compacted layers cannot pass through unshrunk layers');
+    }
     assert.equal(halfway.collected, start.collected, 'compaction does not prematurely award units');
     assert.equal(packed.bursts.length, 1, 'completion of compaction starts the accent');
     assert.deepEqual(batch.flights.map(flight => flight.index), [5, 4, 3, 2, 1, 0], 'top piece leaves first');

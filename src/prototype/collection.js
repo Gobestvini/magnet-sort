@@ -87,7 +87,10 @@ export function createCollectionView() {
           const at = position(Math.max(0, p - .09 - i * .075));
           sparkle(layer, at.x + Math.sin(p * 14 + unit.index + i * 3) * 7, at.y + Math.cos(p * 11 + i) * 5, 2 + i, '#fff7cb', opacity * .65);
         }
-        const scale = 1 + Math.sin(p * Math.PI) * .2 - t * .72;
+        // Match the small individual wafer at handoff, then regain the previous
+        // flight size smoothly; the trajectory and trail remain unchanged.
+        const unfold = 1 - (1 - Math.min(1, p / .18)) ** 3;
+        const scale = (1 + unfold * (.68 / .38 - 1)) * (1 + Math.sin(p * Math.PI) * .2 - t * .72);
         image.style.width = start.width + 'px'; image.style.height = start.height + 'px';
         image.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) rotate(${side * Math.sin(p * Math.PI) * 16}deg) scale(${scale})`;
         image.style.opacity = String(Math.min(1, (1 - p) * 8));

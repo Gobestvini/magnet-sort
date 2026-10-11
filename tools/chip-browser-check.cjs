@@ -15,7 +15,7 @@ const base=process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
    const {loadBoardTextures}=await import('/src/prototype/assets.js');
    const {prototypeLevels}=await import('/src/prototype/levels.js');
    const {createPrototypeState,applyMagnet}=await import('/src/prototype/model.js');
-   const {makeTransferTimeline,sampleTransferTimeline,collectionPacking}=await import('/src/prototype/motion.js');
+   const {makeTransferTimeline,sampleTransferTimeline}=await import('/src/prototype/motion.js');
    const {topColorCount}=await import('/src/prototype/chip.js');
    window.gameDebug.dispose();document.body.replaceChildren();
    const canvas=document.createElement('canvas');canvas.style.cssText='width:390px;height:650px';document.body.append(canvas);
@@ -60,7 +60,7 @@ const base=process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
       check(snapshot.units.filter(u=>u.moving).length===moving.size,'flight count differs from moving unit meshes');
       for(const unit of snapshot.units){
        check(unit.height>0&&unit.height<=CHIP_HEIGHT+1e-6,'one element must have one physical thickness');
-       if(!unit.moving)check(Math.abs(unit.position[1]-(.16+(.5+unit.index*collectionPacking(unit.pack).pitch)*CHIP_HEIGHT+unit.anchorOffsetY))<1e-6,'stack index differs from compacted physical layer');
+       if(!unit.moving)check(Math.abs(unit.position[1]-(.16+(.5+unit.layer)*CHIP_HEIGHT+unit.anchorOffsetY))<1e-6,'stack index differs from compacted physical layer');
       }
       for(const placement of snapshot.placement){
        check(placement.facing>.999999,'resting wafer is tilted relative to the tile');
