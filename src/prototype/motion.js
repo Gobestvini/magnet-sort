@@ -19,18 +19,32 @@ export function makeTransferTimeline(before, resolution, reduced = false) {
       groupEnd = start + flight;
     } else {
       cursor = groupEnd;
-      const duration = reduced ? .08 : .22;
-      segments.push({ ...event, start: cursor, end: cursor + duration });
+      const collectDuration = reduced ? .09 : .56;
+      const collectStagger = reduced ? .018 : .05;
+      const packEnd = cursor + (reduced ? .04 : .48);
+      const launch = packEnd + (reduced ? 0 : .07);
+      const flights = [...event.units].reverse().map((unit, index) => ({ unit,
+        index: event.units.length - 1 - index, start: launch + index * collectStagger,
+        end: launch + index * collectStagger + collectDuration }));
+      const duration = flights.at(-1).end - cursor;
+      segments.push({ ...event, flights, packEnd, start: cursor, end: cursor + duration });
       cursor += duration;
       groupEnd = cursor;
     }
   }
   return { before, after: resolution.state, magnet: resolution.magnet, segments, reduced,
-    duration: Math.max(cursor, groupEnd) + (reduced ? .04 : .12) };
+    duration: Math.max(cursor, groupEnd) + (reduced ? .04 : .38) };
+}
+
+// Only presentation changes: IDs/counts stay intact as layers gather downward.
+export function collectionPacking(pack = 0) {
+  return { pitch: 1 - pack * .94, scale: 1 - pack * .32 };
 }
 
 export function sampleTransferTimeline(timeline, time) {
   const poses = new Map();
+  let collected = timeline.before.cleared, lastArrival = null;
+  const bursts = [];
   for (const stack of timeline.before.stacks) stack.units.forEach((unit, index) => {
     poses.set(unit.id, { ...unit, cell: stack.cell, index, scale: 1 });
   });
@@ -42,13 +56,23 @@ export function sampleTransferTimeline(timeline, time) {
         fromIndex: segment.fromIndex, toIndex: segment.toIndex, scale: 1,
         progress: (time - segment.start) / (segment.end - segment.start) });
     } else {
-      const progress = Math.min(1, (time - segment.start) / (segment.end - segment.start));
-      for (const unit of segment.units) {
-        if (progress >= 1) poses.delete(unit.id);
-        else if (poses.has(unit.id)) poses.get(unit.id).scale = 1 - progress;
+      const p = Math.min(1, (time - segment.start) / (segment.packEnd - segment.start));
+      const pack = p * p * (3 - 2 * p);
+      const burstAge = time - segment.packEnd;
+      if (burstAge >= 0 && burstAge < .36) bursts.push({ cell: segment.cell, color: segment.units[0].color, age: burstAge });
+      for (const flight of segment.flights) {
+        if (time >= flight.end) {
+          poses.delete(flight.unit.id); collected++;
+          lastArrival = Math.max(lastArrival ?? 0, flight.end);
+        } else if (time >= flight.start) {
+          poses.set(flight.unit.id, { ...flight.unit, cell: segment.cell, index: flight.index,
+            scale: 1, pack: 1, collecting: true, progress: (time - flight.start) / (flight.end - flight.start) });
+        } else {
+          poses.set(flight.unit.id, { ...flight.unit, cell: segment.cell, index: flight.index, scale: 1, pack });
+        }
       }
     }
   }
-  return { units: [...poses.values()], magnet: time < timeline.duration ? timeline.magnet : null,
+  return { units: [...poses.values()], collected, lastArrival, bursts, magnet: time < timeline.duration ? timeline.magnet : null,
     complete: time >= timeline.duration };
 }

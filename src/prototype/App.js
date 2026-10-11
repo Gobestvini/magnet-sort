@@ -34,7 +34,7 @@ function Modal({ children, label, onClose, variant = '' }) {
 }
 
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, clearingCount, canvasRef, hostRef, dragRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
+  reduced, canvasRef, hostRef, dragRef, collectionRef, counterRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
   const tutorial = levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
@@ -43,6 +43,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
   const progress = state.cleared / state.initialUnits * 100;
   return h('main', { className: 'prototype-shell' },
     h(IdleBackdrop, { active: phase === 'playing' && !paused && !loading && !error && !reduced }),
+    h('div', { className: 'collection-layer', ref: collectionRef, 'aria-hidden': 'true' }),
     h('img', { className: 'drag-magnet', ref: dragRef, hidden: true, alt: '', 'aria-hidden': 'true', draggable: false }),
     h('div', { className: 'game-view' + (levelIndex === 0 ? ' first-puzzle' : '') + (tutorial ? ' show-tutorial' : ''), inert: Boolean(overlay) },
       h('header', { className: 'topbar' },
@@ -52,15 +53,14 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
         h('button', { className: 'round-button', onClick: onPause, disabled: Boolean(error), 'aria-label': 'Pause' }, h('img', { src: art('pause'), alt: '' }))),
       h('section', { className: 'hud', 'aria-label': 'Puzzle progress' },
         h('div', { className: 'goal-panel cream-panel' },
-          h('strong', null, 'CLEARED ', state.cleared, ' / ', state.initialUnits),
+          h('strong', null, 'CLEARED ', h('span', { className: 'cleared-count', ref: counterRef }, state.cleared), ' / ', state.initialUnits),
           h('div', { className: 'progress-track', role: 'progressbar', 'aria-label': 'Pieces cleared', 'aria-valuenow': state.cleared, 'aria-valuemin': 0, 'aria-valuemax': state.initialUnits },
             h('div', { key: state.turn, style: { width: progress + '%' } }))),
         h('div', { className: 'moves-panel cream-panel' }, h('span', null, 'MOVES'), h('strong', null, state.remainingMoves))),
       h('section', { className: 'board-panel', 'aria-label': 'Game board' },
         h('div', { className: 'board-host', ref: hostRef },
           h('canvas', { ref: canvasRef, tabIndex: overlay ? -1 : 0, 'aria-label': 'Board: arrow keys select a tile, Enter places a magnet', onKeyDown: onKeyboard, 'aria-describedby': 'keyboard-cell' }),
-          tutorial && tutorialTarget && h('img', { className: 'tutorial-arrow', src: art('tutorial-arrow'), alt: '', style: { left: (tutorialTarget.x - 22) + 'px', top: (tutorialTarget.y - 5) + 'px' } }),
-          clearingCount > 0 && h('span', { className: 'clear-burst', 'aria-hidden': 'true' }, '+' + clearingCount)),
+          tutorial && tutorialTarget && h('img', { className: 'tutorial-arrow', src: art('tutorial-arrow'), alt: '', style: { left: (tutorialTarget.x - 22) + 'px', top: (tutorialTarget.y - 5) + 'px' } })),
         h('p', { id: 'keyboard-cell', className: 'sr-only' }, keyboardCell ? 'Tile: row ' + keyboardCell.row + ', column ' + keyboardCell.col : 'Use arrow keys to select a tile.')),
       h('p', { className: 'game-status' + (tutorialMessage ? ' tutorial-message cream-panel' : ''), role: 'status', 'aria-live': 'polite' },
         tutorialMessage ? h('span', null, h('strong', null, 'Place a magnet on an empty tile'), h('small', null, 'Pieces move one at a time')) : phase === 'resolving' ? 'Pulling one piece at a time…' : notice),

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { cellId } from '../game/hex.js';
 import { COLORS, canPlaceMagnet } from './model.js';
-import { sampleTransferTimeline } from './motion.js';
+import { sampleTransferTimeline, collectionPacking } from './motion.js';
 import {createChipBodyGeometry,createInsetFaceGeometry,chipLayout,CHIP_HEIGHT,WELL_PIXELS,topColorCount} from './chip.js';
 import { createBlockerPlateGeometry } from './blocker.js';
 import { createMagnetGlow } from './magnet-glow.js';
@@ -144,11 +144,12 @@ export function createThreeBoard(canvas, textures) {
     if (disposed) return;
     buildLevel(level);
     const sampled = timeline ? sampleTransferTimeline(timeline, time) : null;
-    const poses = sampled?.units ?? state.stacks.flatMap(stack => stack.units.map((unit, index) => ({ ...unit, cell: stack.cell, index, scale: 1 })));
+    const poses = sampled ? sampled.units.filter(unit => !unit.collecting) : state.stacks.flatMap(stack => stack.units.map((unit, index) => ({ ...unit, cell: stack.cell, index, scale: 1 })));
     const alive = new Set();
     for (const pose of poses) {
       const mesh = unitMesh(pose); alive.add(pose.id);
-      mesh.quaternion.copy(camera.quaternion); mesh.scale.setScalar(pose.scale);
+      const packing = collectionPacking(pose.pack);
+      mesh.quaternion.copy(camera.quaternion); mesh.scale.setScalar(pose.scale * packing.scale);
       if (pose.from) {
         const from = cellPosition(pose.from), to = cellPosition(pose.to);
         const p = pose.progress, ease = p * p * (3 - 2 * p);
@@ -161,23 +162,28 @@ export function createThreeBoard(canvas, textures) {
           mesh.quaternion.premultiply(flip);
         }
       } else {
-        const pos = cellPosition(pose.cell); mesh.position.set(pos.x, FLOOR + (pose.index + .5) * UNIT_HEIGHT, pos.z);
+        const pos = cellPosition(pose.cell); mesh.position.set(pos.x, FLOOR + (.5 + pose.index * packing.pitch) * UNIT_HEIGHT, pos.z);
+        // Shrink about the ground contact, keeping the compact packet in its well.
+        mesh.position.x += layout.offsetX * (1 - packing.scale);
+        mesh.position.addScaledVector(screenUp, layout.offset * (1 - packing.scale));
       }
       // Draw back cells first, then their layers. Flights stay above stacks.
       const order=pose.from?18000:6000+Math.round(mesh.position.z*100)*20+(pose.index??0)*2;
       mesh.children[0].renderOrder=order;mesh.children[1].renderOrder=order+1;
       mesh.children[0].visible=Boolean(pose.from);
       mesh.userData = { id: pose.id, color: pose.color, cell: pose.cell ?? null, index: pose.index ?? null,
-        moving: Boolean(pose.from), from: pose.from, to: pose.to, progress: pose.progress, scale: pose.scale };
+        moving: Boolean(pose.from), from: pose.from, to: pose.to, progress: pose.progress, scale: pose.scale,
+        pack: pose.pack ?? 0, anchorOffsetY: screenUp.y * layout.offset * (1 - packing.scale) };
     }
     for (const [id, mesh] of unitMeshes) if (!alive.has(id)) { unitsRoot.remove(mesh); unitMeshes.delete(id); }
     // Sampled resting pieces only: source loses one on launch, destination gains on landing.
-    const stacks=new Map(),clearing=new Set(timeline?.segments.filter(s=>s.type==='unitsCleared'&&time>=s.start&&time<s.end).flatMap(s=>s.units.map(u=>u.id))??[]);
-    for(const p of poses)if(!p.from&&!clearing.has(p.id)){const id=cellId(p.cell);if(!stacks.has(id))stacks.set(id,[]);stacks.get(id).push(p);}
+    const stacks=new Map();
+    for(const p of poses)if(!p.from){const id=cellId(p.cell);if(!stacks.has(id))stacks.set(id,[]);stacks.get(id).push(p);}
     for(const [id,units] of stacks){
       units.sort((a,b)=>a.index-b.index);const count=topColorCount(units),top=units.at(-1),pos=cellPosition(top.cell);
       let badge=labels.get(id);if(!badge){badge=new THREE.Sprite(labelMaterial(count));badge.scale.set(.48,.48,1);badge.renderOrder=20000;scene.add(badge);labels.set(id,badge);}
-      badge.material=labelMaterial(count);badge.position.set(pos.x+layout.offsetX,FLOOR+(top.index+.5)*UNIT_HEIGHT,pos.z);
+      const packing=collectionPacking(top.pack);
+      badge.material=labelMaterial(count);badge.position.set(pos.x+layout.offsetX,FLOOR+(.5+top.index*packing.pitch)*UNIT_HEIGHT,pos.z);
       badge.position.addScaledVector(screenUp,layout.offset+.028);badge.userData={cell:top.cell,count};
       let shadow=shadows.get(id);if(!shadow){shadow=new THREE.Mesh(plane,shadowMaterial);shadow.quaternion.copy(camera.quaternion);shadow.scale.set(.99,.8,1);shadow.renderOrder=700;scene.add(shadow);shadows.set(id,shadow);}
       shadow.position.set(pos.x+layout.offsetX,FLOOR,pos.z);shadow.position.addScaledVector(screenUp,-.065);
@@ -200,6 +206,7 @@ export function createThreeBoard(canvas, textures) {
       magnet.renderOrder = 600;
     }
     scene.updateMatrixWorld(true); renderer.render(scene, camera);
+    return sampled;
   }
   function resize(width, height) {
     if (disposed || width <= 0 || height <= 0) return;
@@ -238,6 +245,15 @@ export function createThreeBoard(canvas, textures) {
       return { x: rect.left + (projected.x + 1) * rect.width / 2, y: rect.top + (1 - projected.y) * rect.height / 2 };
     },
     magnetScreenSize() { return magnet.scale.x / (camera.right - camera.left) * canvas.getBoundingClientRect().width; },
+    chipScreenPosition(cell, index, pack = 0) {
+      const pos = cellPosition(cell), rect = canvas.getBoundingClientRect();
+      const packing = collectionPacking(pack);
+      projected.set(pos.x + layout.offsetX, FLOOR + (.5 + index * packing.pitch) * UNIT_HEIGHT, pos.z);
+      projected.addScaledVector(screenUp, layout.offset).project(camera);
+      return { x: rect.left + (projected.x + 1) * rect.width / 2, y: rect.top + (1 - projected.y) * rect.height / 2,
+        width: layout.width * packing.scale / (camera.right - camera.left) * rect.width,
+        height: layout.height * packing.scale / (camera.top - camera.bottom) * rect.height };
+    },
     magnetScreenPosition(cell) {
       const rect = canvas.getBoundingClientRect(); projected.copy(magnetAnchor(cell)).project(camera);
       return { x: rect.left + (projected.x + 1) * rect.width / 2, y: rect.top + (1 - projected.y) * rect.height / 2 };

@@ -15,7 +15,7 @@ const base=process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
    const {loadBoardTextures}=await import('/src/prototype/assets.js');
    const {prototypeLevels}=await import('/src/prototype/levels.js');
    const {createPrototypeState,applyMagnet}=await import('/src/prototype/model.js');
-   const {makeTransferTimeline,sampleTransferTimeline}=await import('/src/prototype/motion.js');
+   const {makeTransferTimeline,sampleTransferTimeline,collectionPacking}=await import('/src/prototype/motion.js');
    const {topColorCount}=await import('/src/prototype/chip.js');
    window.gameDebug.dispose();document.body.replaceChildren();
    const canvas=document.createElement('canvas');canvas.style.cssText='width:390px;height:650px';document.body.append(canvas);
@@ -49,15 +49,18 @@ const base=process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
      const times=new Set([0,timeline.duration,...timeline.segments.flatMap(s=>[s.start,s.start+(s.end-s.start)*.25,s.start+(s.end-s.start)*.5,s.start+(s.end-s.start)*.75,s.end])]);
      for(const time of [...times].sort((a,b)=>a-b)){
       board.draw(level,resolution.state,{timeline,time});const snapshot=board.snapshot();
-      const removed=new Set(timeline.segments.filter(s=>s.type==='unitsCleared'&&s.end<=time).flatMap(s=>s.units.map(u=>u.id)));
-      const expected=initial.filter(id=>!removed.has(id)).sort(),actual=snapshot.units.map(u=>u.id).sort();
+      const sample=sampleTransferTimeline(timeline,time);
+      const expected=sample.units.filter(u=>!u.collecting).map(u=>u.id).sort(),actual=snapshot.units.map(u=>u.id).sort();
+      check(sample.units.length+sample.collected===timeline.before.initialUnits,'collection loses or duplicates an actual unit');
+      const travelling=sample.units.filter(u=>u.collecting).map(u=>u.id);
+      check(new Set([...actual,...travelling]).size===actual.length+travelling.length,'board and HUD both display the same collected hex');
       check(JSON.stringify(actual)===JSON.stringify(expected),'rendered units differ from actual unremoved unit IDs');
       check(new Set(actual).size===actual.length&&snapshot.meshes===actual.length,'duplicate or phantom unit mesh');
       const moving=new Set(timeline.segments.filter(s=>s.type==='unitMoved'&&s.start<=time&&s.end>time).map(s=>s.unit.id));
       check(snapshot.units.filter(u=>u.moving).length===moving.size,'flight count differs from moving unit meshes');
       for(const unit of snapshot.units){
        check(unit.height>0&&unit.height<=CHIP_HEIGHT+1e-6,'one element must have one physical thickness');
-       if(!unit.moving)check(Math.abs(unit.position[1]-(.16+(unit.index+.5)*CHIP_HEIGHT))<1e-6,'stack index differs from physical layer');
+       if(!unit.moving)check(Math.abs(unit.position[1]-(.16+(.5+unit.index*collectionPacking(unit.pack).pitch)*CHIP_HEIGHT+unit.anchorOffsetY))<1e-6,'stack index differs from compacted physical layer');
       }
       for(const placement of snapshot.placement){
        check(placement.facing>.999999,'resting wafer is tilted relative to the tile');
@@ -71,9 +74,8 @@ const base=process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
         check(signs.every(s=>s>=-1e-8)||signs.every(s=>s<=1e-8),'base crosses a cream tile border '+JSON.stringify({time,point,placement,signs}));
        }
       }
-      const sample=sampleTransferTimeline(timeline,time);const groups=new Map();
-      const clearing=new Set(timeline.segments.filter(s=>s.type==='unitsCleared'&&s.start<=time&&s.end>time).flatMap(s=>s.units.map(u=>u.id)));
-      for(const p of sample.units)if(!p.from&&!clearing.has(p.id)){const id=p.cell.row+':'+p.cell.col;if(!groups.has(id))groups.set(id,[]);groups.get(id).push(p);}
+      const groups=new Map();
+      for(const p of sample.units)if(!p.from&&!p.collecting){const id=p.cell.row+':'+p.cell.col;if(!groups.has(id))groups.set(id,[]);groups.get(id).push(p);}
       check(snapshot.counts.length===groups.size,'extra/missing counter');
       for(const [id,list]of groups){list.sort((a,b)=>a.index-b.index);check(snapshot.counts.find(c=>c.cell.row+':'+c.cell.col===id)?.count===topColorCount(list),'counter does not describe exposed color');}
       frames++;flights+=moving.size;

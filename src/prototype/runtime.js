@@ -9,6 +9,7 @@ import { createThreeBoard } from './board.js';
 import { loadBoardTextures, art } from './assets.js';
 import { createMagnetDrag, stepMagnetDrag, dragSettled } from './drag.js';
 import { PrototypeApp } from './App.js';
+import { createCollectionView } from './collection.js';
 
 const root = document.querySelector('#ui-root');
 // Preact mounts into an empty host; the static boot message belongs to HTML only.
@@ -18,7 +19,10 @@ let reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let levelIndex = 0, level = prototypeLevels[0], state = createPrototypeState(level);
 let selected = level.magnets[0], phase = 'playing', paused = false, notice = 'Choose a magnet and an empty tile.';
 let displayedCleared = 0;
-let clearingCount = 0;
+const collection = createCollectionView();
+let collectionLayer = null, counterNode = null;
+const collectionRef = node => { collectionLayer = node; };
+const counterRef = node => { counterNode = node; };
 let canvas = null, host = null, board = null, timeline = null, elapsed = 0, previousElapsed = 0;
 let hover = null, keyboardCell = null, gesture = null, raf = null, previous = null, disposed = false, error = null;
 const canvasRef = node => { canvas = node; };
@@ -37,7 +41,7 @@ function ui() {
   const target = board && tutorialCell ? board.screenPosition(tutorialCell) : null;
   const rect = host?.getBoundingClientRect();
   render(h(PrototypeApp, { level, levelIndex, totalLevels: prototypeLevels.length, state: { ...state, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
-    canvasRef, hostRef, dragRef, keyboardCell, error, clearingCount, loading, loadingProgress,
+    canvasRef, hostRef, dragRef, collectionRef, counterRef, keyboardCell, error, loading, loadingProgress,
     tutorialTarget: target && rect ? { x: target.x - rect.left, y: target.y - rect.top } : null,
     onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!paused), onReset: reset,
     onNext: () => loadLevel((levelIndex + 1) % prototypeLevels.length), onHint: hint,
@@ -53,9 +57,12 @@ function draw(alpha = 1) {
     tool.toggleAttribute('data-dragging', drag?.color === tool.dataset.magnetColor);
   }
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
-  board?.draw(level, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
+  const frame = board?.draw(level, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
     hideMagnet: Boolean(drag), dragging: Boolean(drag && !drag.released), reduced,
     hint: levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null });
+  const cleared = frame?.collected ?? state.cleared;
+  if (cleared !== displayedCleared) { displayedCleared = cleared; ui(); }
+  collection.draw(frame, time, board, collectionLayer, counterNode, timeline?.reduced ?? reduced);
   if (dragNode) {
     dragNode.hidden = !drag;
     if (drag) {
@@ -86,10 +93,6 @@ function tick(now) {
     previousElapsed = elapsed; elapsed += dt;
     if (drag) { stepMagnetDrag(drag, dt, reduced); if (dragSettled(drag, reduced)) drag = null; }
   });
-  const activeClear = timeline?.segments.find(segment => segment.type === 'unitsCleared' && segment.start <= elapsed && segment.end > elapsed)?.units.length ?? 0;
-  if (activeClear !== clearingCount) { clearingCount = activeClear; ui(); }
-  const cleared = timeline ? timeline.before.cleared + timeline.segments.filter(segment => segment.type === 'unitsCleared' && segment.end <= elapsed).reduce((sum, segment) => sum + segment.units.length, 0) : state.cleared;
-  if (cleared !== displayedCleared) { displayedCleared = cleared; ui(); }
   if (timeline && elapsed >= timeline.duration) {
     timeline = null; phase = state.terminal ?? 'playing';
     notice = state.terminal === 'won' ? 'All pieces cleared!' : state.terminal === 'lost' ? 'Try a different magnet order.' : 'Choose a magnet for the next move.';
@@ -188,7 +191,7 @@ function loadLevel(index) {
   cancelGesture(); cancelFrame(); timeline = null; elapsed = 0; previousElapsed = 0; keyboardCell = null;
   levelIndex = index; level = prototypeLevels[index]; state = createPrototypeState(level);
   phase = 'playing'; paused = false; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
-  displayedCleared = 0; clearingCount = 0;
+  displayedCleared = 0; collection.clear();
   ui(); draw();
 }
 function hint() {
@@ -236,13 +239,14 @@ function snapshot() {
   return { state: structuredClone(state), phase, selected, paused, levelIndex, puzzleId: level.id,
     timeline: timeline ? { duration: timeline.duration, elapsed, activeUnits: timeline.segments.filter(segment => segment.type === 'unitMoved' && segment.start <= elapsed && segment.end > elapsed).length } : null,
     renderer: board?.snapshot() ?? null, canvasCount: root.querySelectorAll('canvas').length,
+    displayedCleared, collection: collection.snapshot(),
     drag: drag ? { x: drag.x, y: drag.y, targetX: drag.targetX, targetY: drag.targetY, angle: drag.angle, released: drag.released } : null,
     gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error, loading };
 }
 function dispose() {
   if (disposed) return;
   disposed = true; boardGeneration++; cancelGesture(); cancelFrame(); timeline = null;
-  observer.disconnect(); cleanups.forEach(cleanup => cleanup()); board?.dispose(); board = null;
+  collection.dispose(); observer.disconnect(); cleanups.forEach(cleanup => cleanup()); board?.dispose(); board = null;
   render(null, root); if (import.meta.env.DEV) delete window.gameDebug;
 }
 ui(); initializeBoard();
@@ -255,6 +259,7 @@ listen(window, 'pointercancel', event => {
 listen(window, 'lostpointercapture', event => { if (gesture?.id === event.pointerId) { cancelGesture(); draw(); } });
 listen(canvas, 'pointerleave', () => { if (!gesture) { hover = null; draw(); } });
 listen(window, 'resize', resize);
+listen(window, 'scroll', () => draw(), { passive: true });
 listen(window, 'blur', () => setPaused(true));
 listen(document, 'visibilitychange', () => { if (document.hidden) setPaused(true); });
 listen(canvas, 'webglcontextlost', event => { event.preventDefault(); setPaused(true); error = 'WebGL context lost'; ui(); });

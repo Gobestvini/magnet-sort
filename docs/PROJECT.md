@@ -11,6 +11,7 @@
 | `src/prototype/model.js` | Rules v3: ordered units, immutable applyMagnet, BFS, верхний цвет, очистка по 6, победа/поражение |
 | `src/prototype/levels.js` | Три авторских поля и детерминированные решения |
 | `src/prototype/motion.js` | Поэлементная timeline: запуск, соседний полёт, посадка, очистка, reduced motion |
+| `src/prototype/collection.js`, `tests/collection.test.js`, `tools/collection-browser-check.cjs` | Уплотнение башни, поэлементный сбор в HUD, SVG-шлейф/искры, начисление при прибытии; conservation, pause/reset/resize/reduced/dispose. Отчёт: `docs/reports/COLLECTION_FLIGHT.md` |
 | `src/prototype/board.js`, `chip.js`, `ring.js` | Three.js 0.186.1, OrthographicCamera, полные псевдо‑3D PNG-фишки в проекции плиток, backing prism при перелёте, счётчик верхнего цвета; общий hex-контур, raycasting, GPU cleanup |
 | `src/prototype/assets.js`, `public/art/mockup/` | Декодирование PNG до ввода, общие текстуры, nine-slice рамки, manifest вырезок |
 | `src/prototype/App.js`, `prototype.css` | Preact HUD, магниты, правила, hint/result/retry, адаптивная композиция |
