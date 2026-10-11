@@ -191,8 +191,9 @@ export function createThreeBoard(canvas, textures) {
     }
     const activeMagnet = sampled?.magnet ?? (!paused && hover && selected && canPlaceMagnet(state, hover) ? { cell: hover, color: selected } : null);
     magnet.visible = Boolean(activeMagnet) && !hideMagnet;
-    const glowCell = dragging && !paused && hover && selected && canPlaceMagnet(state, hover) ? hover : null;
-    glow.draw(glowCell ? magnetAnchor(glowCell) : null, COLORS[selected]?.hex ?? '#b45aff', time, reduced, glowCell);
+    const workingMagnet = !paused ? sampled?.magnet : null;
+    const glowCell = workingMagnet?.cell ?? (dragging && !paused && hover && selected && canPlaceMagnet(state, hover) ? hover : null);
+    glow.draw(glowCell ? magnetAnchor(glowCell) : null, COLORS[workingMagnet?.color ?? selected]?.hex ?? '#b45aff', time, timeline?.reduced ?? reduced, glowCell, Boolean(workingMagnet));
     if (activeMagnet) {
       magnet.position.copy(magnetAnchor(activeMagnet.cell));
       magnet.material = materials['magnet-' + activeMagnet.color];
