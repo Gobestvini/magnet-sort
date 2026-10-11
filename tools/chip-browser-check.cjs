@@ -46,6 +46,15 @@ const base=process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
        check(unit.height>0&&unit.height<=CHIP_HEIGHT+1e-6,'one element must have one physical thickness');
        if(!unit.moving)check(Math.abs(unit.position[1]-(.16+(unit.index+.5)*CHIP_HEIGHT))<1e-6,'stack index differs from physical layer');
       }
+      for(const placement of snapshot.placement){
+       check(placement.facing>.999999,'resting wafer is tilted relative to the tile');
+       // All six base vertices must stay inside every edge of the measured
+       // inner well. This catches a displaced anchor and projection mismatch.
+       for(const point of placement.footprint){
+        const signs=placement.well.map((a,i)=>{const b=placement.well[(i+1)%6];return (b[0]-a[0])*(point[1]-a[1])-(b[1]-a[1])*(point[0]-a[0]);});
+        check(signs.every(s=>s>=-1e-8)||signs.every(s=>s<=1e-8),'base crosses a cream tile border '+JSON.stringify({time,point,placement,signs}));
+       }
+      }
       const sample=sampleTransferTimeline(timeline,time);const groups=new Map();
       const clearing=new Set(timeline.segments.filter(s=>s.type==='unitsCleared'&&s.start<=time&&s.end>time).flatMap(s=>s.units.map(u=>u.id)));
       for(const p of sample.units)if(!p.from&&!clearing.has(p.id)){const id=p.cell.row+':'+p.cell.col;if(!groups.has(id))groups.set(id,[]);groups.get(id).push(p);}

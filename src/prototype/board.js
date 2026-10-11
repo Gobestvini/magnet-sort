@@ -3,7 +3,7 @@ import { cellId } from '../game/hex.js';
 import { COLORS, canPlaceMagnet } from './model.js';
 import { sampleTransferTimeline } from './motion.js';
 import { hexContour } from './ring.js';
-import {createChipGeometry,createChipSeamGeometry,CHIP_HEIGHT,topColorCount} from './chip.js';
+import {createChipBodyGeometry,chipLayout,CHIP_HEIGHT,topColorCount} from './chip.js';
 
 const UNIT_HEIGHT = CHIP_HEIGHT;
 const FLOOR = .16;
@@ -13,8 +13,8 @@ export function cellPosition(cell) {
     z: (cell.row - 3) * 1.5 * RADIUS };
 }
 
-// Generated satin caps and thin solid bodies share one Three scene.
-// Every model ID owns one group; the PNG's baked wall is excluded from top UVs.
+// Complete pseudo-3D wafers and tiles share one camera projection.
+// Every model ID owns one group, including transit and clearance.
 export function createThreeBoard(canvas, textures) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setClearColor(0x000000, 0);
@@ -29,24 +29,31 @@ export function createThreeBoard(canvas, textures) {
   const resources = new Set(Object.values(textures));
   const own = resource => { resources.add(resource); return resource; };
   const plane = own(new THREE.PlaneGeometry(1, 1));
-  const chipGeometry = own(createChipGeometry()),seamGeometry=own(createChipSeamGeometry());
+  const chipGeometry = own(createChipBodyGeometry());
   const materials = Object.fromEntries(Object.entries(textures).map(([name, texture]) => [name,
     own(new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }))]));
-  const wallColors={violet:'#7439b4',blue:'#087cb9',coral:'#bd4948'};
+  const wallColors={violet:'#6104b6',blue:'#0067bc',coral:'#bd3010'};
   const chipMaterials = Object.fromEntries(Object.entries(COLORS).map(([color]) => {
     const cap = own(materials['chip-' + color].clone());
-    cap.depthTest = cap.depthWrite = true;
+    cap.depthTest = cap.depthWrite = false;
     const wall = own(new THREE.MeshStandardMaterial({ color:wallColors[color],roughness:.65,metalness:0,toneMapped:false,
-      transparent: true, depthTest: true, depthWrite: true }));
+      transparent: true, depthTest: false, depthWrite: false }));
     return [color, [cap, wall]];
   }));
-  const seamMaterials=Object.fromEntries(Object.entries(wallColors).map(([color,value])=>[color,own(new THREE.MeshBasicMaterial({color:new THREE.Color(value).multiplyScalar(.62),transparent:true,depthTest:true,depthWrite:true,toneMapped:false}))]));
   const tileWidth=Math.sqrt(3)*RADIUS*.995;
   const tileHeight = tileWidth * textures.tile.image.height / textures.tile.image.width;
   const screenUp=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion);
+  const chipLayouts=Object.fromEntries(Object.keys(COLORS).map(color=>[color,chipLayout(textures['chip-'+color].image,screenUp.y)]));
+  const shadowCanvas=document.createElement('canvas');shadowCanvas.width=shadowCanvas.height=128;
+  const shadowContext=shadowCanvas.getContext('2d');
+  const gradient=shadowContext.createRadialGradient(64,64,8,64,64,64);
+  gradient.addColorStop(0,'rgba(43,18,53,.38)');gradient.addColorStop(.65,'rgba(43,18,53,.22)');gradient.addColorStop(1,'rgba(43,18,53,0)');
+  shadowContext.fillStyle=gradient;shadowContext.fillRect(0,0,128,128);
+  const shadowTexture=own(new THREE.CanvasTexture(shadowCanvas));shadowTexture.colorSpace=THREE.SRGBColorSpace;
+  const shadowMaterial=own(new THREE.MeshBasicMaterial({map:shadowTexture,transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));
   const pickShape = new THREE.Shape();
   [[0, .5], [.5, .25], [.5, -.25], [0, -.5], [-.5, -.25], [-.5, .25]].forEach(([x, y], index) => {
-    const px=x*tileWidth,py=(y+.5-234/512)*tileHeight;
+    const px=x*tileWidth,py=(y+234/512-.5)*tileHeight;
     if (!index) pickShape.moveTo(px,py); else pickShape.lineTo(px,py);
   });
   pickShape.closePath();
@@ -66,7 +73,7 @@ export function createThreeBoard(canvas, textures) {
   const boardRoot = new THREE.Group(), unitsRoot = new THREE.Group();
   scene.add(boardRoot, unitsRoot);
   const pickMeshes = [], cellMeshes = new Map(), unitMeshes = new Map();
-  const labels=new Map(),labelTextures=new Map();
+  const labels=new Map(),labelTextures=new Map(),shadows=new Map();
   const labelMaterial=count=>{
     if(labelTextures.has(count))return labelTextures.get(count);
     const c=document.createElement('canvas');c.width=128;c.height=128;
@@ -78,6 +85,7 @@ export function createThreeBoard(canvas, textures) {
   let currentLevel = null, disposed = false;
   const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
   const axis = new THREE.Vector3(), projected = new THREE.Vector3();
+  const flip=new THREE.Quaternion();
   function artwork(name, width) {
     const mesh = new THREE.Mesh(plane, materials[name]);
     mesh.quaternion.copy(camera.quaternion);
@@ -95,7 +103,7 @@ export function createThreeBoard(canvas, textures) {
     for (const cell of level.cells) {
       const pos = cellPosition(cell), id = cellId(cell);
       const tile = artwork('tile', tileWidth);
-      tile.position.set(pos.x, FLOOR, pos.z);tile.position.addScaledVector(screenUp,(.5-234/512)*tileHeight);
+      tile.position.set(pos.x, FLOOR, pos.z);tile.position.addScaledVector(screenUp,(234/512-.5)*tileHeight);
       tile.renderOrder = Math.round(pos.z * 100);
       boardRoot.add(tile); cellMeshes.set(id, tile);
       if (blocked.has(id)) {
@@ -112,11 +120,11 @@ export function createThreeBoard(canvas, textures) {
   function unitMesh(unit) {
     if (unitMeshes.has(unit.id)) return unitMeshes.get(unit.id);
     const root = new THREE.Group();
-    const body = new THREE.Mesh(chipGeometry, chipMaterials[unit.color]);
-    body.renderOrder = 1000; body.userData.unitId = unit.id;
-    body.position.y = -UNIT_HEIGHT / 2;
-    root.add(body);
-    const seam=new THREE.Mesh(seamGeometry,seamMaterials[unit.color]);seam.position.y=-UNIT_HEIGHT/2;seam.renderOrder=1000;root.add(seam);
+    const layout=chipLayouts[unit.color];
+    const backing=new THREE.Mesh(chipGeometry,chipMaterials[unit.color][1]);
+    backing.position.y=layout.offset;root.add(backing);
+    const face=new THREE.Mesh(plane,chipMaterials[unit.color][0]);
+    face.scale.set(layout.width,layout.height,1);face.position.y=layout.offset;root.add(face);
     unitsRoot.add(root); unitMeshes.set(unit.id, root);
     return root;
   }
@@ -128,7 +136,7 @@ export function createThreeBoard(canvas, textures) {
     const alive = new Set();
     for (const pose of poses) {
       const mesh = unitMesh(pose); alive.add(pose.id);
-      mesh.rotation.set(0, 0, 0); mesh.scale.setScalar(pose.scale);
+      mesh.quaternion.copy(camera.quaternion); mesh.scale.setScalar(pose.scale);
       if (pose.from) {
         const from = cellPosition(pose.from), to = cellPosition(pose.to);
         const p = pose.progress, ease = p * p * (3 - 2 * p);
@@ -137,11 +145,16 @@ export function createThreeBoard(canvas, textures) {
         if (!timeline.reduced) {
           mesh.position.y += Math.sin(p * Math.PI) * .54;
           axis.set(to.z - from.z, 0, from.x - to.x).normalize();
-          mesh.setRotationFromAxisAngle(axis, -Math.PI * 2 * ease);
+          flip.setFromAxisAngle(axis, -Math.PI * 2 * ease);
+          mesh.quaternion.premultiply(flip);
         }
       } else {
         const pos = cellPosition(pose.cell); mesh.position.set(pos.x, FLOOR + (pose.index + .5) * UNIT_HEIGHT, pos.z);
       }
+      // Draw back cells first, then their layers. Flights stay above stacks.
+      const order=pose.from?18000:6000+Math.round(mesh.position.z*100)*20+(pose.index??0)*2;
+      mesh.children[0].renderOrder=order;mesh.children[1].renderOrder=order+1;
+      mesh.children[0].visible=Boolean(pose.from);
       mesh.userData = { id: pose.id, color: pose.color, cell: pose.cell ?? null, index: pose.index ?? null,
         moving: Boolean(pose.from), from: pose.from, to: pose.to, progress: pose.progress, scale: pose.scale };
     }
@@ -152,9 +165,13 @@ export function createThreeBoard(canvas, textures) {
     for(const [id,units] of stacks){
       units.sort((a,b)=>a.index-b.index);const count=topColorCount(units),top=units.at(-1),pos=cellPosition(top.cell);
       let badge=labels.get(id);if(!badge){badge=new THREE.Sprite(labelMaterial(count));badge.scale.set(.48,.48,1);badge.renderOrder=20000;scene.add(badge);labels.set(id,badge);}
-      badge.material=labelMaterial(count);badge.position.set(pos.x,FLOOR+(top.index+1)*UNIT_HEIGHT+.003,pos.z);badge.userData={cell:top.cell,count};
+      badge.material=labelMaterial(count);badge.position.set(pos.x,FLOOR+(top.index+.5)*UNIT_HEIGHT,pos.z);
+      badge.position.addScaledVector(screenUp,chipLayouts[top.color].offset+.028);badge.userData={cell:top.cell,count};
+      let shadow=shadows.get(id);if(!shadow){shadow=new THREE.Mesh(plane,shadowMaterial);shadow.quaternion.copy(camera.quaternion);shadow.scale.set(.99,.8,1);shadow.renderOrder=700;scene.add(shadow);shadows.set(id,shadow);}
+      shadow.position.set(pos.x,FLOOR,pos.z);shadow.position.addScaledVector(screenUp,-.065);
     }
     for(const [id,badge]of labels)if(!stacks.has(id)){scene.remove(badge);labels.delete(id);}
+    for(const [id,shadow]of shadows)if(!stacks.has(id)){scene.remove(shadow);shadows.delete(id);}
     for (const [id, tile] of cellMeshes) {
       tile.material = materials.tile;
       if (hover && cellId(hover) === id && selected && !paused) tile.material = canPlaceMagnet(state, hover) ? validMaterial : invalidMaterial;
@@ -179,6 +196,16 @@ export function createThreeBoard(canvas, textures) {
     camera.top = halfHeight; camera.bottom = -halfHeight;
     camera.updateProjectionMatrix(); camera.updateMatrixWorld();
   }
+  function placementProof() {
+    const projectPoint=(mesh,x,y)=>new THREE.Vector3(x,y,0).applyMatrix4(mesh.matrixWorld).project(camera).toArray().slice(0,2);
+    return [...unitMeshes.values()].filter(mesh=>!mesh.userData.moving&&mesh.userData.index===0).map(mesh=>{
+      const tile=cellMeshes.get(cellId(mesh.userData.cell)),face=mesh.children[1];
+      return {cell:mesh.userData.cell,
+        footprint:[[0,.5],[.5,.25],[.5,-.25],[0,-.5],[-.5,-.25],[-.5,.25]].map(([x,y])=>projectPoint(face,x,y)),
+        well:[[235,53],[420,155],[420,310],[235,415],[50,310],[50,155]].map(([x,y])=>projectPoint(tile,x/471-.5,.5-y/512)),
+        facing:new THREE.Vector3(0,0,1).applyQuaternion(mesh.quaternion).dot(new THREE.Vector3(0,0,1).applyQuaternion(camera.quaternion))};
+    });
+  }
   return {
     draw, resize,
     pick(clientX, clientY) {
@@ -193,13 +220,14 @@ export function createThreeBoard(canvas, textures) {
       projected.set(pos.x, FLOOR, pos.z).project(camera);
       return { x: rect.left + (projected.x + 1) * rect.width / 2, y: rect.top + (1 - projected.y) * rect.height / 2 };
     },
-    snapshot() { return { engine: 'Three.js', revision: THREE.REVISION, artwork: 'generated-satin-chips', meshes: unitMeshes.size,
+    snapshot() { return { engine: 'Three.js', revision: THREE.REVISION, artwork: 'authored-pseudo3d-wafers', meshes: unitMeshes.size,
       counts:[...labels.values()].map(b=>b.userData),
+      placement:placementProof(),
       units: [...unitMeshes.values()].map(mesh => ({ ...mesh.userData, position: mesh.position.toArray(), height: UNIT_HEIGHT * mesh.scale.x })),
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, drawCalls: renderer.info.render.calls }; },
     dispose() {
       if (disposed) return;
-      disposed = true; scene.clear(); unitMeshes.clear(); cellMeshes.clear(); labels.clear();labelTextures.clear();pickMeshes.length = 0;
+      disposed = true; scene.clear(); unitMeshes.clear(); cellMeshes.clear(); labels.clear();shadows.clear();labelTextures.clear();pickMeshes.length = 0;
       for (const resource of resources) resource.dispose();
       resources.clear(); renderer.dispose();
     },

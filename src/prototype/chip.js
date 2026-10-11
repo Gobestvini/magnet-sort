@@ -2,29 +2,32 @@ import * as THREE from 'three';
 import { hexContour } from './ring.js';
 
 export const CHIP_RADIUS = .4352;
-export const CHIP_HEIGHT = .064;
-export const CHIP_SEAM = .012;
-const BEVEL = .008;
-// Generated sprites: only top-face pixels, excluding the painted lower wall.
-export function chipFaceUV(x,y) {
-  return new THREE.Vector2(.5+x/(Math.sqrt(3)*CHIP_RADIUS)*.97,
-    1-(.477-y/CHIP_RADIUS*.468));
+export const CHIP_WIDTH = Math.sqrt(3) * CHIP_RADIUS;
+// World-space rise projects to about one tenth of a wafer's width on screen.
+export const CHIP_HEIGHT = .14;
+export const CHIP_DEPTH = .028;
+export const CHIP_ANCHOR = .52;
+
+// Complete authored wafer: cap, bevel and front wall share the tile's camera.
+export function chipLayout(image, screenUpY) {
+  const height = CHIP_WIDTH * image.height / image.width;
+  return { width: CHIP_WIDTH, height,
+    offset: (CHIP_ANCHOR - .5) * height - CHIP_HEIGHT * .5 * screenUpY };
 }
-export function createChipGeometry() {
-  const geometry=new THREE.ExtrudeGeometry(hexContour(CHIP_RADIUS),{
-    depth:CHIP_HEIGHT-CHIP_SEAM-2*BEVEL,bevelEnabled:true,
-    bevelSize:BEVEL,bevelThickness:BEVEL,bevelSegments:3,curveSegments:6,steps:1,
-    UVGenerator:{generateTopUV:(_,vertices,...indices)=>indices.map(i=>chipFaceUV(vertices[i*3],vertices[i*3+1])),
-      generateSideWallUV:(_,vertices,...indices)=>indices.map(i=>new THREE.Vector2(vertices[i*3],vertices[i*3+2]))}
+
+// Thin backing supplies an edge during flips, behind the complete raster.
+export function createChipBodyGeometry() {
+  const geometry = new THREE.ExtrudeGeometry(hexContour(CHIP_RADIUS * .985), {
+    depth: CHIP_DEPTH, bevelEnabled: false, curveSegments: 6, steps: 1,
   });
-  geometry.rotateX(-Math.PI/2);geometry.translate(0,CHIP_SEAM+BEVEL,0);return geometry;
+  geometry.scale(1, Math.sqrt(3) / 2 * 512 / 510, 1);
+  geometry.translate(0, 0, -CHIP_DEPTH);
+  return geometry;
 }
-export function createChipSeamGeometry(){
- const g=new THREE.ExtrudeGeometry(hexContour(CHIP_RADIUS-.002),{depth:CHIP_SEAM,bevelEnabled:false,curveSegments:6,steps:1});
- g.rotateX(-Math.PI/2);return g;
-}
-export function topColorCount(units){
- const color=units.at(-1)?.color;let count=0;
- for(let i=units.length-1;i>=0&&units[i].color===color;i--)count++;
- return count;
+
+export function topColorCount(units) {
+  const color = units.at(-1)?.color;
+  let count = 0;
+  for (let i = units.length - 1; i >= 0 && units[i].color === color; i--) count++;
+  return count;
 }

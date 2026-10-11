@@ -9,13 +9,13 @@
 | `src/prototype/model.js` | Rules v3: ordered units, immutable applyMagnet, BFS, верхний цвет, очистка по 6, победа/поражение |
 | `src/prototype/levels.js` | Три авторских поля и детерминированные решения |
 | `src/prototype/motion.js` | Поэлементная timeline: запуск, соседний полёт, посадка, очистка, reduced motion |
-| `src/prototype/board.js`, `chip.js`, `ring.js` | Three.js 0.186.1, OrthographicCamera, тонкие сплошные фишки с PNG-текстурой верха и счётчиком верхнего цвета; ring.js предоставляет общий hex-контур, raycasting, GPU cleanup |
+| `src/prototype/board.js`, `chip.js`, `ring.js` | Three.js 0.186.1, OrthographicCamera, полные псевдо‑3D PNG-фишки в проекции плиток, backing prism при перелёте, счётчик верхнего цвета; общий hex-контур, raycasting, GPU cleanup |
 | `src/prototype/assets.js`, `public/art/mockup/` | Декодирование PNG до ввода, общие текстуры, nine-slice рамки, manifest вырезок |
 | `src/prototype/App.js`, `prototype.css` | Preact HUD, магниты, правила, hint/result/retry, адаптивная композиция |
 | `src/game/hex.js`, `src/loop.js` | Переиспользуемые чистые hex helpers и fixed step |
 | `tests/prototype-v3.test.js` | Соседство каждого переноса, открытые слои, масса, immutable state, все legal first placements, решения и timeline |
 | `tools/browser-check.cjs` | Новый desktop/mobile viewport сценарий Three.js; `pnpm test:browser` |
-| `tests/chip.test.js`, `tools/chip-browser-check.cjs` | Сплошной центр, физическая толщина, UV без нарисованной боковины; число элементов, счётчики и позиции на 782 кадрах, высокие стопки 20 элементов |
+| `tests/chip.test.js`, `tools/chip-browser-check.cjs` | Тонкое объёмное ребро перелёта, стабильный якорь, основание внутри всех граней углубления, совпадение проекции; число элементов и счётчики на 782 кадрах, стопки 20 элементов |
 | `tests/ring.test.js`, `tools/ring-browser-check.cjs` | Исторические проверки предыдущих колец; browser-сценарий не соответствует текущим сплошным фишкам |
 | `src/legacy-main.js`, `tools/legacy-browser-check.cjs` | Сохранённые entry/браузерный сценарий прежнего MVP, не подключённые новым entry |
 | `docs/design/GDD_V0.3.md`, `THREE_RENDERING.md` | Актуальные правила и renderer contract |
