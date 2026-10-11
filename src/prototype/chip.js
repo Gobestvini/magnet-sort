@@ -16,11 +16,9 @@ export function chipLayout(screenUpY, tileWidth, tileHeight) {
 
 // Adapt the wafer's six boundary corners to the actual well; a uniform scale
 // cannot fit both the angled shoulders and the front tip of the authored art.
-export function createInsetFaceGeometry(blocker = false) {
+export function createInsetFaceGeometry() {
   const vertices = [[0,0], ...contour];
-  const uv = blocker
-    ? [[70/140,1-65/141],[70/140,1-6/141],[129/140,1-35/141],[129/140,1-95/141],[70/140,1-124/141],[11/140,1-95/141],[11/140,1-35/141]]
-    : [[.5,.5],[.5,1],[1,.75],[1,.29],[.5,0],[0,.29],[0,.75]];
+  const uv = [[.5,.5],[.5,1],[1,.75],[1,.29],[.5,0],[0,.29],[0,.75]];
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices.flatMap(([x,y])=>[x,y,0]),3));
   geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv.flat(),2));

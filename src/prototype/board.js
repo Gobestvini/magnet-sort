@@ -3,6 +3,7 @@ import { cellId } from '../game/hex.js';
 import { COLORS, canPlaceMagnet } from './model.js';
 import { sampleTransferTimeline } from './motion.js';
 import {createChipBodyGeometry,createInsetFaceGeometry,chipLayout,CHIP_HEIGHT,WELL_PIXELS,topColorCount} from './chip.js';
+import { createBlockerPlateGeometry } from './blocker.js';
 
 const UNIT_HEIGHT = CHIP_HEIGHT;
 const FLOOR = .16;
@@ -59,7 +60,9 @@ export function createThreeBoard(canvas, textures) {
   pickShape.closePath();
   const pickGeometry = own(new THREE.ShapeGeometry(pickShape));
   const pickMaterial = own(new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, side: THREE.DoubleSide }));
-  const blockerGeometry = own(createInsetFaceGeometry(true));
+  const blockerGeometry = own(createBlockerPlateGeometry());
+  const blockerRim = own(new THREE.MeshBasicMaterial({color:'#2c3049',transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:THREE.DoubleSide}));
+  const blockerFace = own(new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:THREE.DoubleSide}));
   const validMaterial = own(materials.tile.clone()); validMaterial.color.set('#b7ffd3');
   const invalidMaterial = own(materials.tile.clone()); invalidMaterial.color.set('#ffaaa0');
   const tutorialMaterial = own(materials.tile.clone()); tutorialMaterial.color.set('#fff1a6');
@@ -100,10 +103,15 @@ export function createThreeBoard(canvas, textures) {
       tile.renderOrder = Math.round(pos.z * 100);
       boardRoot.add(tile); cellMeshes.set(id, tile);
       if (blocked.has(id)) {
-        const marker = new THREE.Mesh(blockerGeometry, materials.blocker);
+        const marker = new THREE.Group();
         marker.quaternion.copy(camera.quaternion);
         marker.scale.set(layout.width,layout.height,1);
-        marker.position.set(pos.x+layout.offsetX, FLOOR, pos.z); marker.renderOrder = 500;
+        marker.position.set(pos.x+layout.offsetX, FLOOR, pos.z);
+        const rim=new THREE.Mesh(blockerGeometry,blockerRim);rim.renderOrder=500;marker.add(rim);
+        const face=new THREE.Mesh(blockerGeometry,blockerFace);face.scale.set(.965,.965,1);face.renderOrder=501;marker.add(face);
+        const icon=new THREE.Mesh(plane,materials['blocker-x']);
+        const image=textures['blocker-x'].image;
+        icon.scale.set(.72,.72*layout.width/layout.height*image.height/image.width,1);icon.renderOrder=502;marker.add(icon);
         marker.userData.cell=cell;
         boardRoot.add(marker);blockerMeshes.set(id,marker);
       }
@@ -202,7 +210,7 @@ export function createThreeBoard(canvas, textures) {
     };
     return [...unitMeshes.values()].filter(mesh=>!mesh.userData.moving&&mesh.userData.index===0)
       .map(mesh=>proof(mesh.userData.cell,mesh.children[1],mesh.quaternion,'chip',mesh.scale.x))
-      .concat([...blockerMeshes.values()].map(mesh=>proof(mesh.userData.cell,mesh,mesh.quaternion,'blocker')));
+      .concat([...blockerMeshes.values()].map(mesh=>proof(mesh.userData.cell,mesh.children[0],mesh.quaternion,'blocker')));
   }
   return {
     draw, resize,

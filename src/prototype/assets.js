@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export const art = name => `/art/mockup/${name}.png`;
-const boardAssets = ['tile', 'blocker', ...['violet', 'blue', 'coral'].flatMap(color => [`chip-${color}`, `magnet-${color}`])];
+const boardAssets = ['tile', 'blocker-x', ...['violet', 'blue', 'coral'].flatMap(color => [`chip-${color}`, `magnet-${color}`])];
 const uiAssets = ['background', 'logo-exact', 'panel', 'modal', 'button-purple', 'button-green', 'button-light',
   'tool-neutral-frame', 'tool-selected-frame', 'pause', 'close', 'hint', 'restart', 'progress-empty', 'progress-full',
   'switch-off', 'switch-thumb', 'loading-track', 'loading-fill', 'tutorial-arrow',

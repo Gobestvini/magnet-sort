@@ -22,6 +22,19 @@ const base=process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
    const board=createThreeBoard(canvas,await loadBoardTextures());board.resize(390,650);
    board.draw(prototypeLevels[2],createPrototypeState(prototypeLevels[2]));
    const check=(condition,message)=>{if(!condition)throw new Error(message)};
+   // Verify real pixels: an integrated PNG can leave gaps inside a fitted mesh.
+   const capture=document.createElement('canvas');capture.width=canvas.width;capture.height=canvas.height;
+   const context=capture.getContext('2d');context.drawImage(canvas,0,0);
+   let blockerPixels=0;
+   for(const placement of board.snapshot().placement.filter(p=>p.kind==='blocker')){
+    const centre=placement.footprint.reduce((sum,p)=>[sum[0]+p[0]/6,sum[1]+p[1]/6],[0,0]);
+    for(const corner of placement.footprint){
+     const x=Math.round((centre[0]+(corner[0]-centre[0])*.9+1)*canvas.width/2);
+     const y=Math.round((1-centre[1]-(corner[1]-centre[1])*.9)*canvas.height/2);
+     const rgba=context.getImageData(x,y,1,1).data;
+     check(rgba[3]>240&&rgba[0]<165&&rgba[2]>rgba[0]+8,'blocker plaque has an unfilled/cream corner '+JSON.stringify([...rgba]));blockerPixels++;
+    }
+   }
    let frames=0,flights=0;const memory=[];
    for(const reduced of [false,true])for(const level of prototypeLevels){
     let state=createPrototypeState(level);
@@ -71,7 +84,7 @@ const base=process.env.GAME_BASE_URL || 'http://127.0.0.1:5173';
    }
    check(memory.every(count=>count===memory[0]),'geometry accumulates across level changes');
    window.chipVisual={board,prototypeLevels,createPrototypeState,applyMagnet,makeTransferTimeline};
-   return {frames,flights,geometryCounts:memory};
+   return {frames,flights,geometryCounts:memory,blockerPixels};
   });
   for(const [name,fraction] of [['settled',null],['flight-quarter',.25],['flight-half',.5],['flight-three-quarters',.75]]){
    await page.evaluate(fraction=>{
