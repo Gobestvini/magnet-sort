@@ -1,5 +1,7 @@
 # Magnet Sort — 3D-прототип
 
+Игра на любом устройстве: [GitHub Pages](https://gobestvini.github.io/magnet-sort/). Push в `main` запускает `.github/workflows/deploy-pages.yml`: production-сборку, браузерную проверку под `/magnet-sort/` и публикацию. Локально этот сценарий: `pnpm build`, затем `node tools/pages-browser-check.cjs`.
+
 Актуальная игра с 2026-10-09: Three.js, цветные магниты и быстрый перенос отдельных элементов между соседними hex-клетками по приложенному видео. Игрок ставит магнит; стопки уже находятся на поле. Три проверяемых поля: одноцветное притяжение, выбор цвета и смешанные стопки.
 
 Перенос casual-мокапов через отдельные PNG-ассеты, nine-slice рамки и графические слои Three.js; английский интерфейс и магниты без символов. [Ассеты](docs/design/MOCKUP_ASSETS.md), [план](docs/design/CASUAL_MIGRATION.md), [результат и проверки](docs/reports/RASTER_DESIGN.md).
@@ -23,7 +25,7 @@ pnpm test:browser
 
 Дизайн: [GDD v0.3](docs/design/GDD_V0.3.md). [Контракт Three.js](docs/design/THREE_RENDERING.md), [карта кода](docs/PROJECT.md), [отчёт прототипа](docs/reports/THREE_PROTOTYPE.md).
 
-Прежний PixiJS MVP и его 50 уровней сохранены в исходниках для истории и тестов, но не запускаются текущим entry. Его progress/daily/challenge/platform features ещё не перенесены на rules v3. PixiJS остаётся только legacy-зависимостью. Игра не публикуется автоматически.
+Прежний PixiJS MVP и его 50 уровней сохранены в исходниках для истории и тестов, но не запускаются текущим entry. Его progress/daily/challenge/platform features ещё не перенесены на rules v3. PixiJS остаётся только legacy-зависимостью.
 
 ## Исторический README шаблона и v0.2
 

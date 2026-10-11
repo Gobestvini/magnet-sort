@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
-export const art = name => `/art/mockup/${name}.png`;
+// Runtime URLs must share Vite's deployment base (including GitHub Pages subpaths).
+export const art = name => `${import.meta.env.BASE_URL}art/mockup/${name}.png`;
 const boardAssets = ['tile', 'blocker-x', ...['violet', 'blue', 'coral'].flatMap(color => [`chip-${color}`, `magnet-${color}`])];
 const uiAssets = ['background', 'background-grid-mask', 'logo-exact', 'panel', 'modal', 'button-purple', 'button-green', 'button-light',
   'tool-neutral-frame', 'tool-selected-frame', 'pause', 'close', 'hint', 'restart', 'progress-empty', 'progress-full',
