@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export const art = name => `/art/mockup/${name}.png`;
-const boardAssets = ['tile', 'blocker', ...['violet', 'blue', 'coral'].flatMap(color => [`ring-${color}`, `magnet-${color}`])];
+const boardAssets = ['tile', 'blocker', ...['violet', 'blue', 'coral'].flatMap(color => [`chip-${color}`, `magnet-${color}`])];
 const uiAssets = ['background', 'logo-exact', 'panel', 'modal', 'button-purple', 'button-green', 'button-light',
   'tool-neutral-frame', 'tool-selected-frame', 'pause', 'close', 'hint', 'restart', 'progress-empty', 'progress-full',
   'paused-title', 'defeat-title', 'defeat-magnet', 'victory-ribbon', 'switch-off', 'switch-thumb', 'loading-art', 'loading-track', 'loading-fill', 'tutorial-arrow',
@@ -16,6 +16,7 @@ function decodeArtwork(name) {
 // Decode every shared texture before creating the scene. A failed batch releases
 // its successful loads too, so Retry never accumulates orphan GPU resources.
 export async function loadBoardTextures(onProgress = () => {}) {
+  await document.fonts.load('1000 82px Nunito');
   const loader = new THREE.TextureLoader();
   let completed = 0;
   const progress = () => onProgress(Math.round(++completed / (boardAssets.length + uiAssets.length) * 100));
