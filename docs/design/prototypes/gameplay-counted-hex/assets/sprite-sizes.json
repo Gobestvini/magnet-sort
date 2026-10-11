@@ -1,0 +1,27 @@
+{
+  "tile-cream": {
+    "width": 471,
+    "height": 512,
+    "ratio": 1.0870488322717622
+  },
+  "chip-violet": {
+    "width": 509,
+    "height": 512,
+    "ratio": 1.005893909626719
+  },
+  "chip-blue": {
+    "width": 510,
+    "height": 512,
+    "ratio": 1.003921568627451
+  },
+  "chip-coral": {
+    "width": 508,
+    "height": 512,
+    "ratio": 1.0078740157480315
+  },
+  "blocker": {
+    "width": 127,
+    "height": 140,
+    "ratio": 1.1023622047244095
+  }
+}

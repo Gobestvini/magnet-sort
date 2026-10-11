@@ -1,9 +1,9 @@
 # TASK-0025: Один gameplay-макет с тонкими хексами и честным счётчиком
 
-- Статус: ready
+- Статус: review
 - Приоритет: high
 - Создана: 2026-10-10
-- Обновлена: 2026-10-10
+- Обновлена: 2026-10-11
 - Проект: Magnet Sort, `C:/Users/gobes/OneDrive/Документы/PetProgects/Magnet Sort`, https://github.com/Gobestvini/magnet-sort
 - Рекомендуемый исполнитель: сильная модель; высокий уровень рассуждения — согласование проекции 3D, компонентов Figma, списка элементов и событий анимации.
 - Зависимости: нет. Историческая TASK-0024 не является зависимостью: она описывает другую версию правил.
@@ -133,10 +133,10 @@
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: —
-- Итоговый статус и дата: —
+- Результат: Figma frame 9:89, отдельный counted-hex preview и запись цепочки. 2026-10-11 пользователь уточнил требование соответствия мокапу: финальный вариант point-up с отдельными painted PNG вместо плоских векторов.
+- Изменённые файлы и зачем: docs/design/prototypes/gameplay-counted-hex/*, tests/gameplay-counted-hex.test.js, tools/*counted-hex*, дизайн-документ и отчёт. Production src не изменён.
+- Команды и фактические результаты: 5 unit tests PASS; browser 14 combinations/3 viewports PASS; pnpm check:full PASS. Подробности в ../reports/GAMEPLAY_COUNTED_HEX.md.
+- Ручные проверки: Figma layers/components/native text/export; in-app browser mixed/chain pause/scrub/reduced/tall. Полного ручного прохода всех фаз не заявляем.
+- Выполненные критерии: отдельный Figma frame/export, fixtures/counts/ID phases, normal/reduced preview/controls, production scope preserved.
+- Непроверенное, блокеры и отклонения от плана: pixel-perfect художественная приёмка не выполнена; painted planes вместо универсального solid volume, визуальная разделимость 20 слоёв и все углы flip требуют доработки/приёмки. MCP limit обходился штатной работой через browser UI.
+- Итоговый статус и дата: review, 2026-10-11; не объявляется done.
