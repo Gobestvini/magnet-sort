@@ -3,18 +3,20 @@
 const fs=require('node:fs'),path=require('node:path'),sharp=require('sharp');
 const root=path.resolve(__dirname,'..'),out=path.join(root,'public/art/mockup');
 const sources=path.join(root,'docs/design/resource-quality/vector');
+const only=process.argv.find(arg=>arg.startsWith('--only='))?.slice(7);
 fs.mkdirSync(sources,{recursive:true});
 const defs=`<defs><linearGradient id="cream" x2="0" y2="1"><stop stop-color="#fffaf1"/><stop offset="1" stop-color="#ecd7bb"/></linearGradient><linearGradient id="purple" x2="0" y2="1"><stop stop-color="#ac64ff"/><stop offset=".45" stop-color="#792be8"/><stop offset="1" stop-color="#3e119c"/></linearGradient><linearGradient id="green" x2="0" y2="1"><stop stop-color="#5afa44"/><stop offset=".45" stop-color="#20c527"/><stop offset="1" stop-color="#099617"/></linearGradient><linearGradient id="gold" x2="0" y2="1"><stop stop-color="#fff4b1"/><stop offset=".45" stop-color="#ffd456"/><stop offset="1" stop-color="#ce882d"/></linearGradient><linearGradient id="grey" x2="0" y2="1"><stop stop-color="#888ca5"/><stop offset="1" stop-color="#41465f"/></linearGradient></defs>`;
 const svg=(w,h,body)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${defs}${body}</svg>`;
 const rect=(x,y,w,h,r,fill,stroke='',sw=1)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" ${stroke?`stroke="${stroke}" stroke-width="${sw}"`:''}/>`;
 const inventory=[];
-async function save(name,w,h,body){const source=svg(w,h,body);fs.writeFileSync(path.join(sources,name+'.svg'),source);await sharp(Buffer.from(source)).resize(w*3,h*3).png().toFile(path.join(out,name+'.png'));inventory.push({name,width:w*3,height:h*3,source:`docs/design/resource-quality/vector/${name}.svg`,scale:3});}
+async function save(name,w,h,body){if(only&&name!==only)return;const source=svg(w,h,body);fs.writeFileSync(path.join(sources,name+'.svg'),source);await sharp(Buffer.from(source)).resize(w*3,h*3).png().toFile(path.join(out,name+'.png'));inventory.push({name,width:w*3,height:h*3,source:`docs/design/resource-quality/vector/${name}.svg`,scale:3});}
 function frame(w,h,r,fill,accent='#e2a449') {return rect(2,4,w-4,h-6,r,'#8b5e8866')+rect(2,2,w-4,h-7,r,'url(#gold)')+rect(5,4,w-10,h-12,r-2,'#fff8e7')+rect(8,7,w-16,h-18,r-5,fill,accent,1.5);}
 (async()=>{
  for(const [name,w,h,r,fill] of [['panel',321,89,42,'url(#cream)'],['modal',708,775,60,'url(#cream)'],['button-purple',390,112,53,'url(#purple)'],['button-green',577,145,68,'url(#green)'],['button-light',469,104,49,'url(#cream)'],['tool-neutral-frame',254,240,43,'url(#cream)'],['tool-selected-frame',274,240,43,'#dab9ff']])await save(name,w,h,frame(w,h,r,fill,name.includes('selected')?'#8d35e8':'#e2a449'));
  for(const name of ['pause','close']){const n=name==='pause'?108:121;await save(name,n,n,frame(n,n,n/2-3,'url(#purple)')+(name==='pause'?rect(n*.32,n*.29,n*.13,n*.43,4,'white')+rect(n*.56,n*.29,n*.13,n*.43,4,'white'):`<path d="M43 42L78 78M78 42L43 78" stroke="#48109c" stroke-width="16" stroke-linecap="round"/><path d="M43 40L78 76M78 40L43 76" stroke="white" stroke-width="12" stroke-linecap="round"/>`));}
  await save('hint',56,69,'<path d="M19 49C19 39 8 36 8 23A20 20 0 0148 23C48 36 37 39 37 49Z" fill="url(#cream)" stroke="#501694" stroke-width="4"/>'+rect(18,48,20,14,4,'#ad77ed','#501694',3)+'<path d="M22 54H34M24 60H32" stroke="white" stroke-width="2"/>');
- await save('restart',68,72,'<path d="M51 19A24 24 0 1055 50" fill="none" stroke="#5714b1" stroke-width="12"/><path d="M50 16A24 24 0 1053 47" fill="none" stroke="white" stroke-width="8"/><path d="M43 8L62 28L38 29Z" fill="white" stroke="#5714b1" stroke-width="2"/>');
+ const restartArrow='<path d="M54 48A22 22 0 1 1 53 22"/><path d="M54 11L55 26L40 24"/>';
+ await save('restart',68,72,`<g fill="none" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(0 2)" stroke="#5714b1" stroke-width="10">${restartArrow}</g><g stroke="white" stroke-width="8">${restartArrow}</g></g>`);
  for(const [name,w,h,fill] of [['progress-empty',500,32,'#bba9a3'],['progress-full',500,32,'#24baff'],['loading-track',720,95,'url(#cream)'],['loading-fill',508,73,'url(#purple)'],['switch-off',144,69,'#afa39b']])await save(name,w,h,frame(w,h,h/2-2,fill)+(name==='switch-off'?'<circle cx="35" cy="35" r="28" fill="url(#cream)" stroke="#fff8eb" stroke-width="3"/>':''));
  await save('switch-thumb',65,65,frame(65,65,30,'url(#cream)'));
  await save('victory-star',90,102,'<path d="M45 4L58 34L85 51L58 65L45 98L32 65L5 51L32 34Z" fill="url(#gold)" stroke="#fff4ca" stroke-width="3"/><path d="M45 10L45 51L10 51L34 37Z" fill="#fff4ad"/>');
@@ -22,7 +24,7 @@ function frame(w,h,r,fill,accent='#e2a449') {return rect(2,4,w-4,h-6,r,'#8b5e886
  await save('tutorial-arrow',173,394,'<path d="M117 367Q30 219 76 36M50 66L78 19L106 58" fill="none" stroke="#8c3ed8" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M112 361Q25 213 71 30M45 60L73 13L101 52" fill="none" stroke="white" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>');
  // Same pixel-space anchors as chip.js; no change to picking or well geometry.
  await save('blocker',140,141,'<path d="M70 6L129 35V95L70 124L11 95V35Z" fill="#30344c"/><path d="M70 6L129 35V89L70 118L11 89V35Z" fill="url(#grey)" stroke="#a7aabc" stroke-width="1.5"/><path d="M47 38L70 61L93 38M47 84L70 61L93 84" stroke="#262a43" stroke-width="19" stroke-linecap="round"/><path d="M47 35L70 58L93 35M47 81L70 58L93 81" stroke="#bec2d8" stroke-width="15" stroke-linecap="round"/>');
- await require('./build-background-grid.cjs').buildBackground();
- fs.writeFileSync(path.join(sources,'inventory.json'),JSON.stringify(inventory,null,2)+'\n');
+ if(!only)await require('./build-background-grid.cjs').buildBackground();
+ if(!only)fs.writeFileSync(path.join(sources,'inventory.json'),JSON.stringify(inventory,null,2)+'\n');
  console.log(`Rebuilt ${inventory.length} UI assets at 3x from SVG sources.`);
 })().catch(e=>{console.error(e);process.exitCode=1});
