@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import { COLORS, remainingUnits } from './model.js';
 import { art } from './assets.js';
+import { IdleBackdrop } from './IdleBackdrop.js';
 
 export function MagnetIcon({ color = 'violet' }) {
   const key = Object.entries(COLORS).find(([, info]) => info.hex === color)?.[0] ?? color;
@@ -41,6 +42,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
   const locked = overlay || phase === 'resolving';
   const progress = state.cleared / state.initialUnits * 100;
   return h('main', { className: 'prototype-shell' },
+    h(IdleBackdrop, { active: phase === 'playing' && !paused && !loading && !error && !reduced }),
     h('img', { className: 'drag-magnet', ref: dragRef, hidden: true, alt: '', 'aria-hidden': 'true', draggable: false }),
     h('div', { className: 'game-view' + (levelIndex === 0 ? ' first-puzzle' : '') + (tutorial ? ' show-tutorial' : ''), inert: Boolean(overlay) },
       h('header', { className: 'topbar' },

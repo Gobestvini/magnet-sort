@@ -1,9 +1,16 @@
 [
   {
+    "name": "background-grid-mask",
+    "width": 941,
+    "height": 1672,
+    "bytes": 382615,
+    "status": "aligned idle-shine mask"
+  },
+  {
     "name": "background",
-    "width": 1882,
-    "height": 3344,
-    "bytes": 984460,
+    "width": 941,
+    "height": 1672,
+    "bytes": 2234930,
     "status": "replaced"
   },
   {

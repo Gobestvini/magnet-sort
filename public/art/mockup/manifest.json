@@ -6,9 +6,9 @@
     {
       "name": "background",
       "file": "background.png",
-      "width": 1882,
-      "height": 3344,
-      "source": "docs/design/resource-quality/vector/background.svg",
+      "width": 941,
+      "height": 1672,
+      "source": "docs/design/resource-quality/background-source.png",
       "previousSource": "imagegen extraction",
       "qualityRevision": "2026-10-11"
     },
