@@ -50,7 +50,8 @@ function draw(alpha = 1) {
   }
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
   board?.draw(level, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
-    hideMagnet: Boolean(drag), hint: levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null });
+    hideMagnet: Boolean(drag), dragging: Boolean(drag && !drag.released), reduced,
+    hint: levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null });
   if (dragNode) {
     dragNode.hidden = !drag;
     if (drag) {
@@ -159,7 +160,7 @@ function pointerUp(event) {
   if (valid) place(cell);
   else if (interactive() && cell) { notice = 'This tile is occupied. Choose an empty tile.'; ui(); }
   if (released && moved && !reduced) {
-    const target = valid ? board.screenPosition(cell) : active.home ?? { x: active.x, y: active.y };
+    const target = valid ? board.magnetScreenPosition(cell) : active.home ?? { x: active.x, y: active.y };
     drag = released; drag.targetX = target.x; drag.targetY = target.y; drag.released = true; drag.age = 0;
     if (valid) drag.landingSize = board.magnetScreenSize();
   }

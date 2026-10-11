@@ -4,6 +4,7 @@ import { COLORS, canPlaceMagnet } from './model.js';
 import { sampleTransferTimeline } from './motion.js';
 import {createChipBodyGeometry,createInsetFaceGeometry,chipLayout,CHIP_HEIGHT,WELL_PIXELS,topColorCount} from './chip.js';
 import { createBlockerPlateGeometry } from './blocker.js';
+import { createMagnetGlow } from './magnet-glow.js';
 
 const UNIT_HEIGHT = CHIP_HEIGHT;
 const FLOOR = .16;
@@ -90,6 +91,11 @@ export function createThreeBoard(canvas, textures) {
   }
   const magnet = artwork('magnet-violet', .64);
   magnet.visible = false; scene.add(magnet);
+  const glow = createMagnetGlow(scene, camera, plane, own);
+  const magnetAnchor = cell => {
+    const pos = cellPosition(cell);
+    return new THREE.Vector3(pos.x + layout.offsetX, FLOOR, pos.z).addScaledVector(screenUp, -.035);
+  };
   function buildLevel(level) {
     if (currentLevel === level) return;
     currentLevel = level;
@@ -131,7 +137,7 @@ export function createThreeBoard(canvas, textures) {
     unitsRoot.add(root); unitMeshes.set(unit.id, root);
     return root;
   }
-  function draw(level, state, { timeline = null, time = 0, hover = null, selected = null, paused = false, hint = null, hideMagnet = false } = {}) {
+  function draw(level, state, { timeline = null, time = 0, hover = null, selected = null, paused = false, hint = null, hideMagnet = false, dragging = false, reduced = false } = {}) {
     if (disposed) return;
     buildLevel(level);
     const sampled = timeline ? sampleTransferTimeline(timeline, time) : null;
@@ -182,9 +188,10 @@ export function createThreeBoard(canvas, textures) {
     }
     const activeMagnet = sampled?.magnet ?? (!paused && hover && selected && canPlaceMagnet(state, hover) ? { cell: hover, color: selected } : null);
     magnet.visible = Boolean(activeMagnet) && !hideMagnet;
+    const glowCell = dragging && !paused && hover && selected && canPlaceMagnet(state, hover) ? hover : null;
+    glow.draw(glowCell ? magnetAnchor(glowCell) : null, COLORS[selected]?.hex ?? '#b45aff', time, reduced, glowCell);
     if (activeMagnet) {
-      const pos = cellPosition(activeMagnet.cell);
-      magnet.position.set(pos.x, FLOOR + .12, pos.z);
+      magnet.position.copy(magnetAnchor(activeMagnet.cell));
       magnet.material = materials['magnet-' + activeMagnet.color];
       magnet.renderOrder = 600;
     }
@@ -227,7 +234,12 @@ export function createThreeBoard(canvas, textures) {
       return { x: rect.left + (projected.x + 1) * rect.width / 2, y: rect.top + (1 - projected.y) * rect.height / 2 };
     },
     magnetScreenSize() { return magnet.scale.x / (camera.right - camera.left) * canvas.getBoundingClientRect().width; },
+    magnetScreenPosition(cell) {
+      const rect = canvas.getBoundingClientRect(); projected.copy(magnetAnchor(cell)).project(camera);
+      return { x: rect.left + (projected.x + 1) * rect.width / 2, y: rect.top + (1 - projected.y) * rect.height / 2 };
+    },
     snapshot() { return { engine: 'Three.js', revision: THREE.REVISION, artwork: 'authored-pseudo3d-wafers', meshes: unitMeshes.size,
+      glow: glow.snapshot(),
       counts:[...labels.values()].map(b=>b.userData),
       placement:placementProof(),
       units: [...unitMeshes.values()].map(mesh => ({ ...mesh.userData, position: mesh.position.toArray(), height: UNIT_HEIGHT * mesh.scale.x })),
