@@ -20,6 +20,13 @@ const output = 'artifacts/three-browser';
       await page.waitForFunction(() => window.gameDebug?.snapshot().renderer?.engine === 'Three.js');
       await page.evaluate(() => document.fonts.ready);
       const snap = () => page.evaluate(() => window.gameDebug.snapshot());
+      const magnetSize = () => page.locator('[data-magnet-color="violet"]>img').first().evaluate(img => ({ width: img.getBoundingClientRect().width, height: img.getBoundingClientRect().height }));
+      const assertDragSize = async expected => {
+        const actual = await page.locator('.drag-magnet').evaluate(img => ({ width: parseFloat(getComputedStyle(img).width), height: parseFloat(getComputedStyle(img).height), scale: Math.hypot(new DOMMatrixReadOnly(getComputedStyle(img).transform).a, new DOMMatrixReadOnly(getComputedStyle(img).transform).b) }));
+        assert.ok(Math.abs(actual.width - expected.width) < .1, 'pickup and drag preserve magnet width');
+        assert.ok(Math.abs(actual.height - expected.height) < .1, 'pickup and drag preserve magnet height');
+        assert.ok(Math.abs(actual.scale - 1) < .001, 'drag never enlarges the magnet');
+      };
       const at = cell => page.evaluate(cell => window.gameDebug.screenPosition(cell), cell);
       const clickCell = async cell => { const pos = await at(cell); if (touch) await page.touchscreen.tap(pos.x, pos.y); else await page.mouse.click(pos.x, pos.y); };
       const settled = () => page.waitForFunction(() => window.gameDebug.snapshot().phase !== 'resolving', null, { timeout: 20000 });
@@ -34,7 +41,9 @@ const output = 'artifacts/three-browser';
 
       await clickCell({ col: 2, row: 2 });
       assert.equal((await snap()).state.turn, 0, 'occupied placement rejected');
+      const initialMagnetSize = await magnetSize();
       await page.getByRole('button', { name: 'Violet magnet', exact: true }).click();
+      assert.deepEqual(await magnetSize(), initialMagnetSize, 'click preserves tray magnet size');
       await clickCell({ col: 3, row: 3 });
       assert.equal((await snap()).phase, 'resolving');
       assert.equal((await snap()).state.turn, 1);
@@ -63,9 +72,11 @@ const output = 'artifacts/three-browser';
 
       // Mouse drag from a DOM tool to a raycast tile; touch tap is covered above.
       const tool = await page.getByRole('button', { name: 'Violet magnet', exact: true }).boundingBox();
+      const trayMagnetSize = await magnetSize();
       const target = await at({ col: 3, row: 3 });
       await page.mouse.move(tool.x + tool.width / 2, tool.y + tool.height / 2);
       await page.mouse.down();
+      await assertDragSize(trayMagnetSize);
       assert.equal(await page.locator('[data-magnet-color="violet"]>img').first().isVisible(), false, 'pickup hides the tray magnet immediately');
       await page.mouse.move(target.x - 100, target.y + 40, { steps: 5 });
       await page.waitForTimeout(100);
@@ -77,8 +88,10 @@ const output = 'artifacts/three-browser';
       assert.equal((await snap()).renderer.glow.visible, true, 'free tile emits light under the held magnet');
       assert.equal((await snap()).renderer.glow.particles, 9);
       await page.waitForTimeout(80);
+      await assertDragSize(trayMagnetSize);
       await page.screenshot({ path: `${output}/${name}-inertial-drag.png`, fullPage: true });
       await page.mouse.up();
+      await assertDragSize(trayMagnetSize);
       assert.equal((await snap()).phase, 'resolving');
       assert.equal((await snap()).drag.released, true, 'magnet springs into the chosen tile');
       assert.equal((await snap()).renderer.glow.visible, false, 'release clears hover particles');

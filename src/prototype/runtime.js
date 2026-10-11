@@ -43,6 +43,10 @@ function ui() {
     onNext: () => loadLevel((levelIndex + 1) % prototypeLevels.length), onHint: hint,
     onReduced: event => { reduced = event.currentTarget.checked; ui(); }, onKeyboard: keyboard,
     onRetryRenderer: initializeBoard }), root);
+  // Match the former held size (80% of the button, capped at 100px, with 12% lift).
+  for (const tool of root.querySelectorAll('.magnet-tool')) {
+    tool.querySelector('img').style.width = Math.min(100, tool.getBoundingClientRect().width * .8) * 1.12 + 'px';
+  }
 }
 function draw(alpha = 1) {
   for (const tool of root.querySelectorAll('.magnet-tool')) {
@@ -59,9 +63,8 @@ function draw(alpha = 1) {
       const y = drag.previousY + (drag.y - drag.previousY) * alpha;
       const angle = drag.previousAngle + (drag.angle - drag.previousAngle) * alpha;
       const lift = drag.released ? Math.max(0, 1 - drag.age * 5) : 1;
-      const landing = drag.released ? Math.min(1, drag.age * 5) : 0;
-      dragNode.style.width = (drag.size + ((drag.landingSize ?? drag.size) - drag.size) * landing) + 'px';
-      dragNode.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) rotate(${angle}deg) scale(${1 + lift * .12})`;
+      dragNode.style.width = drag.size + 'px';
+      dragNode.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) rotate(${angle}deg)`;
       dragNode.style.filter = `drop-shadow(0 ${4 + lift * 12}px ${3 + lift * 5}px #200c6866)`;
       const source = art('magnet-' + drag.color);
       if (dragNode.getAttribute('src') !== source) dragNode.setAttribute('src', source);
@@ -121,9 +124,9 @@ function toolDown(event, color) {
   if (!interactive() || gesture || !event.isPrimary || event.button !== 0) return;
   select(color);
   gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, tool: true, element: event.currentTarget };
-  const rect = event.currentTarget.getBoundingClientRect();
+  const rect = event.currentTarget.querySelector('img').getBoundingClientRect();
   gesture.home = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
-  drag = createMagnetDrag(gesture.home.x, gesture.home.y, color, Math.min(100, rect.width * .8));
+  drag = createMagnetDrag(gesture.home.x, gesture.home.y, color, rect.width);
   draw(); schedule();
   event.currentTarget.setPointerCapture(event.pointerId);
 }
@@ -162,7 +165,6 @@ function pointerUp(event) {
   if (released && moved && !reduced) {
     const target = valid ? board.magnetScreenPosition(cell) : active.home ?? { x: active.x, y: active.y };
     drag = released; drag.targetX = target.x; drag.targetY = target.y; drag.released = true; drag.age = 0;
-    if (valid) drag.landingSize = board.magnetScreenSize();
   }
   draw(); schedule();
 }
