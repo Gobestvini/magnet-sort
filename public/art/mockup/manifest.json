@@ -1,15 +1,16 @@
 {
-  "version": 1,
+  "version": 2,
   "reference": "English mockups revision 2",
-  "method": "Exact rectangular crops and nine-slice assembly; generated extraction only where occluded",
+  "method": "High-resolution generated illustrations; native SVG UI rasterized at 3x; audited original board sprites retained",
   "assets": [
     {
       "name": "background",
       "file": "background.png",
-      "width": 941,
-      "height": 1672,
-      "source": "imagegen extraction",
-      "generatedOriginal": "exec-59f401f4-efcf-43c6-a3f2-1420e56009cb.png"
+      "width": 1882,
+      "height": 3344,
+      "source": "docs/design/resource-quality/vector/background.svg",
+      "previousSource": "imagegen extraction",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "logo",
@@ -22,49 +23,37 @@
     {
       "name": "tile",
       "file": "tile.png",
-      "width": 256,
-      "height": 248,
+      "width": 471,
+      "height": 512,
       "source": "imagegen extraction",
       "generatedOriginal": "exec-a723bc37-1013-4e55-9f4c-c9fc144c45b3.png"
     },
     {
       "name": "magnet-violet",
       "file": "magnet-violet.png",
-      "width": 208,
-      "height": 187,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 95,
-        "top": 1260,
-        "width": 208,
-        "height": 187
-      }
+      "width": 640,
+      "height": 582,
+      "source": "docs/design/resource-quality/magnets-source.png",
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "magnet-blue",
       "file": "magnet-blue.png",
-      "width": 208,
-      "height": 187,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 373,
-        "top": 1260,
-        "width": 208,
-        "height": 187
-      }
+      "width": 640,
+      "height": 578,
+      "source": "docs/design/resource-quality/magnets-source.png",
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "magnet-coral",
       "file": "magnet-coral.png",
-      "width": 208,
-      "height": 187,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 639,
-        "top": 1260,
-        "width": 208,
-        "height": 187
-      }
+      "width": 640,
+      "height": 584,
+      "source": "docs/design/resource-quality/magnets-source.png",
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "loading-art",
@@ -82,48 +71,35 @@
     {
       "name": "loading-track",
       "file": "loading-track.png",
-      "width": 720,
-      "height": 95,
-      "source": "01-loading.png",
-      "rect": {
-        "left": 111,
-        "top": 1398,
-        "width": 720,
-        "height": 95
-      },
+      "width": 2160,
+      "height": 285,
+      "source": "docs/design/resource-quality/vector/loading-track.svg",
       "slice": [
-        44,
-        45,
-        44,
-        45
+        132,
+        135,
+        132,
+        135
       ],
-      "blankColumn": 685
+      "previousSource": "01-loading.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "loading-fill",
       "file": "loading-fill.png",
-      "width": 508,
-      "height": 73,
-      "source": "01-loading.png",
-      "rect": {
-        "left": 125,
-        "top": 1410,
-        "width": 508,
-        "height": 73
-      }
+      "width": 1524,
+      "height": 219,
+      "source": "docs/design/resource-quality/vector/loading-fill.svg",
+      "previousSource": "01-loading.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "tutorial-arrow",
       "file": "tutorial-arrow.png",
-      "width": 173,
-      "height": 394,
-      "source": "02-tutorial.png",
-      "rect": {
-        "left": 252,
-        "top": 748,
-        "width": 173,
-        "height": 394
-      }
+      "width": 519,
+      "height": 1182,
+      "source": "docs/design/resource-quality/vector/tutorial-arrow.svg",
+      "previousSource": "02-tutorial.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "tutorial-hand",
@@ -141,186 +117,140 @@
     {
       "name": "logo-exact",
       "file": "logo-exact.png",
-      "width": 371,
-      "height": 228,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 48,
-        "top": 20,
-        "width": 371,
-        "height": 228
-      }
+      "width": 1024,
+      "height": 674,
+      "source": "docs/design/resource-quality/logo-source.png",
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "panel",
       "file": "panel.png",
-      "width": 321,
-      "height": 89,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 442,
-        "top": 107,
-        "width": 321,
-        "height": 89
-      },
+      "width": 963,
+      "height": 267,
+      "source": "docs/design/resource-quality/vector/panel.svg",
       "slice": [
-        41,
-        45,
-        41,
-        45
+        123,
+        135,
+        123,
+        135
       ],
-      "blankColumn": 49
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "button-purple",
       "file": "button-purple.png",
-      "width": 390,
-      "height": 112,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 491,
-        "top": 1515,
-        "width": 390,
-        "height": 112
-      },
+      "width": 1170,
+      "height": 336,
+      "source": "docs/design/resource-quality/vector/button-purple.svg",
       "slice": [
-        53,
-        45,
-        53,
-        45
+        159,
+        135,
+        159,
+        135
       ],
-      "blankColumn": 50
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "button-green",
       "file": "button-green.png",
-      "width": 577,
-      "height": 145,
-      "source": "09-paused.png",
-      "rect": {
-        "left": 182,
-        "top": 869,
-        "width": 577,
-        "height": 145
-      },
+      "width": 1731,
+      "height": 435,
+      "source": "docs/design/resource-quality/vector/button-green.svg",
       "slice": [
-        69,
-        85,
-        69,
-        85
+        207,
+        255,
+        207,
+        255
       ],
-      "blankColumn": 90
+      "previousSource": "09-paused.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "button-light",
       "file": "button-light.png",
-      "width": 469,
-      "height": 104,
-      "source": "09-paused.png",
-      "rect": {
-        "left": 236,
-        "top": 1035,
-        "width": 469,
-        "height": 104
-      },
+      "width": 1407,
+      "height": 312,
+      "source": "docs/design/resource-quality/vector/button-light.svg",
       "slice": [
-        49,
-        65,
-        49,
-        65
+        147,
+        195,
+        147,
+        195
       ],
-      "blankColumn": 61
+      "previousSource": "09-paused.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "modal",
       "file": "modal.png",
-      "width": 708,
-      "height": 775,
-      "source": "11-defeat.png",
+      "width": 2124,
+      "height": 2325,
+      "source": "docs/design/resource-quality/vector/modal.svg",
       "slice": [
-        90,
-        90,
-        90,
-        90
-      ]
+        270,
+        270,
+        270,
+        270
+      ],
+      "previousSource": "11-defeat.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "switch-off",
       "file": "switch-off.png",
-      "width": 144,
-      "height": 69,
-      "source": "09-paused.png",
-      "rect": {
-        "left": 596,
-        "top": 1171,
-        "width": 144,
-        "height": 69
-      }
+      "width": 432,
+      "height": 207,
+      "source": "docs/design/resource-quality/vector/switch-off.svg",
+      "previousSource": "09-paused.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "switch-thumb",
       "file": "switch-thumb.png",
-      "width": 65,
-      "height": 65,
-      "source": "09-paused.png",
-      "rect": {
-        "left": 600,
-        "top": 1175,
-        "width": 65,
-        "height": 65
-      }
+      "width": 195,
+      "height": 195,
+      "source": "docs/design/resource-quality/vector/switch-thumb.svg",
+      "previousSource": "09-paused.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "pause",
       "file": "pause.png",
-      "width": 108,
-      "height": 108,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 795,
-        "top": 99,
-        "width": 108,
-        "height": 108
-      }
+      "width": 324,
+      "height": 324,
+      "source": "docs/design/resource-quality/vector/pause.svg",
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "close",
       "file": "close.png",
-      "width": 121,
-      "height": 120,
-      "source": "09-paused.png",
-      "rect": {
-        "left": 705,
-        "top": 487,
-        "width": 121,
-        "height": 120
-      }
+      "width": 363,
+      "height": 363,
+      "source": "docs/design/resource-quality/vector/close.svg",
+      "previousSource": "09-paused.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "hint",
       "file": "hint.png",
-      "width": 56,
-      "height": 69,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 137,
-        "top": 1535,
-        "width": 56,
-        "height": 69
-      }
+      "width": 168,
+      "height": 207,
+      "source": "docs/design/resource-quality/vector/hint.svg",
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "restart",
       "file": "restart.png",
-      "width": 68,
-      "height": 72,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 578,
-        "top": 1534,
-        "width": 68,
-        "height": 72
-      }
+      "width": 204,
+      "height": 216,
+      "source": "docs/design/resource-quality/vector/restart.svg",
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "ring-violet",
@@ -364,55 +294,41 @@
     {
       "name": "blocker",
       "file": "blocker.png",
-      "width": 140,
-      "height": 141,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 398,
-        "top": 432,
-        "width": 140,
-        "height": 141
-      }
+      "width": 420,
+      "height": 423,
+      "source": "docs/design/resource-quality/vector/blocker.svg",
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "tool-neutral-frame",
       "file": "tool-neutral-frame.png",
-      "width": 254,
-      "height": 240,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 346,
-        "top": 1228,
-        "width": 254,
-        "height": 240
-      },
+      "width": 762,
+      "height": 720,
+      "source": "docs/design/resource-quality/vector/tool-neutral-frame.svg",
       "slice": [
-        45,
-        28,
-        45,
-        28
+        135,
+        84,
+        135,
+        84
       ],
-      "blankColumn": 30
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "tool-selected-frame",
       "file": "tool-selected-frame.png",
-      "width": 274,
-      "height": 240,
-      "source": "03-playing.png",
-      "rect": {
-        "left": 58,
-        "top": 1228,
-        "width": 274,
-        "height": 240
-      },
+      "width": 822,
+      "height": 720,
+      "source": "docs/design/resource-quality/vector/tool-selected-frame.svg",
       "slice": [
-        45,
-        28,
-        45,
-        28
+        135,
+        84,
+        135,
+        84
       ],
-      "blankColumn": 30
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "tool-violet",
@@ -456,28 +372,32 @@
     {
       "name": "progress-empty",
       "file": "progress-empty.png",
-      "width": 500,
-      "height": 32,
-      "source": "03-playing.png",
+      "width": 1500,
+      "height": 96,
+      "source": "docs/design/resource-quality/vector/progress-empty.svg",
       "slice": [
-        15,
-        18,
-        15,
-        18
-      ]
+        45,
+        54,
+        45,
+        54
+      ],
+      "previousSource": "03-playing.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "progress-full",
       "file": "progress-full.png",
-      "width": 500,
-      "height": 32,
-      "source": "10-victory.png",
+      "width": 1500,
+      "height": 96,
+      "source": "docs/design/resource-quality/vector/progress-full.svg",
       "slice": [
-        15,
-        18,
-        15,
-        18
-      ]
+        45,
+        54,
+        45,
+        54
+      ],
+      "previousSource": "10-victory.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "paused-title",
@@ -537,54 +457,38 @@
     {
       "name": "victory-star",
       "file": "victory-star.png",
-      "width": 90,
-      "height": 102,
-      "source": "10-victory.png",
-      "rect": {
-        "left": 431,
-        "top": 395,
-        "width": 90,
-        "height": 102
-      }
+      "width": 270,
+      "height": 306,
+      "source": "docs/design/resource-quality/vector/victory-star.svg",
+      "previousSource": "10-victory.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "confetti-violet",
       "file": "confetti-violet.png",
-      "width": 55,
-      "height": 52,
-      "source": "10-victory.png",
-      "rect": {
-        "left": 78,
-        "top": 417,
-        "width": 55,
-        "height": 52
-      }
+      "width": 165,
+      "height": 183,
+      "source": "docs/design/resource-quality/vector/confetti-violet.svg",
+      "previousSource": "10-victory.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "confetti-yellow",
       "file": "confetti-yellow.png",
-      "width": 40,
-      "height": 53,
-      "source": "10-victory.png",
-      "rect": {
-        "left": 265,
-        "top": 395,
-        "width": 40,
-        "height": 53
-      }
+      "width": 165,
+      "height": 183,
+      "source": "docs/design/resource-quality/vector/confetti-yellow.svg",
+      "previousSource": "10-victory.png",
+      "qualityRevision": "2026-10-11"
     },
     {
       "name": "confetti-blue",
       "file": "confetti-blue.png",
-      "width": 42,
-      "height": 61,
-      "source": "10-victory.png",
-      "rect": {
-        "left": 847,
-        "top": 411,
-        "width": 42,
-        "height": 61
-      }
+      "width": 165,
+      "height": 183,
+      "source": "docs/design/resource-quality/vector/confetti-blue.svg",
+      "previousSource": "10-victory.png",
+      "qualityRevision": "2026-10-11"
     }
   ]
 }

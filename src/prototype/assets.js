@@ -4,7 +4,7 @@ export const art = name => `/art/mockup/${name}.png`;
 const boardAssets = ['tile', 'blocker', ...['violet', 'blue', 'coral'].flatMap(color => [`chip-${color}`, `magnet-${color}`])];
 const uiAssets = ['background', 'logo-exact', 'panel', 'modal', 'button-purple', 'button-green', 'button-light',
   'tool-neutral-frame', 'tool-selected-frame', 'pause', 'close', 'hint', 'restart', 'progress-empty', 'progress-full',
-  'paused-title', 'defeat-title', 'defeat-magnet', 'victory-ribbon', 'switch-off', 'switch-thumb', 'loading-art', 'loading-track', 'loading-fill', 'tutorial-arrow',
+  'switch-off', 'switch-thumb', 'loading-track', 'loading-fill', 'tutorial-arrow',
   'victory-star', 'confetti-violet', 'confetti-yellow', 'confetti-blue', 'tutorial-hand'];
 
 function decodeArtwork(name) {

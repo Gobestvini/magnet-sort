@@ -1,0 +1,163 @@
+[
+  {
+    "name": "panel",
+    "width": 963,
+    "height": 267,
+    "source": "docs/design/resource-quality/vector/panel.svg",
+    "scale": 3
+  },
+  {
+    "name": "modal",
+    "width": 2124,
+    "height": 2325,
+    "source": "docs/design/resource-quality/vector/modal.svg",
+    "scale": 3
+  },
+  {
+    "name": "button-purple",
+    "width": 1170,
+    "height": 336,
+    "source": "docs/design/resource-quality/vector/button-purple.svg",
+    "scale": 3
+  },
+  {
+    "name": "button-green",
+    "width": 1731,
+    "height": 435,
+    "source": "docs/design/resource-quality/vector/button-green.svg",
+    "scale": 3
+  },
+  {
+    "name": "button-light",
+    "width": 1407,
+    "height": 312,
+    "source": "docs/design/resource-quality/vector/button-light.svg",
+    "scale": 3
+  },
+  {
+    "name": "tool-neutral-frame",
+    "width": 762,
+    "height": 720,
+    "source": "docs/design/resource-quality/vector/tool-neutral-frame.svg",
+    "scale": 3
+  },
+  {
+    "name": "tool-selected-frame",
+    "width": 822,
+    "height": 720,
+    "source": "docs/design/resource-quality/vector/tool-selected-frame.svg",
+    "scale": 3
+  },
+  {
+    "name": "pause",
+    "width": 324,
+    "height": 324,
+    "source": "docs/design/resource-quality/vector/pause.svg",
+    "scale": 3
+  },
+  {
+    "name": "close",
+    "width": 363,
+    "height": 363,
+    "source": "docs/design/resource-quality/vector/close.svg",
+    "scale": 3
+  },
+  {
+    "name": "hint",
+    "width": 168,
+    "height": 207,
+    "source": "docs/design/resource-quality/vector/hint.svg",
+    "scale": 3
+  },
+  {
+    "name": "restart",
+    "width": 204,
+    "height": 216,
+    "source": "docs/design/resource-quality/vector/restart.svg",
+    "scale": 3
+  },
+  {
+    "name": "progress-empty",
+    "width": 1500,
+    "height": 96,
+    "source": "docs/design/resource-quality/vector/progress-empty.svg",
+    "scale": 3
+  },
+  {
+    "name": "progress-full",
+    "width": 1500,
+    "height": 96,
+    "source": "docs/design/resource-quality/vector/progress-full.svg",
+    "scale": 3
+  },
+  {
+    "name": "loading-track",
+    "width": 2160,
+    "height": 285,
+    "source": "docs/design/resource-quality/vector/loading-track.svg",
+    "scale": 3
+  },
+  {
+    "name": "loading-fill",
+    "width": 1524,
+    "height": 219,
+    "source": "docs/design/resource-quality/vector/loading-fill.svg",
+    "scale": 3
+  },
+  {
+    "name": "switch-off",
+    "width": 432,
+    "height": 207,
+    "source": "docs/design/resource-quality/vector/switch-off.svg",
+    "scale": 3
+  },
+  {
+    "name": "switch-thumb",
+    "width": 195,
+    "height": 195,
+    "source": "docs/design/resource-quality/vector/switch-thumb.svg",
+    "scale": 3
+  },
+  {
+    "name": "victory-star",
+    "width": 270,
+    "height": 306,
+    "source": "docs/design/resource-quality/vector/victory-star.svg",
+    "scale": 3
+  },
+  {
+    "name": "confetti-blue",
+    "width": 165,
+    "height": 183,
+    "source": "docs/design/resource-quality/vector/confetti-blue.svg",
+    "scale": 3
+  },
+  {
+    "name": "confetti-violet",
+    "width": 165,
+    "height": 183,
+    "source": "docs/design/resource-quality/vector/confetti-violet.svg",
+    "scale": 3
+  },
+  {
+    "name": "confetti-yellow",
+    "width": 165,
+    "height": 183,
+    "source": "docs/design/resource-quality/vector/confetti-yellow.svg",
+    "scale": 3
+  },
+  {
+    "name": "tutorial-arrow",
+    "width": 519,
+    "height": 1182,
+    "source": "docs/design/resource-quality/vector/tutorial-arrow.svg",
+    "scale": 3
+  },
+  {
+    "name": "blocker",
+    "width": 420,
+    "height": 423,
+    "source": "docs/design/resource-quality/vector/blocker.svg",
+    "scale": 3
+  }
+]

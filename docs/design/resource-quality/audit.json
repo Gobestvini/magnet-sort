@@ -1,0 +1,324 @@
+[
+  {
+    "name": "background",
+    "width": 1882,
+    "height": 3344,
+    "bytes": 984460,
+    "status": "replaced"
+  },
+  {
+    "name": "blocker-x",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1066971,
+    "status": "parallel blocker task"
+  },
+  {
+    "name": "blocker",
+    "width": 420,
+    "height": 423,
+    "bytes": 16844,
+    "status": "replaced"
+  },
+  {
+    "name": "button-green",
+    "width": 1731,
+    "height": 435,
+    "bytes": 48012,
+    "status": "replaced"
+  },
+  {
+    "name": "button-light",
+    "width": 1407,
+    "height": 312,
+    "bytes": 31334,
+    "status": "replaced"
+  },
+  {
+    "name": "button-purple",
+    "width": 1170,
+    "height": 336,
+    "bytes": 32835,
+    "status": "replaced"
+  },
+  {
+    "name": "chip-blue",
+    "width": 510,
+    "height": 512,
+    "bytes": 240267,
+    "status": "retained: sufficient native resolution"
+  },
+  {
+    "name": "chip-coral",
+    "width": 508,
+    "height": 512,
+    "bytes": 240718,
+    "status": "retained: sufficient native resolution"
+  },
+  {
+    "name": "chip-violet",
+    "width": 509,
+    "height": 512,
+    "bytes": 236153,
+    "status": "retained: sufficient native resolution"
+  },
+  {
+    "name": "close",
+    "width": 363,
+    "height": 363,
+    "bytes": 32957,
+    "status": "replaced"
+  },
+  {
+    "name": "confetti-blue",
+    "width": 165,
+    "height": 183,
+    "bytes": 2425,
+    "status": "replaced"
+  },
+  {
+    "name": "confetti-violet",
+    "width": 165,
+    "height": 183,
+    "bytes": 2427,
+    "status": "replaced"
+  },
+  {
+    "name": "confetti-yellow",
+    "width": 165,
+    "height": 183,
+    "bytes": 2370,
+    "status": "replaced"
+  },
+  {
+    "name": "defeat-magnet",
+    "width": 462,
+    "height": 211,
+    "bytes": 173848,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "defeat-title",
+    "width": 375,
+    "height": 182,
+    "bytes": 157531,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "hint",
+    "width": 168,
+    "height": 207,
+    "bytes": 5408,
+    "status": "replaced"
+  },
+  {
+    "name": "loading-art",
+    "width": 941,
+    "height": 1220,
+    "bytes": 2170532,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "loading-fill",
+    "width": 1524,
+    "height": 219,
+    "bytes": 22523,
+    "status": "replaced"
+  },
+  {
+    "name": "loading-track",
+    "width": 2160,
+    "height": 285,
+    "bytes": 33468,
+    "status": "replaced"
+  },
+  {
+    "name": "logo-exact",
+    "width": 1024,
+    "height": 674,
+    "bytes": 931603,
+    "status": "replaced"
+  },
+  {
+    "name": "logo",
+    "width": 640,
+    "height": 360,
+    "bytes": 392928,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "magnet-blue",
+    "width": 640,
+    "height": 578,
+    "bytes": 442175,
+    "status": "replaced"
+  },
+  {
+    "name": "magnet-coral",
+    "width": 640,
+    "height": 584,
+    "bytes": 469820,
+    "status": "replaced"
+  },
+  {
+    "name": "magnet-violet",
+    "width": 640,
+    "height": 582,
+    "bytes": 484480,
+    "status": "replaced"
+  },
+  {
+    "name": "modal",
+    "width": 2124,
+    "height": 2325,
+    "bytes": 142331,
+    "status": "replaced"
+  },
+  {
+    "name": "panel",
+    "width": 963,
+    "height": 267,
+    "bytes": 23670,
+    "status": "replaced"
+  },
+  {
+    "name": "pause",
+    "width": 324,
+    "height": 324,
+    "bytes": 25765,
+    "status": "replaced"
+  },
+  {
+    "name": "paused-title",
+    "width": 385,
+    "height": 95,
+    "bytes": 71335,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "progress-empty",
+    "width": 1500,
+    "height": 96,
+    "bytes": 8119,
+    "status": "replaced"
+  },
+  {
+    "name": "progress-full",
+    "width": 1500,
+    "height": 96,
+    "bytes": 8153,
+    "status": "replaced"
+  },
+  {
+    "name": "restart",
+    "width": 204,
+    "height": 216,
+    "bytes": 7168,
+    "status": "replaced"
+  },
+  {
+    "name": "ring-blue",
+    "width": 116,
+    "height": 75,
+    "bytes": 16872,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "ring-coral",
+    "width": 116,
+    "height": 75,
+    "bytes": 15962,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "ring-violet",
+    "width": 116,
+    "height": 75,
+    "bytes": 17883,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "switch-off",
+    "width": 432,
+    "height": 207,
+    "bytes": 16091,
+    "status": "replaced"
+  },
+  {
+    "name": "switch-thumb",
+    "width": 195,
+    "height": 195,
+    "bytes": 12349,
+    "status": "replaced"
+  },
+  {
+    "name": "tile",
+    "width": 471,
+    "height": 512,
+    "bytes": 215723,
+    "status": "retained: sufficient native resolution"
+  },
+  {
+    "name": "tool-blue",
+    "width": 274,
+    "height": 240,
+    "bytes": 115997,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "tool-coral",
+    "width": 274,
+    "height": 240,
+    "bytes": 115481,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "tool-neutral-frame",
+    "width": 762,
+    "height": 720,
+    "bytes": 33890,
+    "status": "replaced"
+  },
+  {
+    "name": "tool-selected-frame",
+    "width": 822,
+    "height": 720,
+    "bytes": 34187,
+    "status": "replaced"
+  },
+  {
+    "name": "tool-violet",
+    "width": 274,
+    "height": 240,
+    "bytes": 125758,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "tutorial-arrow",
+    "width": 519,
+    "height": 1182,
+    "bytes": 28680,
+    "status": "replaced"
+  },
+  {
+    "name": "tutorial-hand",
+    "width": 172,
+    "height": 175,
+    "bytes": 39246,
+    "status": "retained: sufficient native resolution"
+  },
+  {
+    "name": "victory-ribbon",
+    "width": 769,
+    "height": 215,
+    "bytes": 268888,
+    "status": "historical: not used by active UI"
+  },
+  {
+    "name": "victory-star",
+    "width": 270,
+    "height": 306,
+    "bytes": 9541,
+    "status": "replaced"
+  }
+]
