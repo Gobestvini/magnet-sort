@@ -67,7 +67,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
       h('section', { className: 'controls', 'aria-label': 'Magnets and actions' },
         h('div', { className: 'magnet-tray cream-panel' }, (levelIndex === 0 ? state.magnets : Object.keys(COLORS)).map(color => h('button', { key: color, type: 'button',
           className: 'magnet-tool ' + (selected === color ? 'is-selected ' : '') + (!state.magnets.includes(color) ? 'unavailable' : ''), style: { '--magnet-color': COLORS[color].hex },
-          disabled: locked || !state.magnets.includes(color), 'aria-label': COLORS[color].label + ' magnet', 'aria-pressed': selected === color,
+          disabled: locked || !state.magnets.includes(color), 'data-magnet-color': color, 'aria-label': COLORS[color].label + ' magnet', 'aria-pressed': selected === color,
           onClick: () => onSelect(color), onPointerDown: event => onToolDown(event, color) }, h(MagnetIcon, { color }),
           tutorial && h('img', { className: 'tutorial-hand', src: art('tutorial-hand'), alt: '' })))),
         h('div', { className: 'action-row' },

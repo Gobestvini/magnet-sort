@@ -27,3 +27,5 @@ button:disabled{filter:none;opacity:1}.magnet-tool.unavailable{filter:saturate(.
 .loading-magnets{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 30px;width:80%;height:min(26svh,200px)}
 .loading-screen .loading-magnets img{width:28%;height:100%;object-fit:contain}.loading-magnets img:first-child{transform:rotate(-16deg)}.loading-magnets img:last-child{transform:rotate(16deg)}
 @media(min-width:701px) and (max-height:600px){.loading-frame{max-width:380px}.loading-screen .loading-logo{margin-bottom:12px}.loading-magnets{height:100px;margin-bottom:12px}}
+
+.magnet-tool[data-dragging]>img{visibility:hidden}

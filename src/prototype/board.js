@@ -85,7 +85,7 @@ export function createThreeBoard(canvas, textures) {
     mesh.scale.set(width, width * textures[name].image.height / textures[name].image.width, 1);
     return mesh;
   }
-  const magnet = artwork('magnet-violet', .84);
+  const magnet = artwork('magnet-violet', .64);
   magnet.visible = false; scene.add(magnet);
   function buildLevel(level) {
     if (currentLevel === level) return;
@@ -218,6 +218,7 @@ export function createThreeBoard(canvas, textures) {
       projected.set(pos.x, FLOOR, pos.z).project(camera);
       return { x: rect.left + (projected.x + 1) * rect.width / 2, y: rect.top + (1 - projected.y) * rect.height / 2 };
     },
+    magnetScreenSize() { return magnet.scale.x / (camera.right - camera.left) * canvas.getBoundingClientRect().width; },
     snapshot() { return { engine: 'Three.js', revision: THREE.REVISION, artwork: 'authored-pseudo3d-wafers', meshes: unitMeshes.size,
       counts:[...labels.values()].map(b=>b.userData),
       placement:placementProof(),

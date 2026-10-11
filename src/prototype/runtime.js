@@ -45,6 +45,9 @@ function ui() {
     onRetryRenderer: initializeBoard }), root);
 }
 function draw(alpha = 1) {
+  for (const tool of root.querySelectorAll('.magnet-tool')) {
+    tool.toggleAttribute('data-dragging', drag?.color === tool.dataset.magnetColor);
+  }
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
   board?.draw(level, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
     hideMagnet: Boolean(drag), hint: levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null });
@@ -55,7 +58,8 @@ function draw(alpha = 1) {
       const y = drag.previousY + (drag.y - drag.previousY) * alpha;
       const angle = drag.previousAngle + (drag.angle - drag.previousAngle) * alpha;
       const lift = drag.released ? Math.max(0, 1 - drag.age * 5) : 1;
-      dragNode.style.width = drag.size + 'px';
+      const landing = drag.released ? Math.min(1, drag.age * 5) : 0;
+      dragNode.style.width = (drag.size + ((drag.landingSize ?? drag.size) - drag.size) * landing) + 'px';
       dragNode.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) rotate(${angle}deg) scale(${1 + lift * .12})`;
       dragNode.style.filter = `drop-shadow(0 ${4 + lift * 12}px ${3 + lift * 5}px #200c6866)`;
       const source = art('magnet-' + drag.color);
@@ -157,6 +161,7 @@ function pointerUp(event) {
   if (released && moved && !reduced) {
     const target = valid ? board.screenPosition(cell) : active.home ?? { x: active.x, y: active.y };
     drag = released; drag.targetX = target.x; drag.targetY = target.y; drag.released = true; drag.age = 0;
+    if (valid) drag.landingSize = board.magnetScreenSize();
   }
   draw(); schedule();
 }
