@@ -41,9 +41,11 @@ export function fillMagnetQueue(state, existing=[]) {
   }
   return queue;
 }
-export function earnedStars(goal, movesUsed, terminal) {
-  if(terminal!=='won')return 0;
+export function potentialStars(goal, movesUsed) {
   return movesUsed<=Math.ceil(goal/12)?3:movesUsed<=Math.ceil(goal/6)?2:1;
+}
+export function earnedStars(goal, movesUsed, terminal) {
+  return terminal==='won'?potentialStars(goal,movesUsed):0;
 }
 export function spawnStacks(state, requested) {
   const free=state.cells.filter(c=>canPlaceMagnet(state,c)).sort(compare);

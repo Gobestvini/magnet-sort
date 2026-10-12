@@ -4,6 +4,7 @@ import { COLORS, remainingUnits } from './model.js';
 import { art } from './assets.js';
 import { IdleBackdrop } from './IdleBackdrop.js';
 import { VictoryParticles } from './VictoryParticles.js';
+import { potentialStars } from './model-v4.js';
 
 export function MagnetIcon({ color = 'violet' }) {
   const key = Object.entries(COLORS).find(([, info]) => info.hex === color)?.[0] ?? color;
@@ -81,7 +82,10 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
           h('strong', null, 'COLLECTED ', h('span', { className: 'cleared-count', ref: counterRef }, state.cleared), ' / ', goal),
           h('div', { className: 'progress-track', ref: progressRef, role: 'progressbar', 'aria-label': 'Pieces collected', 'aria-valuenow': Math.min(goal,state.cleared), 'aria-valuemin': 0, 'aria-valuemax': goal },
             h('div', { style: { width: progress + '%' } }))),
-        h('div', { className: 'moves-panel cream-panel' }, h('span', null, 'MOVES'), h('strong', null, state.movesUsed??state.turn))),
+        h('div', { className: 'moves-group' },
+          h('div', { className:'potential-stars', 'data-reduced':reduced, role:'img', 'aria-label':`Potential stars: ${potentialStars(goal,state.movesUsed??state.turn)} of 3` },
+            [1,2,3].map(n=>h('img',{key:n,src:art('moves-star'),alt:'',className:n<=potentialStars(goal,state.movesUsed??state.turn)?'lit':'dim'}))),
+          h('div', { className: 'moves-panel cream-panel' }, h('span', null, 'MOVES'), h('strong', null, state.movesUsed??state.turn)))),
       h('section', { className: 'board-panel', 'aria-label': 'Game board' },
         h('div', { className: 'board-host', ref: hostRef },
           h('canvas', { ref: canvasRef, tabIndex: overlay ? -1 : 0, 'aria-label': 'Board: arrow keys select a tile, Enter places a magnet', onKeyDown: onKeyboard, 'aria-describedby': 'keyboard-cell' }),
