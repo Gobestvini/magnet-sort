@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { cellId } from '../game/hex.js';
 import { COLORS, canPlaceMagnet } from './model.js';
-import { sampleTransferTimeline, collectionPacking, sampleHexFlip } from './motion.js';
+import { sampleTransferTimeline, collectionPacking, sampleHexFlip, sampleHexTransfer } from './motion.js';
 import {createChipBodyGeometry,createInsetFaceGeometry,chipLayout,CHIP_HEIGHT,WELL_PIXELS,topColorCount} from './chip.js';
-import { createBlockerPlateGeometry } from './blocker.js';
 import { createMagnetGlow } from './magnet-glow.js';
+// Renderer-owned painter order; no dependency on untracked local modules.
+const paintCell = cell => 1000 + 1000 * cell.row;
+const paintUnit = pose => pose.from ? 18000 : paintCell(pose.cell) + 10 + 2 * pose.index;
 
 const UNIT_HEIGHT = CHIP_HEIGHT;
 const FLOOR = .16;
@@ -33,14 +35,15 @@ export function createThreeBoard(canvas, textures) {
   const chipFaceGeometry = own(createInsetFaceGeometry());
   const materials = Object.fromEntries(Object.entries(textures).map(([name, texture]) => [name,
     own(new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }))]));
-  const wallColors={violet:'#6104b6',blue:'#0067bc',coral:'#bd3010'};
+  const wallColors=Object.fromEntries(Object.entries(COLORS).map(([id, info]) => [id, new THREE.Color(info.hex).multiplyScalar(.65)]));
   const chipMaterials = Object.fromEntries(Object.entries(COLORS).map(([color]) => {
     const cap = own(materials['chip-' + color].clone());
     cap.depthTest = cap.depthWrite = false;
-    const wall = own(new THREE.MeshStandardMaterial({ color:wallColors[color],roughness:.65,metalness:0,toneMapped:false,
-      transparent: true, depthTest: false, depthWrite: false }));
+    const wall = own(new THREE.MeshBasicMaterial({ color:wallColors[color],toneMapped:false,
+      side:THREE.DoubleSide, transparent: true, depthTest: false, depthWrite: false }));
     return [color, [cap, wall]];
   }));
+  const diagnosticMaterials=new Map();
   const tileWidth=Math.sqrt(3)*RADIUS*.995;
   const tileHeight = tileWidth * textures.tile.image.height / textures.tile.image.width;
   const screenUp=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion);
@@ -61,9 +64,6 @@ export function createThreeBoard(canvas, textures) {
   pickShape.closePath();
   const pickGeometry = own(new THREE.ShapeGeometry(pickShape));
   const pickMaterial = own(new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, side: THREE.DoubleSide }));
-  const blockerGeometry = own(createBlockerPlateGeometry());
-  const blockerRim = own(new THREE.MeshBasicMaterial({color:'#2c3049',transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:THREE.DoubleSide}));
-  const blockerFace = own(new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:THREE.DoubleSide}));
   const validMaterial = own(materials.tile.clone()); validMaterial.color.set('#b7ffd3');
   const invalidMaterial = own(materials.tile.clone()); invalidMaterial.color.set('#ffaaa0');
   const tutorialMaterial = own(materials.tile.clone()); tutorialMaterial.color.set('#fff1a6');
@@ -93,6 +93,12 @@ export function createThreeBoard(canvas, textures) {
   }
   const magnet = artwork('magnet-violet', .64);
   magnet.visible = false; scene.add(magnet);
+  const activeBaseMaterial=own(materials.tile.clone());
+  const magneticMaterials=Object.fromEntries(Object.keys(COLORS).map(c=>[c,own(materials['tile-magnetic-'+c].clone())]));
+  const magneticTile=artwork('tile-magnetic-violet',tileWidth);magneticTile.scale.y=tileHeight;magneticTile.visible=false;scene.add(magneticTile);
+  const edgeGeometry=own(new THREE.BufferGeometry());
+  const edgeMaterial=own(new THREE.LineBasicMaterial({color:'#fff7da',transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));
+  const energyEdge=new THREE.Line(edgeGeometry,edgeMaterial);energyEdge.quaternion.copy(camera.quaternion);energyEdge.visible=false;scene.add(energyEdge);
   const glow = createMagnetGlow(scene, camera, plane, own);
   const magnetAnchor = cell => {
     const pos = cellPosition(cell);
@@ -106,26 +112,13 @@ export function createThreeBoard(canvas, textures) {
     const blocked = new Set(level.blockers.map(cellId));
     for (const cell of level.cells) {
       const pos = cellPosition(cell), id = cellId(cell);
-      const tile = artwork('tile', tileWidth);
+      const tile = artwork(blocked.has(id)?'tile-blocked':'tile', tileWidth);
+      tile.scale.y=tileHeight;
       tile.position.set(pos.x, FLOOR, pos.z);tile.position.addScaledVector(screenUp,(234/512-.5)*tileHeight);
-      tile.renderOrder = Math.round(pos.z * 100);
+      tile.renderOrder = paintCell(cell);
       boardRoot.add(tile); cellMeshes.set(id, tile);
-      if (blocked.has(id)) {
-        const marker = new THREE.Group();
-        marker.quaternion.copy(camera.quaternion);
-        marker.scale.set(layout.width,layout.height,layout.height);
-        marker.position.set(pos.x+layout.offsetX, FLOOR, pos.z);
-        const rim=new THREE.Mesh(blockerGeometry,blockerRim);rim.renderOrder=500;marker.add(rim);
-        const face=new THREE.Mesh(blockerGeometry,blockerFace);face.scale.set(.965,.965,1);face.renderOrder=501;marker.add(face);
-        const icon=new THREE.Mesh(plane,materials['blocker-x']);
-        const image=textures['blocker-x'].image;
-        // The plate is already drawn in perspective; only the front-facing X
-        // needs the camera-relative tilt to lie in the board's ground plane.
-        icon.rotation.x=-Math.atan2(screenUp.y,-screenUp.z);
-        icon.scale.set(.72,.72*layout.width/layout.height*image.height/image.width,1);icon.renderOrder=502;marker.add(icon);
-        marker.userData.cell=cell;
-        boardRoot.add(marker);blockerMeshes.set(id,marker);
-      }
+      tile.userData={cell,blocked:blocked.has(id)};
+      if(blocked.has(id)){tile.material=materials['tile-blocked'];blockerMeshes.set(id,tile);}
       const pick = new THREE.Mesh(pickGeometry, pickMaterial);
       pick.quaternion.copy(camera.quaternion);
       pick.position.set(pos.x, FLOOR, pos.z); pick.userData.cell = cell;
@@ -158,7 +151,7 @@ export function createThreeBoard(canvas, textures) {
       backing.position.copy(face.position);
       if (pose.from) {
         const from = cellPosition(pose.from), to = cellPosition(pose.to);
-        const motion=sampleHexFlip(pose.progress,timeline.reduced), ease=motion.travel;
+        const motion=(timeline.before.rulesVersion===4?sampleHexTransfer:sampleHexFlip)(pose.progress,timeline.reduced), ease=motion.travel;
         const fromY = FLOOR + (pose.fromIndex + .5) * UNIT_HEIGHT, toY = FLOOR + (pose.toIndex + .5) * UNIT_HEIGHT;
         mesh.position.set(THREE.MathUtils.lerp(from.x, to.x, ease), THREE.MathUtils.lerp(fromY, toY, ease), THREE.MathUtils.lerp(from.z, to.z, ease));
         if (!timeline.reduced) {
@@ -179,13 +172,13 @@ export function createThreeBoard(canvas, textures) {
         mesh.position.x += layout.offsetX * (1 - packing.scale);
         mesh.position.addScaledVector(screenUp, layout.offset * (1 - packing.scale));
       }
-      // Draw back cells first, then their layers. Flights stay above stacks.
-      const order=pose.from?18000:6000+Math.round(mesh.position.z*100)*20+(pose.index??0)*2;
+      // Keep ground plaques at their natural depth; raise only airborne units.
+      const order=paintUnit(pose);
       mesh.children[0].renderOrder=order;mesh.children[1].renderOrder=order+1;
       mesh.children[0].visible=Boolean(pose.from);
       mesh.userData = { id: pose.id, color: pose.color, cell: pose.cell ?? null, index: pose.index ?? null,
         moving: Boolean(pose.from), from: pose.from, to: pose.to, progress: pose.progress, scale: pose.scale,
-        flipAngle:pose.from ? sampleHexFlip(pose.progress,timeline.reduced).angle : 0,
+        flipAngle:pose.from ? (timeline.before.rulesVersion===4?sampleHexTransfer:sampleHexFlip)(pose.progress,timeline.reduced).angle : 0,
         pack: pose.pack ?? 0, layer: pose.layer ?? pose.index, anchorOffsetY: screenUp.y * layout.offset * (1 - packing.scale) };
     }
     for (const [id, mesh] of unitMeshes) if (!alive.has(id)) { unitsRoot.remove(mesh); unitMeshes.delete(id); }
@@ -194,29 +187,48 @@ export function createThreeBoard(canvas, textures) {
     for(const p of poses)if(!p.from){const id=cellId(p.cell);if(!stacks.has(id))stacks.set(id,[]);stacks.get(id).push(p);}
     for(const [id,units] of stacks){
       units.sort((a,b)=>a.index-b.index);const count=topColorCount(units),top=units.at(-1),pos=cellPosition(top.cell);
-      let badge=labels.get(id);if(!badge){badge=new THREE.Sprite(labelMaterial(count));badge.scale.set(.48,.48,1);badge.renderOrder=20000;scene.add(badge);labels.set(id,badge);}
-      badge.visible=!units.some(unit=>unit.pack>0);
-      badge.material=labelMaterial(count);badge.position.set(pos.x+layout.offsetX,FLOOR+(.5+(top.layer??top.index))*UNIT_HEIGHT,pos.z);
-      badge.position.addScaledVector(screenUp,layout.offset+.028);badge.userData={cell:top.cell,count};
-      let shadow=shadows.get(id);if(!shadow){shadow=new THREE.Mesh(plane,shadowMaterial);shadow.quaternion.copy(camera.quaternion);shadow.scale.set(.99,.8,1);shadow.renderOrder=700;scene.add(shadow);shadows.set(id,shadow);}
-      shadow.position.set(pos.x+layout.offsetX,FLOOR,pos.z);shadow.position.addScaledVector(screenUp,-.065);
+      let badge=labels.get(id);if(!badge){badge=new THREE.Sprite(labelMaterial(count));badge.scale.set(.48,.48,1);scene.add(badge);labels.set(id,badge);}
+      const clearBadge=sampled?.clearBadges?.find(b=>cellId(b.cell)===id);
+      const displayCount=clearBadge?.count??count;
+      badge.visible=Boolean(clearBadge)||(!units.some(unit=>unit.pack>0)&&!sampled?.hiddenCells?.includes(`${top.cell.row}:${top.cell.col}`));
+      badge.renderOrder=paintUnit(top)+2;badge.material=labelMaterial(displayCount);badge.position.set(pos.x+layout.offsetX,FLOOR+(.5+(top.layer??top.index))*UNIT_HEIGHT,pos.z);
+      badge.position.addScaledVector(screenUp,layout.offset+.028);badge.userData={cell:top.cell,count:displayCount,visible:badge.visible};
+      let shadow=shadows.get(id);if(!shadow){shadow=new THREE.Mesh(plane,shadowMaterial);shadow.quaternion.copy(camera.quaternion);shadow.scale.set(.99,.8,1);scene.add(shadow);shadows.set(id,shadow);}
+      shadow.renderOrder=paintCell(top.cell)+1;shadow.position.set(pos.x+layout.offsetX,FLOOR,pos.z);shadow.position.addScaledVector(screenUp,-.065);
     }
     for(const [id,badge]of labels)if(!stacks.has(id)){scene.remove(badge);labels.delete(id);}
     for(const [id,shadow]of shadows)if(!stacks.has(id)){scene.remove(shadow);shadows.delete(id);}
     for (const [id, tile] of cellMeshes) {
-      tile.material = materials.tile;
-      if (hover && cellId(hover) === id && selected && !paused) tile.material = canPlaceMagnet(state, hover) ? validMaterial : invalidMaterial;
+      tile.material = tile.userData.blocked ? materials['tile-blocked'] : materials.tile;
+      if (!tile.userData.blocked && hover && cellId(hover) === id && selected && !paused && !timeline) tile.material = canPlaceMagnet(state, hover) ? validMaterial : invalidMaterial;
       else if (hint && cellId(hint) === id && !paused) tile.material = tutorialMaterial;
     }
-    const activeMagnet = sampled?.magnet ?? (!paused && hover && selected && canPlaceMagnet(state, hover) ? { cell: hover, color: selected } : null);
+    magneticTile.visible=Boolean(sampled?.magnet&&sampled.magneticStrength>0);
+    energyEdge.visible=magneticTile.visible&&!reduced;
+    if(magneticTile.visible){
+      const tile=cellMeshes.get(cellId(sampled.magnet.cell)),strength=sampled.magneticStrength;
+      activeBaseMaterial.opacity=1-strength;tile.material=activeBaseMaterial;
+      magneticTile.material=magneticMaterials[sampled.magnet.color];magneticTile.material.opacity=strength;
+      magneticTile.position.copy(tile.position);magneticTile.renderOrder=tile.renderOrder+1;
+      magneticTile.userData={cell:sampled.magnet.cell,color:sampled.magnet.color,phase:sampled.magneticPhase};
+      const phase=(time*2)%6,index=Math.floor(phase),fraction=phase-index;
+      const contour=WELL_PIXELS.map(([x,y])=>new THREE.Vector3((x/471-.5)*tileWidth,(.5-y/512)*tileHeight,0));
+      const a=contour[index],b=contour[(index+1)%6];
+      const start=a.clone().lerp(b,Math.max(0,fraction-.35)),end=a.clone().lerp(b,Math.min(1,fraction+.35));
+      const attr=edgeGeometry.attributes.position;
+      if(!attr)edgeGeometry.setAttribute('position',new THREE.Float32BufferAttribute([...start.toArray(),...end.toArray()],3));
+      else{attr.setXYZ(0,start.x,start.y,0);attr.setXYZ(1,end.x,end.y,0);attr.needsUpdate=true;}
+      energyEdge.position.copy(tile.position);energyEdge.renderOrder=tile.renderOrder+2;edgeMaterial.opacity=strength;
+    }
+    const activeMagnet = !sampled && !paused && hover && selected && canPlaceMagnet(state, hover) ? { cell: hover, color: selected } : null;
     magnet.visible = Boolean(activeMagnet) && !hideMagnet;
-    const workingMagnet = !paused ? sampled?.magnet : null;
+    const workingMagnet = null;
     const glowCell = workingMagnet?.cell ?? (dragging && !paused && hover && selected && canPlaceMagnet(state, hover) ? hover : null);
-    glow.draw(glowCell ? magnetAnchor(glowCell) : null, COLORS[workingMagnet?.color ?? selected]?.hex ?? '#b45aff', time, timeline?.reduced ?? reduced, glowCell, Boolean(workingMagnet));
+    glow.draw(glowCell ? magnetAnchor(glowCell) : null, COLORS[workingMagnet?.color ?? selected]?.hex ?? '#b45aff', time, timeline?.reduced ?? reduced, glowCell, Boolean(workingMagnet), glowCell ? paintCell(glowCell)+2 : undefined);
     if (activeMagnet) {
       magnet.position.copy(magnetAnchor(activeMagnet.cell));
       magnet.material = materials['magnet-' + activeMagnet.color];
-      magnet.renderOrder = 600;
+      magnet.renderOrder = paintCell(activeMagnet.cell)+6;
     }
     scene.updateMatrixWorld(true); renderer.render(scene, camera);
     return sampled;
@@ -241,10 +253,20 @@ export function createThreeBoard(canvas, textures) {
     };
     return [...unitMeshes.values()].filter(mesh=>!mesh.userData.moving&&mesh.userData.index===0)
       .map(mesh=>proof(mesh.userData.cell,mesh.children[1],mesh.quaternion,'chip',mesh.scale.x))
-      .concat([...blockerMeshes.values()].map(mesh=>proof(mesh.userData.cell,mesh.children[0],mesh.quaternion,'blocker')));
+;
   }
   return {
     draw, resize,
+    ...(import.meta.env.DEV ? { inspectBackingLighting(legacy) {
+      for(const [id,mesh] of unitMeshes){
+        const color=mesh.userData.color;
+        if(legacy){
+          if(!diagnosticMaterials.has(color))diagnosticMaterials.set(color,own(new THREE.MeshStandardMaterial({color:wallColors[color],roughness:.65,metalness:0,toneMapped:false,transparent:true,depthTest:false,depthWrite:false})));
+          mesh.children[0].material=diagnosticMaterials.get(color);
+        }else mesh.children[0].material=chipMaterials[color][1];
+      }
+      renderer.render(scene,camera);
+    }} : {}),
     pick(clientX, clientY) {
       const rect = canvas.getBoundingClientRect();
       if (!rect.width || !rect.height || clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) return null;
@@ -273,9 +295,11 @@ export function createThreeBoard(canvas, textures) {
     },
     snapshot() { return { engine: 'Three.js', revision: THREE.REVISION, artwork: 'authored-pseudo3d-wafers', meshes: unitMeshes.size,
       glow: glow.snapshot(),
-      counts:[...labels.values()].map(b=>b.userData),
+      magneticCell: magneticTile.visible ? {...magneticTile.userData,strength:magneticTile.material.opacity} : null,
+      counts:[...labels.values()].map(b=>({...b.userData,renderOrder:b.renderOrder})),
+      tiles:[...cellMeshes].map(([id,tile])=>({id,renderOrder:tile.renderOrder})),
       placement:placementProof(),
-      units: [...unitMeshes.values()].map(mesh => ({ ...mesh.userData, position: mesh.position.toArray(), height: UNIT_HEIGHT * mesh.scale.x })),
+      units: [...unitMeshes.values()].map(mesh => ({ ...mesh.userData, position: mesh.position.toArray(), height: UNIT_HEIGHT * mesh.scale.x, renderOrder:mesh.children[1].renderOrder })),
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, drawCalls: renderer.info.render.calls }; },
     dispose() {
       if (disposed) return;

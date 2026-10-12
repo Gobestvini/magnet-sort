@@ -1,4 +1,5 @@
 import { art } from './assets.js';
+import { COLORS } from './model.js';
 
 // Shares runtime's sampled clock: no CSS animation, timer, or second RAF.
 export function createCollectionView() {
@@ -6,7 +7,7 @@ export function createCollectionView() {
   const pools = { path: [], circle: [] };
   let target = null, effects = null;
   let used = { path: 0, circle: 0 };
-  const glowColors = { violet: '#e4abff', blue: '#7ce6ff', coral: '#ffb088' };
+  const glowColors = Object.fromEntries(Object.entries(COLORS).map(([id, info]) => [id, info.hex]));
   function mark(layer, tag, attrs) {
     if (!effects) {
       effects = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -38,15 +39,14 @@ export function createCollectionView() {
     if (target) { target.style.transform = ''; target.style.filter = ''; }
   }
   return {
-    draw(frame, time, board, layer, counter, reduced) {
+    draw(frame, time, board, layer, counter, reduced, progress = 0) {
       if (!frame || !board || !layer || !counter) { clear(); return; }
       if (target !== counter) { clear(); target = counter; }
       const age = frame.lastArrival === null ? Infinity : time - frame.lastArrival;
       const pulse = reduced ? 0 : Math.max(0, 1 - age / .18);
-      counter.style.transform = `scale(${1 + Math.sin(pulse * Math.PI) * .16})`;
-      counter.style.filter = pulse > 0 ? `drop-shadow(0 0 ${pulse * 8}px #ffdc63)` : '';
       const rect = counter.getBoundingClientRect();
-      const end = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      const edgeInset = Math.min(rect.height/2,rect.width/2);
+      const end = { x: rect.left + edgeInset + (rect.width-2*edgeInset)*Math.max(0,Math.min(1,progress)), y: rect.top + rect.height / 2 };
       used = { path: 0, circle: 0 };
       if (!reduced) {
         for (const b of frame.bursts) {
@@ -95,6 +95,7 @@ export function createCollectionView() {
         image.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) rotate(${side * Math.sin(p * Math.PI) * 16}deg) scale(${scale})`;
         image.style.opacity = String(Math.min(1, (1 - p) * 8));
         image.dataset.progress = String(p);
+        image.dataset.targetX=String(end.x);image.dataset.targetY=String(end.y);
       }
       for (const [id, image] of images) if (!active.has(id)) { image.remove(); images.delete(id); }
       for (const tag of ['path', 'circle']) for (let i = used[tag]; i < pools[tag].length; i++) pools[tag][i].style.display = 'none';

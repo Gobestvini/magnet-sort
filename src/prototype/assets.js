@@ -1,8 +1,9 @@
 import * as THREE from 'three';
+import { COLORS } from './model.js';
 
 // Runtime URLs must share Vite's deployment base (including GitHub Pages subpaths).
 export const art = name => `${import.meta.env.BASE_URL}art/mockup/${name}.png`;
-const boardAssets = ['tile', 'blocker-x', ...['violet', 'blue', 'coral'].flatMap(color => [`chip-${color}`, `magnet-${color}`])];
+export const boardAssets = ['tile', 'tile-blocked', ...Object.keys(COLORS).flatMap(color => [`chip-${color}`, `magnet-${color}`, `tile-magnetic-${color}`])];
 const uiAssets = ['background', 'background-grid-mask', 'logo-exact', 'panel', 'modal', 'button-purple', 'button-green', 'button-light',
   'tool-neutral-frame', 'tool-selected-frame', 'pause', 'close', 'hint', 'restart', 'progress-empty', 'progress-full',
   'switch-off', 'switch-thumb', 'loading-track', 'loading-fill', 'tutorial-arrow',

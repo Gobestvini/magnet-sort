@@ -4,7 +4,9 @@ export function makeTransferTimeline(before, resolution, reduced = false) {
   const flight = reduced ? .09 : .28;
   const stagger = reduced ? .045 : .105;
   const segments = [];
-  let cursor = reduced ? .06 : .16;
+  const activationEnd = reduced ? .06 : .30;
+  let cursor = activationEnd;
+  let deactivateStart = null, deactivateEnd = null;
   let batch = null, groupStart = cursor, count = 0, groupEnd = cursor;
   for (const event of resolution.events) {
     if (event.batch !== batch) {
@@ -17,8 +19,11 @@ export function makeTransferTimeline(before, resolution, reduced = false) {
       const start = groupStart + count++ * stagger;
       segments.push({ ...event, start, end: start + flight });
       groupEnd = start + flight;
-    } else {
+    } else if (event.type === 'unitsCleared') {
       cursor = groupEnd;
+      const accentStart = cursor;
+      const packStart = cursor + (reduced ? .025 : .24);
+      cursor = packStart;
       const collectDuration = reduced ? .09 : .56;
       const collectStagger = reduced ? .018 : .05;
       const packEnd = cursor + (reduced ? .04 : .48);
@@ -30,12 +35,34 @@ export function makeTransferTimeline(before, resolution, reduced = false) {
         index: event.units.length - 1 - index, start: launch + index * collectStagger,
         end: launch + index * collectStagger + collectDuration }));
       const duration = flights.at(-1).end - cursor;
-      segments.push({ ...event, flights, packEnd, start: cursor, end: cursor + duration });
+      segments.push({ ...event, flights, packEnd, packStart, accentStart, start: cursor, end: cursor + duration });
       cursor += duration;
       groupEnd = cursor;
+    } else if (event.type === 'stackSpawned') {
+      cursor = Math.max(cursor, groupEnd);
+      if(deactivateStart===null){deactivateStart=cursor;deactivateEnd=cursor+(reduced?.04:.24);cursor=deactivateEnd;}
+      segments.push({ ...event, start: cursor, end: cursor + (reduced ? .04 : .18) });
+      cursor = segments.at(-1).end; groupEnd = cursor;
+    } else if (event.type === 'magnetsChanged') {
+      cursor = Math.max(cursor, groupEnd);
+      if(deactivateStart===null){deactivateStart=cursor;deactivateEnd=cursor+(reduced?.04:.24);cursor=deactivateEnd;}
+      segments.push({ ...event, start: cursor, end: cursor + (reduced ? .04 : .24) });
+      cursor = segments.at(-1).end; groupEnd = cursor;
+    } else {
+      throw new Error('Unknown presentation event: ' + event.type);
     }
   }
+  if(deactivateStart===null){deactivateStart=Math.max(cursor,groupEnd);deactivateEnd=deactivateStart+(reduced?.04:.24);cursor=deactivateEnd;}
+  const groups=new Map();
+  for(const s of segments.filter(s=>s.type==='unitMoved')){
+    if(!groups.has(s.batch))groups.set(s.batch,{start:s.start,end:s.end,cells:new Set()});
+    const group=groups.get(s.batch);group.end=Math.max(group.end,s.end);
+    group.cells.add(`${s.from.row}:${s.from.col}`);group.cells.add(`${s.to.row}:${s.to.col}`);
+  }
   return { before, after: resolution.state, magnet: resolution.magnet, segments, reduced,
+    transferGroups:[...groups.values()].map(g=>({...g,cells:[...g.cells]})),
+    activationEnd, deactivateStart, deactivateEnd,
+    queueStart: segments.find(s=>s.type==='magnetsChanged')?.start ?? Infinity,
     duration: Math.max(cursor, groupEnd) + (reduced ? .04 : .38) };
 }
 
@@ -53,6 +80,15 @@ export function sampleHexFlip(progress, reduced = false) {
   return { travel, lift, angle: -Math.PI * turn, reverseFace: turn > .5 };
 }
 
+// V4 uses a short rocking hop. The complete raster keeps its authored face;
+// it never changes sides at an edge-on instant or exposes a lit underside.
+export function sampleHexTransfer(progress, reduced = false) {
+  const p=Math.max(0,Math.min(1,progress));
+  if(reduced)return {travel:smooth(p),lift:0,angle:0,reverseFace:false};
+  const arc=Math.sin(Math.PI*smooth(p));
+  return {travel:smooth(p),lift:.28*arc,angle:-Math.PI/6*arc,reverseFace:false};
+}
+
 // Only presentation changes: IDs/counts stay intact as layers gather downward.
 export function collectionPacking(pack = 0) {
   return { pitch: 1 - pack * .94, scale: 1 - pack * .62 };
@@ -62,6 +98,14 @@ export function sampleTransferTimeline(timeline, time) {
   const poses = new Map();
   let collected = timeline.before.cleared, lastArrival = null;
   const bursts = [];
+  const hiddenCells=new Set(), clearBadges=[];
+  for(const group of timeline.transferGroups)if(time>=group.start&&time<=group.end)for(const cell of group.cells)hiddenCells.add(cell);
+  for(const segment of timeline.segments){
+    if(segment.type==='unitsCleared'){
+      if(time>=segment.accentStart&&time<segment.packStart)clearBadges.push({cell:segment.cell,count:segment.units.length});
+      if(time>=segment.packStart&&time<segment.end)hiddenCells.add(`${segment.cell.row}:${segment.cell.col}`);
+    }
+  }
   for (const stack of timeline.before.stacks) stack.units.forEach((unit, index) => {
     poses.set(unit.id, { ...unit, cell: stack.cell, index, scale: 1 });
   });
@@ -72,7 +116,10 @@ export function sampleTransferTimeline(timeline, time) {
       else poses.set(segment.unit.id, { ...segment.unit, from: segment.from, to: segment.to,
         fromIndex: segment.fromIndex, toIndex: segment.toIndex, scale: 1,
         progress: (time - segment.start) / (segment.end - segment.start) });
-    } else {
+    } else if (segment.type === 'stackSpawned') {
+      const scale = smooth(Math.min(1,(time-segment.start)/(segment.end-segment.start)));
+      segment.units.forEach((unit,index)=>poses.set(unit.id,{...unit,cell:segment.cell,index,scale}));
+    } else if (segment.type === 'unitsCleared') {
       const packs = segment.flights.map(flight => {
         const p = Math.max(0, Math.min(1, (time - flight.packStart) / (flight.packEnd - flight.packStart)));
         return { ...flight, pack: p * p * (3 - 2 * p) };
@@ -96,6 +143,10 @@ export function sampleTransferTimeline(timeline, time) {
       }
     }
   }
-  return { units: [...poses.values()], collected, lastArrival, bursts, magnet: time < timeline.duration ? timeline.magnet : null,
+  const magneticStrength=time<timeline.activationEnd?smooth(Math.max(0,time/timeline.activationEnd)):
+    time<timeline.deactivateStart?1:time<timeline.deactivateEnd?1-smooth((time-timeline.deactivateStart)/(timeline.deactivateEnd-timeline.deactivateStart)):0;
+  return { units: [...poses.values()], collected, lastArrival, bursts, hiddenCells:[...hiddenCells], clearBadges,
+    magneticStrength, magneticPhase:time<timeline.activationEnd?'activation':time<timeline.deactivateStart?'active':time<timeline.deactivateEnd?'deactivation':'ordinary',
+    magnet: time < timeline.deactivateEnd ? timeline.magnet : null,
     complete: time >= timeline.duration };
 }

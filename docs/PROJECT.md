@@ -1,5 +1,7 @@
 # Карта проекта
 
+Активные правила: [GDD v0.4](design/GDD_V0.4.md), [отчёт перехода](reports/V4_REWORK.md). `src/prototype/model-v4.js` владеет goal/RNG/spawn/queue/stars и использует adjacent routing из model.js без терминальных правил v3; `levels-v4.js` — 12 blocker-only уровней. `model.js`/`levels.js`/`progressive-levels.js` остаются v3 fixtures. `tools/v4-browser-check.cjs` — seeded goal flow; `v4-visual-check.cjs` — фазы, шесть направлений, бортики/полоса/lifecycle. Основные browser/pages команды направлены на v4, старые flows сохранены под именами `tools/v3-*.cjs`.
+
 ## Активный 3D-прототип — 2026-10-09
 
 | Путь | Назначение |

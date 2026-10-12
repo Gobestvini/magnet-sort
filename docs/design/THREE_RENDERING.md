@@ -1,5 +1,18 @@
 # Three.js rendering contract — GDD v0.3
 
+## Активные уточнения v4 — 2026-10-12
+
+Правила — [GDD v0.4](GDD_V0.4.md); clauses v3 ниже сохраняются как история и общие требования владения, ввода/cleanup. При конфликте применяются следующие решения v4:
+
+- `model-v4.js` — immutable RNG/spawn/goal/queue/scoring; `levels-v4.js` — только sparse blockers и identity. `model.js` остаётся routing kernel и v3 fixtures.
+- Seven RGBA PNG magnets, four new chip colors, seven border-only magnetic tiles and complete blocked tile load through the shared BASE_URL/decode/retry lifecycle. Manifest: `public/art/mockup/v4-generated-manifest.json`.
+- Magnet handoff activates a colored border around an EMPTY ordinary cream floor. No magnet glyph or freestanding magnet is drawn during activation/active/deactivation. Shared opacity crossfade and one retained travelling edge highlight use sampled time. No second RAF; reset restores ordinary tile.
+- V4 neighbour animation uses `sampleHexTransfer`: 30° maximum rocking hop with .28 lift, original authored face throughout, continuous flat landing. V3 `sampleHexFlip` remains for regression. Unlit double-sided backing preserves authored color; flipping a lit body and switching PNG faces is not part of the active profile.
+- Participating cells hide badges for an entire edge batch, including stagger. A .24s pre-clear accent shows exactly the six credited IDs, then badges hide during packing/collection.
+- Collection aims at the current right edge of filled progress, derived from numeric displayedCleared/goal and actual track rect. No CSS width transition or counter-scale modifies the target; clipping at rounded endpoints keeps payoff inside the track. Result waits for all arrivals.
+- The backdrop and idle mask share `public/art/hex-grid-v4.svg` at 96×166.276 CSS px, centered/repeated with identical transforms. Reduced/hidden/pause stop idle.
+
+
 2026-10-09. Этот контракт заменяет PIXI_RENDERING для активного entry. В проекте установлен Three.js 0.186.1; API сверены с установленной версией и официальной документацией.
 
 ## Владение

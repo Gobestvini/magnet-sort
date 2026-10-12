@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-12",
+  "generator": "Built-in image_gen",
+  "discarded": "Magnet glyph inlay variants rejected by user, never used in runtime",
+  "assets": [
+    {
+      "asset": "magnet-gold",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-ddb58154-df38-4a32-af81-75e5f90baeac.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/magnet-violet.png",
+      "prompt": "Glossy horseshoe magnet gold, transparent alpha, matching reference silhouette and white tips."
+    },
+    {
+      "asset": "magnet-violet",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-6862a3ee-dece-472f-bb48-c3675b4f1d4b.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/magnet-violet.png",
+      "prompt": "Transparent violet magnet, matching reference projection, satin surface, bright bevel, no symbols; pearl white tips."
+    },
+    {
+      "asset": "magnet-blue",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-787e8e94-3149-435a-9b28-fa277480d518.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/magnet-violet.png",
+      "prompt": "Transparent blue magnet, matching reference projection, satin surface, bright bevel, no symbols; pearl white tips."
+    },
+    {
+      "asset": "magnet-coral",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-9992c42c-7ccd-4ab6-a16b-a0804054f90e.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/magnet-violet.png",
+      "prompt": "Transparent coral magnet, matching reference projection, satin surface, bright bevel, no symbols; pearl white tips."
+    },
+    {
+      "asset": "chip-gold",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-0e3d78ea-ae31-49c6-a329-4d5eb6192a95.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/chip-violet.png",
+      "prompt": "Transparent gold chip, matching reference projection, satin surface, bright bevel, no symbols; solid thin hexagonal wafer."
+    },
+    {
+      "asset": "magnet-lime",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-e676f16b-47ab-4357-9eb9-ca40867cc083.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/magnet-violet.png",
+      "prompt": "Transparent lime magnet, matching reference projection, satin surface, bright bevel, no symbols; pearl white tips."
+    },
+    {
+      "asset": "chip-lime",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-57ed7e73-f4ca-41e2-9088-6eb65e94049e.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/chip-violet.png",
+      "prompt": "Transparent lime chip, matching reference projection, satin surface, bright bevel, no symbols; solid thin hexagonal wafer."
+    },
+    {
+      "asset": "magnet-teal",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-e3f363e5-de69-4371-b6ac-df1bcb460a63.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/magnet-violet.png",
+      "prompt": "Transparent teal magnet, matching reference projection, satin surface, bright bevel, no symbols; pearl white tips."
+    },
+    {
+      "asset": "chip-teal",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-7c8a8d52-1002-4a3e-8849-050ea5a634f4.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/chip-violet.png",
+      "prompt": "Transparent teal chip, matching reference projection, satin surface, bright bevel, no symbols; solid thin hexagonal wafer."
+    },
+    {
+      "asset": "magnet-pink",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-95618085-0875-4300-b1df-d66bdbdab7c9.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/magnet-violet.png",
+      "prompt": "Transparent pink magnet, matching reference projection, satin surface, bright bevel, no symbols; pearl white tips."
+    },
+    {
+      "asset": "chip-pink",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-d0f2eaae-7169-49ed-af25-4cdf5733f581.png",
+      "tool": "image_gen built-in",
+      "reference": "public/art/mockup/chip-violet.png",
+      "prompt": "Transparent pink chip, matching reference projection, satin surface, bright bevel, no symbols; solid thin hexagonal wafer."
+    },
+    {
+      "asset": "tile-magnetic-violet",
+      "source": "image_gen exec-5208504c-fc2a-482d-b5f7-ef937674ca2e.png",
+      "tool": "image_gen built-in",
+      "prompt": "Edit BLUE tile to VIOLET #7800e8; preserve exact geometry/light/empty cream center/alpha. All outer borders AND lower wall purple, no cream external rim or beige wall, no magnet, U, icon or text.",
+      "reference": "public/art/mockup/tile-magnetic-blue.png"
+    },
+    {
+      "asset": "tile-magnetic-blue",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-e7874486-cb80-43ec-a40d-42833517254a.png",
+      "tool": "image_gen built-in",
+      "prompt": "Empty cream recessed hex cell, ONLY blue energized six borders. No magnet, U, icon or symbols, transparent alpha; reference tile geometry."
+    },
+    {
+      "asset": "tile-magnetic-coral",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-2807253a-f2c4-4dcb-ac8d-280494f4a9d3.png",
+      "tool": "image_gen built-in",
+      "prompt": "Empty cream recessed hex cell, ONLY coral energized six borders. No magnet, U, icon or symbols, transparent alpha; reference tile geometry."
+    },
+    {
+      "asset": "tile-magnetic-gold",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-7d24a027-c6a7-4957-95b9-5309c1db7d47.png",
+      "tool": "image_gen built-in",
+      "prompt": "Empty cream recessed hex cell, ONLY gold energized six borders. No magnet, U, icon or symbols, transparent alpha; reference tile geometry."
+    },
+    {
+      "asset": "tile-magnetic-lime",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-50effd0d-74f8-448c-a1cf-425313ce135c.png",
+      "tool": "image_gen built-in",
+      "prompt": "Empty cream recessed hex cell, ONLY lime energized six borders. No magnet, U, icon or symbols, transparent alpha; reference tile geometry."
+    },
+    {
+      "asset": "tile-magnetic-teal",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-c4a04902-e525-40ca-b1e3-4e05119858b2.png",
+      "tool": "image_gen built-in",
+      "prompt": "Empty cream recessed hex cell, ONLY teal energized six borders. No magnet, U, icon or symbols, transparent alpha; reference tile geometry."
+    },
+    {
+      "asset": "tile-magnetic-pink",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-1528bfb6-c3c8-4fc0-bb0f-4c6c9a62e2b0.png",
+      "tool": "image_gen built-in",
+      "prompt": "Empty cream recessed hex cell, ONLY pink energized six borders. No magnet, U, icon or symbols, transparent alpha; reference tile geometry."
+    },
+    {
+      "asset": "tile-blocked",
+      "source": "C:\\Users\\gobes\\.codex\\generated_images\\01a12ef7-316f-7b22-a089-a34b4932f495\\exec-1702007a-f0cc-4dff-ae9d-d1eeb6c96111.png",
+      "tool": "image_gen built-in",
+      "prompt": "Integral cream hex tile, slate floor, raised ivory X; transparent alpha, same orthographic reference geometry."
+    }
+  ]
+}

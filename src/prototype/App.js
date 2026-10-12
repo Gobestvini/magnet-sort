@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useLayoutEffect } from 'preact/hooks';
 import { COLORS, remainingUnits } from './model.js';
 import { art } from './assets.js';
 import { IdleBackdrop } from './IdleBackdrop.js';
@@ -8,6 +8,31 @@ import { VictoryParticles } from './VictoryParticles.js';
 export function MagnetIcon({ color = 'violet' }) {
   const key = Object.entries(COLORS).find(([, info]) => info.hex === color)?.[0] ?? color;
   return h('img', { src: art('magnet-' + key), alt: '', draggable: false, decoding: 'sync' });
+}
+
+function MagnetTray({state, selected, locked, reduced, onSelect, onToolDown}) {
+  const ref=useRef(null), positions=useRef(new Map());
+  useLayoutEffect(()=>{
+    const next=new Map(), animations=[];
+    const buttons=[...ref.current.querySelectorAll('button')];
+    for(const [i,node] of buttons.entries()){
+      const rect=node.getBoundingClientRect(), color=node.dataset.magnetColor;
+      const old=positions.current.get(color);next.set(color,rect);
+      if(!reduced&&positions.current.size){
+        const fresh=i===buttons.length-1;
+        animations.push(node.animate(fresh?[{opacity:0,transform:'translateY(12px) scale(.85)'},{opacity:1,transform:'none'}]:[
+          {transform:`translateX(${old?old.left-rect.left:0}px)`},{transform:'none'}],{duration:220,easing:'cubic-bezier(.2,.8,.2,1)'}));
+      }
+    }
+    positions.current=next;
+    return ()=>animations.forEach(a=>a.cancel());
+  },[state.queueTurn,reduced]);
+  return h('div',{className:'magnet-tray cream-panel',ref},state.magnets.map(color=>h('button',{
+    key:color,type:'button',className:'magnet-tool '+(selected===color?'is-selected':''),
+    style:{'--magnet-color':COLORS[color].hex},disabled:locked,'data-magnet-color':color,
+    'aria-label':COLORS[color].label+' magnet','aria-pressed':selected===color,
+    onClick:()=>onSelect(color),onPointerDown:event=>onToolDown(event,color)
+  },h(MagnetIcon,{color}))));
 }
 
 function Modal({ children, label, onClose, variant = '', reduced = false }) {
@@ -32,19 +57,20 @@ function Modal({ children, label, onClose, variant = '', reduced = false }) {
 }
 
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
+  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
   const tutorial = levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
   const overlay = paused || result || Boolean(error) || loading;
   const locked = overlay || phase === 'resolving';
-  const progress = state.cleared / state.initialUnits * 100;
+  const goal=state.goal??state.initialUnits;
+  const progress = Math.min(100,state.cleared / goal * 100);
   return h('main', { className: 'prototype-shell' },
     result && state.terminal === 'won' && h(VictoryParticles,{key:runId,seed:runId,reduced,active:!paused&&!error&&!loading}),
     h(IdleBackdrop, { active: phase === 'playing' && !paused && !loading && !error && !reduced }),
     h('div', { className: 'collection-layer', ref: collectionRef, 'aria-hidden': 'true' }),
     h('img', { className: 'drag-magnet', ref: dragRef, hidden: true, alt: '', 'aria-hidden': 'true', draggable: false }),
-    h('div', { className: 'game-view' + (levelIndex === 0 ? ' first-puzzle' : '') + (tutorial ? ' show-tutorial' : ''), inert: Boolean(overlay) },
+    h('div', { className: 'game-view' + (tutorial ? ' show-tutorial' : ''), inert: Boolean(overlay) },
       h('header', { className: 'topbar' },
         h('a', { className: 'brand', href: '#', onClick: event => event.preventDefault(), 'aria-label': 'Magnet Sort' },
           h('img', { src: art('logo-exact'), alt: '', draggable: false })),
@@ -52,27 +78,22 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
         h('button', { className: 'round-button', onClick: onPause, disabled: Boolean(error), 'aria-label': 'Pause' }, h('img', { src: art('pause'), alt: '' }))),
       h('section', { className: 'hud', 'aria-label': 'Puzzle progress' },
         h('div', { className: 'goal-panel cream-panel' },
-          h('strong', null, 'CLEARED ', h('span', { className: 'cleared-count', ref: counterRef }, state.cleared), ' / ', state.initialUnits),
-          h('div', { className: 'progress-track', role: 'progressbar', 'aria-label': 'Pieces cleared', 'aria-valuenow': state.cleared, 'aria-valuemin': 0, 'aria-valuemax': state.initialUnits },
-            h('div', { key: state.turn, style: { width: progress + '%' } }))),
-        h('div', { className: 'moves-panel cream-panel' }, h('span', null, 'MOVES'), h('strong', null, state.remainingMoves))),
+          h('strong', null, 'COLLECTED ', h('span', { className: 'cleared-count', ref: counterRef }, state.cleared), ' / ', goal),
+          h('div', { className: 'progress-track', ref: progressRef, role: 'progressbar', 'aria-label': 'Pieces collected', 'aria-valuenow': Math.min(goal,state.cleared), 'aria-valuemin': 0, 'aria-valuemax': goal },
+            h('div', { style: { width: progress + '%' } }))),
+        h('div', { className: 'moves-panel cream-panel' }, h('span', null, 'MOVES'), h('strong', null, state.movesUsed??state.turn))),
       h('section', { className: 'board-panel', 'aria-label': 'Game board' },
         h('div', { className: 'board-host', ref: hostRef },
           h('canvas', { ref: canvasRef, tabIndex: overlay ? -1 : 0, 'aria-label': 'Board: arrow keys select a tile, Enter places a magnet', onKeyDown: onKeyboard, 'aria-describedby': 'keyboard-cell' }),
           tutorial && tutorialTarget && h('img', { className: 'tutorial-arrow', src: art('tutorial-arrow'), alt: '', style: { left: (tutorialTarget.x - 22) + 'px', top: (tutorialTarget.y - 5) + 'px' } })),
         h('p', { id: 'keyboard-cell', className: 'sr-only' }, keyboardCell ? 'Tile: row ' + keyboardCell.row + ', column ' + keyboardCell.col : 'Use arrow keys to select a tile.')),
       h('p', { className: 'game-status' + (tutorialMessage ? ' tutorial-message cream-panel' : ''), role: 'status', 'aria-live': 'polite' },
-        tutorialMessage ? h('span', null, h('strong', null, 'Place a magnet on an empty tile'), h('small', null, 'Pieces move one at a time')) : phase === 'resolving' ? 'Pulling one piece at a time…' : notice),
+        tutorialMessage ? h('span', null, h('strong', null, 'Collect 100 pieces!'), h('small', null, 'Place a magnet. New stacks appear after every move.')) : phase === 'resolving' ? 'Pulling one piece at a time…' : notice),
       h('section', { className: 'controls', 'aria-label': 'Magnets and actions' },
-        h('div', { className: 'magnet-tray cream-panel' }, (levelIndex === 0 ? state.magnets : Object.keys(COLORS)).map(color => h('button', { key: color, type: 'button',
-          className: 'magnet-tool ' + (selected === color ? 'is-selected ' : '') + (!state.magnets.includes(color) ? 'unavailable' : ''), style: { '--magnet-color': COLORS[color].hex },
-          disabled: locked || !state.magnets.includes(color), 'data-magnet-color': color, 'aria-label': COLORS[color].label + ' magnet', 'aria-pressed': selected === color,
-          onClick: () => onSelect(color), onPointerDown: event => onToolDown(event, color) }, h(MagnetIcon, { color }),
-          tutorial && h('img', { className: 'tutorial-hand', src: art('tutorial-hand'), alt: '' })))),
+        h(MagnetTray,{state,selected,locked,reduced,onSelect,onToolDown}),
         h('div', { className: 'action-row' },
-          h('button', { className: 'secondary-button', disabled: locked, onClick: onHint, 'aria-label': 'Hint' }, h('img', { className: 'hint-icon', src: art('hint'), alt: '' }), ' Hint'),
           h('button', { className: 'secondary-button', onClick: onReset, 'aria-label': 'Restart' }, h('img', { className: 'restart-icon', src: art('restart'), alt: '' }), ' Restart')),
-        h('p', { className: 'sr-only' }, level.lesson))),
+        h('p', { className: 'sr-only' }, 'Collect the goal using three available magnets. Pieces move between neighboring tiles; crosses block paths.'))),
     loading && h('div', { className: 'loading-screen' },
       h('div', { className: 'loading-frame' }, h('img', { className: 'loading-logo', src: art('logo-exact'), alt: 'Magnet Sort' }),
         h('div', { className: 'loading-magnets', 'aria-hidden': 'true' }, ['blue', 'violet', 'coral'].map(color => h(MagnetIcon, { color }))),
@@ -87,11 +108,12 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
       h('h2', { className: 'live-heading' }, 'PAUSED'), h('div', { className: 'modal-magnet' }, h(MagnetIcon)),
       h('button', { className: 'primary-button', onClick: onPause }, 'Resume'),
       h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Restart')) :
-    result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Out of moves', variant: state.terminal === 'won' ? 'victory-dialog' : '' },
+    result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Board full', variant: state.terminal === 'won' ? 'victory-dialog' : '' },
       h('div', { className: 'result-card', role: 'region', 'aria-label': 'Result' },
-        state.terminal === 'won' ? h('div', { className: 'modal-magnet victory-magnet' }, h(MagnetIcon)) : h('h2', { className: 'live-heading defeat-heading' }, 'OUT OF MOVES'),
-        state.terminal === 'won' ? h('h2', { className: 'live-ribbon' }, 'BOARD CLEARED!') : h('div', { className: 'modal-magnet resting-magnet' }, h(MagnetIcon)),
-        h('p', null, state.terminal === 'won' ? 'Nice chain!' : 'Try a different magnet order'),
+        state.terminal === 'won' ? h('div', { className: 'modal-magnet victory-magnet' }, h(MagnetIcon)) : h('h2', { className: 'live-heading defeat-heading' }, 'BOARD FULL'),
+        state.terminal === 'won' ? h('h2', { className: 'live-ribbon' }, 'GOAL REACHED!') : h('div', { className: 'modal-magnet resting-magnet' }, h(MagnetIcon)),
+        h('div',{className:'earned-stars','aria-label':`${state.stars??0} stars earned`},[1,2,3].map(n=>h('img',{src:art('victory-star'),alt:'',className:n<=(state.stars??0)?'earned':'unearned'}))),
+        h('p', null, `${state.movesUsed??state.turn} moves · ${state.cleared} pieces collected`),
         state.terminal === 'lost' && h('small', null, remainingUnits(state) + ' pieces left'),
         h('button', { className: 'primary-button', onClick: state.terminal === 'won' ? onNext : onReset },
           state.terminal === 'won' ? levelIndex + 1 === totalLevels ? 'Play from start' : 'Next puzzle' : 'Try again'),

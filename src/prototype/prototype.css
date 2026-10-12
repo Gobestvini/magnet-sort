@@ -29,6 +29,10 @@ button:disabled{filter:none;opacity:1}.magnet-tool.unavailable{filter:saturate(.
 @media(min-width:701px) and (max-height:600px){.loading-frame{max-width:380px}.loading-screen .loading-logo{margin-bottom:12px}.loading-magnets{height:100px;margin-bottom:12px}}
 
 .magnet-tool[data-dragging]>img{visibility:hidden}
+.earned-stars{display:flex;justify-content:center;gap:12px;height:64px}.earned-stars img{width:64px;object-fit:contain}.earned-stars .unearned{filter:grayscale(1);opacity:.22}
+.topbar{position:relative;z-index:2}.brand{position:relative;z-index:1}.hud{position:relative;z-index:1}.progress-track>div{transition:none}
+.hud{grid-template-columns:minmax(0,1fr) 27%}.goal-panel{min-width:0}.goal-panel>strong{font-size:clamp(13px,4vw,24px)}
+@media(min-width:701px) and (max-height:600px){.hud{grid-template-columns:minmax(0,1fr) 85px}.goal-panel{padding-left:10px;padding-right:10px}.goal-panel>strong{font-size:14px}}
 
 /* Continuous surfaces: a single rounded box prevents nine-slice seams at fractional DPR. */
 .level-badge,.cream-panel,.modal-panel,.magnet-tool,.secondary-button,.primary-button,.progress-track,.loading-progress,.loading-progress>div{
@@ -48,12 +52,13 @@ button:disabled{filter:none;opacity:1}.magnet-tool.unavailable{filter:saturate(.
 .modal-panel{border-radius:30px}.tutorial-message{border-radius:20px}
 /* Original embossed hex backdrop; the specular sweep is clipped to its actual grid. */
 .game-view{position:relative;z-index:1}
-.idle-grid{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .4s;mask:url('/art/mockup/background-grid-mask.png') center/cover no-repeat;-webkit-mask:url('/art/mockup/background-grid-mask.png') center/cover no-repeat}
+.idle-grid{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .4s;mask:url('/art/hex-grid-v4.svg') center/96px 166.276px repeat;-webkit-mask:url('/art/hex-grid-v4.svg') center/96px 166.276px repeat}
 .idle-grid[data-active="true"]{opacity:.55}
 .idle-grid-sweep{position:absolute;inset:-35% -65%;background:linear-gradient(115deg,transparent 35%,#80cfff22 43%,#b9efff99 48%,#fff7ffdd 50%,#a9dfff77 52%,transparent 61%);animation:idle-grid-shine 11s linear infinite;animation-play-state:paused;will-change:transform,opacity}
 .idle-grid[data-active="true"] .idle-grid-sweep{animation-play-state:running}
 @keyframes idle-grid-shine{0%,35%{transform:translate3d(-75%,0,0);opacity:0}40%{opacity:0}48%{opacity:1}67%{opacity:1}76%,100%{transform:translate3d(75%,0,0);opacity:0}}
 @media(prefers-reduced-motion:reduce){.idle-grid{display:none}.idle-grid-sweep{animation:none;will-change:auto}}
+body,.loading-screen{background-image:url('/art/hex-grid-v4.svg'),radial-gradient(ellipse at 75% 25%,#2759ee 0%,#4626cd 65%,#30209c 100%);background-size:96px 166.276px,cover;background-position:center,center;background-repeat:repeat,no-repeat;background-attachment:fixed,fixed}
 .collection-layer{position:fixed;inset:0;z-index:7;overflow:hidden;pointer-events:none}.collection-effects{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}.collection-hex{position:absolute;left:0;top:0;object-fit:fill;pointer-events:none;filter:drop-shadow(0 3px 3px #320a7855);will-change:transform,opacity}.cleared-count{display:inline-block;transform-origin:center}
 /* Short shared entry: panel appears once per Modal mount. */
 @keyframes popup-panel-in{0%{opacity:0;transform:translateY(18px) scale(.92)}76%{opacity:1;transform:translateY(0) scale(1.015)}100%{opacity:1;transform:translateY(0) scale(1)}}

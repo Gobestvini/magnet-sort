@@ -2,8 +2,9 @@ import './prototype.css';
 import { h, render } from 'preact';
 import { createStepper } from '../loop.js';
 import { cellId } from '../game/hex.js';
-import { createPrototypeState, applyMagnet, canPlaceMagnet } from './model.js';
-import { prototypeLevels } from './levels.js';
+import { canPlaceMagnet } from './model.js';
+import { createV4State, applyV4Magnet, V4_CELLS } from './model-v4.js';
+import { v4Levels as prototypeLevels } from './levels-v4.js';
 import { makeTransferTimeline } from './motion.js';
 import { createThreeBoard } from './board.js';
 import { loadBoardTextures, art } from './assets.js';
@@ -16,14 +17,22 @@ const root = document.querySelector('#ui-root');
 root.replaceChildren();
 const stepper = createStepper();
 let reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-let levelIndex = 0, level = prototypeLevels[0], state = createPrototypeState(level);
+function newSeed() { return crypto.getRandomValues(new Uint32Array(1))[0]; }
+const urlSeed = new URLSearchParams(location.search).get('seed');
+const fixedSeed = urlSeed !== null && /^\d+$/.test(urlSeed) && Number(urlSeed)<=0xffffffff ? Number(urlSeed) : null;
+let runSeed = fixedSeed ?? newSeed();
+let levelIndex = 0, level = prototypeLevels[0], state = createV4State(level, runSeed);
+let boardLevel = { ...level, cells: V4_CELLS };
 let runId = 1;
-let selected = level.magnets[0], phase = 'playing', paused = false, notice = 'Choose a magnet and an empty tile.';
+let selected = state.magnets[0], phase = 'playing', paused = false, notice = 'Collect 100 pieces. Place a magnet on an empty tile.';
 let displayedCleared = 0;
 const collection = createCollectionView();
-let collectionLayer = null, counterNode = null;
+let collectionLayer = null, counterNode = null, progressNode = null;
+let displayedMagnets = state.magnets.join(',');
+let displayedQueueTurn = 0;
 const collectionRef = node => { collectionLayer = node; };
 const counterRef = node => { counterNode = node; };
+const progressRef = node => { progressNode = node; };
 let canvas = null, host = null, board = null, timeline = null, elapsed = 0, previousElapsed = 0;
 let hover = null, keyboardCell = null, gesture = null, raf = null, previous = null, disposed = false, error = null;
 const canvasRef = node => { canvas = node; };
@@ -38,11 +47,13 @@ function listen(target, name, handler, options) {
 }
 function ui() {
   if (disposed) return;
-  const tutorialCell = levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null;
+  const tutorialCell = levelIndex === 0 && state.turn === 0 ? state.cells.find(cell => canPlaceMagnet(state,cell)) : null;
   const target = board && tutorialCell ? board.screenPosition(tutorialCell) : null;
   const rect = host?.getBoundingClientRect();
-  render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
-    canvasRef, hostRef, dragRef, collectionRef, counterRef, keyboardCell, error, loading, loadingProgress,
+  const magnets = timeline && elapsed < timeline.queueStart ? timeline.before.magnets : state.magnets;
+  const queueTurn=timeline && elapsed < timeline.queueStart ? timeline.before.turn : state.turn;
+  render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, magnets, queueTurn, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
+    canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
     tutorialTarget: target && rect ? { x: target.x - rect.left, y: target.y - rect.top } : null,
     onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!paused), onReset: reset,
     onNext: () => loadLevel((levelIndex + 1) % prototypeLevels.length), onHint: hint,
@@ -58,12 +69,15 @@ function draw(alpha = 1) {
     tool.toggleAttribute('data-dragging', drag?.color === tool.dataset.magnetColor);
   }
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
-  const frame = board?.draw(level, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
+  const frame = board?.draw(boardLevel, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
     hideMagnet: Boolean(drag), dragging: Boolean(drag && !drag.released), reduced,
-    hint: levelIndex === 0 && state.turn === 0 ? level.solution[0].cell : null });
+    hint: null });
   const cleared = frame?.collected ?? state.cleared;
   if (cleared !== displayedCleared) { displayedCleared = cleared; ui(); }
-  collection.draw(frame, time, board, collectionLayer, counterNode, timeline?.reduced ?? reduced);
+  const magnets = timeline && time < timeline.queueStart ? timeline.before.magnets : state.magnets;
+  const queueTurn=timeline && time < timeline.queueStart ? timeline.before.turn : state.turn;
+  if (magnets.join(',') !== displayedMagnets || queueTurn!==displayedQueueTurn) { displayedMagnets = magnets.join(','); displayedQueueTurn=queueTurn; ui(); }
+  collection.draw(frame, time, board, collectionLayer, progressNode, timeline?.reduced ?? reduced, displayedCleared/state.goal);
   if (dragNode) {
     dragNode.hidden = !drag;
     if (drag) {
@@ -96,7 +110,8 @@ function tick(now) {
   });
   if (timeline && elapsed >= timeline.duration) {
     timeline = null; phase = state.terminal ?? 'playing';
-    notice = state.terminal === 'won' ? 'All pieces cleared!' : state.terminal === 'lost' ? 'Try a different magnet order.' : 'Choose a magnet for the next move.';
+    if(!state.magnets.includes(selected))selected=state.magnets[0];
+    notice = state.terminal === 'won' ? 'Goal reached!' : state.terminal === 'lost' ? 'No empty tiles left. Try again.' : 'Choose a magnet for the next move.';
     ui();
   }
   draw(alpha); schedule();
@@ -115,7 +130,7 @@ function select(color) {
 function submit(action) {
   if (!interactive()) return { accepted: false, reason: 'locked' };
   const before = state;
-  const resolution = applyMagnet(before, action);
+  const resolution = applyV4Magnet(before, action);
   if (!resolution.accepted) { notice = 'This tile is occupied. Choose an empty tile.'; ui(); return resolution; }
   state = resolution.state;
   timeline = makeTransferTimeline(before, resolution, reduced);
@@ -182,34 +197,27 @@ function keyboard(event) {
   const cell = keyboardCell ?? { col: 3, row: 3 };
   const next = { col: cell.col + (event.code === 'ArrowRight' ? 1 : event.code === 'ArrowLeft' ? -1 : 0),
     row: cell.row + (event.code === 'ArrowDown' ? 1 : event.code === 'ArrowUp' ? -1 : 0) };
-  keyboardCell = level.cells.find(candidate => candidate.col === next.col && candidate.row === next.row) ?? cell;
+  keyboardCell = state.cells.find(candidate => candidate.col === next.col && candidate.row === next.row) ?? cell;
   ui(); draw();
 }
 function setPaused(value) {
   paused = Boolean(value); cancelGesture(); cancelFrame(); ui(); draw();
   if (!paused) schedule();
 }
-function reset() { loadLevel(levelIndex); }
-function loadLevel(index) {
+function reset() { loadLevel(levelIndex, runSeed); }
+function loadLevel(index, seed = fixedSeed ?? newSeed()) {
+  if(!Number.isInteger(index)||!prototypeLevels[index])throw new Error('Invalid level index');
   runId++;
   cancelGesture(); cancelFrame(); timeline = null; elapsed = 0; previousElapsed = 0; keyboardCell = null;
-  levelIndex = index; level = prototypeLevels[index]; state = createPrototypeState(level);
+  levelIndex = index; level = prototypeLevels[index]; runSeed=seed; state = createV4State(level, runSeed);
+  boardLevel = { ...level, cells: V4_CELLS }; displayedMagnets=state.magnets.join(',');displayedQueueTurn=0;
   phase = 'playing'; paused = false; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
   displayedCleared = 0; collection.clear();
   ui(); draw();
 }
 function hint() {
   if (!interactive()) return;
-  let expected = createPrototypeState(level);
-  for (const action of level.solution) {
-    if (JSON.stringify(expected) === JSON.stringify(state)) {
-      selected = action.color; keyboardCell = action.cell;
-      notice = `Hint: place the magnet at row ${action.cell.row}, column ${action.cell.col}.`;
-      ui(); draw(); return;
-    }
-    expected = applyMagnet(expected, action).state;
-  }
-  notice = 'No hint for this position. Try exposing a lower color.'; ui();
+  notice = 'Match exposed colors. New stacks appear after each move.'; ui();
 }
 function resize() {
   cancelGesture(); cancelFrame();
@@ -270,6 +278,19 @@ listen(canvas, 'webglcontextlost', event => { event.preventDefault(); setPaused(
 listen(canvas, 'webglcontextrestored', initializeBoard);
 const observer = new ResizeObserver(resize); observer.observe(host);
 if (import.meta.env.DEV) window.gameDebug = { snapshot, reset, setPaused, loadLevel,
+  finishTestPresentation:()=>{
+    if(!timeline||paused)return;
+    elapsed=timeline.duration;previousElapsed=elapsed;
+    tick(performance.now());
+  },
+  inspectPresentation: (before,resolution,time,reducedValue=false) => {
+    const inspection=makeTransferTimeline(before,resolution,reducedValue);
+    const sample=board.draw(boardLevel,resolution.state,{timeline:inspection,time,reduced:reducedValue});
+    collection.draw(sample,time,board,collectionLayer,progressNode,reducedValue,sample.collected/before.goal);
+    return {frame:sample,renderer:board.snapshot(),timeline:inspection};
+  },
+  finishInspection:()=>{collection.clear();draw();},
+  inspectBackingLighting:legacy=>board.inspectBackingLighting(legacy),
   playTestAction: submit, screenPosition: cell => board.screenPosition(cell), getLevel: () => structuredClone(level),
   setReducedMotion: value => { reduced = Boolean(value); ui(); }, dispose,
   legalCells: () => state.cells.filter(cell => canPlaceMagnet(state, cell)).map(cell => cellId(cell)) };

@@ -4,6 +4,10 @@ export const COLORS = Object.freeze({
   violet: { label: 'Violet', hex: '#7800e8' },
   blue: { label: 'Blue', hex: '#0087f5' },
   coral: { label: 'Coral', hex: '#ff542b' },
+  gold: { label: 'Gold', hex: '#f6ba19' },
+  lime: { label: 'Lime', hex: '#85ca20' },
+  teal: { label: 'Teal', hex: '#00b6a5' },
+  pink: { label: 'Pink', hex: '#f140a1' },
 });
 const copy = (value) => structuredClone(value);
 const compareCells = (a, b) => a.row - b.row || a.col - b.col;
