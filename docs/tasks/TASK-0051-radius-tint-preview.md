@@ -1,6 +1,6 @@
 # TASK-0051: Бортики клеток пульсируют по кольцам вокруг магнита
 
-- Статус: ready
+- Статус: review
 - Приоритет: high
 - Создана: 2026-10-12
 - Обновлена: 2026-10-12
@@ -81,4 +81,6 @@
 
 ## 10. Отчёт исполнителя
 
-Не выполнялась. Подготовка автора: v1 оценён пользователем и отклонён, создан новый статический AI concept v2 и сохранён PROMPT.md; v2 одобрен пользователем 2026-10-12, задача ready. Анимация/интеграция не выполнены. Исполнитель запишет свои файлы, команды и фактические результаты, ручные evidence, выполненные/невыполненные критерии, блокеры, commit/deploy и итоговый статус/дату.
+Реализовано: border-preview.js (чистые кольца/pulse), influence-effects.js (18 fixed rims, без fill/preview particles), runtime.js (drag/keyboard/tap candidate, один RAF, lifecycle). В board.js только два своих изменения: передача размеров PNG бортика и удаление зелёного fill legal hover. Чужой draw-order refactor и magnet-glow изменения остаются незакоммиченными и не включаются в задачу.
+
+Unit/build: 179 tests, build pass. Border helper: odd/even/corner, occupied/X, center excluded, no mutation/RNG; sin² фазовые границы и repeat/reduced pass. border-preview-browser-check: реальный неподвижный drag ring1/ring2/repeat, keyboard RAF, reduced/static+RAF stop, все7 цветов через isolated view inspection, pause/reset/resize pass. influence-drag-check:20 реальных drag/cancel, input/state unchanged, fixed GPU resources, reduced pass. Осмотрены inner/outer screenshots: тонкие бортики, исходный кремовый центр и chips сохранены. Логи artifacts/51-*, evidence artifacts/border-preview. v4-visual-check:6 направлений×5 фаз×desktop/mobile, IDs/hidden badges/actual magnetic cell/lifecycle/20GPU reuse pass. Основной smoke: победа/retry/pause desktop/mobile pass. Реальный телефон не проверен. Задача review до финальной публикации; только два своих hunk board.js staged поверх HEAD, чужой diff сохранён.

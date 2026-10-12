@@ -5,6 +5,7 @@ import { cellId } from '../game/hex.js';
 import { canPlaceMagnet } from './model.js';
 import { createV4State, applyV4Magnet, V4_CELLS } from './model-v4.js';
 import { previewMagnetInfluence } from './magnet-influence.js';
+import { previewBorderRings } from './border-preview.js';
 import { v4Levels as prototypeLevels } from './levels-v4.js';
 import { makeTransferTimeline } from './motion.js';
 import { createThreeBoard } from './board.js';
@@ -72,8 +73,8 @@ function draw(alpha = 1) {
   }
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
   const previewCell=keyboardCell??hover;
-  const previewKey=drag&&!drag.released&&!paused&&phase==='playing'&&previewCell?cellId(previewCell)+':'+selected:null;
-  if(influenceCache.state!==state||influenceCache.key!==previewKey)influenceCache={state,key:previewKey,plan:previewKey?previewMagnetInfluence(state,previewCell,selected):null};
+  const previewKey=(keyboardCell||gesture||(drag&&!drag.released))&&!paused&&phase==='playing'&&previewCell?cellId(previewCell)+':'+selected:null;
+  if(influenceCache.state!==state||influenceCache.key!==previewKey)influenceCache={state,key:previewKey,plan:previewKey?previewBorderRings(state,previewCell,selected):null};
   const frame = board?.draw(boardLevel, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
     hideMagnet: Boolean(drag), dragging: Boolean(drag && !drag.released), reduced,
     influence: influenceCache.plan,
@@ -100,7 +101,7 @@ function draw(alpha = 1) {
   }
 }
 function schedule() {
-  if (raf === null && !disposed && !paused && !document.hidden && board && (timeline || drag)) raf = requestAnimationFrame(tick);
+  if (raf === null && !disposed && !paused && !document.hidden && board && (timeline || drag || (influenceCache.plan&&!reduced))) raf = requestAnimationFrame(tick);
 }
 function cancelFrame() {
   if (raf !== null) cancelAnimationFrame(raf);
@@ -124,14 +125,14 @@ function tick(now) {
 }
 function cancelGesture() {
   const active = gesture;
-  gesture = null; hover = null;
+  gesture = null; hover = null; keyboardCell = null;
   drag = null;
   if (active?.element.hasPointerCapture?.(active.id)) active.element.releasePointerCapture(active.id);
 }
 function interactive() { return !disposed && board && !error && !paused && !document.hidden && phase === 'playing'; }
 function select(color) {
   if (!interactive() || !state.magnets.includes(color)) return;
-  selected = color; notice = 'Place a magnet on an empty tile.'; ui(); draw();
+  selected = color; notice = 'Place a magnet on an empty tile.'; ui(); draw(); schedule();
 }
 function submit(action) {
   if (!interactive()) return { accepted: false, reason: 'locked' };
@@ -176,7 +177,7 @@ function pointerMove(event) {
       schedule();
     }
   }
-  draw();
+  draw(); schedule();
 }
 function pointerUp(event) {
   if (!gesture || gesture.id !== event.pointerId) return;
@@ -204,7 +205,7 @@ function keyboard(event) {
   const next = { col: cell.col + (event.code === 'ArrowRight' ? 1 : event.code === 'ArrowLeft' ? -1 : 0),
     row: cell.row + (event.code === 'ArrowDown' ? 1 : event.code === 'ArrowUp' ? -1 : 0) };
   keyboardCell = state.cells.find(candidate => candidate.col === next.col && candidate.row === next.row) ?? cell;
-  ui(); draw();
+  ui(); draw(); schedule();
 }
 function setPaused(value) {
   paused = Boolean(value); cancelGesture(); cancelFrame(); ui(); draw();
@@ -296,12 +297,12 @@ if (import.meta.env.DEV) window.gameDebug = { snapshot, reset, setPaused, loadLe
     return {frame:sample,renderer:board.snapshot(),timeline:inspection};
   },
   inspectInfluence:(before,cell,color,time,reducedValue=false)=>{
-    board.draw(boardLevel,before,{influence:previewMagnetInfluence(before,cell,color),time,reduced:reducedValue});
+    board.draw(boardLevel,before,{influence:previewBorderRings(before,cell,color),time,reduced:reducedValue});
     return board.snapshot();
   },
   finishInspection:()=>{collection.clear();draw();},
   inspectBackingLighting:legacy=>board.inspectBackingLighting(legacy),
   playTestAction: submit, screenPosition: cell => board.screenPosition(cell), getLevel: () => structuredClone(level),
-  setReducedMotion: value => { reduced = Boolean(value); ui(); }, dispose,
+  setReducedMotion: value => { reduced = Boolean(value); ui(); draw(); schedule(); }, dispose,
   legalCells: () => state.cells.filter(cell => canPlaceMagnet(state, cell)).map(cell => cellId(cell)) };
 if (import.meta.hot) import.meta.hot.dispose(dispose);

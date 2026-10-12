@@ -1,6 +1,6 @@
 # TASK-0050: Сгенерировать и перенести экран поражения
 
-- Статус: review
+- Статус: done
 - Приоритет: high
 - Создана: 2026-10-12
 - Обновлена: 2026-10-12
@@ -72,3 +72,5 @@
 ## 10. Отчёт исполнителя
 
 Сгенерирован целевой mockup и отдельно прозрачные panel/illustration; перенесены в App.js через assets.js и defeat-dialog CSS. Text/moves/collected/retry — live DOM, победная ветка сохранена. Source/prompts/spec: docs/design/defeat-v1; runtime PNG public/art/mockup/defeat-panel.png и defeat-illustration.png. Проверки: 177 tests/build pass; progressive-spawn browser — настоящий lost после12 ходов и exact retry на desktop/mobile. defeat-browser-check — stats, no stars/confetti, один button, 320/390/900/landscape844, Tab/Shift+Tab/Enter, pause/retry pass. artwork-retry-check defeat-panel pass. Осмотрены lost-390/lost-844 screenshots: alpha/текст/кнопка корректны. Evidence artifacts/defeat, логи artifacts/50-*. Физический телефон не проверялся. Статус review до проверки публикации, 2026-10-12.
+
+Публикация: a5e3bcf push main, deploy run 38303298900 success; defeat-browser-check.cjs на public Pages подтвердил настоящий lost, live stats, четыре viewport, focus trap/Enter retry/pause. Итог: done, 2026-10-12.

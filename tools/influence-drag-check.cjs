@@ -5,14 +5,14 @@ await p.goto((process.env.GAME_BASE_URL||'http://127.0.0.1:5181/')+'?seed=2');aw
 const start=await p.evaluate(()=>window.gameDebug.snapshot());
 let warmedResources;
 const choice=await p.evaluate(async()=>{
- const {previewMagnetInfluence}=await import('/src/prototype/magnet-influence.js');const s=window.gameDebug.snapshot().state;
- for(const color of s.magnets)for(const cell of s.cells){const plan=previewMagnetInfluence(s,cell,color);if(plan?.affectedCells.length)return {cell,color,ids:plan.affectedCells.map(c=>`${c.row}:${c.col}`)};}
+ const {previewBorderRings}=await import('/src/prototype/border-preview.js');const s=window.gameDebug.snapshot().state;
+ for(const color of s.magnets)for(const cell of s.cells){const plan=previewBorderRings(s,cell,color);if(plan?.rings.flat().length)return {cell,color,ids:plan.rings.flat().map(c=>`${c.row}:${c.col}`)};}
 });assert.ok(choice);
 for(let i=0;i<20;i++){
  const tool=await p.locator(`[data-magnet-color="${choice.color}"]`).boundingBox();
  const target=await p.evaluate(c=>window.gameDebug.screenPosition(c),choice.cell);
  await p.mouse.move(tool.x+tool.width/2,tool.y+tool.height/2);await p.mouse.down();await p.mouse.move(target.x,target.y,{steps:8});await p.waitForTimeout(220);
- const s=await p.evaluate(()=>window.gameDebug.snapshot());assert.ok(s.renderer.influence.particles>0);assert.ok(s.renderer.influence.particles<=48);
+ const s=await p.evaluate(()=>window.gameDebug.snapshot());assert.equal(s.renderer.influence.particles,0);assert.equal(s.renderer.influence.waves,0);
  assert.deepEqual(new Set(s.renderer.influence.cells.map(c=>`${c.cell.row}:${c.cell.col}`)),new Set(choice.ids));
  if(i===0){await p.screenshot({path:'artifacts/followup-browser/mobile-real-drag.png'});await p.getByRole('button',{name:'Pause',exact:true}).dispatchEvent('click');assert.equal((await p.evaluate(()=>window.gameDebug.snapshot())).gesture,false);await p.getByRole('button',{name:'Resume',exact:true}).click();}
  await p.mouse.move(2,2,{steps:4});await p.mouse.up();await p.waitForTimeout(280);

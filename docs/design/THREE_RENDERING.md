@@ -2,6 +2,8 @@
 
 ## Активные уточнения v4 — 2026-10-12
 
+Предпросмотр 2026-10-12: геометрические кольца distance=1/2 (включая занятые и X) — отдельный контракт border-preview.js, не actual pull paths. Цвет выбранного магнита применяется только к фиксированным 18 rim meshes; центр/углубления/фишки сохраняют исходный цвет. Sin²-пульс 1.2s первого кольца, затем 1.2s второго, повтор; reduced — оба кольца статично .45. Preview не имеет particles/waves; work timeline сохраняет свои эффекты. Только общий runtime RAF, активен также при неподвижной keyboard candidate, остановлен после cancel/reset/hidden. Бортики используют геометрию/размер и painter order своей плитки, shared материалы плиток не перекрашиваются.
+
 Правила — [GDD v0.4](GDD_V0.4.md); clauses v3 ниже сохраняются как история и общие требования владения, ввода/cleanup. При конфликте применяются следующие решения v4:
 
 - `model-v4.js` — immutable RNG/spawn/goal/queue/scoring; `levels-v4.js` — только sparse blockers и identity. `model.js` сохраняет исторический v3 BFS; `magnet-influence.js` разрешает прямые v4 лучи и общий preview без RNG.

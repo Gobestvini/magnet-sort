@@ -105,7 +105,7 @@ export function createThreeBoard(canvas, textures) {
     const pos = cellPosition(cell);
     return new THREE.Vector3(pos.x + layout.offsetX, FLOOR, pos.z).addScaledVector(screenUp, -.035);
   };
-  const influenceEffects=createInfluenceEffects(scene,camera,plane,own,magnetAnchor,cell=>cellMeshes.get(cellId(cell))?.renderOrder??100);
+  const influenceEffects=createInfluenceEffects(scene,camera,plane,own,magnetAnchor,cell=>cellMeshes.get(cellId(cell))?.renderOrder??100,{width:tileWidth,height:tileHeight,offsetY:(234/512-.5)*tileHeight+.035});
   function buildLevel(level) {
     if (currentLevel === level) return;
     currentLevel = level; influenceEffects.reset();
@@ -202,7 +202,7 @@ export function createThreeBoard(canvas, textures) {
     for(const [id,shadow]of shadows)if(!stacks.has(id)){scene.remove(shadow);shadows.delete(id);}
     for (const [id, tile] of cellMeshes) {
       tile.material = tile.userData.blocked ? materials['tile-blocked'] : materials.tile;
-      if (!tile.userData.blocked && hover && cellId(hover) === id && selected && !paused && !timeline) tile.material = canPlaceMagnet(state, hover) ? validMaterial : invalidMaterial;
+      if (!tile.userData.blocked && hover && cellId(hover) === id && selected && !paused && !timeline && !canPlaceMagnet(state,hover)) tile.material = invalidMaterial;
       else if (hint && cellId(hint) === id && !paused) tile.material = tutorialMaterial;
     }
     magneticTile.visible=Boolean(sampled?.magnet&&sampled.magneticStrength>0);

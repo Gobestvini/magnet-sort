@@ -2,9 +2,10 @@ import * as THREE from 'three';
 import { COLORS } from './model.js';
 import { cellId } from '../game/hex.js';
 import { sampleInfluenceArc } from './magnet-influence.js';
+import { sampleBorderPulse } from './border-preview.js';
 
 // Fixed retained pools; positions derive from the board's own anchors/camera.
-export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder) {
+export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,tile={width:1.1,height:1.1,offsetY:0}) {
   const group=new THREE.Group();scene.add(group);
   const make=(geometry)=>{
     const material=own(new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthTest:false,depthWrite:false,toneMapped:false,side:THREE.DoubleSide}));
@@ -17,10 +18,26 @@ export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder) 
   const marks=Array.from({length:25},()=>make(contour));
   const particles=Array.from({length:48},()=>make(dot));
   const waves=Array.from({length:12},()=>make(plane));
+  const rimShape=new THREE.Shape(),rimHole=new THREE.Path();
+  const vertices=[[0,.5],[.5,.25],[.5,-.25],[0,-.5],[-.5,-.25],[-.5,.25]];
+  vertices.forEach(([x,y],i)=>{const px=x*tile.width*.96,py=y*tile.height*.92+tile.offsetY;if(i)rimShape.lineTo(px,py);else rimShape.moveTo(px,py);});rimShape.closePath();
+  [...vertices].reverse().forEach(([x,y],i)=>{const px=x*tile.width*.9,py=y*tile.height*.86+tile.offsetY;if(i)rimHole.lineTo(px,py);else rimHole.moveTo(px,py);});rimHole.closePath();rimShape.holes.push(rimHole);
+  const rimGeometry=own(new THREE.ShapeGeometry(rimShape)),rims=Array.from({length:18},()=>make(rimGeometry));
+  let previewKey=null,previewStart=0;
   const states=new Map(),tint=new THREE.Color(),white=new THREE.Color('#ffffff');let lastTime=null,stats={cells:[],particles:0,waves:0};
   function hide(mesh){mesh.visible=false;mesh.material.opacity=0;}
   return {
     draw(plan,timeline,time,reduced,paused){
+      rims.forEach(hide);
+      if(plan?.rings&&!timeline&&!paused){
+        if(previewKey!==plan.key||time<previewStart){previewKey=plan.key;previewStart=time;}
+        const strengths=sampleBorderPulse(time-previewStart,reduced);let index=0;
+        states.clear();marks.forEach(hide);particles.forEach(hide);waves.forEach(hide);stats={cells:[],particles:0,waves:0,ringStrengths:strengths};
+        plan.rings.forEach((cells,ring)=>{for(const cell of cells){const mesh=rims[index++];mesh.visible=strengths[ring]>.001;mesh.position.copy(anchor(cell));mesh.material.color.set(COLORS[plan.magnet.color].hex);mesh.material.opacity=strengths[ring]*.95;mesh.renderOrder=cellOrder(cell)+1;stats.cells.push({cell,ring:ring+1,strength:strengths[ring],color:plan.magnet.color});}});
+        lastTime=time;return;
+      }
+      previewKey=null;
+      if(!timeline){states.clear();marks.forEach(hide);particles.forEach(hide);waves.forEach(hide);stats={cells:[],particles:0,waves:0,ringStrengths:[0,0]};lastTime=time;return;}
       const dt=lastTime===null||time<lastTime?0:Math.min(.05,time-lastTime);lastTime=time;
       const active=timeline?.segments.filter(s=>s.type==='unitMoved'&&time>=s.start&&time<s.end)??[];
       const desired=new Map((plan?.affectedCells??[]).map(c=>[cellId(c),c]));
@@ -55,7 +72,7 @@ export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder) 
         }
       }
     },
-    reset(){states.clear();lastTime=null;group.children.forEach(hide);stats={cells:[],particles:0,waves:0};},
-    snapshot:()=>({...stats,pool:{marks:25,particles:48,waves:12}}),
+    reset(){states.clear();lastTime=null;previewKey=null;group.children.forEach(hide);stats={cells:[],particles:0,waves:0};},
+    snapshot:()=>({...stats,pool:{marks:25,rims:18,particles:48,waves:12}}),
   };
 }
