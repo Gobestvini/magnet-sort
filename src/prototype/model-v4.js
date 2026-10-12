@@ -2,7 +2,13 @@ import { cellId, neighborCells } from '../game/hex.js';
 import { COLORS, canPlaceMagnet } from './model.js';
 import { resolveMagnetInfluence } from './magnet-influence.js';
 
-export const V4_CONFIG = Object.freeze({ initialStacks: 7, stacksPerTurn: 2, minHeight: 6, maxHeight: 12, heightStep: 6, clearSize: 6 });
+export const V4_CONFIG = Object.freeze({ initialStacks: 5, maxStacksPerTurn: 3, minHeight: 6, maxHeight: 12, heightStep: 6, clearSize: 6 });
+export function stacksForMove(movesUsed, levelNumber=1) {
+  const span=5*levelNumber*levelNumber;
+  const interval=levelNumber<=2?1:levelNumber;
+  if(movesUsed%interval!==0)return 0;
+  return movesUsed<=span?1:movesUsed<=2*span?2:V4_CONFIG.maxStacksPerTurn;
+}
 export const V4_CELLS = Object.freeze(Array.from({ length: 25 }, (_, i) => Object.freeze({ col: i % 5 + 1, row: Math.floor(i / 5) + 1 })));
 const colors = Object.keys(COLORS);
 const compare = (a,b) => a.row-b.row || a.col-b.col;
@@ -49,7 +55,7 @@ export function earnedStars(goal, movesUsed, terminal) {
 }
 export function spawnStacks(state, requested) {
   const free=state.cells.filter(c=>canPlaceMagnet(state,c)).sort(compare);
-  const count=Math.min(requested,Math.max(0,free.length-1)), events=[];
+  const count=Math.min(requested,free.length), events=[];
   for(let i=0;i<count;i++){
     const cell=free.splice(drawIndex(state,free.length),1)[0];
     const height=V4_CONFIG.minHeight+V4_CONFIG.heightStep*drawIndex(state,2);
@@ -85,7 +91,7 @@ export function applyV4Magnet(state, action) {
   if(next.cleared>=next.goal){
     next.terminal='won';next.stars=earnedStars(next.goal,next.movesUsed,'won');next.magnets=retained;
   }else{
-    events.push(...spawnStacks(next,V4_CONFIG.stacksPerTurn));
+    events.push(...spawnStacks(next,stacksForMove(next.movesUsed,next.levelNumber)));
     next.magnets=fillMagnetQueue(next,retained);
     events.push({type:'magnetsChanged',before:[...state.magnets],after:[...next.magnets],used:action.color});
     if(!next.cells.some(c=>canPlaceMagnet(next,c)))next.terminal='lost';

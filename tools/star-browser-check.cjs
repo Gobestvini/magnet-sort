@@ -10,7 +10,7 @@ const fixtures=require('./fixtures/earned-star-witnesses.json');
   await p.getByLabel(fixture.stars+' stars earned').waitFor();
   assert.equal(await p.locator('.earned-stars .earned').count(),fixture.stars);
   assert.equal(await p.locator('.moves-panel strong').textContent(),String(fixture.actions.length));
-  assert.equal(await p.locator('.cleared-count').textContent(),'54');
+  assert.equal(await p.locator('.cleared-count').textContent(),String(fixture.cleared??54));
   assert.equal(await p.locator('.game-view').evaluate(n=>n.inert),true);
   assert.equal(await p.locator('.victory-dialog').evaluate(n=>getComputedStyle(n).backgroundColor),'rgba(25, 5, 86, 0.65)');
   for(const key of ['Tab','Shift+Tab','Tab','Tab']){await p.keyboard.press(key);assert.equal(await p.evaluate(()=>document.querySelector('.victory-dialog').contains(document.activeElement)),true);}

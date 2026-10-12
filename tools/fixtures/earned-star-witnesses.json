@@ -1,102 +1,17 @@
 [
   {
-    "seed": 0,
+    "seed": 2,
     "stars": 1,
+    "cleared": 54,
     "actions": [
       {
         "type": "placeMagnet",
-        "color": "pink",
-        "cell": {
-          "col": 3,
-          "row": 1
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "lime",
-        "cell": {
-          "col": 4,
-          "row": 1
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "coral",
-        "cell": {
-          "col": 4,
-          "row": 1
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "pink",
-        "cell": {
-          "col": 5,
-          "row": 4
-        }
-      },
-      {
-        "type": "placeMagnet",
         "color": "gold",
         "cell": {
-          "col": 2,
-          "row": 5
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "gold",
-        "cell": {
-          "col": 5,
-          "row": 1
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "lime",
-        "cell": {
-          "col": 5,
-          "row": 1
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "coral",
-        "cell": {
           "col": 3,
-          "row": 5
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "teal",
-        "cell": {
-          "col": 1,
           "row": 2
         }
       },
-      {
-        "type": "placeMagnet",
-        "color": "teal",
-        "cell": {
-          "col": 3,
-          "row": 5
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "pink",
-        "cell": {
-          "col": 4,
-          "row": 5
-        }
-      }
-    ]
-  },
-  {
-    "seed": 5,
-    "stars": 2,
-    "actions": [
       {
         "type": "placeMagnet",
         "color": "blue",
@@ -109,69 +24,15 @@
         "type": "placeMagnet",
         "color": "teal",
         "cell": {
-          "col": 2,
-          "row": 1
+          "col": 3,
+          "row": 3
         }
       },
       {
         "type": "placeMagnet",
         "color": "violet",
         "cell": {
-          "col": 4,
-          "row": 4
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "teal",
-        "cell": {
           "col": 2,
-          "row": 1
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "gold",
-        "cell": {
-          "col": 2,
-          "row": 1
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "gold",
-        "cell": {
-          "col": 3,
-          "row": 5
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "lime",
-        "cell": {
-          "col": 4,
-          "row": 4
-        }
-      },
-      {
-        "type": "placeMagnet",
-        "color": "blue",
-        "cell": {
-          "col": 2,
-          "row": 1
-        }
-      }
-    ]
-  },
-  {
-    "seed": 17,
-    "stars": 3,
-    "actions": [
-      {
-        "type": "placeMagnet",
-        "color": "blue",
-        "cell": {
-          "col": 3,
           "row": 1
         }
       },
@@ -179,16 +40,40 @@
         "type": "placeMagnet",
         "color": "coral",
         "cell": {
-          "col": 4,
+          "col": 2,
+          "row": 1
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "pink",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "lime",
+        "cell": {
+          "col": 3,
           "row": 5
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 5,
+          "row": 4
         }
       },
       {
         "type": "placeMagnet",
         "color": "gold",
         "cell": {
-          "col": 2,
-          "row": 5
+          "col": 3,
+          "row": 4
         }
       },
       {
@@ -201,10 +86,89 @@
       },
       {
         "type": "placeMagnet",
-        "color": "lime",
+        "color": "coral",
         "cell": {
           "col": 3,
+          "row": 4
+        }
+      }
+    ]
+  },
+  {
+    "seed": 5,
+    "stars": 2,
+    "cleared": 54,
+    "actions": [
+      {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 3,
+          "row": 4
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "coral",
+        "cell": {
+          "col": 2,
+          "row": 1
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "gold",
+        "cell": {
+          "col": 3,
+          "row": 3
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "violet",
+        "cell": {
+          "col": 2,
           "row": 2
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "blue",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "lime",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "coral",
+        "cell": {
+          "col": 2,
+          "row": 2
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "gold",
+        "cell": {
+          "col": 4,
+          "row": 3
+        }
+      },
+      {
+        "type": "placeMagnet",
+        "color": "pink",
+        "cell": {
+          "col": 4,
+          "row": 3
         }
       }
     ]

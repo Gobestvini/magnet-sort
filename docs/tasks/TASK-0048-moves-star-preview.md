@@ -1,6 +1,6 @@
 # TASK-0048: Сгенерированные звёзды над MOVES с прогнозом награды
 
-- Статус: review
+- Статус: done
 - Приоритет: high
 - Создана: 2026-10-12
 - Обновлена: 2026-10-12
@@ -93,5 +93,6 @@
 - Изменённые файлы: App.js, prototype.css, assets.js, model-v4.js, moves-star.png; docs/design/moves-stars (source/spec/prompt); potential-stars.test.js; moves-stars-browser-check.cjs, hud-layout-check.cjs, artwork-retry-check.cjs.
 - Проверки: 174 unit tests и сборка прошли. Browser real 3→2→1, invalid/cancel/pause/retry, включительные fixtures goal 50/100/600, четыре viewport и shared asset error/retry прошли. star-browser-check.cjs: настоящие победы seed 0/5/17 на 1/2/3 звезды. hud-layout-check.cjs: исходные координаты лого/цели/MOVES/поля/controls совпадают без ряда звёзд; нет перекрытий 320/390/900/landscape844.
 - Визуальная проверка: осмотрен source PNG, arc-390.png и landscape/320 кадры. Evidence artifacts/moves-stars; последние screenshots arc-* фиксируют уточнение пользователя, предыдущие viewport-* сохраняют ранний вариант.
-- Непроверенное: реальный телефон; публикация отмечается после deploy. Задача review до проверки Pages, остальные обязательные критерии выполнены.
-- Итоговый статус и дата: review, 2026-10-12.
+- Публикация: commit 05760ca, push origin main; deploy-pages.yml run 38300983967 success. Published recorded witness: победа/retry/pause/HUD/ресурсы прошли desktop/mobile viewport. Проверка не импортирует изменённую после коммита локальную модель.
+- Непроверенное: физический телефон. Обязательные критерии выполнены, реальные устройства не заявляются.
+- Итоговый статус и дата: done, 2026-10-12.
