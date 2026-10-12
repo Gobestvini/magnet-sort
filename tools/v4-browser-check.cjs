@@ -96,6 +96,6 @@ async function smoke(base,output='artifacts/v4-browser'){
  }finally{await browser.close();}
  console.log('V4 seeded goal victory, three magnets, growing moves, earned stars, retry and pause passed (desktop/mobile viewport), '+planned.actions.length+' moves.');
 }
-module.exports={route,keyboardPlace,smoke};
+module.exports={route,keyboardPlace,readyTools,smoke};
 if(require.main===module)smoke(process.env.GAME_BASE_URL||'http://127.0.0.1:5175/').catch(e=>{console.error(e);process.exitCode=1;});
 

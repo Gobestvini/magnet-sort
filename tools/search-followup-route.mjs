@@ -35,7 +35,7 @@ export function beamRoute(number,seed,width=24,maxTurns=320){
  }
  return frontier[0]??null;
 }
-if(process.argv[1].endsWith('search-followup-route.mjs')){
+if(process.argv[1]?.endsWith('search-followup-route.mjs')){
  const number=Number(process.argv[2]??1),limit=Number(process.argv[3]??200);let max=0;
  if(['beam','stars3','stars2'].includes(process.argv[4])){
   for(let seed=0;seed<limit;seed++){

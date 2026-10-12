@@ -1,6 +1,6 @@
 # TASK-0043–0047 — реализация 2026-10-12
 
-Реализованы объёмный растровый фон и согласованная маска idle, новый макет/ассеты/DOM экран победы с затемнением, смешанные стопки с целями 50*N, прямые лучи магнита на две клетки и согласованные эффекты. Техническая приёмка/публикация до завершения CI остаются review; история и чужие локальные правки сохранены.
+Реализованы объёмный растровый фон и согласованная маска idle, новый макет/ассеты/DOM экран победы с затемнением, смешанные стопки с целями 50*N, прямые лучи магнита на две клетки и согласованные эффекты. Задачи завершены; удалённые полные проверки и публикация успешны. История и чужие локальные правки сохранены.
 
 ## Реализация
 
@@ -23,10 +23,14 @@
 - `tools/v4-level-browser-check.cjs` — level2 seed0: 102/100 за22 действия; level12 seed4: 600/600 за215 действий — pass. Длинная presentation завершалась существующим end-sampling hook; это не ручной просмотр всех 215 полных анимаций.
 - `tools/v4-visual-check.cjs` — 6 направлений ×5 фаз ×desktop/mobile, 20units identities, hidden/pre-clear badges, border reset, layouts/pause/reset, 20GPU reuse cycles — pass.
 - `tools/followup-browser-check.cjs` — 320/390×844/1280×900/900×500, DOM preview 1/2/3/final/long values, image decode/no overflow, shared cover mask/11s idle, active waves, source/path preview and reduced zone — pass; кадры визуально просмотрены.
-- Pointer drag/resource test сравнивает ресурсы после первого GPU-прогрева (контур и точки впервые загружаются при drag). Некоторые попытки Edge/Chrome и Node driver получили нативные V8 crashes; финальный результат записывается после повторной проверки.
+- Pointer drag/resource test сравнивает ресурсы после первого GPU-прогрева (контур и точки впервые загружаются при drag). Некоторые попытки Edge/Chrome и Node driver получили нативные V8 crashes; `BROWSER_STABLE=1 node --no-opt tools/influence-drag-check.cjs` — pass:20 pointer drag/cancel cycles, truthful preview, pause cancellation, fixed GPU resources and reduced zone.
 
-Реальные устройства не проверялись; viewport/headless не выдаются за телефон. Настоящий result просмотрен с1 earned star; 2/3-star artwork/layout проверены отдельным preview, вычисление наград — boundary tests. Баланс 3звёзд для всех seeds не обещается. Сохранённые маршруты — tools/fixtures/followup-witnesses.json; старый greedy больше не свидетель новой модели. Поиск свидетелей не подключён в runtime.
+Реальные устройства не проверялись; viewport/headless не выдаются за телефон. Настоящие result 1/2/3 earned stars проверены на публичной игре:seed0/11ходов, seed5/8ходов, seed17/5ходов,54/50. tools/star-browser-check.cjs проверяет число earned slots, реальные moves/cleared, затемнение, inert board, Tab/Shift+Tab, Next level/Play again. После настоящих побед уровней2/12 дополнительно проверены Next level и Play from start. Баланс 3звёзд для всех seeds не обещается. Сохранённые маршруты — tools/fixtures/followup-witnesses.json; старый greedy больше не свидетель новой модели. Поиск свидетелей не подключён в runtime.
 
 ## Публикация
 
-Ожидается отдельный commit/push только своих изменений, удалённые Check game (`pnpm check:full`, Node22/Linux) и Deploy GitHub Pages; затем browser smoke публичной игры. Итог дополняется после фактического результата.
+Коммит реализации `05dd9ae` отправлен в remote main. [Check game](https://github.com/Gobestvini/magnet-sort/actions/runs/38272136726) — success, включая шаг `pnpm check:full` на Node22/Linux. [Deploy GitHub Pages](https://github.com/Gobestvini/magnet-sort/actions/runs/38272136661) — success.
+
+Публичный `GAME_BASE_URL=https://gobestvini.github.io/magnet-sort/ BROWSER_CHANNEL=msedge node --no-opt tools/pages-browser-check.cjs` — pass, desktop/mobile реальная победа за11ходов, очередь/шаги/звёзды/retry/pause. Публичный star-browser-check — три настоящих победы1/2/3stars и проверки overlay/inert/focus/actions — pass. [Игра](https://gobestvini.github.io/magnet-sort/).
+
+Статусы done опираются на функциональные/browser/CI evidence, не на физический телефон. Проверочные команды с native Windows fault явно перечислены выше; Linux CI подтвердил полный стандартный check:full без адаптеров и исключений. Итоговый отчёт/расширенные browser witnesses сохраняются отдельным коммитом; его CI/deploy проверяется дополнительно.

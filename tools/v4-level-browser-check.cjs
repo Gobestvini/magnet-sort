@@ -14,6 +14,9 @@ for(const number of [2,12]){
  assert.equal(s.state.movesUsed,planned.actions.length);
  await p.screenshot({path:'artifacts/v4-visual/level'+number+'-victory.png',fullPage:true});
  console.log('Browser level '+number+' goal reached: '+s.state.cleared+' in '+s.state.movesUsed+' real actions (presentation end sampled).');
+ const button=number===12?'Play from start':'Next level';
+ await p.getByRole('button',{name:button,exact:true}).click();
+ assert.equal((await p.evaluate(()=>window.gameDebug.snapshot())).levelIndex,number===12?0:number);
 }
 await p.close();
 const sheet=await b.newPage({viewport:{width:1120,height:620}});
