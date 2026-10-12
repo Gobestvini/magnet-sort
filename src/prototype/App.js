@@ -112,14 +112,15 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
       h('h2', { className: 'live-heading' }, 'PAUSED'), h('div', { className: 'modal-magnet' }, h(MagnetIcon)),
       h('button', { className: 'primary-button', onClick: onPause }, 'Resume'),
       h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Restart')) :
-    result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Board full', variant: state.terminal === 'won' ? 'victory-dialog' : '' },
+    result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Board full', variant: state.terminal === 'won' ? 'victory-dialog' : 'defeat-dialog' },
       h('div', { className: 'result-card', role: 'region', 'aria-label': 'Result' },
         state.terminal === 'won' ? null : h('h2', { className: 'live-heading defeat-heading' }, 'BOARD FULL'),
-        state.terminal === 'won' ? h('h2', { className: 'result-title' }, 'LEVEL COMPLETE!') : h('div', { className: 'modal-magnet resting-magnet' }, h(MagnetIcon)),
-        h('div',{className:'earned-stars','aria-label':`${state.stars??0} stars earned`},[1,2,3].map(n=>h('img',{src:art('victory-star-v2'),alt:'',className:n<=(state.stars??0)?'earned':'unearned'}))),
+        state.terminal === 'won' ? h('h2', { className: 'result-title' }, 'LEVEL COMPLETE!') : h('p',{className:'defeat-reason'},'No empty tiles left'),
+        state.terminal === 'lost' && h('img',{className:'defeat-illustration',src:art('defeat-illustration'),alt:'',draggable:false}),
+        state.terminal === 'won' && h('div',{className:'earned-stars','aria-label':`${state.stars??0} stars earned`},[1,2,3].map(n=>h('img',{src:art('victory-star-v2'),alt:'',className:n<=(state.stars??0)?'earned':'unearned'}))),
         h('div', {className:'victory-stats'}, h('p',null,state.movesUsed??state.turn,h('small',null,'MOVES')),h('p',null,`${state.cleared} / ${goal}`,h('small',null,'COLLECTED'))),
         state.terminal === 'lost' && h('small', null, remainingUnits(state) + ' pieces left'),
-        h('button', { className: 'primary-button', onClick: state.terminal === 'won' ? onNext : onReset },
+        h('button', { className: state.terminal === 'won'?'primary-button':'secondary-button defeat-retry', onClick: state.terminal === 'won' ? onNext : onReset },
           state.terminal === 'won' ? levelIndex + 1 === totalLevels ? 'Play from start' : 'Next level' : 'Try again'),
         state.terminal === 'won' && h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Play again'))) : null);
 }
