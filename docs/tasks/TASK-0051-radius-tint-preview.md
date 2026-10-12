@@ -1,6 +1,6 @@
 # TASK-0051: Бортики клеток пульсируют по кольцам вокруг магнита
 
-- Статус: review
+- Статус: done
 - Приоритет: high
 - Создана: 2026-10-12
 - Обновлена: 2026-10-12
@@ -57,11 +57,11 @@
 ## 6. Критерии готовности
 
 - [x] V1 отклонён; пользователь одобрил v2 до runtime-изменений 2026-10-12.
-- [ ] Кольца distance=1/2 корректны для odd/even рядов, краёв, крестов и занятых клеток; центр исключён.
-- [ ] Светятся только бортики цветом магнита; цикл ring1→ring2→повтор мягкий, работает при неподвижном preview; поверхности/фишки не окрашены.
-- [ ] Reduced статичен; смена цвета/цели без следов, третьего кольца нет.
-- [ ] Cancel/pause/reset/resize/terminal/dispose безопасны, пулы не растут.
-- [ ] Шесть прямых лучей и actual animation неизменны; проверки и опубликованная игра подтверждены.
+- [x] Кольца distance=1/2 корректны для odd/even рядов, краёв, крестов и занятых клеток; центр исключён.
+- [x] Светятся только бортики цветом магнита; цикл ring1→ring2→повтор мягкий, работает при неподвижном preview; поверхности/фишки не окрашены.
+- [x] Reduced статичен; смена цвета/цели без следов, третьего кольца нет.
+- [x] Cancel/pause/reset/resize/terminal/dispose безопасны, пулы не растут.
+- [x] Шесть прямых лучей и actual animation неизменны; проверки и опубликованная игра подтверждены.
 
 ## 7. Проверки
 
@@ -84,3 +84,5 @@
 Реализовано: border-preview.js (чистые кольца/pulse), influence-effects.js (18 fixed rims, без fill/preview particles), runtime.js (drag/keyboard/tap candidate, один RAF, lifecycle). В board.js только два своих изменения: передача размеров PNG бортика и удаление зелёного fill legal hover. Чужой draw-order refactor и magnet-glow изменения остаются незакоммиченными и не включаются в задачу.
 
 Unit/build: 179 tests, build pass. Border helper: odd/even/corner, occupied/X, center excluded, no mutation/RNG; sin² фазовые границы и repeat/reduced pass. border-preview-browser-check: реальный неподвижный drag ring1/ring2/repeat, keyboard RAF, reduced/static+RAF stop, все7 цветов через isolated view inspection, pause/reset/resize pass. influence-drag-check:20 реальных drag/cancel, input/state unchanged, fixed GPU resources, reduced pass. Осмотрены inner/outer screenshots: тонкие бортики, исходный кремовый центр и chips сохранены. Логи artifacts/51-*, evidence artifacts/border-preview. v4-visual-check:6 направлений×5 фаз×desktop/mobile, IDs/hidden badges/actual magnetic cell/lifecycle/20GPU reuse pass. Основной smoke: победа/retry/pause desktop/mobile pass. Реальный телефон не проверен. Задача review до финальной публикации; только два своих hunk board.js staged поверх HEAD, чужой diff сохранён.
+
+Публикация: a4445ca push origin main; deploy run 38304208281 success. public-preview-check снял inner/outer/repeat неподвижного drag в публичной игре, cancel/pause/resources pass; кадры artifacts/public-border осмотрены, бортики и кремовые поверхности корректны. Чужой diff до/после совпал, кроме заголовков blob hash из-за двух своих hunk. Итог done, 2026-10-12.

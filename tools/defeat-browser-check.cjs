@@ -1,6 +1,6 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs');
 const {keyboardPlace,readyTools}=require('./v4-browser-check.cjs');
-const witness=JSON.parse(fs.readFileSync('artifacts/progressive-spawn/loss-witness.json','utf8'));
+const witness=JSON.parse(fs.readFileSync('tools/fixtures/full-board-loss-witness.json','utf8'));
 (async()=>{const b=await chromium.launch({channel:process.env.BROWSER_CHANNEL||'msedge'});fs.mkdirSync('artifacts/defeat',{recursive:true});try{
  const p=await b.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'}),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto((process.env.GAME_BASE_URL||'http://127.0.0.1:5175/')+'?seed='+witness.seed);
  for(const a of witness.actions){await readyTools(p);await p.locator(`[data-magnet-color="${a.color}"]`).click();await keyboardPlace(p,a.cell);}
