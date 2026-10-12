@@ -4,6 +4,7 @@ import { COLORS, canPlaceMagnet } from './model.js';
 import { sampleTransferTimeline, collectionPacking, sampleHexFlip, sampleHexTransfer } from './motion.js';
 import {createChipBodyGeometry,createInsetFaceGeometry,chipLayout,CHIP_HEIGHT,WELL_PIXELS,topColorCount} from './chip.js';
 import { createMagnetGlow } from './magnet-glow.js';
+import { createInfluenceEffects } from './influence-effects.js';
 // Renderer-owned painter order; no dependency on untracked local modules.
 const paintCell = cell => 1000 + 1000 * cell.row;
 const paintUnit = pose => pose.from ? 18000 : paintCell(pose.cell) + 10 + 2 * pose.index;
@@ -104,9 +105,10 @@ export function createThreeBoard(canvas, textures) {
     const pos = cellPosition(cell);
     return new THREE.Vector3(pos.x + layout.offsetX, FLOOR, pos.z).addScaledVector(screenUp, -.035);
   };
+  const influenceEffects=createInfluenceEffects(scene,camera,plane,own,magnetAnchor,cell=>cellMeshes.get(cellId(cell))?.renderOrder??100);
   function buildLevel(level) {
     if (currentLevel === level) return;
-    currentLevel = level;
+    currentLevel = level; influenceEffects.reset();
     unitsRoot.clear(); unitMeshes.clear();
     boardRoot.clear(); pickMeshes.length = 0; cellMeshes.clear();blockerMeshes.clear();
     const blocked = new Set(level.blockers.map(cellId));
@@ -135,7 +137,7 @@ export function createThreeBoard(canvas, textures) {
     unitsRoot.add(root); unitMeshes.set(unit.id, root);
     return root;
   }
-  function draw(level, state, { timeline = null, time = 0, hover = null, selected = null, paused = false, hint = null, hideMagnet = false, dragging = false, reduced = false } = {}) {
+  function draw(level, state, { timeline = null, time = 0, hover = null, selected = null, paused = false, hint = null, hideMagnet = false, dragging = false, reduced = false, influence = null } = {}) {
     if (disposed) return;
     buildLevel(level);
     const sampled = timeline ? sampleTransferTimeline(timeline, time) : null;
@@ -222,9 +224,8 @@ export function createThreeBoard(canvas, textures) {
     }
     const activeMagnet = !sampled && !paused && hover && selected && canPlaceMagnet(state, hover) ? { cell: hover, color: selected } : null;
     magnet.visible = Boolean(activeMagnet) && !hideMagnet;
-    const workingMagnet = null;
-    const glowCell = workingMagnet?.cell ?? (dragging && !paused && hover && selected && canPlaceMagnet(state, hover) ? hover : null);
-    glow.draw(glowCell ? magnetAnchor(glowCell) : null, COLORS[workingMagnet?.color ?? selected]?.hex ?? '#b45aff', time, timeline?.reduced ?? reduced, glowCell, Boolean(workingMagnet), glowCell ? paintCell(glowCell)+2 : undefined);
+    glow.draw(null, '#ffffff', time, reduced);
+    influenceEffects.draw(influence,timeline,time,timeline?.reduced??reduced,paused);
     if (activeMagnet) {
       magnet.position.copy(magnetAnchor(activeMagnet.cell));
       magnet.material = materials['magnet-' + activeMagnet.color];
@@ -294,7 +295,7 @@ export function createThreeBoard(canvas, textures) {
       return { x: rect.left + (projected.x + 1) * rect.width / 2, y: rect.top + (1 - projected.y) * rect.height / 2 };
     },
     snapshot() { return { engine: 'Three.js', revision: THREE.REVISION, artwork: 'authored-pseudo3d-wafers', meshes: unitMeshes.size,
-      glow: glow.snapshot(),
+      glow: glow.snapshot(), influence:influenceEffects.snapshot(),
       magneticCell: magneticTile.visible ? {...magneticTile.userData,strength:magneticTile.material.opacity} : null,
       counts:[...labels.values()].map(b=>({...b.userData,renderOrder:b.renderOrder})),
       tiles:[...cellMeshes].map(([id,tile])=>({id,renderOrder:tile.renderOrder})),

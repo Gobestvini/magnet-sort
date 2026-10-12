@@ -59,7 +59,7 @@ export function makeTransferTimeline(before, resolution, reduced = false) {
     const group=groups.get(s.batch);group.end=Math.max(group.end,s.end);
     group.cells.add(`${s.from.row}:${s.from.col}`);group.cells.add(`${s.to.row}:${s.to.col}`);
   }
-  return { before, after: resolution.state, magnet: resolution.magnet, segments, reduced,
+  return { before, after: resolution.state, magnet: resolution.magnet, influence:resolution.influence, segments, reduced,
     transferGroups:[...groups.values()].map(g=>({...g,cells:[...g.cells]})),
     activationEnd, deactivateStart, deactivateEnd,
     queueStart: segments.find(s=>s.type==='magnetsChanged')?.start ?? Infinity,

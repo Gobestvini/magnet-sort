@@ -6,8 +6,16 @@ const { pathToFileURL } = require('node:url');
 async function modules(){
  return Promise.all(['src/prototype/model-v4.js','src/prototype/model.js','src/prototype/levels-v4.js'].map(p=>import(pathToFileURL(path.resolve(p)).href)));
 }
-async function route(number=1,seed=1){
+async function route(number=1,seed){
  const [v4,v3,{v4Levels}]=await modules();
+ const witness=require('./fixtures/followup-witnesses.json').find(r=>r.number===number&&(seed===undefined||seed===r.seed));
+ if(witness){
+  let state=v4.createV4State(v4Levels[number-1],witness.seed);
+  for(const action of witness.actions){const r=v4.applyV4Magnet(state,action);assert.equal(r.accepted,true);state=r.state;}
+  assert.equal(state.terminal,'won');assert.equal(state.cleared,witness.cleared);
+  return {seed:witness.seed,actions:witness.actions,state};
+ }
+ seed??=1;
  let state=v4.createV4State(v4Levels[number-1],seed),actions=[];
  for(let turn=0;turn<1200&&!state.terminal;turn++){
   let best=null;
@@ -54,11 +62,11 @@ async function smoke(base,output='artifacts/v4-browser'){
   const page=await browser.newPage({viewport,hasTouch:touch,isMobile:touch,reducedMotion:'reduce'});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   page.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url());});
-  await page.goto(base+(base.includes('?')?'&':'?')+'seed=1');
+  await page.goto(base+(base.includes('?')?'&':'?')+'seed='+planned.seed);
   await page.waitForFunction(()=>!document.querySelector('.loading-screen'));
   assert.equal(await page.locator('.magnet-tool').count(),3);
   assert.equal(await page.locator('.moves-panel strong').textContent(),'0');
-  assert.equal(await page.locator('[role=progressbar]').getAttribute('aria-valuemax'),'100');
+  assert.equal(await page.locator('[role=progressbar]').getAttribute('aria-valuemax'),'50');
   await page.locator('img[src]').evaluateAll(imgs=>Promise.all(imgs.map(i=>i.decode())));
   await page.screenshot({path:output+'/'+name+'-initial.png',fullPage:true});
   let turn=0;

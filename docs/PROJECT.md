@@ -122,3 +122,7 @@
 Рабочая директория всех команд — корень шаблона. `pnpm dev`, `pnpm test`, `pnpm build`, `pnpm check:full`, `pnpm context -- "тема"`.
 
 Порядок: ввод → fixed update → render(alpha). При добавлении движения храни previous/current и интерполируй только графику. Обновляй карту при изменении владельцев подсистем; не записывай каждый внутренний helper.
+
+## Followup 2026-10-12
+
+`src/prototype/magnet-influence.js`: чистые прямые лучи v4, общий dry resolve/preview и sampler парабол. `influence-effects.js`: board-owned bounded contours/particles/waves. `model-v4.js`: mixed-groups-v2 и goal50*N; исторический model.js не меняется. `docs/design/victory-v2/`: сгенерированный макет, RGBA панель/звезда и DOM preview/spec. `tools/followup-browser-check.cjs`: четыре viewport, idle и влияние; `tools/search-followup-route.mjs`: offline witness search, не runtime solver.

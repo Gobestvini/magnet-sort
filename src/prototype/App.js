@@ -88,7 +88,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
           tutorial && tutorialTarget && h('img', { className: 'tutorial-arrow', src: art('tutorial-arrow'), alt: '', style: { left: (tutorialTarget.x - 22) + 'px', top: (tutorialTarget.y - 5) + 'px' } })),
         h('p', { id: 'keyboard-cell', className: 'sr-only' }, keyboardCell ? 'Tile: row ' + keyboardCell.row + ', column ' + keyboardCell.col : 'Use arrow keys to select a tile.')),
       h('p', { className: 'game-status' + (tutorialMessage ? ' tutorial-message cream-panel' : ''), role: 'status', 'aria-live': 'polite' },
-        tutorialMessage ? h('span', null, h('strong', null, 'Collect 100 pieces!'), h('small', null, 'Place a magnet. New stacks appear after every move.')) : phase === 'resolving' ? 'Pulling one piece at a time…' : notice),
+        tutorialMessage ? h('span', null, h('strong', null, `Collect ${goal} pieces!`), h('small', null, 'Place a magnet. New stacks appear after every move.')) : phase === 'resolving' ? 'Pulling one piece at a time…' : notice),
       h('section', { className: 'controls', 'aria-label': 'Magnets and actions' },
         h(MagnetTray,{state,selected,locked,reduced,onSelect,onToolDown}),
         h('div', { className: 'action-row' },
@@ -110,12 +110,12 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
       h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Restart')) :
     result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Board full', variant: state.terminal === 'won' ? 'victory-dialog' : '' },
       h('div', { className: 'result-card', role: 'region', 'aria-label': 'Result' },
-        state.terminal === 'won' ? h('div', { className: 'modal-magnet victory-magnet' }, h(MagnetIcon)) : h('h2', { className: 'live-heading defeat-heading' }, 'BOARD FULL'),
-        state.terminal === 'won' ? h('h2', { className: 'live-ribbon' }, 'GOAL REACHED!') : h('div', { className: 'modal-magnet resting-magnet' }, h(MagnetIcon)),
-        h('div',{className:'earned-stars','aria-label':`${state.stars??0} stars earned`},[1,2,3].map(n=>h('img',{src:art('victory-star'),alt:'',className:n<=(state.stars??0)?'earned':'unearned'}))),
-        h('p', null, `${state.movesUsed??state.turn} moves · ${state.cleared} pieces collected`),
+        state.terminal === 'won' ? null : h('h2', { className: 'live-heading defeat-heading' }, 'BOARD FULL'),
+        state.terminal === 'won' ? h('h2', { className: 'result-title' }, 'LEVEL COMPLETE!') : h('div', { className: 'modal-magnet resting-magnet' }, h(MagnetIcon)),
+        h('div',{className:'earned-stars','aria-label':`${state.stars??0} stars earned`},[1,2,3].map(n=>h('img',{src:art('victory-star-v2'),alt:'',className:n<=(state.stars??0)?'earned':'unearned'}))),
+        h('div', {className:'victory-stats'}, h('p',null,state.movesUsed??state.turn,h('small',null,'MOVES')),h('p',null,`${state.cleared} / ${goal}`,h('small',null,'COLLECTED'))),
         state.terminal === 'lost' && h('small', null, remainingUnits(state) + ' pieces left'),
         h('button', { className: 'primary-button', onClick: state.terminal === 'won' ? onNext : onReset },
-          state.terminal === 'won' ? levelIndex + 1 === totalLevels ? 'Play from start' : 'Next puzzle' : 'Try again'),
+          state.terminal === 'won' ? levelIndex + 1 === totalLevels ? 'Play from start' : 'Next level' : 'Try again'),
         state.terminal === 'won' && h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Play again'))) : null);
 }

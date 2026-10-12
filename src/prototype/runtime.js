@@ -4,6 +4,7 @@ import { createStepper } from '../loop.js';
 import { cellId } from '../game/hex.js';
 import { canPlaceMagnet } from './model.js';
 import { createV4State, applyV4Magnet, V4_CELLS } from './model-v4.js';
+import { previewMagnetInfluence } from './magnet-influence.js';
 import { v4Levels as prototypeLevels } from './levels-v4.js';
 import { makeTransferTimeline } from './motion.js';
 import { createThreeBoard } from './board.js';
@@ -24,7 +25,7 @@ let runSeed = fixedSeed ?? newSeed();
 let levelIndex = 0, level = prototypeLevels[0], state = createV4State(level, runSeed);
 let boardLevel = { ...level, cells: V4_CELLS };
 let runId = 1;
-let selected = state.magnets[0], phase = 'playing', paused = false, notice = 'Collect 100 pieces. Place a magnet on an empty tile.';
+let selected = state.magnets[0], phase = 'playing', paused = false, notice = `Collect ${state.goal} pieces. Place a magnet on an empty tile.`;
 let displayedCleared = 0;
 const collection = createCollectionView();
 let collectionLayer = null, counterNode = null, progressNode = null;
@@ -64,13 +65,18 @@ function ui() {
     tool.querySelector('img').style.width = Math.min(100, tool.getBoundingClientRect().width * .8) * 1.12 + 'px';
   }
 }
+let influenceCache={state:null,key:null,plan:null};
 function draw(alpha = 1) {
   for (const tool of root.querySelectorAll('.magnet-tool')) {
     tool.toggleAttribute('data-dragging', drag?.color === tool.dataset.magnetColor);
   }
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
+  const previewCell=keyboardCell??hover;
+  const previewKey=drag&&!drag.released&&!paused&&phase==='playing'&&previewCell?cellId(previewCell)+':'+selected:null;
+  if(influenceCache.state!==state||influenceCache.key!==previewKey)influenceCache={state,key:previewKey,plan:previewKey?previewMagnetInfluence(state,previewCell,selected):null};
   const frame = board?.draw(boardLevel, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
     hideMagnet: Boolean(drag), dragging: Boolean(drag && !drag.released), reduced,
+    influence: influenceCache.plan,
     hint: null });
   const cleared = frame?.collected ?? state.cleared;
   if (cleared !== displayedCleared) { displayedCleared = cleared; ui(); }
@@ -288,6 +294,10 @@ if (import.meta.env.DEV) window.gameDebug = { snapshot, reset, setPaused, loadLe
     const sample=board.draw(boardLevel,resolution.state,{timeline:inspection,time,reduced:reducedValue});
     collection.draw(sample,time,board,collectionLayer,progressNode,reducedValue,sample.collected/before.goal);
     return {frame:sample,renderer:board.snapshot(),timeline:inspection};
+  },
+  inspectInfluence:(before,cell,color,time,reducedValue=false)=>{
+    board.draw(boardLevel,before,{influence:previewMagnetInfluence(before,cell,color),time,reduced:reducedValue});
+    return board.snapshot();
   },
   finishInspection:()=>{collection.clear();draw();},
   inspectBackingLighting:legacy=>board.inspectBackingLighting(legacy),

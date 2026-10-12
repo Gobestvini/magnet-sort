@@ -1,0 +1,11 @@
+{
+  "source": "OpenAI built-in imagegen with background.png style reference",
+  "date": "2026-10-12",
+  "image": "background-v2.png",
+  "mask": "background-grid-mask-v2.png",
+  "geometry": "mask alpha extracted from local dark groove residual against blur(7) of same final bitmap",
+  "width": 941,
+  "height": 1672,
+  "crop": "center / cover shared by background and mask",
+  "idle": "original 11-second sweep profile"
+}

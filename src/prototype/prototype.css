@@ -58,7 +58,20 @@ button:disabled{filter:none;opacity:1}.magnet-tool.unavailable{filter:saturate(.
 .idle-grid[data-active="true"] .idle-grid-sweep{animation-play-state:running}
 @keyframes idle-grid-shine{0%,35%{transform:translate3d(-75%,0,0);opacity:0}40%{opacity:0}48%{opacity:1}67%{opacity:1}76%,100%{transform:translate3d(75%,0,0);opacity:0}}
 @media(prefers-reduced-motion:reduce){.idle-grid{display:none}.idle-grid-sweep{animation:none;will-change:auto}}
-body,.loading-screen{background-image:url('/art/hex-grid-v4.svg'),radial-gradient(ellipse at 75% 25%,#2759ee 0%,#4626cd 65%,#30209c 100%);background-size:96px 166.276px,cover;background-position:center,center;background-repeat:repeat,no-repeat;background-attachment:fixed,fixed}
+body,.loading-screen{background-image:url('/art/mockup/background-v2.png');background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed}
+.idle-grid{mask:url('/art/mockup/background-grid-mask-v2.png') center/cover no-repeat;-webkit-mask:url('/art/mockup/background-grid-mask-v2.png') center/cover no-repeat}
+.victory-dialog{background:rgba(25,5,86,.65);backdrop-filter:blur(3px);padding:16px}
+.victory-dialog .modal-panel{border:0;border-image:none;box-shadow:none;background:transparent url('/art/mockup/victory-panel-v2.png') center/100% 100% no-repeat;padding:40px 32px;max-height:calc(100svh - 32px);overflow:auto;gap:18px}
+.victory-dialog .result-card{gap:20px}
+.victory-dialog .result-title{font-size:clamp(27px,8vw,38px);line-height:1.05;color:#381476;text-shadow:0 2px #fff}
+.victory-dialog .earned-stars{gap:8px;height:100px;align-items:center}
+.victory-dialog .earned-stars img{width:29%;height:auto;object-fit:contain}
+.victory-dialog .earned-stars img:nth-child(2){transform:translateY(-8px) scale(1.08)}
+.victory-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.victory-stats p{background:#fff8eb;border:1px solid #e9d7c4;border-radius:18px;padding:12px 4px;color:#563284;display:flex;flex-direction:column;gap:4px;font-size:clamp(19px,5vw,25px)}
+.victory-stats small{font-size:12px;color:#76618d}
+.victory-dialog .primary-button,.victory-dialog .secondary-button{min-height:56px;font-size:23px}
+@media(max-height:550px){.victory-dialog .modal-panel{padding:22px 30px;max-width:370px}.victory-dialog .result-card{gap:9px}.victory-dialog .earned-stars{height:60px}.victory-dialog .earned-stars img{width:65px}.victory-dialog .result-title{font-size:28px}.victory-stats p{padding:6px}.victory-dialog .primary-button,.victory-dialog .secondary-button{min-height:44px}}
 .collection-layer{position:fixed;inset:0;z-index:7;overflow:hidden;pointer-events:none}.collection-effects{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}.collection-hex{position:absolute;left:0;top:0;object-fit:fill;pointer-events:none;filter:drop-shadow(0 3px 3px #320a7855);will-change:transform,opacity}.cleared-count{display:inline-block;transform-origin:center}
 /* Short shared entry: panel appears once per Modal mount. */
 @keyframes popup-panel-in{0%{opacity:0;transform:translateY(18px) scale(.92)}76%{opacity:1;transform:translateY(0) scale(1.015)}100%{opacity:1;transform:translateY(0) scale(1)}}

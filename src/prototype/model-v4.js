@@ -1,5 +1,6 @@
 import { cellId, neighborCells } from '../game/hex.js';
-import { COLORS, applyMagnet as resolveV3, canPlaceMagnet, remainingUnits } from './model.js';
+import { COLORS, canPlaceMagnet } from './model.js';
+import { resolveMagnetInfluence } from './magnet-influence.js';
 
 export const V4_CONFIG = Object.freeze({ initialStacks: 7, stacksPerTurn: 2, minHeight: 6, maxHeight: 12, heightStep: 6, clearSize: 6 });
 export const V4_CELLS = Object.freeze(Array.from({ length: 25 }, (_, i) => Object.freeze({ col: i % 5 + 1, row: Math.floor(i / 5) + 1 })));
@@ -50,10 +51,11 @@ export function spawnStacks(state, requested) {
   for(let i=0;i<count;i++){
     const cell=free.splice(drawIndex(state,free.length),1)[0];
     const height=V4_CONFIG.minHeight+V4_CONFIG.heightStep*drawIndex(state,2);
-    const color=colors[drawIndex(state,colors.length)];
-    const units=Array.from({length:height},()=>({id:'v4-u'+state.nextUnitId++,color}));
+    const groupCount=2+drawIndex(state,2), available=[...colors], groupColors=[];
+    for(let group=0;group<groupCount;group++)groupColors.push(available.splice(drawIndex(state,available.length),1)[0]);
+    const units=Array.from({length:height},(_,i)=>({id:'v4-u'+state.nextUnitId++,color:groupColors[Math.floor(i/(height/groupCount))]}));
     state.stacks.push({cell:{...cell},units});state.spawnedUnits+=height;
-    events.push({type:'stackSpawned',cell:{...cell},units:structuredClone(units)});
+    events.push({type:'stackSpawned',cell:{...cell},units:units.map(u=>({...u}))});
   }
   state.stacks.sort((a,b)=>compare(a.cell,b.cell));
   return events;
@@ -61,9 +63,9 @@ export function spawnStacks(state, requested) {
 export function createV4State(level, seed) {
   validateV4Level(level);
   if(!Number.isInteger(seed)||seed<0||seed>0xffffffff)throw new Error('Invalid uint32 seed');
-  const state={rulesVersion:4,puzzleId:level.id,levelNumber:level.number,cells:structuredClone(V4_CELLS),
-    blockers:structuredClone(level.blockers),stacks:[],magnets:[],clearSize:V4_CONFIG.clearSize,
-    goal:100*level.number,cleared:0,movesUsed:0,turn:0,spawnedUnits:0,nextUnitId:1,rng:seed,seed,terminal:null,stars:0};
+  const state={rulesVersion:4,puzzleId:level.id,levelNumber:level.number,cells:V4_CELLS.map(c=>({...c})),
+    blockers:level.blockers.map(c=>({...c})),stacks:[],magnets:[],clearSize:V4_CONFIG.clearSize,
+    goal:50*level.number,cleared:0,movesUsed:0,turn:0,spawnedUnits:0,nextUnitId:1,rng:seed,seed,terminal:null,stars:0};
   state.magnets=fillMagnetQueue(state);
   spawnStacks(state,V4_CONFIG.initialStacks);
   return state;
@@ -73,11 +75,8 @@ export function applyV4Magnet(state, action) {
   if(state.terminal)return reject('terminal');
   if(action?.type!=='placeMagnet'||!state.magnets.includes(action.color))return reject('invalid-magnet');
   if(!canPlaceMagnet(state,action.cell))return reject('occupied-or-outside');
-  // Reuse the proven adjacent routing kernel, with the CURRENT mass as its bound.
-  // v3 terminal/limited-move semantics do not leave this bridge.
-  const resolution=resolveV3({...state,remainingMoves:Number.MAX_SAFE_INTEGER,initialUnits:remainingUnits(state)},action);
-  if(!resolution.accepted)throw new Error('V4 validated action rejected by routing kernel');
-  const next=structuredClone(state);
+  const resolution=resolveMagnetInfluence(state,action);
+  const next={...state};
   next.stacks=resolution.state.stacks;next.cleared=resolution.state.cleared;next.movesUsed++;next.turn++;
   const events=[...resolution.events];
   const retained=next.magnets.filter(c=>c!==action.color);
@@ -89,6 +88,6 @@ export function applyV4Magnet(state, action) {
     events.push({type:'magnetsChanged',before:[...state.magnets],after:[...next.magnets],used:action.color});
     if(!next.cells.some(c=>canPlaceMagnet(next,c)))next.terminal='lost';
   }
-  return {accepted:true,state:next,events,magnet:{cell:{...action.cell},color:action.color}};
+  return {accepted:true,state:next,events,magnet:resolution.magnet,influence:{magnet:resolution.magnet,affectedCells:resolution.affectedCells,paths:resolution.paths,sources:resolution.sources}};
 }
 

@@ -10,8 +10,8 @@ function assertMass(s){assert.equal(s.spawnedUnits,remainingUnits(s)+s.cleared);
 test('v4 seeded initialization and LCG are exact, reproducible, zero seed is valid',()=>{
  const r={rng:0};assert.equal(drawIndex(r,7),1);assert.equal(r.rng,1013904223);
  const a=createV4State(level,0);assert.deepEqual(a,createV4State(level,0));assert.notDeepEqual(a,createV4State(level,1));
- assert.equal(a.stacks.length,7);assert.equal(a.goal,100);assert.equal(a.movesUsed,0);assert.equal(a.magnets.length,3);assertMass(a);
- for(const s of a.stacks){assert.ok([6,12].includes(s.units.length));assert.equal(new Set(s.units.map(u=>u.color)).size,1);assert.notEqual(cellId(s.cell),'r1c1');}
+ assert.equal(a.stacks.length,7);assert.equal(a.goal,50);assert.equal(a.movesUsed,0);assert.equal(a.magnets.length,3);assertMass(a);
+ for(const s of a.stacks){assert.ok([6,12].includes(s.units.length));assert.equal(new Set(s.units.map(u=>u.color)).size>=2,true);assert.notEqual(cellId(s.cell),'r1c1');}
  assert.throws(()=>createV4State(level,-1));assert.throws(()=>createV4State(level,2**32));
 });
 test('invalid placement returns original state without draws, steps or queue consumption',()=>{
@@ -32,11 +32,11 @@ test('spawn reserves the last place and never occupies blockers or stacks',()=>{
  assert.equal(spawnStacks(s,2).length,1);assert.equal(s.cells.filter(c=>canPlaceMagnet(s,c)).length,1);
  const rng=s.rng;assert.deepEqual(spawnStacks(s,2),[]);assert.equal(s.rng,rng);assertMass(s);
 });
-test('winning 96+6 overshoots goal without spawn/refill, empty field below goal continues',()=>{
- const s=createV4State(level,10);s.magnets=['violet','blue','coral'];s.cleared=96;s.spawnedUnits=102;
+test('winning 48+6 overshoots goal without spawn/refill, empty field below goal continues',()=>{
+ const s=createV4State(level,10);s.magnets=['violet','blue','coral'];s.cleared=48;s.spawnedUnits=54;
  s.stacks=[{cell:{col:3,row:2},units:Array.from({length:6},(_,i)=>({id:'clear'+i,color:'violet'}))}];
  const r=applyV4Magnet(s,action('violet',{col:3,row:3}));
- assert.equal(r.state.cleared,102);assert.equal(r.state.terminal,'won');assert.equal(r.state.rng,s.rng);assert.equal(r.state.magnets.length,2);assert.equal(r.events.some(e=>e.type==='stackSpawned'),false);assertMass(r.state);
+ assert.equal(r.state.cleared,54);assert.equal(r.state.terminal,'won');assert.equal(r.state.rng,s.rng);assert.equal(r.state.magnets.length,2);assert.equal(r.events.some(e=>e.type==='stackSpawned'),false);assertMass(r.state);
  const below={...s,cleared:0,spawnedUnits:6};const next=applyV4Magnet(below,action('violet',{col:3,row:3}));
  assert.equal(next.state.terminal,null);assert.equal(next.state.stacks.length,2);assert.equal(next.state.cleared,6);assertMass(next.state);
  assert.equal(applyV4Magnet(r.state,action('blue',{col:2,row:3})).reason,'terminal');
@@ -65,7 +65,7 @@ test('100 deterministic turns conserve identities and every movement is adjacent
  assert.deepEqual(createV4State(level,11),createV4State(level,11),'retry seed restores start');
 });
 test('stars are inclusive at both boundaries and monotonic for every goal',()=>{
- for(const goal of [100,200,1200]){
+ for(const goal of [50,100,600]){
   const a=Math.ceil(goal/12),b=Math.ceil(goal/6);
   for(const m of [a-1,a])assert.equal(earnedStars(goal,m,'won'),3);
   assert.equal(earnedStars(goal,a+1,'won'),2);assert.equal(earnedStars(goal,b,'won'),2);assert.equal(earnedStars(goal,b+1,'won'),1);
@@ -82,7 +82,7 @@ test('all twelve active layouts contain only identity and sparse distinct crosse
  assert.equal(v4Levels.length,12);assert.equal(new Set(v4Levels.map(l=>l.id)).size,12);
  for(const [i,l]of v4Levels.entries()){
   assert.deepEqual(Object.keys(l).sort(),['blockers','id','number']);assert.equal(l.number,i+1);
-  for(const seed of [0,1,42]){const s=createV4State(l,seed);assert.equal(s.goal,100*(i+1));assertMass(s);assert.ok(s.cells.some(c=>canPlaceMagnet(s,c)));}
+  for(const seed of [0,1,42]){const s=createV4State(l,seed);assert.equal(s.goal,50*(i+1));assertMass(s);assert.ok(s.cells.some(c=>canPlaceMagnet(s,c)));}
  }
 });
 test('a partial pull that fills the final empty tile loses without a move-limit message',()=>{

@@ -1,0 +1,36 @@
+{
+  "source": "OpenAI built-in imagegen, 2026-10-12",
+  "reference": "reference.png",
+  "panel": "panel.png",
+  "star": "star.png",
+  "panelSize": {
+    "format": "png",
+    "mediaType": "image/png",
+    "width": 720,
+    "height": 1029,
+    "space": "srgb",
+    "channels": 4,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": true,
+    "autoOrient": {
+      "width": 720,
+      "height": 1029
+    }
+  },
+  "dynamic": "HTML heading, moves, collected/goal, stars and buttons; sample values are illustrative",
+  "layout": {
+    "width": 390,
+    "maxHeight": "viewport - 32px",
+    "padding": 32,
+    "gap": 18,
+    "overlay": "rgba(25,5,86,.65)",
+    "primary": "Next level",
+    "secondary": "Play again",
+    "last": "Play from start"
+  }
+}
