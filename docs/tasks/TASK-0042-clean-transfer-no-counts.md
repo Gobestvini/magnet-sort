@@ -85,7 +85,7 @@ pnpm check:full; node tools/chip-browser-check.cjs; node tools/polish-browser-ch
 - Изменённые файлы и зачем: motion.js, board.js, tests/hex-flip.test.js, v4 visual and diagnostic hooks.
 - Команды и фактические результаты: 4163 retained v3 WebGL frames; новые six directions×5 frames×2viewport и20 units; endpoint/ID/hidden badges; check:full. Подробности: docs/reports/V4_REWORK.md; логи на диске.
 - Ручные проверки: Просмотрены кадры до/после. Точная причина прежнего чёрного артефакта не установлена; новый профиль и рисунок счётчиков исключают соответствующие источники. Review сохраняется для художественной оценки, не заявляем доказанную причину.
-- Выполненные критерии: реализация и соответствующие автоматические/browser сценарии; публикация ожидается.
+- Выполненные критерии: реализация, соответствующие автоматические/browser сценарии и публикация подтверждены. Clean tree: 167/167 тестов и сборка, production/browser smoke.
 - Непроверенное, блокеры и отклонения: реальный телефон не проверен; authored настройки спавна изменены по прогону, пользовательские правила сохранены. Однозначная причина исходного чёрного артефакта не воспроизведена; artistic review сохраняется.
-- Коммит / push / deploy / проверка опубликованной игры: ожидается проверка clean tree и публикация.
+- Коммит / push / deploy / проверка опубликованной игры: f417bb7a662dd9b79fadae94e5aaca03197825c0; origin main push успешен; deploy success: https://github.com/Gobestvini/magnet-sort/actions/runs/38236379046; публичный Edge smoke goal102 за8 UI actions, stars/retry/pause на desktop/mobile viewport прошёл. SHA256 публичного исправленного violet PNG совпадает с локальным.
 - Итоговый статус и дата: review, 2026-10-12.

@@ -41,3 +41,9 @@ V4 соседний перенос теперь rocking hop до 30°/.28 lift; 
 
 Код/отчёты находятся в review до успешной доставки проверенного commit в main, deploy-pages.yml и smoke публичного адреса. После этого task/index статусы переводятся в done; дальнейший balance/user feedback может открыть отдельное уточнение.
 
+
+## Итог публикации
+
+Commit f417bb7a662dd9b79fadae94e5aaca03197825c0 доставлен в origin main. Deploy https://github.com/Gobestvini/magnet-sort/actions/runs/38236379046 завершён success. Public Edge smoke прошёл goal102/8steps, три цвета, stars/result, retry и pause для desktop/mobile viewport. Исправленный violet PNG совпадает по SHA256: 752707e106b7c3201af105a9a0c66a1a7c27d8e6f6a40b3a9d22aec6fed1f652. Bundled Chromium один раз завершился Target crashed; Edge diagnostic показал ожидаемую pause после native blur. Harness теперь возвращает focus и нажимает настоящий Resume, не отключает production pause. Повтор public Edge smoke успешен, check:full после harness —167/167 и build.
+
+TASK-0031–0041 done. TASK-0042 review: новый профиль/цифры реализованы и проверены, однозначная причина исходного пользовательского артефакта не подтверждена. Этот status следует правилу самой задачи; источник художественного решения не подменён диагнозом.

@@ -32,9 +32,23 @@ async function keyboardPlace(page,cell){
  for(let i=3;i>cell.row;i--)await page.keyboard.press('ArrowUp');
  await page.keyboard.press('Enter');
 }
+async function readyTools(page){
+ await page.bringToFront();
+ const deadline=Date.now()+30000;
+ while(Date.now()<deadline){
+  // Desktop automation may temporarily lose native focus. Resume through the
+  // same visible button a player uses; never bypass the game's blur policy.
+  if(await page.getByRole('dialog',{name:'Paused',exact:true}).count()){
+   await page.getByRole('button',{name:'Resume',exact:true}).click();
+  }
+  if(await page.locator('.magnet-tool:not(:disabled)').count()===3)return;
+  await page.waitForTimeout(100);
+ }
+ throw new Error('Three available magnets did not return after resolution');
+}
 async function smoke(base,output='artifacts/v4-browser'){
  const planned=await route();fs.mkdirSync(output,{recursive:true});
- const browser=await chromium.launch({headless:true});
+ const browser=await chromium.launch({headless:true,...(process.env.BROWSER_CHANNEL?{channel:process.env.BROWSER_CHANNEL}:{})});
  try{
  for(const [name,viewport,touch] of [['desktop',{width:1280,height:900},false],['mobile',{width:390,height:844},true]]){
   const page=await browser.newPage({viewport,hasTouch:touch,isMobile:touch,reducedMotion:'reduce'});
@@ -49,10 +63,11 @@ async function smoke(base,output='artifacts/v4-browser'){
   await page.screenshot({path:output+'/'+name+'-initial.png',fullPage:true});
   let turn=0;
   for(const action of planned.actions){
+   await readyTools(page);
    await page.locator('[data-magnet-color="'+action.color+'"]').click();
    await keyboardPlace(page,action.cell);
    if(++turn<planned.actions.length){
-    await page.waitForFunction(()=>document.querySelectorAll('.magnet-tool:not(:disabled)').length===3,null,{timeout:30000});
+    await readyTools(page);
     const triple=await page.locator('.magnet-tool').evaluateAll(nodes=>nodes.map(n=>n.dataset.magnetColor));
     assert.equal(new Set(triple).size,3);
    }
