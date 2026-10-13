@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { COLORS } from './model.js';
 import { cellId } from '../game/hex.js';
 import { sampleInfluenceArc } from './magnet-influence.js';
-import { sampleBorderPulse } from './border-preview.js';
+import { sampleBorderWaves, BORDER_WAVE_WIDTH } from './border-preview.js';
 
 // Fixed retained pools; positions derive from the board's own anchors/camera.
 export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,tile={width:1.1,height:1.1,offsetY:0}) {
@@ -19,21 +19,48 @@ export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,t
   const particles=Array.from({length:48},()=>make(dot));
   const waves=Array.from({length:12},()=>make(plane));
   const rimShape=new THREE.Shape(),rimHole=new THREE.Path();
-  const vertices=[[0,.5],[.5,.25],[.5,-.25],[0,-.5],[-.5,-.25],[-.5,.25]];
-  vertices.forEach(([x,y],i)=>{const px=x*tile.width*.96,py=y*tile.height*.92+tile.offsetY;if(i)rimShape.lineTo(px,py);else rimShape.moveTo(px,py);});rimShape.closePath();
-  [...vertices].reverse().forEach(([x,y],i)=>{const px=x*tile.width*.9,py=y*tile.height*.86+tile.offsetY;if(i)rimHole.lineTo(px,py);else rimHole.moveTo(px,py);});rimHole.closePath();rimShape.holes.push(rimHole);
-  const rimGeometry=own(new THREE.ShapeGeometry(rimShape)),rims=Array.from({length:18},()=>make(rimGeometry));
+  // Authored 471x512 tile: upper rim ends at y=459; y=460..512 is its front wall.
+  // Stay outside the well (WELL_PIXELS in chip.js), inside the rounded outer lip.
+  const outer=[[235,10],[459,140],[459,332],[235,458],[12,332],[12,140]];
+  const inner=[[235,43],[430,149],[430,316],[235,426],[40,316],[40,149]];
+  function pathPixels(path,vertices){vertices.forEach(([x,y],i)=>{
+    const px=(x-235)/471*tile.width,py=(234-y)/512*tile.height+tile.offsetY;
+    if(i)path.lineTo(px,py);else path.moveTo(px,py);
+  });path.closePath();}
+  pathPixels(rimShape,outer);pathPixels(rimHole,[...inner].reverse());rimShape.holes.push(rimHole);
+  const rimGeometry=own(new THREE.ShapeGeometry(rimShape));
+  const groundRight=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion);
+  const groundUp=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion);
+  groundUp.y=0;groundUp.divideScalar(groundUp.lengthSq());
+  const uniforms={center:{value:new THREE.Vector2()},color:{value:new THREE.Color()},
+    radii:{value:new THREE.Vector3()},alphas:{value:new THREE.Vector3()},reduced:{value:0},
+    groundRight:{value:new THREE.Vector2(groundRight.x,groundRight.z)},groundUp:{value:new THREE.Vector2(groundUp.x,groundUp.z)}};
+  const rimMaterial=own(new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:THREE.DoubleSide,uniforms,
+    vertexShader:`uniform vec2 groundRight; uniform vec2 groundUp; varying vec2 field;
+      void main(){field=modelMatrix[3].xz+position.x*groundRight+position.y*groundUp;
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+    fragmentShader:`uniform vec2 center; uniform vec3 color; uniform vec3 radii; uniform vec3 alphas; uniform float reduced; varying vec2 field;
+      void main(){float d=distance(field,center);float a=0.0;
+        for(int i=0;i<3;i++){a=max(a,(1.0-smoothstep(0.0,${BORDER_WAVE_WIDTH.toFixed(2)},abs(d-radii[i])))*alphas[i]);}
+        a=mix(a*.95,.45,reduced);gl_FragColor=vec4(color,a);
+        #include <colorspace_fragment>
+      }` }));
+  const rims=Array.from({length:18},()=>{const mesh=new THREE.Mesh(rimGeometry,rimMaterial);mesh.quaternion.copy(camera.quaternion);group.add(mesh);return mesh;});
   let previewKey=null,previewStart=0;
   const states=new Map(),tint=new THREE.Color(),white=new THREE.Color('#ffffff');let lastTime=null,stats={cells:[],particles:0,waves:0};
-  function hide(mesh){mesh.visible=false;mesh.material.opacity=0;}
+  function hide(mesh){mesh.visible=false;if(mesh.material!==rimMaterial)mesh.material.opacity=0;}
   return {
     draw(plan,timeline,time,reduced,paused){
       rims.forEach(hide);
       if(plan?.rings&&!timeline&&!paused){
-        if(previewKey!==plan.key||time<previewStart){previewKey=plan.key;previewStart=time;}
-        const strengths=sampleBorderPulse(time-previewStart,reduced);let index=0;
-        states.clear();marks.forEach(hide);particles.forEach(hide);waves.forEach(hide);stats={cells:[],particles:0,waves:0,ringStrengths:strengths};
-        plan.rings.forEach((cells,ring)=>{for(const cell of cells){const mesh=rims[index++];mesh.visible=strengths[ring]>.001;mesh.position.copy(anchor(cell));mesh.material.color.set(COLORS[plan.magnet.color].hex);mesh.material.opacity=strengths[ring]*.95;mesh.renderOrder=cellOrder(cell)+1;stats.cells.push({cell,ring:ring+1,strength:strengths[ring],color:plan.magnet.color});}});
+        const changed=previewKey!==plan.key||time<previewStart;
+        if(changed){previewKey=plan.key;previewStart=time;const target=anchor(plan.magnet.cell);uniforms.center.value.set(target.x,target.z);}
+        const radialWaves=sampleBorderWaves(time-previewStart,reduced);let index=0;
+        uniforms.color.value.set(COLORS[plan.magnet.color].hex);uniforms.reduced.value=reduced?1:0;
+        uniforms.radii.value.set(...(radialWaves.length?radialWaves.map(w=>w.radius):[0,0,0]));
+        uniforms.alphas.value.set(...(radialWaves.length?radialWaves.map(w=>w.opacity):[0,0,0]));
+        states.clear();marks.forEach(hide);particles.forEach(hide);waves.forEach(hide);stats={cells:[],particles:0,waves:0,radialWaves,center:plan.magnet.cell,reduced:Boolean(reduced)};
+        plan.rings.forEach((cells,ring)=>{for(const cell of cells){const mesh=rims[index++];mesh.visible=true;if(changed)mesh.position.copy(anchor(cell));mesh.renderOrder=cellOrder(cell)+1;stats.cells.push({cell,ring:ring+1,color:plan.magnet.color});}});
         lastTime=time;return;
       }
       previewKey=null;

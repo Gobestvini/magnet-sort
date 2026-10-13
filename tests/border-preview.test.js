@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {previewBorderRings,sampleBorderPulse} from '../src/prototype/border-preview.js';
+import {previewBorderRings,sampleBorderWaves,BORDER_WAVE_REACH} from '../src/prototype/border-preview.js';
 import {hexDistance,cellId} from '../src/game/hex.js';
 const cells=Array.from({length:49},(_,i)=>({col:i%7,row:Math.floor(i/7)}));
 const state={cells,blockers:[{col:3,row:2}],stacks:[{cell:{col:4,row:3},units:[{color:'pink'}]}],magnets:['blue'],terminal:null,rng:42};
@@ -13,8 +13,15 @@ test('rings cover all geometric neighbors including occupied/blockers without ch
  }
  assert.equal(previewBorderRings(state,{col:3,row:2},'blue'),null);assert.equal(previewBorderRings(state,{col:4,row:3},'blue'),null);assert.equal(previewBorderRings(state,{col:3,row:3},'gold'),null);
 });
-test('soft sequential pulse repeats and reduced motion lights both borders steadily',()=>{
- for(const t of [0,1.2,2.4])assert.ok(sampleBorderPulse(t).every(v=>v<1e-10));
- assert.deepEqual(sampleBorderPulse(.6),[1,0]);assert.deepEqual(sampleBorderPulse(1.8),[0,1]);assert.deepEqual(sampleBorderPulse(3),[1,0]);
- assert.deepEqual(sampleBorderPulse(0,true),[.45,.45]);assert.deepEqual(sampleBorderPulse(1.8,true),[.45,.45]);
+test('waves travel inward at the same speed regardless of sampling FPS',()=>{
+ for(const fps of [30,60,120,144]){
+  let previous=sampleBorderWaves(.1);
+  for(let t=.1+1/fps;t<.7;t+=1/fps){const next=sampleBorderWaves(t);next.forEach((w,i)=>{
+    assert.ok(w.radius<previous[i].radius);assert.ok(Math.abs(previous[i].radius-w.radius-BORDER_WAVE_REACH/2.4/fps)<1e-10);
+  });previous=next;}
+ }
+ assert.deepEqual(sampleBorderWaves(.4,true),[]);
+ const before=sampleBorderWaves(2.4-1e-7)[0],after=sampleBorderWaves(2.4)[0];
+ assert.ok(before.opacity<1e-5);assert.equal(after.opacity,0);assert.equal(after.radius,BORDER_WAVE_REACH);
+ sampleBorderWaves(.3).forEach((w,i)=>assert.ok(Math.abs(w.radius-sampleBorderWaves(2.7)[i].radius)<1e-10));
 });

@@ -7,8 +7,14 @@ export function previewBorderRings(state,cell,color){
   for(const candidate of state.cells){const distance=hexDistance(cell,candidate);if(distance===1||distance===2)rings[distance-1].push({...candidate});}
   return {magnet:{cell:{...cell},color},rings,key:cellId(cell)+':'+color};
 }
-export function sampleBorderPulse(seconds,reduced=false){
-  if(reduced)return [.45,.45];
-  const phase=((Math.max(0,seconds)%2.4)/1.2),ring=Math.floor(phase),strength=Math.sin((phase-ring)*Math.PI)**2;
-  return ring===0?[strength,0]:[0,strength];
+export const BORDER_WAVE_DURATION = 2.4;
+export const BORDER_WAVE_REACH = 3.4;
+export const BORDER_WAVE_WIDTH = .16;
+// World-space radii; each wrap occurs beyond the masked area with zero alpha.
+export function sampleBorderWaves(seconds,reduced=false){
+  if(reduced)return [];
+  return Array.from({length:3},(_,i)=>{
+    const phase=(Math.max(0,seconds)/BORDER_WAVE_DURATION+i/3)%1;
+    return {radius:BORDER_WAVE_REACH*(1-phase),opacity:Math.min(1,phase/.08,(1-phase)/.08)};
+  });
 }
