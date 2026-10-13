@@ -55,4 +55,5 @@ Final greedy: 600 побед, 0 поражений, 0 timeout. Численны�
 
 Это headless/browser surrogate и визуальный просмотр, не физический телефон и не полное ручное прохождение без алгоритма на уровнях 1/4/7/10/12. Последний субъективный критерий TASK-0057 не выполнен; задача остаётся review. Изменять цель/звёзды или объявлять гарантии по всем seed по этим данным нельзя.
 
-Commit/push/Pages выполняются после проверки; фактический результат публикации фиксируется в закрывающем отчёте задач.
+Реализация опубликована коммитом f3110cf в origin/main. [Check game](https://github.com/Gobestvini/magnet-sort/actions/runs/38401786504) и [Deploy GitHub Pages](https://github.com/Gobestvini/magnet-sort/actions/runs/38401786579) успешны на точном коммите без чужих локальных изменений. Published smoke прошёл на https://gobestvini.github.io/magnet-sort/: seeded победа за 4 хода, top-color magnets, moves/stars, retry/pause, desktop/mobile viewport; лог artifacts/progression-public.log. TASK-0053–0056 done; TASK-0057 review только по невыполненному полному ручному прохождению.
+

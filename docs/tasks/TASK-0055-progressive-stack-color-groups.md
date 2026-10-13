@@ -1,6 +1,6 @@
 # TASK-0055: Простые стопки в начале и больше цветовых групп позднее
 
-- Статус: in-progress
+- Статус: done
 - Приоритет: high
 - Создана: 2026-10-13
 - Обновлена: 2026-10-13
@@ -45,7 +45,7 @@ model-v4.js или общий helper сложности из TASK-0053, соот
 - [x] Ни повторных цветов групп, ни перемешивания layers, ни потери units; правило одинаково для initial/turn spawn.
 - [x] Отображаемый top-group count и magnets-from-tops соответствуют новым стопкам.
 - [x] Релевантные автоматические и браузерные проверки выполнены, ограничения явно записаны.
-- [ ] Отчёт и INDEX обновлены; свои изменения закоммичены, push/deploy/public check подтверждены либо указана ошибка без ложного done.
+- [x] Отчёт и INDEX обновлены; свои изменения закоммичены, push/deploy/public check подтверждены либо указана ошибка без ложного done.
 
 ## 7. Проверки
 
@@ -75,6 +75,7 @@ Draft до зависимостей. Предложенные интервалы
 - Браузерные проверки: progression-browser-check, pnpm test:browser, production pages-browser-check, расширенный followup-browser-check; desktop/mobile/landscape viewport, 1–3 слота, tap/drag/keyboard, selected, pause/retry/resize, поворот по соседним рёбрам, reduced/idle. Screenshots первых/поздних уровней просмотрены.
 - Выполненные критерии: технические сценарии и численные ориентиры; полный raw baseline/final и ограничения — docs/reports/v4-balance-data.json / V4_BALANCE.md.
 - Непроверенное: физический телефон и полное ручное прохождение без алгоритма 1/4/7/10/12 не выполнялись; TASK-0057 остаётся review по субъективной проверке. Подготовленные draft зависимости проверены по фактической реализации в общей очереди; commit/deploy выполняются одним согласованным срезом. Чужие board/glow/draw-order изменения не включаются.
-- Публикация: ожидает общего commit/push и подтверждения Pages; результат будет дописан после проверки опубликованной игры.
-- Итоговый статус: in-progress, 2026-10-13.
+- Публикация: общий коммит f3110cf отправлен в origin/main; Check game и Deploy GitHub Pages успешны. Published smoke https://gobestvini.github.io/magnet-sort/ прошёл: seeded победа за 4 хода, stars/moves, top-color queue, retry/pause, desktop/mobile viewport. Лог artifacts/progression-public.log; deploy run 38401786579, check run 38401786504.
+- Итоговый статус: done, 2026-10-13.
+
 
