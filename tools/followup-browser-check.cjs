@@ -22,12 +22,12 @@ const base=process.env.GAME_BASE_URL||'http://127.0.0.1:5181/';
     window.gameDebug.inspectInfluence(s,target,'blue',1);
     return window.gameDebug.inspectInfluence(s,target,'blue',1.2);
   },result);
-  assert.equal(preview.influence.cells.length,2);assert.equal(preview.influence.particles,8);
-  assert.ok(preview.influence.cells.every(c=>c.strength>0));
+  assert.equal(preview.influence.cells.length,18);assert.equal(preview.influence.particles,0);
+  assert.equal(preview.influence.radialWaves.length,3);
   await p.screenshot({path:`artifacts/followup-browser/${name}-influence.png`});
   const reduced=await p.evaluate(({s,target})=>window.gameDebug.inspectInfluence(s,target,'blue',1.3,true),result);
   assert.equal(reduced.influence.particles,0);assert.equal(reduced.influence.waves,0);
-  assert.ok(reduced.influence.cells.every(c=>c.strength===1));
+  assert.equal(reduced.influence.reduced,true);assert.deepEqual(reduced.influence.radialWaves,[]);
   await p.evaluate(()=>window.gameDebug.reset());
   await p.waitForFunction(()=>!window.gameDebug.snapshot().paused);
   // Verify shared cover transforms and original sweep duration.

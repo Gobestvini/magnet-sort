@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { stacksForMove,createV4State,applyV4Magnet } from '../src/prototype/model-v4.js';
 import { canPlaceMagnet,remainingUnits } from '../src/prototype/model.js';
 import {cellId} from '../src/game/hex.js';
+import {spawnInterval} from '../src/prototype/difficulty.js';
 const level={id:'spawn-boundary',number:12,blockers:[{col:1,row:1}]};
 test('accepted moves use the new move count across both spawn boundaries',()=>{
  for(const [moves,count] of [[1,1],[5,1],[6,2],[10,2],[11,3],[99,3]]){
@@ -14,7 +15,7 @@ test('accepted moves use the new move count across both spawn boundaries',()=>{
  }
 });
 test('later levels stretch stages and reduce spawn frequency deterministically',()=>{
- for(const number of [2,12])for(const [moves,count] of [[5*number*number,1],[5*number*number+(number<=2?1:number),2],[10*number*number,2],[10*number*number+(number<=2?1:number),3]]){
+ for(const number of [2,12])for(const [moves,count] of [[5*number*number,1],[5*number*number+spawnInterval(number),2],[10*number*number,2],[10*number*number+spawnInterval(number),3]]){
   assert.equal(stacksForMove(moves,number),count);
   const s=createV4State({...level,number},2);s.stacks=[];s.spawnedUnits=0;s.movesUsed=moves-1;s.turn=moves-1;
   const r=applyV4Magnet(s,{type:'placeMagnet',color:s.magnets[0],cell:{col:3,row:3}});

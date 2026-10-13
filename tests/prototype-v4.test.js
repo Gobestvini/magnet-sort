@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createV4State, applyV4Magnet, drawIndex, spawnStacks, fillMagnetQueue, earnedStars, V4_CELLS, validateV4Level } from '../src/prototype/model-v4.js';
-import { canPlaceMagnet, remainingUnits } from '../src/prototype/model.js';
+import { canPlaceMagnet, remainingUnits, topColor } from '../src/prototype/model.js';
 import { cellId, neighborCells } from '../src/game/hex.js';
 import { v4Levels } from '../src/prototype/levels-v4.js';
 const level={id:'v4-test',number:1,blockers:[{col:1,row:1}]};
@@ -10,8 +10,8 @@ function assertMass(s){assert.equal(s.spawnedUnits,remainingUnits(s)+s.cleared);
 test('v4 seeded initialization and LCG are exact, reproducible, zero seed is valid',()=>{
  const r={rng:0};assert.equal(drawIndex(r,7),1);assert.equal(r.rng,1013904223);
  const a=createV4State(level,0);assert.deepEqual(a,createV4State(level,0));assert.notDeepEqual(a,createV4State(level,1));
- assert.equal(a.stacks.length,5);assert.equal(a.goal,50);assert.equal(a.movesUsed,0);assert.equal(a.magnets.length,3);assertMass(a);
- for(const s of a.stacks){assert.ok([6,12].includes(s.units.length));assert.equal(new Set(s.units.map(u=>u.color)).size>=2,true);assert.notEqual(cellId(s.cell),'r1c1');}
+ assert.equal(a.stacks.length,5);assert.equal(a.goal,50);assert.equal(a.movesUsed,0);assert.ok(a.magnets.length>=1&&a.magnets.length<=3);assertMass(a);
+ for(const s of a.stacks){assert.ok([6,12].includes(s.units.length));assert.equal(new Set(s.units.map(u=>u.color)).size,1);assert.notEqual(cellId(s.cell),'r1c1');}
  assert.throws(()=>createV4State(level,-1));assert.throws(()=>createV4State(level,2**32));
 });
 test('invalid placement returns original state without draws, steps or queue consumption',()=>{
@@ -41,14 +41,15 @@ test('winning 48+6 overshoots goal without spawn/refill, empty field below goal 
  assert.equal(next.state.terminal,null);assert.equal(next.state.stacks.length,1);assert.equal(next.state.cleared,6);assertMass(next.state);
  assert.equal(applyV4Magnet(r.state,action('blue',{col:2,row:3})).reason,'terminal');
 });
-test('queue consumption from every slot preserves order, never repeats within triple, permits used color again',()=>{
+test('queue retains exposed colors in order, is unique, and permits used color again',()=>{
  let sawUsed=false;
  for(let seed=0;seed<1000;seed++){
-  const s=createV4State(level,seed),before=[...s.magnets],slot=seed%3,used=before[slot];
+  const s=createV4State(level,seed),before=[...s.magnets],slot=seed%before.length,used=before[slot];
   s.stacks=[];s.spawnedUnits=0;
   const r=applyV4Magnet(s,action(used,{col:3,row:3})).state;
-  assert.deepEqual(r.magnets.slice(0,2),before.filter((_,i)=>i!==slot));
-  assert.equal(new Set(r.magnets).size,3);
+  const tops=new Set(r.stacks.map(topColor)),retained=before.filter((c,i)=>i!==slot&&tops.has(c));
+  assert.deepEqual(r.magnets.slice(0,retained.length),retained);
+  assert.equal(new Set(r.magnets).size,r.magnets.length);assert.ok(r.magnets.every(c=>tops.has(c)));
   sawUsed||=r.magnets.at(-1)===used;
  }
  assert.equal(sawUsed,true);assert.throws(()=>fillMagnetQueue({rng:0},['blue','blue']));
@@ -56,7 +57,7 @@ test('queue consumption from every slot preserves order, never repeats within tr
 test('100 deterministic turns conserve identities and every movement is adjacent',()=>{
  let s=createV4State(level,11),replay=createV4State(level,11);
  for(let i=0;i<100&&!s.terminal;i++){
-  const cell=s.cells.find(c=>canPlaceMagnet(s,c)),a=action(s.magnets[i%3],cell);
+  const cell=s.cells.find(c=>canPlaceMagnet(s,c)),a=action(s.magnets[i%s.magnets.length],cell);
   const r=applyV4Magnet(s,a),again=applyV4Magnet(replay,a);
   assert.deepEqual(r,again);assertMass(r.state);
   for(const e of r.events.filter(e=>e.type==='unitMoved'))assert.ok(neighborCells(e.from).some(c=>cellId(c)===cellId(e.to)));

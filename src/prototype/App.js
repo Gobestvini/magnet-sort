@@ -97,7 +97,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
         h(MagnetTray,{state,selected,locked,reduced,onSelect,onToolDown}),
         h('div', { className: 'action-row' },
           h('button', { className: 'secondary-button', onClick: onReset, 'aria-label': 'Restart' }, h('img', { className: 'restart-icon', src: art('restart'), alt: '' }), ' Restart')),
-        h('p', { className: 'sr-only' }, 'Collect the goal using three available magnets. Pieces move between neighboring tiles; crosses block paths.'))),
+        h('p', { className: 'sr-only' }, 'Collect the goal using up to three magnets matching exposed stack colors. Magnets attract through the two nearest hex rings. Pieces move between neighboring tiles; crosses block paths.'))),
     loading && h('div', { className: 'loading-screen' },
       h('div', { className: 'loading-frame' }, h('img', { className: 'loading-logo', src: art('logo-exact'), alt: 'Magnet Sort' }),
         h('div', { className: 'loading-magnets', 'aria-hidden': 'true' }, ['blue', 'violet', 'coral'].map(color => h(MagnetIcon, { color }))),

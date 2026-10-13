@@ -6,7 +6,7 @@
 
 Правила — [GDD v0.4](GDD_V0.4.md); clauses v3 ниже сохраняются как история и общие требования владения, ввода/cleanup. При конфликте применяются следующие решения v4:
 
-- `model-v4.js` — immutable RNG/spawn/goal/queue/scoring; `levels-v4.js` — только sparse blockers и identity. `model.js` сохраняет исторический v3 BFS; `magnet-influence.js` разрешает прямые v4 лучи и общий preview без RNG.
+- `model-v4.js` — immutable RNG/spawn/goal/queue/scoring; `levels-v4.js` — только sparse blockers и identity. `model.js` сохраняет исторический v3 BFS; `magnet-influence.js` разрешает полный v4 hex-радиус 2 через один/два соседних ребра, включая поворот и доступный альтернативный путь, и общий dry preview без RNG. Сходящиеся декоративные волны по геометрическим кольцам сохраняют контракт TASK-0052, рабочие эффекты следуют фактическим unitMoved.
 - Seven RGBA PNG magnets, four new chip colors, seven border-only magnetic tiles and complete blocked tile load through the shared BASE_URL/decode/retry lifecycle. Manifest: `public/art/mockup/v4-generated-manifest.json`.
 - Magnet handoff activates a colored border around an EMPTY ordinary cream floor. No magnet glyph or freestanding magnet is drawn during activation/active/deactivation. Shared opacity crossfade and one retained travelling edge highlight use sampled time. No second RAF; reset restores ordinary tile.
 - V4 neighbour animation uses `sampleHexTransfer`: 30° maximum rocking hop with .28 lift, original authored face throughout, continuous flat landing. V3 `sampleHexFlip` remains for regression. Unlit double-sided backing preserves authored color; flipping a lit body and switching PNG faces is not part of the active profile.

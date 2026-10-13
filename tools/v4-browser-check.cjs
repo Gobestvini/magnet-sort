@@ -8,12 +8,13 @@ async function modules(){
 }
 async function route(number=1,seed){
  const [v4,v3,{v4Levels}]=await modules();
- const witness=require('./fixtures/followup-witnesses.json').find(r=>r.number===number&&(seed===undefined||seed===r.seed));
+ const fixturePath=path.resolve('tools/fixtures/v4-progression-witnesses.json');
+ const witness=fs.existsSync(fixturePath)?JSON.parse(fs.readFileSync(fixturePath,'utf8')).find(r=>r.number===number&&(seed===undefined||seed===r.seed)):null;
  if(witness){
   let state=v4.createV4State(v4Levels[number-1],witness.seed);
   for(const action of witness.actions){const r=v4.applyV4Magnet(state,action);assert.equal(r.accepted,true);state=r.state;}
   assert.equal(state.terminal,'won');assert.equal(state.cleared,witness.cleared);
-  return {seed:witness.seed,actions:witness.actions,state};
+   return {seed:witness.seed,actions:witness.actions,state};
  }
  seed??=1;
  let state=v4.createV4State(v4Levels[number-1],seed),actions=[];
@@ -28,7 +29,7 @@ async function route(number=1,seed){
   if(!best)break;actions.push(best.action);state=best.state;
  }
  assert.equal(state.terminal,'won', 'seed route must reach goal');
- return {actions,state};
+ return {seed,actions,state};
 }
 async function keyboardPlace(page,cell){
  await page.locator('canvas').focus();
@@ -49,10 +50,11 @@ async function readyTools(page){
   if(await page.getByRole('dialog',{name:'Paused',exact:true}).count()){
    await page.getByRole('button',{name:'Resume',exact:true}).click();
   }
-  if(await page.locator('.magnet-tool:not(:disabled)').count()===3)return;
+  const count=await page.locator('.magnet-tool:not(:disabled)').count();
+  if(count>=1&&count<=3)return;
   await page.waitForTimeout(100);
  }
- throw new Error('Three available magnets did not return after resolution');
+ throw new Error('Available magnets did not return after resolution');
 }
 async function smoke(base,output='artifacts/v4-browser'){
  const planned=await route();fs.mkdirSync(output,{recursive:true});
@@ -64,7 +66,7 @@ async function smoke(base,output='artifacts/v4-browser'){
   page.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url());});
   await page.goto(base+(base.includes('?')?'&':'?')+'seed='+planned.seed);
   await page.waitForFunction(()=>!document.querySelector('.loading-screen'));
-  assert.equal(await page.locator('.magnet-tool').count(),3);
+  const count=await page.locator('.magnet-tool').count();assert.ok(count>=1&&count<=3);
   assert.equal(await page.locator('.moves-panel strong').textContent(),'0');
   assert.equal(await page.locator('[role=progressbar]').getAttribute('aria-valuemax'),'50');
   await page.locator('img[src]').evaluateAll(imgs=>Promise.all(imgs.map(i=>i.decode())));
@@ -77,7 +79,7 @@ async function smoke(base,output='artifacts/v4-browser'){
    if(++turn<planned.actions.length){
     await readyTools(page);
     const triple=await page.locator('.magnet-tool').evaluateAll(nodes=>nodes.map(n=>n.dataset.magnetColor));
-    assert.equal(new Set(triple).size,3);
+    assert.equal(new Set(triple).size,triple.length);assert.ok(triple.length>=1&&triple.length<=3);
    }
   }
   await page.getByRole('region',{name:'Result',exact:true}).waitFor({timeout:30000});
@@ -94,7 +96,7 @@ async function smoke(base,output='artifacts/v4-browser'){
   assert.deepEqual(errors,[]);await page.close();
  }
  }finally{await browser.close();}
- console.log('V4 seeded goal victory, three magnets, growing moves, earned stars, retry and pause passed (desktop/mobile viewport), '+planned.actions.length+' moves.');
+ console.log('V4 seeded goal victory, top-color magnets, growing moves, earned stars, retry and pause passed (desktop/mobile viewport), '+planned.actions.length+' moves.');
 }
 module.exports={route,keyboardPlace,readyTools,smoke};
 if(require.main===module)smoke(process.env.GAME_BASE_URL||'http://127.0.0.1:5175/').catch(e=>{console.error(e);process.exitCode=1;});

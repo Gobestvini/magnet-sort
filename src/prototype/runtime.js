@@ -224,7 +224,7 @@ function loadLevel(index, seed = fixedSeed ?? newSeed()) {
 }
 function hint() {
   if (!interactive()) return;
-  notice = 'Match exposed colors. New stacks appear after each move.'; ui();
+  notice = 'Match exposed colors in the two nearest rings. New stacks appear as you play.'; ui();
 }
 function resize() {
   cancelGesture(); cancelFrame();

@@ -1,16 +1,16 @@
 import { cellId, neighborCells } from '../game/hex.js';
-import { COLORS, canPlaceMagnet } from './model.js';
+import { COLORS, canPlaceMagnet, topColor } from './model.js';
 import { resolveMagnetInfluence } from './magnet-influence.js';
+import { levelPalette, levelGroupCounts, spawnInterval } from './difficulty.js';
 
 export const V4_CONFIG = Object.freeze({ initialStacks: 5, maxStacksPerTurn: 3, minHeight: 6, maxHeight: 12, heightStep: 6, clearSize: 6 });
 export function stacksForMove(movesUsed, levelNumber=1) {
   const span=5*levelNumber*levelNumber;
-  const interval=levelNumber<=2?1:levelNumber;
+  const interval=spawnInterval(levelNumber);
   if(movesUsed%interval!==0)return 0;
   return movesUsed<=span?1:movesUsed<=2*span?2:V4_CONFIG.maxStacksPerTurn;
 }
 export const V4_CELLS = Object.freeze(Array.from({ length: 25 }, (_, i) => Object.freeze({ col: i % 5 + 1, row: Math.floor(i / 5) + 1 })));
-const colors = Object.keys(COLORS);
 const compare = (a,b) => a.row-b.row || a.col-b.col;
 
 export function validateV4Level(level) {
@@ -39,9 +39,13 @@ export function drawIndex(state, count) {
   return Math.floor(state.rng/4294967296*count);
 }
 export function fillMagnetQueue(state, existing=[]) {
-  const queue=[...existing];
-  if(queue.length>3||new Set(queue).size!==queue.length||queue.some(c=>!COLORS[c]))throw new Error('Invalid magnet queue');
-  while(queue.length<3){
+  if(existing.length>3||new Set(existing).size!==existing.length||existing.some(c=>!COLORS[c]))throw new Error('Invalid magnet queue');
+  const palette=levelPalette(state.levelNumber);
+  const tops=new Set(state.stacks.map(topColor).filter(Boolean));
+  // Empty boards still need placements to reach the next scheduled spawn.
+  const colors=state.stacks.length?palette.filter(c=>tops.has(c)):palette;
+  const queue=existing.filter(c=>colors.includes(c));
+  while(queue.length<Math.min(3,colors.length)){
     const available=colors.filter(c=>!queue.includes(c));
     queue.push(available[drawIndex(state,available.length)]);
   }
@@ -59,7 +63,8 @@ export function spawnStacks(state, requested) {
   for(let i=0;i<count;i++){
     const cell=free.splice(drawIndex(state,free.length),1)[0];
     const height=V4_CONFIG.minHeight+V4_CONFIG.heightStep*drawIndex(state,2);
-    const groupCount=2+drawIndex(state,2), available=[...colors], groupColors=[];
+    const counts=levelGroupCounts(state.levelNumber,height);
+    const groupCount=counts.length===1?counts[0]:counts[drawIndex(state,counts.length)], available=levelPalette(state.levelNumber), groupColors=[];
     for(let group=0;group<groupCount;group++)groupColors.push(available.splice(drawIndex(state,available.length),1)[0]);
     const units=Array.from({length:height},(_,i)=>({id:'v4-u'+state.nextUnitId++,color:groupColors[Math.floor(i/(height/groupCount))]}));
     state.stacks.push({cell:{...cell},units});state.spawnedUnits+=height;
@@ -74,8 +79,8 @@ export function createV4State(level, seed) {
   const state={rulesVersion:4,puzzleId:level.id,levelNumber:level.number,cells:V4_CELLS.map(c=>({...c})),
     blockers:level.blockers.map(c=>({...c})),stacks:[],magnets:[],clearSize:V4_CONFIG.clearSize,
     goal:50*level.number,cleared:0,movesUsed:0,turn:0,spawnedUnits:0,nextUnitId:1,rng:seed,seed,terminal:null,stars:0};
-  state.magnets=fillMagnetQueue(state);
   spawnStacks(state,V4_CONFIG.initialStacks);
+  state.magnets=fillMagnetQueue(state);
   return state;
 }
 export function applyV4Magnet(state, action) {
