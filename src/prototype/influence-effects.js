@@ -24,7 +24,9 @@ export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,t
   const outer=[[235,10],[459,140],[459,332],[235,458],[12,332],[12,140]];
   const inner=[[235,43],[430,149],[430,316],[235,426],[40,316],[40,149]];
   function pathPixels(path,vertices){vertices.forEach(([x,y],i)=>{
-    const px=(x-235)/471*tile.width,py=(234-y)/512*tile.height+tile.offsetY;
+    // Pixel vertices are relative to the PNG center, not its well center (234).
+    // tile.offsetY already aligns the tile center with the magnet anchor.
+    const px=(x-235)/471*tile.width,py=(256-y)/512*tile.height+tile.offsetY;
     if(i)path.lineTo(px,py);else path.moveTo(px,py);
   });path.closePath();}
   pathPixels(rimShape,outer);pathPixels(rimHole,[...inner].reverse());rimShape.holes.push(rimHole);
