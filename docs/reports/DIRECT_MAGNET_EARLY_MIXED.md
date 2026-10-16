@@ -19,7 +19,9 @@ TASK-0058 и TASK-0059 подготовлены и по следующему у�
 - `node tools/v4-visual-check.cjs`: шесть направлений × пять фаз × desktop/mobile, IDs, hidden/preclear badges, border deactivation, progress endpoint, pause/restart/20 resets.
 - `pnpm test:browser`: desktop/mobile seeded победа за 5 ходов, goal/moves/stars, retry/pause.
 - Просмотрены PNG `artifacts/border-preview/held-mobile.png`, `phase-1440-0.4.png`, `artifacts/progression-browser/level-1-390.png`; ранние смешанные слои и отсутствие подсветки читаются. Изолированный release browser повторяет проверку увеличенных частиц.
-- Полные локальные логи: `artifacts/task-0058-*.log`, `.telegram-check-logs/`; release логи и screenshots — в отдельном worktree до его архивации. Это browser surrogate/визуальный просмотр, не физический телефон.
+- `node tools/followup-browser-check.cjs` в изолированном release worktree: четыре viewport (включая 320 px), result variants, inward particles/отсутствие контуров, reduced, полный 11s idle — passed.
+- `node tools/pages-browser-check.cjs` в изолированном worktree: production `/magnet-sort/` flow passed. Staged source hashes сопоставлены с прошедшей проверки release-копией; board соответствует чистому исходному HEAD.
+- Полные локальные логи: `artifacts/task-0058-*.log`, `.telegram-check-logs/`; release логи и screenshots сохранены в `artifacts/direct-magnet-release/` перед архивацией временного worktree. Это browser surrogate/визуальный просмотр, не физический телефон.
 
 ## Влияние на сложность
 
@@ -44,4 +46,6 @@ TASK-0058 и TASK-0059 подготовлены и по следующему у�
 
 ## Публикация
 
-Выполняется после финальной проверки release worktree; задачи остаются in-progress до успешного Pages/public smoke. Коммит содержит только собственные файлы. Результат deploy будет записан здесь после выполнения.
+Реализация опубликована коммитом `998c4fbfb1b4fbdfe95854e6273acaa6d14f8783` в origin/main. [Check game](https://github.com/Gobestvini/magnet-sort/actions/runs/38919987004) и [Deploy GitHub Pages](https://github.com/Gobestvini/magnet-sort/actions/runs/38919986847) — success на этом коммите.
+
+Public `GAME_BASE_URL=https://gobestvini.github.io/magnet-sort/ node tools/pages-browser-check.cjs`: seeded победа за 5 ходов, top-color queue, moves/stars, retry/pause — desktop/mobile passed. Лог `artifacts/task-0058-public.log`. Отдельно normal-motion keyboard preview на public URL просмотрен в desktop/mobile: видны частицы без подсветки источников и ранние mixed layers; page errors отсутствуют. Снимки `artifacts/task-0058-public-preview-{desktop,mobile}.png`. TASK-0058/0059 done; физический телефон не проверялся.
