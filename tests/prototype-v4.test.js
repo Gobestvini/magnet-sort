@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createV4State, applyV4Magnet, drawIndex, spawnStacks, fillMagnetQueue, earnedStars, V4_CELLS, validateV4Level } from '../src/prototype/model-v4.js';
 import { canPlaceMagnet, remainingUnits, topColor } from '../src/prototype/model.js';
-import { cellId, neighborCells } from '../src/game/hex.js';
+import { cellId, hexDistance } from '../src/game/hex.js';
 import { v4Levels } from '../src/prototype/levels-v4.js';
 const level={id:'v4-test',number:1,blockers:[{col:1,row:1}]};
 const action=(color,cell)=>({type:'placeMagnet',color,cell});
@@ -11,7 +11,8 @@ test('v4 seeded initialization and LCG are exact, reproducible, zero seed is val
  const r={rng:0};assert.equal(drawIndex(r,7),1);assert.equal(r.rng,1013904223);
  const a=createV4State(level,0);assert.deepEqual(a,createV4State(level,0));assert.notDeepEqual(a,createV4State(level,1));
  assert.equal(a.stacks.length,5);assert.equal(a.goal,50);assert.equal(a.movesUsed,0);assert.ok(a.magnets.length>=1&&a.magnets.length<=3);assertMass(a);
- for(const s of a.stacks){assert.ok([6,12].includes(s.units.length));assert.equal(new Set(s.units.map(u=>u.color)).size,1);assert.notEqual(cellId(s.cell),'r1c1');}
+ assert.deepEqual(new Set(a.stacks.map(s=>new Set(s.units.map(u=>u.color)).size)),new Set([1,2]));
+ for(const s of a.stacks){assert.ok([6,12].includes(s.units.length));assert.notEqual(cellId(s.cell),'r1c1');}
  assert.throws(()=>createV4State(level,-1));assert.throws(()=>createV4State(level,2**32));
 });
 test('invalid placement returns original state without draws, steps or queue consumption',()=>{
@@ -54,13 +55,14 @@ test('queue retains exposed colors in order, is unique, and permits used color a
  }
  assert.equal(sawUsed,true);assert.throws(()=>fillMagnetQueue({rng:0},['blue','blue']));
 });
-test('100 deterministic turns conserve identities and every movement is adjacent',()=>{
+test('100 deterministic turns conserve identities and every unit moves directly within radius two',()=>{
  let s=createV4State(level,11),replay=createV4State(level,11);
  for(let i=0;i<100&&!s.terminal;i++){
   const cell=s.cells.find(c=>canPlaceMagnet(s,c)),a=action(s.magnets[i%s.magnets.length],cell);
   const r=applyV4Magnet(s,a),again=applyV4Magnet(replay,a);
   assert.deepEqual(r,again);assertMass(r.state);
-  for(const e of r.events.filter(e=>e.type==='unitMoved'))assert.ok(neighborCells(e.from).some(c=>cellId(c)===cellId(e.to)));
+  const moves=r.events.filter(e=>e.type==='unitMoved');assert.equal(new Set(moves.map(e=>e.unit.id)).size,moves.length);
+  for(const e of moves){assert.ok([1,2].includes(hexDistance(e.from,e.to)));assert.equal(cellId(e.to),cellId(a.cell));}
   s=r.state;replay=again.state;
  }
  assert.deepEqual(createV4State(level,11),createV4State(level,11),'retry seed restores start');

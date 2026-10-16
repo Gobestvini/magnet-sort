@@ -17,6 +17,7 @@ const base=process.env.GAME_BASE_URL||'http://127.0.0.1:5183/';
    assert.ok(expected.state.magnets.every(c=>expected.tops.includes(c)));
    assert.ok(expected.state.stacks.every(s=>s.units.every(u=>expected.palette.includes(u.color))));
    for(const s of expected.state.stacks){const groups=s.units.filter((u,i)=>!i||u.color!==s.units[i-1].color);assert.ok(expected.groups.includes(groups.length));}
+   if(number<=3)assert.deepEqual(new Set(expected.state.stacks.map(s=>new Set(s.units.map(u=>u.color)).size)),new Set([1,2]));
    assert.deepEqual(await page.locator('.magnet-tool').evaluateAll(ns=>ns.map(n=>n.dataset.magnetColor)),expected.state.magnets);
    if([1,4,7,10,12].includes(number))await page.screenshot({path:`artifacts/progression-browser/level-${number}-${viewport.width}.png`});
   }
@@ -39,7 +40,7 @@ const base=process.env.GAME_BASE_URL||'http://127.0.0.1:5183/';
    const end=await page.evaluate(()=>window.gameDebug.snapshot());assert.ok(end.state.magnets.includes(end.selected));
    await page.evaluate(()=>window.gameDebug.reset());assert.deepEqual(await page.evaluate(()=>window.gameDebug.snapshot().state),start);
   }
-  // Inspect a bent path at each real edge-transfer segment using the existing view hook.
+  // A bent second-ring source now has one direct flight per actual unit.
   const inspected=await page.evaluate(async()=>{
    const {createV4State,applyV4Magnet}=await import('/src/prototype/model-v4.js');const {v4Levels}=await import('/src/prototype/levels-v4.js');const {makeTransferTimeline}=await import('/src/prototype/motion.js');
    const {offsetToAxial,axialToOffset,hexDistance}=await import('/src/game/hex.js');
@@ -50,11 +51,12 @@ const base=process.env.GAME_BASE_URL||'http://127.0.0.1:5183/';
    const frames=segments.map(e=>window.gameDebug.inspectPresentation(s,r,(e.start+e.end)/2).renderer.influence);
    return {edges:segments.map(e=>hexDistance(e.from,e.to)),frames,paths:r.influence.paths};
   });
-  assert.ok(inspected.paths.some(p=>p.length===3));assert.ok(inspected.edges.every(d=>d===1));assert.ok(inspected.frames.some(f=>f.waves>0));
+  assert.ok(inspected.paths.every(p=>p.length===2));assert.equal(inspected.edges.length,6);assert.ok(inspected.edges.every(d=>d===2));
+  assert.ok(inspected.frames.some(f=>f.particles>0));assert.ok(inspected.frames.every(f=>f.cells.length===0&&f.waves===0));
   await page.screenshot({path:`artifacts/progression-browser/bent-${viewport.width}.png`});
   await page.evaluate(()=>window.gameDebug.finishInspection());await page.setViewportSize({width:viewport.height,height:viewport.width});await page.evaluate(()=>window.gameDebug.reset());
   assert.deepEqual(errors,[]);await page.close();
  }
- console.log('Progression: palette/groups at every boundary; 1/2/3 real slots; keyboard/tap/drag; selection, pause/resume/retry; bent edge timeline and resize passed in desktop/mobile/landscape viewports.');
+ console.log('Progression: early mixed openings, palette/groups at every boundary; 1/2/3 real slots; keyboard/tap/drag; pause/retry; direct second-ring flights without source highlights, resize at three viewports passed.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

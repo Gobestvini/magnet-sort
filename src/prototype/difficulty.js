@@ -10,7 +10,7 @@ export function levelGroupCounts(number, height=12) {
   if(![6,12].includes(height))throw new Error('Invalid stack height');
   // More colors in the level and mandatory mixed stacks increase difficulty;
   // two equal groups keep later boards manageable with seven available colors.
-  return number <= 3 ? [1] : number <= 6 ? [1,2] : [2];
+  return number <= 6 ? [1,2] : [2];
 }
 export function spawnInterval(number) {
   levelPalette(number);

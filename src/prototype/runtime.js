@@ -73,7 +73,7 @@ function draw(alpha = 1) {
   }
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
   const previewCell=keyboardCell??hover;
-  const previewKey=(keyboardCell||gesture||(drag&&!drag.released))&&!paused&&phase==='playing'&&previewCell?cellId(previewCell)+':'+selected:null;
+  const previewKey=!paused&&phase==='playing'&&previewCell?cellId(previewCell)+':'+selected:null;
   if(influenceCache.state!==state||influenceCache.key!==previewKey)influenceCache={state,key:previewKey,plan:previewKey?previewBorderRings(state,previewCell,selected):null};
   const frame = board?.draw(boardLevel, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
     hideMagnet: Boolean(drag), dragging: Boolean(drag && !drag.released), reduced,

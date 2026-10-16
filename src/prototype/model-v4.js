@@ -57,14 +57,14 @@ export function potentialStars(goal, movesUsed) {
 export function earnedStars(goal, movesUsed, terminal) {
   return terminal==='won'?potentialStars(goal,movesUsed):0;
 }
-export function spawnStacks(state, requested) {
+export function spawnStacks(state, requested, openingGroups=[]) {
   const free=state.cells.filter(c=>canPlaceMagnet(state,c)).sort(compare);
   const count=Math.min(requested,free.length), events=[];
   for(let i=0;i<count;i++){
     const cell=free.splice(drawIndex(state,free.length),1)[0];
     const height=V4_CONFIG.minHeight+V4_CONFIG.heightStep*drawIndex(state,2);
     const counts=levelGroupCounts(state.levelNumber,height);
-    const groupCount=counts.length===1?counts[0]:counts[drawIndex(state,counts.length)], available=levelPalette(state.levelNumber), groupColors=[];
+    const groupCount=openingGroups[i]??(counts.length===1?counts[0]:counts[drawIndex(state,counts.length)]), available=levelPalette(state.levelNumber), groupColors=[];
     for(let group=0;group<groupCount;group++)groupColors.push(available.splice(drawIndex(state,available.length),1)[0]);
     const units=Array.from({length:height},(_,i)=>({id:'v4-u'+state.nextUnitId++,color:groupColors[Math.floor(i/(height/groupCount))]}));
     state.stacks.push({cell:{...cell},units});state.spawnedUnits+=height;
@@ -79,7 +79,9 @@ export function createV4State(level, seed) {
   const state={rulesVersion:4,puzzleId:level.id,levelNumber:level.number,cells:V4_CELLS.map(c=>({...c})),
     blockers:level.blockers.map(c=>({...c})),stacks:[],magnets:[],clearSize:V4_CONFIG.clearSize,
     goal:50*level.number,cleared:0,movesUsed:0,turn:0,spawnedUnits:0,nextUnitId:1,rng:seed,seed,terminal:null,stars:0};
-  spawnStacks(state,V4_CONFIG.initialStacks);
+  // Distinct seeded locations guarantee a visibly varied early opening,
+  // without re-rolling boards or changing the later spawn distribution.
+  spawnStacks(state,V4_CONFIG.initialStacks,level.number<=3?[1,2]:[]);
   state.magnets=fillMagnetQueue(state);
   return state;
 }

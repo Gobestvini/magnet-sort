@@ -16,18 +16,18 @@ const base=process.env.GAME_BASE_URL||'http://127.0.0.1:5181/';
    return {s,target,resolution,plan:previewMagnetInfluence(s,target,'blue')};
   });
   const inspected=await p.evaluate(({s,resolution})=>window.gameDebug.inspectPresentation(s,resolution,.45),result);
-  assert.ok(inspected.renderer.influence.waves>0);assert.ok(inspected.renderer.influence.waves<=12);
+  assert.equal(inspected.renderer.influence.particles,3);assert.equal(inspected.renderer.influence.waves,0);assert.deepEqual(inspected.renderer.influence.cells,[]);
   await p.screenshot({path:`artifacts/followup-browser/${name}-waves.png`});
   const preview=await p.evaluate(({s,target})=>{
     window.gameDebug.inspectInfluence(s,target,'blue',1);
     return window.gameDebug.inspectInfluence(s,target,'blue',1.2);
   },result);
-  assert.equal(preview.influence.cells.length,18);assert.equal(preview.influence.particles,0);
-  assert.equal(preview.influence.radialWaves.length,3);
+  assert.deepEqual(preview.influence.cells,[]);assert.equal(preview.influence.particles,54);
+  assert.equal(new Set(preview.influence.arcs.map(a=>JSON.stringify(a.cell))).size,18);
   await p.screenshot({path:`artifacts/followup-browser/${name}-influence.png`});
   const reduced=await p.evaluate(({s,target})=>window.gameDebug.inspectInfluence(s,target,'blue',1.3,true),result);
   assert.equal(reduced.influence.particles,0);assert.equal(reduced.influence.waves,0);
-  assert.equal(reduced.influence.reduced,true);assert.deepEqual(reduced.influence.radialWaves,[]);
+  assert.equal(reduced.influence.reduced,true);assert.deepEqual(reduced.influence.cells,[]);
   await p.evaluate(()=>window.gameDebug.reset());
   await p.waitForFunction(()=>!window.gameDebug.snapshot().paused);
   // Verify shared cover transforms and original sweep duration.
@@ -36,5 +36,5 @@ const base=process.env.GAME_BASE_URL||'http://127.0.0.1:5181/';
   await p.waitForTimeout(11000);await p.screenshot({path:`artifacts/followup-browser/${name}-idle-cycle.png`});
   assert.deepEqual(errors,[]);await p.close();
  }
- console.log('Followup preview 1/2/3/final, 320/mobile/desktop/landscape, same-source cover mask, full 11s idle and working waves passed.');
+ console.log('Followup preview 1/2/3/final, 320/mobile/desktop/landscape, same-source cover mask, full 11s idle and direct inward particles without source outlines passed.');
 }finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

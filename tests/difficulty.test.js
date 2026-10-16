@@ -50,6 +50,20 @@ test('top-only choices discard stale colors, handle 1/2/3/4 exposed colors and e
   const r=applyV4Magnet(empty,{type:'placeMagnet',cell:{col:3,row:3},color:'blue'});
   assert.equal(r.state.stacks.length,0);assert.equal(r.state.terminal,null);assert.equal(r.state.magnets.length,3);
 });
+test('every early opening mixes one/two colors; subsequent spawns supply both without rerolls',()=>{
+ for(const level of v4Levels.slice(0,3)){
+  const addedTypes=new Set();
+  for(let seed=0;seed<100;seed++){
+   const s=createV4State(level,seed);
+   const types=s.stacks.map(stack=>new Set(stack.units.map(u=>u.color)).size);
+   assert.deepEqual(new Set(types),new Set([1,2]));
+   assert.deepEqual(s,createV4State(level,seed));
+   const added=structuredClone(s);added.stacks=[];spawnStacks(added,1);
+   for(const stack of added.stacks)addedTypes.add(new Set(stack.units.map(u=>u.color)).size);
+  }
+  assert.deepEqual(addedTypes,new Set([1,2]));
+ }
+});
 test('late levels remain slower while supplying enough pieces without long empty waits',()=>{
   for(let number=1;number<=12;number++)assert.equal(spawnInterval(number),number<=6?1:number<=9?2:3);
 });
