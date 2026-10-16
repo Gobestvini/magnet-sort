@@ -52,7 +52,7 @@ const base=process.env.GAME_BASE_URL||'http://127.0.0.1:5183/';
    return {edges:segments.map(e=>hexDistance(e.from,e.to)),frames,paths:r.influence.paths};
   });
   assert.ok(inspected.paths.every(p=>p.length===2));assert.equal(inspected.edges.length,6);assert.ok(inspected.edges.every(d=>d===2));
-  assert.ok(inspected.frames.some(f=>f.particles>0));assert.ok(inspected.frames.every(f=>f.cells.length===0&&f.waves===0));
+  assert.ok(inspected.frames.every(f=>f.particles===0));assert.ok(inspected.frames.every(f=>f.cells.length===0&&f.waves===0));
   await page.screenshot({path:`artifacts/progression-browser/bent-${viewport.width}.png`});
   await page.evaluate(()=>window.gameDebug.finishInspection());await page.setViewportSize({width:viewport.height,height:viewport.width});await page.evaluate(()=>window.gameDebug.reset());
   assert.deepEqual(errors,[]);await page.close();

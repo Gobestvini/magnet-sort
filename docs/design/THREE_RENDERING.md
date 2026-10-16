@@ -2,7 +2,7 @@
 
 ## Активные уточнения v4 — 2026-10-12
 
-Предпросмотр 2026-10-16 (TASK-0058): border-preview.js отдаёт обычные клетки двух колец без X, включая пустые и занятые. Вместо подсветки соседей influence-effects.js показывает по 3 частицы на клетку (пул 54), направленные к magnetAnchor по параболам высотой 1.1 world unit. Период 1.35s, стабильные фазы без RNG, один shared material/geometry. Hover, удержанный drag и keyboard candidate используют общий runtime RAF; reduced/paused/hidden/cancel/reset/resize скрывают частицы. Рабочая timeline использует actual sources до деактивации. Цветные бортики самой активной клетки сохранены.
+Предпросмотр 2026-10-16, уточнение после TASK-0058: восстановлен исходный shader сходящихся волн через 18 масок только верхних бортиков PNG, включая занятые/X клетки геометрических колец. Координаты маски и параметры 2.4s/3.4/.16 прежние. Дополнительно по 3 частицы radius .022 из каждой обычной клетки (до 54); preview-particles.js задаёт разные фазы, duration 1.05–1.85s, высоту .75–1.55 и боковой изгиб до .35, меняя дуги по проходам без model RNG. Всё обновляется одним runtime RAF. Любая рабочая timeline сразу скрывает preview-частицы и соседние маски; reduced оставляет статичный цвет бортиков .45 без частиц. Target magnetic tile сохранён.
 
 Правила — [GDD v0.4](GDD_V0.4.md); clauses v3 ниже сохраняются как история и общие требования владения, ввода/cleanup. При конфликте применяются следующие решения v4:
 
@@ -59,4 +59,4 @@ RAF принадлежит runtime и нужен только при актив�
 
 Проверены 2026-10-09: [WebGLRenderer](https://threejs.org/docs/pages/WebGLRenderer.html), [OrthographicCamera](https://threejs.org/docs/pages/OrthographicCamera.html), [Raycaster](https://threejs.org/docs/pages/Raycaster.html), [cleanup](https://threejs.org/manual/pages/cleanup.html). При обновлении зависимости проверять changelog/API заново.
 
-V4 influence effects use a board-owned retained pool of 54 particles, one shared geometry/material, board anchors and the app clock. Three particles per ordinary cell in the two preview rings (including empty/foreign-color cells, excluding X); work uses actual sources. No source contours, masked rims or travelling edge waves. Runtime caches preview per state/cell/color; no separate RAF/RNG.
+V4 influence effects use 18 retained upper-rim masks with the original inward shader waves and a board-owned pool of 54 small particles. Each type shares its geometry/material; anchors and time come from the board/runtime. Three particles per ordinary preview cell (including empty/foreign-color cells, excluding X); mask rings include X. Stateless visual sampling varies speed, phase, height and lateral bend, including later passes. All surrounding effects hide during a turn timeline; no working source contours/particles. Reduced motion keeps static masks, no particles. Runtime caches preview per state/cell/color; no separate RAF/model RNG.

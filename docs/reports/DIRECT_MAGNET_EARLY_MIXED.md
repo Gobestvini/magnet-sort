@@ -1,5 +1,7 @@
 # Прямой магнит и ранние смешанные стопки — 2026-10-16
 
+Исходный релиз TASK-0058/0059 описан ниже. Текущее оформление preview уточнено пользователем после релиза: см. последнее дополнение «Маски бортиков вместе с небольшими частицами».
+
 TASK-0058 и TASK-0059 подготовлены и по следующему указанию пользователя реализованы. Исходный HEAD `bae15eea211be1411e9b69119100f0da89bda878`. Чужие локальные `board.js`, `magnet-glow.js`, untracked `draw-order.js` и remote attachments сохранены вне коммита. Изолированный release worktree использует board из HEAD.
 
 ## Поведение
@@ -49,3 +51,22 @@ TASK-0058 и TASK-0059 подготовлены и по следующему у�
 Реализация опубликована коммитом `998c4fbfb1b4fbdfe95854e6273acaa6d14f8783` в origin/main. [Check game](https://github.com/Gobestvini/magnet-sort/actions/runs/38919987004) и [Deploy GitHub Pages](https://github.com/Gobestvini/magnet-sort/actions/runs/38919986847) — success на этом коммите.
 
 Public `GAME_BASE_URL=https://gobestvini.github.io/magnet-sort/ node tools/pages-browser-check.cjs`: seeded победа за 5 ходов, top-color queue, moves/stars, retry/pause — desktop/mobile passed. Лог `artifacts/task-0058-public.log`. Отдельно normal-motion keyboard preview на public URL просмотрен в desktop/mobile: видны частицы без подсветки источников и ранние mixed layers; page errors отсутствуют. Снимки `artifacts/task-0058-public-preview-{desktop,mobile}.png`. TASK-0058/0059 done; физический телефон не проверялся.
+
+## Маски бортиков вместе с небольшими частицами — уточнение 2026-10-16
+
+Запрос: вернуть прежнюю подсветку через маску, оставить меньшие и менее одинаковые частицы, убрать их во время перелёта хексов.
+
+Восстановлены исходные геометрия upper-rim mask и shader из `bae15ee`: 18 переиспользуемых масок двух геометрических колец, в том числе X, три сходящиеся волны с параметрами 2.4s/3.4/.16. Углубление и передняя стенка плитки не окрашиваются. В reduced motion остаётся статичная маска .45 без частиц.
+
+Радиус частиц уменьшен с .04 до .022 world unit. Новый чистый `preview-particles.js` задаёт индивидуальные скорость/фазу/размер, высоту .75–1.55, боковой изгиб до .35. На следующем проходе дуга меняется. Visual hash зависит только от cell/index/cycle, не расходует RNG модели и не зависит от FPS. Источники частиц — обычные клетки колец, по 3; X участвует в маске, но не испускает частицы. Любая timeline сразу скрывает preview-частицы и маски соседей: activation, unitMoved, collection, spawn. Оформление самой активной клетки остаётся в board. Прямой радиус, ранние mixed stacks и игровой баланс не менялись.
+
+Проверки до публикации:
+
+- `pnpm check:full`: 188/188 tests + production build, также в изолированном release worktree с чистыми board.js/magnet-glow.js из HEAD.
+- `node tools/border-preview-browser-check.cjs`: совместные маски/частицы, разные duration, уменьшенный размер, все фазы timeline без частиц, hover/drag/keyboard, reduced, семь цветов, desktop/mobile/landscape, invalid targets, 20 reset/resource cycles. Повторено на изолированном release.
+- `node tools/influence-drag-check.cjs`: 20 pointer drag/cancel циклов, ожидаемые маски и частицы, pause/reduced, стабильные GPU resources.
+- `node tools/progression-browser-check.cjs`: direct radius-two transfers и ранние mixed openings без регрессий, рабочие кадры без частиц.
+- В изолированном release: `node tools/pages-browser-check.cjs` — seeded победа за 5 ходов, retry/pause, desktop/mobile; `node tools/followup-browser-check.cjs` — четыре viewport, masked preview с частицами, отсутствие рабочих частиц, reduced и полный 11s idle. Оба прошли.
+- Снимки held-mobile и desktop phase .4 просмотрены: подсветка только на верхних бортиках, частицы заметно меньше. Browser surrogate, физический телефон не проверялся.
+
+Исходные чужие изменения `board.js`, `magnet-glow.js`, `draw-order.js` и remote attachments сохранены вне коммита. Публикация текущего коммита и public smoke выполняются после этих проверок по AGENTS.md; результат сообщается в финальном ответе.
