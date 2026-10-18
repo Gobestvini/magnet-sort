@@ -3,7 +3,7 @@ import { COLORS, canPlaceMagnet, topColor } from './model.js';
 import { resolveMagnetInfluence } from './magnet-influence.js';
 import { levelPalette, levelGroupCounts, spawnInterval } from './difficulty.js';
 
-export const V4_CONFIG = Object.freeze({ initialStacks: 5, maxStacksPerTurn: 3, minHeight: 6, maxHeight: 12, heightStep: 6, clearSize: 6 });
+export const V4_CONFIG = Object.freeze({ initialStacks: 5, maxStacksPerTurn: 3, minHeight: 6, maxHeight: 10, heightStep: 4, clearSize: 10 });
 export function stacksForMove(movesUsed, levelNumber=1) {
   const span=5*levelNumber*levelNumber;
   const interval=spawnInterval(levelNumber);
@@ -51,6 +51,11 @@ export function fillMagnetQueue(state, existing=[]) {
   }
   return queue;
 }
+function fillMagnetRadii(state,retained=[]) {
+  return Object.fromEntries(state.magnets.map(color=>[color,
+    retained.includes(color)&&[1,2].includes(state.magnetRadii?.[color])
+      ?state.magnetRadii[color]:1+drawIndex(state,2)]));
+}
 export function potentialStars(goal, movesUsed) {
   return movesUsed<=Math.ceil(goal/12)?3:movesUsed<=Math.ceil(goal/6)?2:1;
 }
@@ -83,6 +88,7 @@ export function createV4State(level, seed) {
   // without re-rolling boards or changing the later spawn distribution.
   spawnStacks(state,V4_CONFIG.initialStacks,level.number<=3?[1,2]:[]);
   state.magnets=fillMagnetQueue(state);
+  state.magnetRadii=fillMagnetRadii(state);
   return state;
 }
 export function applyV4Magnet(state, action) {
@@ -97,9 +103,11 @@ export function applyV4Magnet(state, action) {
   const retained=next.magnets.filter(c=>c!==action.color);
   if(next.cleared>=next.goal){
     next.terminal='won';next.stars=earnedStars(next.goal,next.movesUsed,'won');next.magnets=retained;
+    next.magnetRadii=Object.fromEntries(retained.map(c=>[c,state.magnetRadii?.[c]??2]));
   }else{
     events.push(...spawnStacks(next,stacksForMove(next.movesUsed,next.levelNumber)));
     next.magnets=fillMagnetQueue(next,retained);
+    next.magnetRadii=fillMagnetRadii(next,retained);
     events.push({type:'magnetsChanged',before:[...state.magnets],after:[...next.magnets],used:action.color});
     if(!next.cells.some(c=>canPlaceMagnet(next,c)))next.terminal='lost';
   }

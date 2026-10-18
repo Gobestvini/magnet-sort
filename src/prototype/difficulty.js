@@ -5,9 +5,9 @@ export function levelPalette(number) {
   const count = number <= 3 ? 3 : number <= 6 ? 4 : number <= 9 ? 5 : number <= 11 ? 6 : 7;
   return COLOR_ORDER.slice(0, count);
 }
-export function levelGroupCounts(number, height=12) {
+export function levelGroupCounts(number, height=10) {
   levelPalette(number); // Same validated level range.
-  if(![6,12].includes(height))throw new Error('Invalid stack height');
+  if(![6,10].includes(height))throw new Error('Invalid stack height');
   // More colors in the level and mandatory mixed stacks increase difficulty;
   // two equal groups keep later boards manageable with seven available colors.
   return number <= 6 ? [1,2] : [2];

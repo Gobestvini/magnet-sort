@@ -45,8 +45,8 @@ test('top-only choices discard stale colors, handle 1/2/3/4 exposed colors and e
   s.stacks[0].units.pop();assert.ok(fillMagnetQueue(s,['blue']).includes('pink'));
   s.stacks=[];assert.equal(fillMagnetQueue(s).length,3);
   // N=7 has no spawn at move one: clearing the entire field must still permit a next move.
-  const empty=createV4State(v4Levels[6],0);empty.stacks=[{cell:{col:3,row:2},units:Array.from({length:6},(_,i)=>({id:'empty'+i,color:'blue'}))}];
-  empty.magnets=['blue'];empty.spawnedUnits=6;
+  const empty=createV4State(v4Levels[6],0);empty.stacks=[{cell:{col:3,row:2},units:Array.from({length:10},(_,i)=>({id:'empty'+i,color:'blue'}))}];
+  empty.magnets=['blue'];empty.spawnedUnits=10;
   const r=applyV4Magnet(empty,{type:'placeMagnet',cell:{col:3,row:3},color:'blue'});
   assert.equal(r.state.stacks.length,0);assert.equal(r.state.terminal,null);assert.equal(r.state.magnets.length,3);
 });

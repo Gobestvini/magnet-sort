@@ -87,3 +87,5 @@ body,.loading-screen{background-image:url('/art/mockup/background-v2.png');backg
 .victory-particle{position:absolute;top:68%;height:auto;opacity:0;animation:victory-burst var(--duration) cubic-bezier(.16,.55,.5,1) var(--delay) both;will-change:transform,opacity}
 @keyframes victory-burst{0%{opacity:0;transform:translate3d(0,0,0) rotate(0)}8%{opacity:1}44%{opacity:1;transform:translate3d(var(--x-mid),var(--rise),0) rotate(calc(var(--spin)*.45))}78%{opacity:1}100%{opacity:0;transform:translate3d(var(--x),var(--fall),0) rotate(var(--spin))}}
 @media(prefers-reduced-motion:reduce){.modal-backdrop,.modal-panel{animation:popup-shade-in .08s linear both}.victory-particles{display:none}}
+
+.magnet-range{position:absolute;right:1px;bottom:4px;width:clamp(33px,9vw,48px);line-height:0;pointer-events:none}.magnet-range img{width:100%;height:auto}.magnet-tool[data-dragging] .magnet-range{visibility:hidden}.floating-range{position:fixed;left:0;top:0;z-index:21;pointer-events:none;width:36px;height:auto}.floating-range[hidden]{display:none}

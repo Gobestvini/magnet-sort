@@ -14,8 +14,8 @@ const fixture=await p.evaluate(async()=>{
  const base=createV4State({id:'visual',number:1,blockers:[{col:1,row:1}]},1);
  const target={col:3,row:3};
  return neighborCells(target).map((cell,index)=>{
-  const before=structuredClone(base);before.stacks=[{cell,units:Array.from({length:20},(_,i)=>({id:'inspect'+i,color:'blue'}))}];
-  before.magnets=['blue','gold','lime'];before.spawnedUnits=20;
+  const before=structuredClone(base);before.stacks=[{cell,units:Array.from({length:10},(_,i)=>({id:'inspect'+i,color:'blue'}))}];
+  before.magnets=['blue','gold','lime'];before.spawnedUnits=10;
   return {before,resolution:applyV4Magnet(before,{type:'placeMagnet',color:'blue',cell:target}),index};
  });
 });
@@ -35,7 +35,7 @@ for(const f of fixture){
  }
  const clear=timeline.segments.find(s=>s.type==='unitsCleared');
  const pre=await p.evaluate(({f,time})=>window.gameDebug.inspectPresentation(f.before,f.resolution,time),{f,time:(clear.accentStart+clear.packStart)/2});
- assert(pre.renderer.counts.some(x=>x.visible&&x.count===6));
+ assert(pre.renderer.counts.some(x=>x.visible&&x.count===10));
  const packed=await p.evaluate(({f,time})=>window.gameDebug.inspectPresentation(f.before,f.resolution,time),{f,time:(clear.packStart+clear.packEnd)/2});
  assert.equal(packed.renderer.counts.some(x=>x.visible&&x.cell.col===3&&x.cell.row===3),false);
  const end=await p.evaluate(({f,time})=>window.gameDebug.inspectPresentation(f.before,f.resolution,time),{f,time:timeline.duration});
@@ -87,7 +87,7 @@ await p.mouse.move(5,5,{steps:8});await p.mouse.up();
 await p.waitForTimeout(300);assert.deepEqual((await snapshot()).state,start.state,'invalid drop must preserve RNG, queue and moves');
 assert.deepEqual(errors,[]);await p.close();
 }
-console.log('V4 visual: six directions x five frames x desktop/mobile, 20-unit identity, hidden/pre-clear badges, border reset, responsive layouts, pause/reset and 20 GPU reuse cycles passed.');
+console.log('V4 visual: six directions x five frames x desktop/mobile, 10-unit identity, hidden/pre-clear badges, border reset, responsive layouts, pause/reset and 20 GPU reuse cycles passed.');
 }finally{await b.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
 

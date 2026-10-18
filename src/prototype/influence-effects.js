@@ -1,20 +1,12 @@
 import * as THREE from 'three';
 import { COLORS } from './model.js';
-import { samplePreviewParticle } from './preview-particles.js';
+import { createSourceLights, sourceLightStrength } from './source-light.js';
 import { sampleBorderWaves, BORDER_WAVE_WIDTH } from './border-preview.js';
 
-export const PARTICLES_PER_CELL = 3;
-export const PREVIEW_PARTICLE_RADIUS = .022;
-// Retained masks and small particles share the board's owner and runtime clock.
+// Retained rims and source columns share the board owner and sampled clock.
 export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,tile={width:1.1,height:1.1,offsetY:0}) {
   const group=new THREE.Group();scene.add(group);
-  const geometry=own(new THREE.CircleGeometry(PREVIEW_PARTICLE_RADIUS,8));
-  const material=own(new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,
-    opacity:.85,depthTest:false,depthWrite:false,toneMapped:false,side:THREE.DoubleSide}));
-  const particles=Array.from({length:18*PARTICLES_PER_CELL},()=>{
-    const mesh=new THREE.Mesh(geometry,material);mesh.quaternion.copy(camera.quaternion);
-    mesh.visible=false;group.add(mesh);return mesh;
-  });
+  const lights=createSourceLights(scene,camera,plane,own,anchor,cellOrder);
   const rimShape=new THREE.Shape(),rimHole=new THREE.Path();
   // Authored 471x512 tile: upper rim ends at y=459; y=460..512 is its front wall.
   // Stay outside the well (WELL_PIXELS in chip.js), inside the rounded outer lip.
@@ -50,8 +42,10 @@ export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,t
   return {
     draw(plan,timeline,time,reduced,paused){
       hide();stats={cells:[],particles:0,waves:0,arcs:[],radialWaves:[],reduced:Boolean(reduced)};
-      // All surrounding preview effects stop at placement, including activation,
-      // hex transfers and collection. The board owns the active target's border.
+      const lightPlan=timeline?.influence??plan;
+      const finish=timeline?.deactivateStart??Infinity;
+      const strength=paused?0:sourceLightStrength(time,finish,reduced);
+      lights.draw(lightPlan?.sources??[],lightPlan?.magnet?COLORS[lightPlan.magnet.color].hex:null,strength);
       if(paused||timeline||!plan?.rings){previewKey=null;return;}
       const changed=previewKey!==plan.key||time<previewStart;
       if(changed){previewKey=plan.key;previewStart=time;}
@@ -69,23 +63,9 @@ export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,t
         mesh.renderOrder=cellOrder(cell)+1;
         stats.cells.push({cell,ring:ring+1,color:plan.magnet.color});
       }});
-      if(reduced)return;
-      material.color.set(COLORS[plan.magnet.color].hex);
-      const cells=plan.particleCells;
-      for(let c=0;c<cells.length;c++){
-        const source=anchor(cells[c]);
-        for(let n=0;n<PARTICLES_PER_CELL;n++){
-          const mesh=particles[c*PARTICLES_PER_CELL+n];
-          const sample=samplePreviewParticle(cells[c],n,age,source,target);
-          mesh.visible=true;mesh.position.copy(sample.position);
-          mesh.scale.setScalar(sample.size*(.55+.45*Math.sin(Math.PI*sample.progress)));
-          mesh.renderOrder=Math.max(cellOrder(cells[c]),cellOrder(plan.magnet.cell))+120;
-          stats.particles++;stats.arcs.push({cell:cells[c],color:plan.magnet.color,...sample,
-            from:{x:source.x,y:source.y,z:source.z},to:{x:target.x,y:target.y,z:target.z}});
-        }
-      }
+
     },
-    reset(){hide();previewKey=null;stats={cells:[],particles:0,waves:0,arcs:[],radialWaves:[]};},
-    snapshot:()=>({...stats,pool:{marks:0,rims:rims.length,particles:particles.length,waves:0},particleRadius:PREVIEW_PARTICLE_RADIUS}),
+    reset(){hide();lights.reset();previewKey=null;stats={cells:[],particles:0,waves:0,arcs:[],radialWaves:[]};},
+    snapshot:()=>({...stats,lights:lights.snapshot(),pool:{marks:0,rims:rims.length,particles:0,waves:0}}),
   };
 }

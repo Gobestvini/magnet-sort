@@ -20,18 +20,6 @@ export function createCollectionView() {
     node.style.display = '';
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
   }
-  function sparkle(layer, x, y, size, color, opacity) {
-    mark(layer, 'path', { d: `M${x} ${y-size}L${x+size*.3} ${y-size*.3}L${x+size} ${y}L${x+size*.3} ${y+size*.3}L${x} ${y+size}L${x-size*.3} ${y+size*.3}L${x-size} ${y}L${x-size*.3} ${y-size*.3}Z`, fill: color, stroke: 'none', opacity });
-  }
-  function burst(layer, origin, age, color, radius) {
-    const p = age / .36, opacity = (1 - p) ** 2;
-    for (let i = 0; i < 12; i++) {
-      const angle = i * Math.PI / 6 + .2, spread = radius * (.22 + p * (.8 + i % 3 * .16));
-      const x = origin.x + Math.cos(angle) * spread, y = origin.y + Math.sin(angle) * spread * .65 + p * p * 9;
-      if (i % 3 === 0) sparkle(layer, x, y, (1 - p) * 4 + .5, '#fff7cb', opacity);
-      else mark(layer, 'circle', { cx: x, cy: y, r: (1 - p) * 2 + .4, fill: i % 2 ? color : '#fff7cb', opacity });
-    }
-  }
   function clear() {
     for (const image of images.values()) image.remove();
     images.clear();
@@ -48,13 +36,6 @@ export function createCollectionView() {
       const edgeInset = Math.min(rect.height/2,rect.width/2);
       const end = { x: rect.left + edgeInset + (rect.width-2*edgeInset)*Math.max(0,Math.min(1,progress)), y: rect.top + rect.height / 2 };
       used = { path: 0, circle: 0 };
-      if (!reduced) {
-        for (const b of frame.bursts) {
-          const at = board.chipScreenPosition(b.cell, 0, 1);
-          burst(layer, at, b.age, glowColors[b.color], at.width * .65);
-        }
-        if (age >= 0 && age < .36) burst(layer, end, age, '#ffe49b', 19);
-      }
       const active = new Set();
       for (const unit of frame.units.filter(unit => unit.collecting && !reduced)) {
         active.add(unit.id);
@@ -82,10 +63,6 @@ export function createCollectionView() {
         mark(layer, 'path', { d: tail.map((at, i) => `${i ? 'L' : 'M'}${at.x} ${at.y}`).join(''), fill: 'none', stroke: color, 'stroke-width': 9, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: opacity * .13 });
         for (let i = 1; i < tail.length; i++) {
           mark(layer, 'path', { d: `M${tail[i-1].x} ${tail[i-1].y}L${tail[i].x} ${tail[i].y}`, fill: 'none', stroke: i > 6 ? '#fff6df' : color, 'stroke-width': .5 + i * .32, 'stroke-linecap': 'round', opacity: opacity * i / 12 });
-        }
-        for (let i = 0; i < 2; i++) {
-          const at = position(Math.max(0, p - .09 - i * .075));
-          sparkle(layer, at.x + Math.sin(p * 14 + unit.index + i * 3) * 7, at.y + Math.cos(p * 11 + i) * 5, 2 + i, '#fff7cb', opacity * .65);
         }
         // Match the small individual wafer at handoff, then regain the previous
         // flight size smoothly; the trajectory and trail remain unchanged.

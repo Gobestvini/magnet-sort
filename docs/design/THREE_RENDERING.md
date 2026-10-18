@@ -1,6 +1,12 @@
 # Three.js rendering contract — GDD v0.3
 
-## Активные уточнения v4 — 2026-10-12
+## Активное уточнение 2026-10-18
+
+source-light.js — board-owned пул 18 вертикальных плоскостей с одним ShaderMaterial; общий plane, цвет из плана, мягкие боковые края и прозрачный верх. Яркость sample time удерживается до timeline.deactivateStart, fade 550мс/reduced80мс; deactivation продлена до fade. Нет отдельного RAF, model RNG или новых ресурсов на кадре. Столбы anchored в центре source ячейки, painter order перед её фишками/цифрами; snapshot.influence.lights доступен в dev. sources берутся из resolution.influence и сохраняются после опустошения клетки. Pause/hidden замораживают clock; reset/invalid очищают пул, ресурсы освобождает board.
+
+influence-effects.js сохраняет маски бортиков 6/18 в зависимости от magnetRadii и заменяет пул частиц столбами. App/runtime показывают SVG-значок радиуса в tray/drag/hover; BASE_URL поддерживает Pages subpath. Collection сохраняет реальные летящие ID и continuous trail, но убирает bursts/sparkles; VictoryParticles не монтируется. Очистка/предварительная цифра теперь 10. Макет docs/design/magnet-range-light использует тот же шейдер. [Подтверждения](../reports/TEN_RANGE_LIGHT.md).
+
+## Исторические уточнения v4 — 2026-10-12
 
 Предпросмотр 2026-10-16, уточнение после TASK-0058: восстановлен исходный shader сходящихся волн через 18 масок только верхних бортиков PNG, включая занятые/X клетки геометрических колец. Координаты маски и параметры 2.4s/3.4/.16 прежние. Дополнительно по 3 частицы radius .022 из каждой обычной клетки (до 54); preview-particles.js задаёт разные фазы, duration 1.05–1.85s, высоту .75–1.55 и боковой изгиб до .35, меняя дуги по проходам без model RNG. Всё обновляется одним runtime RAF. Любая рабочая timeline сразу скрывает preview-частицы и соседние маски; reduced оставляет статичный цвет бортиков .45 без частиц. Target magnetic tile сохранён.
 

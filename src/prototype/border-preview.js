@@ -1,12 +1,14 @@
 import {hexDistance,cellId} from '../game/hex.js';
 import {canPlaceMagnet} from './model.js';
+import {previewMagnetInfluence} from './magnet-influence.js';
+import {magnetRadius} from './magnet-radius.js';
 
 export function previewBorderRings(state,cell,color){
   if(!cell||state.terminal||!state.magnets.includes(color)||!canPlaceMagnet(state,cell))return null;
-  const rings=[[],[]];
-  const blocked=new Set(state.blockers.map(cellId));
-  for(const candidate of state.cells){const distance=hexDistance(cell,candidate);if(distance===1||distance===2)rings[distance-1].push({...candidate});}
-  return {magnet:{cell:{...cell},color},rings,particleCells:rings.flat().filter(c=>!blocked.has(cellId(c))),key:cellId(cell)+':'+color};
+  const radius=magnetRadius(state,color),rings=Array.from({length:radius},()=>[]);
+  for(const candidate of state.cells){const distance=hexDistance(cell,candidate);if(distance>=1&&distance<=radius)rings[distance-1].push({...candidate});}
+  const plan=previewMagnetInfluence(state,cell,color);
+  return {...plan,rings,key:cellId(cell)+':'+color+':'+radius};
 }
 export const BORDER_WAVE_DURATION = 2.4;
 export const BORDER_WAVE_REACH = 3.4;

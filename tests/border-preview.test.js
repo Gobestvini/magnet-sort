@@ -7,16 +7,16 @@ import {samplePreviewParticle} from '../src/prototype/preview-particles.js';
 import {hexDistance,cellId} from '../src/game/hex.js';
 const cells=Array.from({length:49},(_,i)=>({col:i%7,row:Math.floor(i/7)}));
 const state={cells,blockers:[{col:3,row:2}],stacks:[{cell:{col:4,row:3},units:[{color:'pink'}]}],magnets:['blue'],terminal:null,rng:42};
-test('rim rings include occupied/X cells; particles use only ordinary cells; preview is pure and legal',()=>{
- for(const center of [{col:3,row:3},{col:3,row:4},{col:0,row:0}]){
-  const before=structuredClone(state),plan=previewBorderRings(state,center,'blue');assert.deepEqual(state,before);
+test('preview rings respect type, sources only include matching exposed tops, and preview is pure',()=>{
+ for(const radius of [1,2])for(const center of [{col:3,row:3},{col:3,row:4},{col:0,row:0}]){
+  const s={...state,clearSize:10,cleared:0,magnetRadii:{blue:radius}},before=structuredClone(s),plan=previewBorderRings(s,center,'blue');
+  assert.deepEqual(s,before);assert.equal(plan.rings.length,radius);
   plan.rings.forEach((ring,index)=>assert.deepEqual(ring.map(cellId),cells.filter(c=>hexDistance(center,c)===index+1).map(cellId)));
-  assert.ok(plan.particleCells.every(c=>!state.blockers.some(b=>cellId(b)===cellId(c))));
-  assert.equal(plan.rings.flat().some(c=>cellId(c)===cellId(center)),false);
-  if(center.row===3){assert.equal(plan.rings.flat().length,18);assert.equal(plan.particleCells.length,17);}
+  assert.deepEqual(plan.sources,[]);assert.equal(plan.rings.flat().some(c=>cellId(c)===cellId(center)),false);
  }
  for(const [cell,color]of [[{col:3,row:2},'blue'],[{col:4,row:3},'blue'],[{col:3,row:3},'gold'],[{col:9,row:9},'blue']])assert.equal(previewBorderRings(state,cell,color),null);
 });
+
 test('masked inward waves keep the original speed at 30/60/120/144 FPS and reduced is static',()=>{
  for(const fps of [30,60,120,144]){
   let previous=sampleBorderWaves(.1);
@@ -41,35 +41,28 @@ test('preview particles vary speed, height, bend and later passes without consum
  const later=samplePreviewParticle(cell,0,.5+first.duration,from,to);
  assert.notEqual(samples[0].height,later.height);assert.notEqual(samples[0].bend,later.bend);
 });
-test('retained masks and small particles coexist only in preview, reduced keeps masks, any timeline hides particles',()=>{
+test('source columns persist through processing, fade smoothly, reset and allocate a bounded pool',()=>{
  const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(),owned=[];
  const own=r=>{owned.push(r);return r;},anchor=c=>new THREE.Vector3(c.col,.1,c.row),plane=new THREE.PlaneGeometry();
  const effects=createInfluenceEffects(scene,camera,plane,own,anchor,c=>c.row*1000);
- const s={...state,blockers:[],stacks:[]},plan=previewBorderRings(s,{col:3,row:3},'blue');
- effects.draw(plan,null,0,false,false);effects.draw(plan,null,.5,false,false);
- let view=effects.snapshot();assert.equal(view.particles,54);assert.equal(view.pool.marks,0);assert.equal(view.pool.rims,18);assert.equal(view.cells.length,18);assert.equal(view.radialWaves.length,3);assert.ok(view.particleRadius<.03);
- const counts=new Map();
- for(const arc of view.arcs){
-  counts.set(cellId(arc.cell),(counts.get(cellId(arc.cell))??0)+1);
-  assert.deepEqual(arc,sampleArc(arc,anchor,plan,.5));
- }
- function sampleArc(arc,anchor,plan,age){
-  const index=(counts.get(cellId(arc.cell))??1)-1;
-  return {cell:arc.cell,color:'blue',...samplePreviewParticle(arc.cell,index,age,anchor(arc.cell),anchor(plan.magnet.cell)),from:arc.from,to:arc.to};
- }
- assert.equal(counts.size,18);assert.ok([...counts.values()].every(n=>n===3));
+ const source={col:4,row:3},s={...state,clearSize:10,cleared:0,blockers:[],stacks:[{cell:source,units:[{id:'blue1',color:'blue'}]}]},plan=previewBorderRings(s,{col:3,row:3},'blue');
+ effects.draw(plan,null,.5,false,false);let view=effects.snapshot();
+ assert.equal(view.particles,0);assert.equal(view.pool.particles,0);assert.equal(view.pool.rims,18);assert.equal(view.cells.length,18);
+ assert.deepEqual(view.lights.cells,[source]);assert.equal(view.lights.pool,18);assert.equal(view.lights.strength,1);
  const resources=owned.length;
  for(let i=0;i<20;i++){effects.reset();effects.draw(plan,null,i,false,false);}
  assert.equal(owned.length,resources);
- effects.draw(plan,null,1,true,false);view=effects.snapshot();
- assert.equal(view.particles,0);assert.equal(view.cells.length,18);assert.deepEqual(view.radialWaves,[]);
- for(const time of [0,.3,.7,3,9]){
-  effects.draw(plan,{magnet:plan.magnet,influence:{sources:plan.particleCells},deactivateEnd:10},time,false,false);
-  assert.equal(effects.snapshot().particles,0);assert.deepEqual(effects.snapshot().cells,[]);
-  assert.ok(scene.children[0].children.every(m=>!m.visible));
+ const timeline={influence:plan,deactivateStart:3};
+ for(const time of [0,.3,.7,2.9,3]){
+  effects.draw(null,timeline,time,false,false);assert.equal(effects.snapshot().particles,0);
+  assert.deepEqual(effects.snapshot().lights.cells,[source]);assert.equal(effects.snapshot().lights.strength,1);
  }
- effects.draw(plan,null,1,false,true);assert.equal(effects.snapshot().particles,0);assert.deepEqual(effects.snapshot().cells,[]);
- effects.draw(null,null,2,false,false);assert.equal(effects.snapshot().particles,0);
- effects.reset();assert.equal(effects.snapshot().particles,0);
+ effects.draw(null,timeline,3.275,false,false);assert.ok(Math.abs(effects.snapshot().lights.strength-.5)<1e-8);
+ effects.draw(null,timeline,3.55,false,false);assert.deepEqual(effects.snapshot().lights.cells,[]);
+ effects.draw(plan,null,1,true,false);assert.equal(effects.snapshot().particles,0);assert.deepEqual(effects.snapshot().lights.cells,[source]);assert.deepEqual(effects.snapshot().radialWaves,[]);
+ effects.draw(null,timeline,3.08,true,false);assert.deepEqual(effects.snapshot().lights.cells,[]);
+ effects.draw(plan,null,1,false,true);assert.deepEqual(effects.snapshot().lights.cells,[]);
+ effects.draw(null,null,2,false,false);assert.deepEqual(effects.snapshot().lights.cells,[]);
+ effects.reset();assert.equal(effects.snapshot().lights.strength,0);
  owned.forEach(r=>r.dispose());plane.dispose();
 });

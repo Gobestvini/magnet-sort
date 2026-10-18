@@ -1,17 +1,18 @@
 import * as THREE from 'three';
 import { COLORS } from './model.js';
+import { rangeArt } from './magnet-radius.js';
 
 // Runtime URLs must share Vite's deployment base (including GitHub Pages subpaths).
 export const art = name => `${import.meta.env.BASE_URL}art/mockup/${name}.png`;
 export const boardAssets = ['tile', 'tile-blocked', ...Object.keys(COLORS).flatMap(color => [`chip-${color}`, `magnet-${color}`, `tile-magnetic-${color}`])];
-const uiAssets = ['defeat-panel', 'defeat-illustration', 'moves-star', 'background-v2', 'background-grid-mask-v2', 'victory-panel-v2', 'logo-exact', 'panel', 'modal', 'button-purple', 'button-green', 'button-light',
+const uiAssets = ['range-1','range-2','defeat-panel', 'defeat-illustration', 'moves-star', 'background-v2', 'background-grid-mask-v2', 'victory-panel-v2', 'logo-exact', 'panel', 'modal', 'button-purple', 'button-green', 'button-light',
   'tool-neutral-frame', 'tool-selected-frame', 'pause', 'close', 'hint', 'restart', 'progress-empty', 'progress-full',
   'switch-off', 'switch-thumb', 'loading-track', 'loading-fill', 'tutorial-arrow',
   'victory-star-v2', 'confetti-violet', 'confetti-yellow', 'confetti-blue', 'tutorial-hand'];
 
 function decodeArtwork(name) {
   const image = new Image();
-  image.src = art(name);
+  image.src = name.startsWith('range-') ? rangeArt(Number(name.at(-1))) : art(name);
   return image.decode();
 }
 

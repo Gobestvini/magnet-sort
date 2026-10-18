@@ -3,7 +3,7 @@ import { useEffect, useRef, useLayoutEffect } from 'preact/hooks';
 import { COLORS, remainingUnits } from './model.js';
 import { art } from './assets.js';
 import { IdleBackdrop } from './IdleBackdrop.js';
-import { VictoryParticles } from './VictoryParticles.js';
+import { magnetRadius, rangeArt } from './magnet-radius.js';
 import { potentialStars } from './model-v4.js';
 
 export function MagnetIcon({ color = 'violet' }) {
@@ -31,9 +31,9 @@ function MagnetTray({state, selected, locked, reduced, onSelect, onToolDown}) {
   return h('div',{className:'magnet-tray cream-panel',ref},state.magnets.map(color=>h('button',{
     key:color,type:'button',className:'magnet-tool '+(selected===color?'is-selected':''),
     style:{'--magnet-color':COLORS[color].hex},disabled:locked,'data-magnet-color':color,
-    'aria-label':COLORS[color].label+' magnet','aria-pressed':selected===color,
+    'aria-label':COLORS[color].label+' magnet, '+magnetRadius(state,color)+' hex '+(magnetRadius(state,color)===1?'ring':'rings'),'aria-pressed':selected===color,
     onClick:()=>onSelect(color),onPointerDown:event=>onToolDown(event,color)
-  },h(MagnetIcon,{color}))));
+  },h(MagnetIcon,{color}),h('span',{className:'magnet-range','aria-hidden':'true'},h('img',{src:rangeArt(magnetRadius(state,color)),alt:''})))));
 }
 
 function Modal({ children, label, onClose, variant = '', reduced = false }) {
@@ -58,7 +58,7 @@ function Modal({ children, label, onClose, variant = '', reduced = false }) {
 }
 
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
+  reduced, runId, canvasRef, hostRef, dragRef, rangeRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
   const tutorial = levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
@@ -67,9 +67,9 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
   const goal=state.goal??state.initialUnits;
   const progress = Math.min(100,state.cleared / goal * 100);
   return h('main', { className: 'prototype-shell' },
-    result && state.terminal === 'won' && h(VictoryParticles,{key:runId,seed:runId,reduced,active:!paused&&!error&&!loading}),
     h(IdleBackdrop, { active: phase === 'playing' && !paused && !loading && !error && !reduced }),
     h('div', { className: 'collection-layer', ref: collectionRef, 'aria-hidden': 'true' }),
+    h('img', {className:'floating-range',ref:rangeRef,hidden:true,alt:'','aria-hidden':'true'}),
     h('img', { className: 'drag-magnet', ref: dragRef, hidden: true, alt: '', 'aria-hidden': 'true', draggable: false }),
     h('div', { className: 'game-view' + (tutorial ? ' show-tutorial' : ''), inert: Boolean(overlay) },
       h('header', { className: 'topbar' },
@@ -97,7 +97,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
         h(MagnetTray,{state,selected,locked,reduced,onSelect,onToolDown}),
         h('div', { className: 'action-row' },
           h('button', { className: 'secondary-button', onClick: onReset, 'aria-label': 'Restart' }, h('img', { className: 'restart-icon', src: art('restart'), alt: '' }), ' Restart')),
-        h('p', { className: 'sr-only' }, 'Collect the goal using up to three magnets matching exposed stack colors. Magnets attract through the two nearest hex rings. Pieces move between neighboring tiles; crosses block paths.'))),
+        h('p', { className: 'sr-only' }, 'Collect the goal using up to three magnets matching exposed stack colors. The badge shows one or two hex rings. Magnets pull exposed matching colors directly, including over crosses. Every ten pieces go to the progress bar.'))),
     loading && h('div', { className: 'loading-screen' },
       h('div', { className: 'loading-frame' }, h('img', { className: 'loading-logo', src: art('logo-exact'), alt: 'Magnet Sort' }),
         h('div', { className: 'loading-magnets', 'aria-hidden': 'true' }, ['blue', 'violet', 'coral'].map(color => h(MagnetIcon, { color }))),

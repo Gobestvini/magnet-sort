@@ -6,20 +6,19 @@ import {createV4State,applyV4Magnet} from '../src/prototype/model-v4.js';
 import {remainingUnits} from '../src/prototype/model.js';
 import {makeTransferTimeline,sampleTransferTimeline} from '../src/prototype/motion.js';
 const stack=(cell,colors)=>({cell,units:colors.map((color,i)=>({id:cellId(cell)+'-'+i,color}))});
-const base=(stacks=[],blockers=[])=>({rulesVersion:4,cells:Array.from({length:49},(_,i)=>({col:i%7,row:Math.floor(i/7)})),blockers,stacks,magnets:['blue','gold','pink'],clearSize:6,cleared:0});
+const base=(stacks=[],blockers=[])=>({rulesVersion:4,cells:Array.from({length:49},(_,i)=>({col:i%7,row:Math.floor(i/7)})),blockers,stacks,magnets:['blue','gold','pink'],clearSize:10,cleared:0});
 
 test('every position in both rings flies directly once per ID, even/odd rows and clipped edges',()=>{
  for(const target of [{col:3,row:2},{col:3,row:3},{col:0,row:0},{col:6,row:6}]){
   const cells=base().cells.filter(c=>[1,2].includes(hexDistance(target,c)));
   if(target.col===3)assert.equal(cells.length,18);
   for(const cell of cells){
-   const s=base([stack(cell,Array(13).fill('blue'))]),before=structuredClone(s);
+   const s=base([stack(cell,Array(10).fill('blue'))]),before=structuredClone(s);
    const r=resolveMagnetInfluence(s,{cell:target,color:'blue'});
-   assert.deepEqual(s,before);assert.equal(r.state.cleared,12);assert.equal(remainingUnits(r.state),1);
-   assert.equal(cellId(r.state.stacks[0].cell),cellId(target));
+   assert.deepEqual(s,before);assert.equal(r.state.cleared,10);assert.equal(remainingUnits(r.state),0);
    const moves=r.events.filter(e=>e.type==='unitMoved');
-   assert.equal(moves.length,13);assert.equal(new Set(moves.map(e=>e.unit.id)).size,13);
-   moves.forEach((e,i)=>{assert.deepEqual(e.from,cell);assert.deepEqual(e.to,target);assert.equal(e.fromIndex,12-i);});
+   assert.equal(moves.length,10);assert.equal(new Set(moves.map(e=>e.unit.id)).size,10);
+   moves.forEach((e,i)=>{assert.deepEqual(e.from,cell);assert.deepEqual(e.to,target);assert.equal(e.fromIndex,9-i);});
    assert.deepEqual(r.paths,[[cell,target]]);assert.deepEqual(r.affectedCells,[cell]);
    const timeline=makeTransferTimeline(s,r);
    for(const move of timeline.segments.filter(e=>e.type==='unitMoved')){
@@ -27,7 +26,7 @@ test('every position in both rings flies directly once per ID, even/odd rows and
     assert.equal(new Set(frame.units.map(u=>u.id)).size,frame.units.length);
     const unit=frame.units.find(u=>u.id===move.unit.id);assert.deepEqual(unit.from,cell);assert.deepEqual(unit.to,target);
    }
-   assert.equal(sampleTransferTimeline(timeline,timeline.duration).collected,12);
+   assert.equal(sampleTransferTimeline(timeline,timeline.duration).collected,10);
   }
  }
 });
@@ -58,11 +57,11 @@ test('only exposed matching tops inside radius two participate; no hidden colors
 test('multiple sources clear shared groups without duplicate IDs, and preview matches actual plan without RNG',()=>{
  const s=createV4State({id:'test',number:1,blockers:[{col:1,row:1}]},12),target={col:3,row:3};
  s.stacks=[stack({col:3,row:2},['pink',...Array(4).fill('blue')]),stack({col:5,row:3},Array(9).fill('blue'))];
- s.magnets=['blue','gold','pink'];s.spawnedUnits=remainingUnits(s);
+ s.magnets=['blue','gold','pink'];s.magnetRadii={blue:2,gold:2,pink:2};s.spawnedUnits=remainingUnits(s);
  const before=structuredClone(s),plan=previewMagnetInfluence(s,target,'blue');assert.deepEqual(s,before);
  const r=applyV4Magnet(s,{type:'placeMagnet',cell:target,color:'blue'});
  assert.deepEqual(r.influence,plan);assert.deepEqual(s,before);
- assert.equal(r.state.cleared,12);assert.equal(r.state.spawnedUnits,remainingUnits(r.state)+r.state.cleared);
+ assert.equal(r.state.cleared,10);assert.equal(r.state.spawnedUnits,remainingUnits(r.state)+r.state.cleared);
  const moves=r.events.filter(e=>e.type==='unitMoved');assert.equal(moves.length,13);
  assert.equal(new Set(moves.map(e=>e.unit.id)).size,13);
  assert.equal(previewMagnetInfluence({...s,terminal:'won'},target,'blue'),null);

@@ -1,9 +1,11 @@
+import { SOURCE_LIGHT_FADE } from './source-light.js';
 // Tuned for the attached video's rapid, staggered neighbour-to-neighbour flip.
 // These values are our animation profile, not measured reference timings.
 export function makeTransferTimeline(before, resolution, reduced = false) {
   const flight = reduced ? .09 : .28;
   const stagger = reduced ? .045 : .105;
   const segments = [];
+  const deactivation = before.rulesVersion===4 ? (reduced ? .08 : SOURCE_LIGHT_FADE) : (reduced ? .04 : .24);
   const activationEnd = reduced ? .06 : .30;
   let cursor = activationEnd;
   let deactivateStart = null, deactivateEnd = null;
@@ -40,19 +42,19 @@ export function makeTransferTimeline(before, resolution, reduced = false) {
       groupEnd = cursor;
     } else if (event.type === 'stackSpawned') {
       cursor = Math.max(cursor, groupEnd);
-      if(deactivateStart===null){deactivateStart=cursor;deactivateEnd=cursor+(reduced?.04:.24);cursor=deactivateEnd;}
+      if(deactivateStart===null){deactivateStart=cursor;deactivateEnd=cursor+deactivation;cursor=deactivateEnd;}
       segments.push({ ...event, start: cursor, end: cursor + (reduced ? .04 : .18) });
       cursor = segments.at(-1).end; groupEnd = cursor;
     } else if (event.type === 'magnetsChanged') {
       cursor = Math.max(cursor, groupEnd);
-      if(deactivateStart===null){deactivateStart=cursor;deactivateEnd=cursor+(reduced?.04:.24);cursor=deactivateEnd;}
+      if(deactivateStart===null){deactivateStart=cursor;deactivateEnd=cursor+deactivation;cursor=deactivateEnd;}
       segments.push({ ...event, start: cursor, end: cursor + (reduced ? .04 : .24) });
       cursor = segments.at(-1).end; groupEnd = cursor;
     } else {
       throw new Error('Unknown presentation event: ' + event.type);
     }
   }
-  if(deactivateStart===null){deactivateStart=Math.max(cursor,groupEnd);deactivateEnd=deactivateStart+(reduced?.04:.24);cursor=deactivateEnd;}
+  if(deactivateStart===null){deactivateStart=Math.max(cursor,groupEnd);deactivateEnd=deactivateStart+deactivation;cursor=deactivateEnd;}
   const groups=new Map();
   for(const s of segments.filter(s=>s.type==='unitMoved')){
     if(!groups.has(s.batch))groups.set(s.batch,{start:s.start,end:s.end,cells:new Set()});

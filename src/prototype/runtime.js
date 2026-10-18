@@ -6,6 +6,7 @@ import { canPlaceMagnet } from './model.js';
 import { createV4State, applyV4Magnet, V4_CELLS } from './model-v4.js';
 import { previewMagnetInfluence } from './magnet-influence.js';
 import { previewBorderRings } from './border-preview.js';
+import { magnetRadius, rangeArt } from './magnet-radius.js';
 import { v4Levels as prototypeLevels } from './levels-v4.js';
 import { makeTransferTimeline } from './motion.js';
 import { createThreeBoard } from './board.js';
@@ -40,7 +41,8 @@ let hover = null, keyboardCell = null, gesture = null, raf = null, previous = nu
 const canvasRef = node => { canvas = node; };
 const hostRef = node => { host = node; };
 const cleanups = [];
-let drag = null, dragNode = null;
+let drag = null, dragNode = null, rangeNode=null;
+const rangeRef=node=>{rangeNode=node;};
 const dragRef = node => { dragNode = node; };
 let boardGeneration = 0, loading = true, loadingProgress = 0;
 function listen(target, name, handler, options) {
@@ -54,8 +56,8 @@ function ui() {
   const rect = host?.getBoundingClientRect();
   const magnets = timeline && elapsed < timeline.queueStart ? timeline.before.magnets : state.magnets;
   const queueTurn=timeline && elapsed < timeline.queueStart ? timeline.before.turn : state.turn;
-  render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, magnets, queueTurn, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
-    canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
+  render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, magnetRadii:timeline&&elapsed<timeline.queueStart?timeline.before.magnetRadii:state.magnetRadii, magnets, queueTurn, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
+    canvasRef, hostRef, dragRef, rangeRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
     tutorialTarget: target && rect ? { x: target.x - rect.left, y: target.y - rect.top } : null,
     onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!paused), onReset: reset,
     onNext: () => loadLevel((levelIndex + 1) % prototypeLevels.length), onHint: hint,
@@ -79,6 +81,18 @@ function draw(alpha = 1) {
     hideMagnet: Boolean(drag), dragging: Boolean(drag && !drag.released), reduced,
     influence: influenceCache.plan,
     hint: null });
+  if(rangeNode){
+    const visible=!paused&&!timeline&&(drag||influenceCache.plan);
+    rangeNode.hidden=!visible;
+    if(visible){
+      const color=drag?.color??selected,radius=magnetRadius(state,color);
+      const at=drag?{x:drag.previousX+(drag.x-drag.previousX)*alpha,y:drag.previousY+(drag.y-drag.previousY)*alpha}:board.magnetScreenPosition(previewCell);
+      const size=drag?drag.previousSize+(drag.size-drag.previousSize)*alpha:board.magnetScreenSize();
+      const badgeSource=rangeArt(radius);if(rangeNode.getAttribute('src')!==badgeSource)rangeNode.setAttribute('src',badgeSource);
+      rangeNode.style.width=Math.max(24,Math.min(42,size*.52))+'px';
+      rangeNode.style.transform=`translate(${at.x+size*.14}px,${at.y+size*.12}px)`;
+    }
+  }
   const cleared = frame?.collected ?? state.cleared;
   if (cleared !== displayedCleared) { displayedCleared = cleared; ui(); }
   const magnets = timeline && time < timeline.queueStart ? timeline.before.magnets : state.magnets;

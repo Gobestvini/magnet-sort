@@ -1,16 +1,25 @@
 import { cellId, hexDistance } from '../game/hex.js';
 import { canPlaceMagnet, topColor } from './model.js';
 
+import { magnetRadius } from './magnet-radius.js';
+
 const compare=(a,b)=>a.row-b.row||a.col-b.col;
 // Pure dry resolve shared by the preview and active v4 rules. No random draws.
 export function resolveMagnetInfluence(state, action) {
   if (!canPlaceMagnet(state, action.cell)) return null;
   const next={...state,stacks:state.stacks.map(s=>({cell:{...s.cell},units:s.units.map(u=>({...u}))}))}, target=action.cell;
+  const radius=magnetRadius(state,action.color);
   const blocked=new Set(state.blockers.map(cellId));
-  const ringCells=state.cells.filter(c=>!blocked.has(cellId(c))&&hexDistance(target,c)>=1&&hexDistance(target,c)<=2)
+  const ringCells=state.cells.filter(c=>!blocked.has(cellId(c))&&hexDistance(target,c)>=1&&hexDistance(target,c)<=radius)
     .sort((a,b)=>hexDistance(target,a)-hexDistance(target,b)||compare(a,b));
   const events=[],sources=[],paths=[];let batch=0;
-  const stackMap=new Map(next.stacks.map(s=>[cellId(s.cell),s]));
+  // Recover impossible imported/debug states before any transfer. Every ID is
+  // presented by the same collection pipeline, including mixed-color overflow.
+  for(const stack of next.stacks)if(stack.units.length>10){
+    const units=stack.units.splice(0);next.cleared+=units.length;
+    events.push({type:'unitsCleared',batch:++batch,cell:{...stack.cell},units});
+  }
+  const stackMap=new Map(next.stacks.filter(s=>s.units.length).map(s=>[cellId(s.cell),s]));
   const stackAt=cell=>stackMap.get(cellId(cell));
   for(const cell of ringCells){
     const s=stackAt(cell);if(!s||topColor(s)!==action.color)continue;
@@ -24,7 +33,7 @@ export function resolveMagnetInfluence(state, action) {
       const fromIndex=s.units.length-1,unit=s.units.pop(),toIndex=destination.units.length;
       destination.units.push(unit);
       events.push({type:'unitMoved',batch,unit:{...unit},from:{...s.cell},to:{...to},fromIndex,toIndex});
-      if(destination.units.length===next.clearSize){
+      if(destination.units.length>=next.clearSize){
         const units=destination.units.splice(0);next.cleared+=units.length;
         events.push({type:'unitsCleared',batch,cell:{...to},units});batch++;
       }
@@ -34,7 +43,7 @@ export function resolveMagnetInfluence(state, action) {
   }
   next.stacks=next.stacks.filter(s=>s.units.length);
   next.stacks.sort((a,b)=>a.cell.row-b.cell.row||a.cell.col-b.cell.col);
-  return {state:next,events,magnet:{cell:{...target},color:action.color},sources,paths,affectedCells:sources.map(c=>({...c}))};
+  return {state:next,events,magnet:{cell:{...target},color:action.color,radius},sources,paths,affectedCells:sources.map(c=>({...c}))};
 }
 
 export function previewMagnetInfluence(state, cell, color) {

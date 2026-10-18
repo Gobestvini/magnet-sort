@@ -12,7 +12,7 @@ test('v4 seeded initialization and LCG are exact, reproducible, zero seed is val
  const a=createV4State(level,0);assert.deepEqual(a,createV4State(level,0));assert.notDeepEqual(a,createV4State(level,1));
  assert.equal(a.stacks.length,5);assert.equal(a.goal,50);assert.equal(a.movesUsed,0);assert.ok(a.magnets.length>=1&&a.magnets.length<=3);assertMass(a);
  assert.deepEqual(new Set(a.stacks.map(s=>new Set(s.units.map(u=>u.color)).size)),new Set([1,2]));
- for(const s of a.stacks){assert.ok([6,12].includes(s.units.length));assert.notEqual(cellId(s.cell),'r1c1');}
+ for(const s of a.stacks){assert.ok([6,10].includes(s.units.length));assert.notEqual(cellId(s.cell),'r1c1');}
  assert.throws(()=>createV4State(level,-1));assert.throws(()=>createV4State(level,2**32));
 });
 test('invalid placement returns original state without draws, steps or queue consumption',()=>{
@@ -33,13 +33,13 @@ test('spawn fills the last places and never occupies blockers or stacks',()=>{
  assert.equal(spawnStacks(s,3).length,2);assert.equal(s.cells.filter(c=>canPlaceMagnet(s,c)).length,0);
  const rng=s.rng;assert.deepEqual(spawnStacks(s,2),[]);assert.equal(s.rng,rng);assertMass(s);
 });
-test('winning 48+6 overshoots goal without spawn/refill, empty field below goal continues',()=>{
- const s=createV4State(level,10);s.magnets=['violet','blue','coral'];s.cleared=48;s.spawnedUnits=54;
- s.stacks=[{cell:{col:3,row:2},units:Array.from({length:6},(_,i)=>({id:'clear'+i,color:'violet'}))}];
+test('winning 48+10 overshoots goal without spawn/refill, empty field below goal continues',()=>{
+ const s=createV4State(level,10);s.magnets=['violet','blue','coral'];s.cleared=48;s.spawnedUnits=58;
+ s.stacks=[{cell:{col:3,row:2},units:Array.from({length:10},(_,i)=>({id:'clear'+i,color:'violet'}))}];
  const r=applyV4Magnet(s,action('violet',{col:3,row:3}));
- assert.equal(r.state.cleared,54);assert.equal(r.state.terminal,'won');assert.equal(r.state.rng,s.rng);assert.equal(r.state.magnets.length,2);assert.equal(r.events.some(e=>e.type==='stackSpawned'),false);assertMass(r.state);
- const below={...s,cleared:0,spawnedUnits:6};const next=applyV4Magnet(below,action('violet',{col:3,row:3}));
- assert.equal(next.state.terminal,null);assert.equal(next.state.stacks.length,1);assert.equal(next.state.cleared,6);assertMass(next.state);
+ assert.equal(r.state.cleared,58);assert.equal(r.state.terminal,'won');assert.equal(r.state.rng,s.rng);assert.equal(r.state.magnets.length,2);assert.equal(r.events.some(e=>e.type==='stackSpawned'),false);assertMass(r.state);
+ const below={...s,cleared:0,spawnedUnits:10};const next=applyV4Magnet(below,action('violet',{col:3,row:3}));
+ assert.equal(next.state.terminal,null);assert.equal(next.state.stacks.length,1);assert.equal(next.state.cleared,10);assertMass(next.state);
  assert.equal(applyV4Magnet(r.state,action('blue',{col:2,row:3})).reason,'terminal');
 });
 test('queue retains exposed colors in order, is unique, and permits used color again',()=>{
