@@ -7,6 +7,8 @@ fs.mkdirSync(output, {recursive:true});
 const close = (a,b,label) => assert.ok(Math.abs(a-b) < 1.5, `${label}: ${a} / ${b}`);
 async function geometry(page) {
   await page.waitForSelector('.tutorial-route-line');
+  // Button press/release changes its transform without changing layout size.
+  await page.locator('.magnet-tool').evaluateAll(nodes => Promise.all(nodes.flatMap(node => node.getAnimations()).map(animation => animation.finished.catch(() => {}))));
   await page.waitForFunction(() => {
     const guide=document.querySelector('.tutorial-guide'), route=guide?.querySelector('.tutorial-route-line');
     if(!route)return false;
