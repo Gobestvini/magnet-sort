@@ -78,11 +78,13 @@ async function smoke(base,output='artifacts/v4-browser'){
    await keyboardPlace(page,action.cell);
    if(++turn<planned.actions.length){
     await readyTools(page);
+    assert.equal(await page.locator('.magnet-tool.is-selected, .magnet-tool[aria-pressed="true"]').count(),0,'completed move clears magnet selection');
     const triple=await page.locator('.magnet-tool').evaluateAll(nodes=>nodes.map(n=>n.dataset.magnetColor));
     assert.equal(new Set(triple).size,triple.length);assert.ok(triple.length>=1&&triple.length<=3);
    }
   }
   await page.getByRole('region',{name:'Result',exact:true}).waitFor({timeout:30000});
+  assert.equal(await page.locator('.magnet-tool[aria-pressed="true"]').count(),0,'terminal move clears magnet selection');
   assert.equal(await page.locator('.cleared-count').textContent(),String(planned.state.cleared));
   assert.equal(await page.locator('.moves-panel strong').textContent(),String(planned.actions.length));
   await page.getByLabel(planned.state.stars+' stars earned').waitFor();

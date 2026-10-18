@@ -79,7 +79,7 @@ function draw(alpha = 1) {
   }
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
   const previewCell=keyboardCell??hover;
-  const previewKey=!paused&&phase==='playing'&&previewCell?cellId(previewCell)+':'+selected:null;
+  const previewKey=!paused&&phase==='playing'&&selected&&previewCell?cellId(previewCell)+':'+selected:null;
   if(influenceCache.state!==state||influenceCache.key!==previewKey)influenceCache={state,key:previewKey,plan:previewKey?previewBorderRings(state,previewCell,selected):null};
   const frame = board?.draw(boardLevel, state, { timeline, time, hover: keyboardCell ?? hover, selected, paused,
     hideMagnet: Boolean(drag), dragging: Boolean(drag && !drag.released), reduced,
@@ -123,7 +123,7 @@ function tick(now) {
   });
   if (timeline && elapsed >= timeline.duration) {
     timeline = null; phase = state.terminal ?? 'playing';
-    if(!state.magnets.includes(selected))selected=state.magnets[0];
+    selected = null;
     notice = state.terminal === 'won' ? 'Goal reached!' : state.terminal === 'lost' ? 'No empty tiles left. Try again.' : 'Choose a magnet for the next move.';
     ui();
   }
@@ -163,7 +163,7 @@ function toolDown(event, color) {
   event.currentTarget.setPointerCapture(event.pointerId);
 }
 function boardDown(event) {
-  if (!interactive() || gesture || !event.isPrimary || event.button !== 0) return;
+  if (!interactive() || !selected || gesture || !event.isPrimary || event.button !== 0) return;
   drag = null;
   keyboardCell = null;
   gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, tool: false, element: canvas };
