@@ -28,4 +28,6 @@
 
 ## Поставка
 
-Локальная реализация и проверки завершены. После чистой проверки — commit/push main, ожидание deploy-pages.yml и published desktop/mobile smoke. Итог поставки фиксируется следующей записью после фактического результата.
+Коммит `634df91` отправлен в remote main. [Check game39109610008](https://github.com/Gobestvini/magnet-sort/actions/runs/39109610008) и [Deploy Pages39109609995](https://github.com/Gobestvini/magnet-sort/actions/runs/39109609995) — success. После публикации production smoke по публичному URL прошёл desktop/mobile до победы за7 ходов, повтор и паузу. Опубликованный JS bundle совпал с чистой локальной production-сборкой, оба SVG range1/2 вернули HTTP200. Все TASK-0060–0064 done. Документационный коммит закрытия не меняет проверенный игровой код; по постоянному правилу также публикуется.
+
+Логи чистого релиза и published smoke сохранены в artifacts/range-light/release/. Чужие локальные board.js/magnet-glow.js/draw-order.js и .codex-remote-attachments не включены в коммиты.
