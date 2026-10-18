@@ -11,11 +11,12 @@ test('backing prism is thin and solid during a flip',()=>{
  const hits=new THREE.Raycaster(new THREE.Vector3(0,0,1),new THREE.Vector3(0,0,-1)).intersectObject(mesh);
  assert.ok(hits.length,'flip exposes a hollow centre');material.dispose();geometry.dispose();
 });
-test('base wafer anchor is stable for each asset aspect and camera tilt',()=>{
+test('raised wafer seat stays proportional to the tile and independent of camera tilt',()=>{
  for(const tileWidth of [1,1.103,1.2])for(const screenUpY of [.4,.54,.8]){
-  const layout=chipLayout(screenUpY,tileWidth,tileWidth*512/471);
+  const tileHeight=tileWidth*512/471,layout=chipLayout(screenUpY,tileWidth,tileHeight);
   const centre=CHIP_HEIGHT*.5*screenUpY+layout.offset;
-  assert.ok(Math.abs(centre)<1e-9,'base shifts when camera changes');
+  assert.ok(centre>0,'wafer seat must be above the well centre');
+  assert.ok(Math.abs(centre/tileHeight-4/512)<1e-9,'seat shifts when scale or camera changes');
   assert.ok(CHIP_HEIGHT*screenUpY<layout.height*.16,'individual layers became thick');
  }
 });

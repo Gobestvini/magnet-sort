@@ -11,7 +11,8 @@ export function chipLayout(screenUpY, tileWidth, tileHeight) {
   return { width: tileWidth * 370 / 471 * WELL_INSET,
     height: tileHeight * 362 / 512 * WELL_INSET,
     offsetX: (235 / 471 - .5) * tileWidth,
-    offset: -CHIP_HEIGHT * .5 * screenUpY };
+    // Raise the seat four authored tile pixels; keep the entire wafer inside the well.
+    offset: tileHeight * 4 / 512 - CHIP_HEIGHT * .5 * screenUpY };
 }
 
 // Adapt the wafer's six boundary corners to the actual well; a uniform scale

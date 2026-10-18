@@ -17,3 +17,9 @@
 
 - [Three.js Journey](https://threejs-journey.com/), общая программа, проверена 2026-10-07.
 - [Three.js Manual](https://threejs.org/manual/), общие темы responsive design, загрузки/жизненного цикла ресурсов и производительности, проверены 2026-10-07.
+
+## Посадка одиночного хекса — 2026-10-18
+
+Признак: одиночная фишка визуально прижата к переднему краю ячейки → причина: нейтральный центр полного PNG не учитывал желаемый зазор под нарисованной передней стенкой → способ: в chipLayout добавить screen-up offset tileHeight*4/512, сохранив компенсацию половины первого слоя. Это общий якорь фишки/счётчика/экранной позиции сбора; не менять модель и не двигать только верхнюю картинку. Проверка: чистый release,196 unit tests+build, desktop/mobile screenshots стопок1/3/10, все6 фактических вершин внутри всех граней well, counters/picking, production smoke до победы/retry/pause. Browser surrogate, без реального телефона. Логи/кадры artifacts/chip-seat/.
+
+Для прямого browser-fixture createThreeBoard.draw активный v4-level содержит только metadata/blockers: передавать {...v4Level,cells:state.cells}. Исходный v4Level без cells даёт TypeError в buildLevel; это ошибка fixture, не рендера игры.
