@@ -6,6 +6,7 @@ import { IdleBackdrop } from './IdleBackdrop.js';
 import { magnetRadius, rangeArt, rangeHue } from './magnet-radius.js';
 import { potentialStars } from './model-v4.js';
 import { assetUrl } from '../art/urls.js';
+import { TutorialGuide } from './TutorialGuide.js';
 
 export function MagnetIcon({ color = 'violet' }) {
   const key = Object.entries(COLORS).find(([, info]) => info.hex === color)?.[0] ?? color;
@@ -59,7 +60,7 @@ function Modal({ children, label, onClose, variant = '', reduced = false }) {
 }
 
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
+  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget }) {
   const tutorial = levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
@@ -88,16 +89,16 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
           h('div', { className: 'moves-panel cream-panel' }, h('span', null, 'MOVES'), h('strong', null, state.movesUsed??state.turn)))),
       h('section', { className: 'board-panel', 'aria-label': 'Game board' },
         h('div', { className: 'board-host', ref: hostRef },
-          h('canvas', { ref: canvasRef, tabIndex: overlay ? -1 : 0, 'aria-label': 'Board: arrow keys select a tile, Enter places a magnet', onKeyDown: onKeyboard, 'aria-describedby': 'keyboard-cell' }),
-          tutorial && tutorialTarget && h('img', { className: 'tutorial-arrow', src: art('tutorial-arrow'), alt: '', style: { left: (tutorialTarget.x - 22) + 'px', top: (tutorialTarget.y - 5) + 'px' } })),
+          h('canvas', { ref: canvasRef, tabIndex: overlay ? -1 : 0, 'aria-label': 'Board: arrow keys select a tile, Enter places a magnet', onKeyDown: onKeyboard, 'aria-describedby': 'keyboard-cell' })),
         h('p', { id: 'keyboard-cell', className: 'sr-only' }, keyboardCell ? 'Tile: row ' + keyboardCell.row + ', column ' + keyboardCell.col : 'Use arrow keys to select a tile.')),
       h('p', { className: 'game-status' + (tutorialMessage ? ' tutorial-message cream-panel' : ''), role: 'status', 'aria-live': 'polite' },
-        tutorialMessage ? h('span', null, h('strong', null, `Collect ${goal} pieces!`), h('small', null, 'Place a magnet. New stacks appear after every move.')) : phase === 'resolving' ? 'Pulling one piece at a time…' : notice),
+        tutorialMessage ? h('span', null, h('strong', null, `Collect ${goal} pieces!`), h('small', null, 'Drag a magnet onto an empty tile. You can also tap.')) : phase === 'resolving' ? 'Pulling one piece at a time…' : notice),
       h('section', { className: 'controls', 'aria-label': 'Magnets and actions' },
         h(MagnetTray,{state,selected,locked,reduced,onSelect,onToolDown}),
         h('div', { className: 'action-row' },
           h('button', { className: 'secondary-button', onClick: onReset, 'aria-label': 'Restart' }, h('img', { className: 'restart-icon', src: art('restart'), alt: '' }), ' Restart')),
         h('p', { className: 'sr-only' }, 'Collect the goal using up to three magnets matching exposed stack colors. The badge shows one or two hex rings. Magnets pull exposed matching colors directly, including over crosses. Every ten pieces go to the progress bar.'))),
+    tutorial && !overlay && h(TutorialGuide, {color:selected,getTarget:getTutorialTarget,runId,reduced}),
     loading && h('div', { className: 'loading-screen' },
       h('div', { className: 'loading-frame' }, h('img', { className: 'loading-logo', src: art('logo-exact'), alt: 'Magnet Sort' }),
         h('div', { className: 'loading-magnets', 'aria-hidden': 'true' }, ['blue', 'violet', 'coral'].map(color => h(MagnetIcon, { color }))),

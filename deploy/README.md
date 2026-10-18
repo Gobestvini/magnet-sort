@@ -10,7 +10,7 @@ are excluded. `dist/resource-sizes.json` records conversion sizes/options;
 revision in a clean checkout so unrelated working changes are never published.
 
 After checks and `node tools/loading-browser-check.cjs` plus
-`node tools/pages-browser-check.cjs`, archive the dist **contents** and upload to
+`node tools/pages-browser-check.cjs` and `node tools/tutorial-browser-check.cjs`, archive the dist **contents** and upload to
 a new `/srv/tower/incoming/magnet-sort-RELEASE` directory over the existing
 verified SSH connection. Do not upload env files, keys or repository credentials.
 Copy `publish-static.sh` to `/srv/tower/magnet-sort-deploy/`, then:

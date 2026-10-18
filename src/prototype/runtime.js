@@ -13,6 +13,7 @@ import { loadBoardTextures, art } from './assets.js';
 import { createMagnetDrag, stepMagnetDrag, dragSettled } from './drag.js';
 import { PrototypeApp } from './App.js';
 import { createCollectionView } from './collection.js';
+import { tutorialPlacement } from './tutorial-guide.js';
 
 const root = document.querySelector('#ui-root');
 // Preact mounts into an empty host; the static boot message belongs to HTML only.
@@ -44,20 +45,24 @@ let drag = null, dragNode = null;
 const dragRef = node => { dragNode = node; };
 let boardGeneration = 0, loading = true, loadingProgress = 0;
 let startupProgress = () => {};
+let tutorialChoice = {state:null,color:null,cell:null};
+function getTutorialTarget() {
+  if (!board || levelIndex !== 0 || state.turn !== 0) return null;
+  if (tutorialChoice.state !== state || tutorialChoice.color !== selected)
+    tutorialChoice = {state,color:selected,cell:tutorialPlacement(state,selected)};
+  return tutorialChoice.cell ? {...board.screenPosition(tutorialChoice.cell),cell:tutorialChoice.cell,size:board.magnetScreenSize()} : null;
+}
 function listen(target, name, handler, options) {
   target.addEventListener(name, handler, options);
   cleanups.push(() => target.removeEventListener(name, handler, options));
 }
 function ui() {
   if (disposed) return;
-  const tutorialCell = levelIndex === 0 && state.turn === 0 ? state.cells.find(cell => canPlaceMagnet(state,cell)) : null;
-  const target = board && tutorialCell ? board.screenPosition(tutorialCell) : null;
-  const rect = host?.getBoundingClientRect();
   const magnets = timeline && elapsed < timeline.queueStart ? timeline.before.magnets : state.magnets;
   const queueTurn=timeline && elapsed < timeline.queueStart ? timeline.before.turn : state.turn;
   render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, magnetRadii:timeline&&elapsed<timeline.queueStart?timeline.before.magnetRadii:state.magnetRadii, magnets, queueTurn, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
     canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
-    tutorialTarget: target && rect ? { x: target.x - rect.left, y: target.y - rect.top } : null,
+    getTutorialTarget,
     onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!paused), onReset: reset,
     onNext: () => loadLevel((levelIndex + 1) % prototypeLevels.length), onHint: hint,
     onReduced: event => { reduced = event.currentTarget.checked; ui(); }, onKeyboard: keyboard,

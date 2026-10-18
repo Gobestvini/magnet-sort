@@ -13,11 +13,11 @@
 .switch{width:56px;height:28px;border-radius:0;background:transparent url("/art/mockup/switch-off.png") center/100% 100%;box-shadow:none}.switch:after{display:none}.motion-option input:checked+.switch{background:transparent url("/art/mockup/switch-off.png") center/100% 100%;transform:scaleX(-1)}.motion-option input:checked+.switch:after{display:block;margin:0;width:28px;height:28px;box-shadow:none;background:transparent url("/art/mockup/switch-thumb.png") center/100% 100%;transform:scaleX(-1)}
 .motion-option input:checked+.switch:after{display:none}.modal-backdrop{align-items:flex-start}
 .loading-frame{width:min(100%,540px);text-align:center}.loading-screen .loading-art{width:100%;max-height:65svh;object-fit:contain}.loading-frame h2{font-size:clamp(32px,7vw,52px);line-height:1;margin:8px 0;color:white;text-shadow:0 3px #b48bea,0 5px #2a0577}.loading-frame p{margin:8px 0 14px;font-size:20px}.loading-progress{margin:0 auto 8px;width:78%;height:40px;padding:5px;border:solid transparent;}.loading-progress>div{height:100%;border:solid transparent;}.loading-frame>strong{font-size:30px;color:white;text-shadow:0 2px #b48bea}
-.first-puzzle .magnet-tray{width:40%;margin:0 auto;padding:8px}.first-puzzle .magnet-tool{max-width:100%}.tutorial-message{color:#260850;text-shadow:none;margin:4px 5% 14px;padding:10px 12px;}.tutorial-message strong,.tutorial-message small{display:block}.tutorial-message small{font-size:.85em;margin-top:4px}.tutorial-arrow{position:absolute;width:76px;height:174px;pointer-events:none;z-index:2}
+.first-puzzle .magnet-tray{width:40%;margin:0 auto;padding:8px}.first-puzzle .magnet-tool{max-width:100%}.tutorial-message{color:#260850;text-shadow:none;margin:4px 5% 14px;padding:10px 12px;}.tutorial-message strong,.tutorial-message small{display:block}.tutorial-message small{font-size:.85em;margin-top:4px}
 .modal-panel{z-index:1}.victory-dialog{background:none;backdrop-filter:none}
 .loading-screen .loading-art{mask-image:linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent)}
 button:disabled{filter:none;opacity:1}.magnet-tool.unavailable{filter:saturate(.25);opacity:.55}
-.show-tutorial .action-row{display:none}.magnet-tool .tutorial-hand{position:absolute;width:75px;height:76px;right:-28px;bottom:-28px;object-fit:contain}.show-tutorial .controls{padding-bottom:28px}
+.show-tutorial .action-row{display:none}.show-tutorial .controls{order:1}.show-tutorial .tutorial-message{order:2;margin-top:12px;margin-bottom:0}
 
 .drag-magnet{position:fixed;left:0;top:0;z-index:20;pointer-events:none;max-width:none;will-change:transform;transform-origin:center}.drag-magnet[hidden]{display:none}
 /* Clean live lettering stays sharp at every DPR; illustration sprites are 3x. */
@@ -91,3 +91,15 @@ body,.loading-screen{background-image:url('/art/mockup/background-v2.png');backg
 .magnet-tool{aspect-ratio:1}
 .magnet-range{position:absolute;right:2%;bottom:4px;width:52%;max-width:74px;min-width:40px;line-height:0;pointer-events:none}.magnet-range img{display:block;width:100%;height:auto;filter:hue-rotate(var(--range-hue,0deg)) drop-shadow(0 2px 1px #38205655)}.magnet-range[data-radius="1"] img{width:74%;margin-left:26%}
 .magnet-tool[data-dragging] .magnet-range{visibility:hidden}
+/* Viewport coordinates keep the tray source and projected board destination aligned. */
+.tutorial-guide{position:fixed;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.tutorial-route{position:absolute;inset:0;overflow:visible}
+.tutorial-route-edge,.tutorial-route-line{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tutorial-route-edge{stroke:#fff9d9;stroke-width:7;opacity:.9}
+.tutorial-route-line{stroke:#8544dc;stroke-width:3;stroke-dasharray:8 9}
+.tutorial-target{fill:#fff4aa22;stroke:#fff5b7;stroke-width:3;stroke-dasharray:4 4;filter:drop-shadow(0 0 4px #8f42e4)}
+.tutorial-carrier{position:absolute;left:0;top:0;width:0;height:0;opacity:0;pointer-events:none;will-change:transform,opacity}
+.tutorial-guide .tutorial-ghost-magnet{position:absolute;left:0;top:0;width:var(--guide-size);max-width:none;height:auto;transform:translate(-50%,-50%);opacity:.88;filter:drop-shadow(0 5px 4px #24065566)}
+.tutorial-guide .tutorial-drag-hand{position:absolute;left:-8px;top:-5px;width:64px;height:64px;max-width:none;object-fit:contain;filter:drop-shadow(0 3px 2px #24065555)}
+.tutorial-guide[data-still=true] .tutorial-carrier{opacity:1;transform:translate(var(--guide-x),var(--guide-y));will-change:auto}
+.tutorial-guide[data-still=true] .tutorial-ghost-magnet{display:none}

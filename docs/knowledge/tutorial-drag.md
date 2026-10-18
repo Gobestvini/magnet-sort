@@ -1,0 +1,9 @@
+# Подсказка перетаскивания: координаты и lifecycle
+
+2026-10-18. Признак: растровая стрелка не начиналась у магнита и указывала на случайную клетку. Причина: фиксированная картинка/смещение относительно host и первая пустая клетка без учёта цвета.
+
+Рабочий способ: измерить центр реальной картинки выбранного tray-магнита через `getBoundingClientRect`, получить viewport-проекцию разрешённой клетки через `board.screenPosition`. Выбирать клетку через dry `previewMagnetInfluence` для текущего цвета, не менять state/RNG. SVG и ghost carrier используют одну кривую и один viewport. Обновлять resize/scroll и завершение transform transition у кнопки: ResizeObserver не видит изменение transform, после нажатия иначе остаётся сдвиг на 2px.
+
+Рука и копия магнита движутся через WAAPI transform/opacity, не трогают модель или её RAF. Guide скрывается на реальном pointer input и возвращается после отмены; первый принятый ход, pause, reset и dispose уничтожают animation/listeners/observers. Не запускать подсказку под startup shell и при hidden; reduced motion оставляет статичную стрелку и руку у магнита. CSS pointer-events:none и aria-hidden сохраняют ввод и доступный текст инструкции.
+
+Проверено: `pnpm check:full` — 206 тестов и minified build; pure tests — каждый offered color на 100 seed уровня1, legal/effective и неизменность состояния; Chromium dev и production — 320/390/844/1280/1920, точные endpoints, промежуточный кадр/конечная поза, смена цвета/resize/scroll, mouse cancel, touch drag с расходом ровно одного хода, pause/reduced. В dev дополнительно reset/dispose и отсутствие игрового RAF в idle. Это эмуляция браузера, не реальный телефон. Скриншоты и JSON локально: artifacts/tutorial-browser/. Текст инструкции перенесён под tray, чтобы маршрут не пересекал надпись; устаревшая raster arrow исключена из production/preload.
