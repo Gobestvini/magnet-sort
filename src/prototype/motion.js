@@ -55,13 +55,17 @@ export function makeTransferTimeline(before, resolution, reduced = false) {
     }
   }
   if(deactivateStart===null){deactivateStart=Math.max(cursor,groupEnd);deactivateEnd=deactivateStart+deactivation;cursor=deactivateEnd;}
-  const groups=new Map();
+  const groups=new Map(),sourceArrivals=new Map();
   for(const s of segments.filter(s=>s.type==='unitMoved')){
+    // A source can resume after a collection pause: use its final arrival across all batches.
+    const key=`${s.from.row}:${s.from.col}`,previous=sourceArrivals.get(key);
+    if(!previous||s.end>previous.end)sourceArrivals.set(key,{cell:s.from,end:s.end});
     if(!groups.has(s.batch))groups.set(s.batch,{start:s.start,end:s.end,cells:new Set()});
     const group=groups.get(s.batch);group.end=Math.max(group.end,s.end);
     group.cells.add(`${s.from.row}:${s.from.col}`);group.cells.add(`${s.to.row}:${s.to.col}`);
   }
   return { before, after: resolution.state, magnet: resolution.magnet, influence:resolution.influence, segments, reduced,
+    sourceArrivals:[...sourceArrivals.values()],
     transferGroups:[...groups.values()].map(g=>({...g,cells:[...g.cells]})),
     activationEnd, deactivateStart, deactivateEnd,
     queueStart: segments.find(s=>s.type==='magnetsChanged')?.start ?? Infinity,

@@ -48,21 +48,28 @@ export function createSourceLights(scene,camera,plane,own,anchor,cellOrder,tile=
         gl_FragColor=vec4(light,alpha*strength*idle);
         #include <colorspace_fragment>
       }`}));
-  const materials=[material(0),material(1),material(2)];
-  const pool=Array.from({length:18},()=>materials.map((mat,i)=>{const mesh=new THREE.Mesh(i===1?floor:column,mat);mesh.quaternion.copy(camera.quaternion);mesh.visible=false;group.add(mesh);return mesh;}));
-  let cells=[],orders=[];
+  const materials=[material(0),material(1),material(2)],strengths=Array(18).fill(0);
+  const pool=Array.from({length:18},(_,slot)=>materials.map((mat,i)=>{const mesh=new THREE.Mesh(i===1?floor:column,mat);mesh.quaternion.copy(camera.quaternion);mesh.visible=false;
+    // Three r186 supports per-draw uniforms on shared ShaderMaterial via this flag.
+    mesh.onBeforeRender=()=>{shared.strength.value=strengths[slot];mat.uniformsNeedUpdate=true;};
+    group.add(mesh);return mesh;}));
+  let cells=[],orders=[],sourcesState=[],peakStrength=0;
   return {
     draw(sources,color,strength,time=0,reduced=false){
-      cells=[];orders=[];const idle=sampleSourceLightIdle(time,reduced);
-      shared.strength.value=strength;shared.idle.value=idle.intensity;shared.rise.value=idle.rise;shared.reduced.value=reduced?1:0;
+      cells=[];orders=[];sourcesState=[];peakStrength=0;const idle=sampleSourceLightIdle(time,reduced);
+      shared.idle.value=idle.intensity;shared.rise.value=idle.rise;shared.reduced.value=reduced?1:0;
       if(color)shared.color.value.set(color);
-      pool.forEach((layers,i)=>{const visible=Boolean(sources[i]&&strength>0);
+      pool.forEach((layers,i)=>{
+        strengths[i]=sources[i]?(Array.isArray(strength)?strength[i]??0:strength):0;
+        peakStrength=Math.max(peakStrength,strengths[i]);
+        if(sources[i])sourcesState.push({cell:{...sources[i]},strength:strengths[i]});
+        const visible=Boolean(sources[i]&&strengths[i]>0);
         layers.forEach((mesh,layer)=>{mesh.visible=visible;if(!visible)return;
           mesh.position.copy(anchor(sources[i]));mesh.renderOrder=cellOrder(sources[i])+[3,4,70][layer];});
         if(visible){cells.push({...sources[i]});orders.push({cell:{...sources[i]},back:layers[0].renderOrder,floor:layers[1].renderOrder,front:layers[2].renderOrder});}
       });
     },
     reset(){this.draw([],null,0);},
-    snapshot:()=>({cells,strength:shared.strength.value,pool:pool.length,idle:{intensity:shared.idle.value,rise:shared.rise.value},layers:3,footprint,orders}),
+    snapshot:()=>({cells,strength:peakStrength,sources:sourcesState,pool:pool.length,idle:{intensity:shared.idle.value,rise:shared.rise.value},layers:3,footprint,orders}),
   };
 }

@@ -48,9 +48,12 @@ export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,t
     draw(plan,timeline,time,reduced,paused){
       hide();stats={cells:[],particles:0,waves:0,arcs:[],radialWaves:[],reduced:Boolean(reduced)};
       const lightPlan=timeline?.influence??plan;
-      const finish=timeline?.deactivateStart??Infinity;
-      const strength=paused?0:sourceLightStrength(time,finish,reduced);
-      lights.draw(lightPlan?.sources??[],lightPlan?.magnet?COLORS[lightPlan.magnet.color].hex:null,strength,time,reduced);
+      const sources=lightPlan?.sources??[];
+      const strengths=sources.map(cell=>{
+        const finish=timeline ? timeline.sourceArrivals.find(s=>s.cell.row===cell.row&&s.cell.col===cell.col)?.end??-Infinity : Infinity;
+        return paused?0:sourceLightStrength(time,finish,reduced);
+      });
+      lights.draw(sources,lightPlan?.magnet?COLORS[lightPlan.magnet.color].hex:null,strengths,time,reduced);
       if(paused||timeline||!plan?.rings){previewKey=null;return;}
       const changed=previewKey!==plan.key||time<previewStart;
       if(changed){previewKey=plan.key;previewStart=time;}

@@ -41,7 +41,7 @@ test('preview particles vary speed, height, bend and later passes without consum
  const later=samplePreviewParticle(cell,0,.5+first.duration,from,to);
  assert.notEqual(samples[0].height,later.height);assert.notEqual(samples[0].bend,later.bend);
 });
-test('source columns persist through processing, fade smoothly, reset and allocate a bounded pool',()=>{
+test('source columns hold to their final arrival, fade smoothly, reset and allocate a bounded pool',()=>{
  const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(),owned=[];
  const own=r=>{owned.push(r);return r;},anchor=c=>new THREE.Vector3(c.col,.1,c.row),plane=new THREE.PlaneGeometry();
  const effects=createInfluenceEffects(scene,camera,plane,own,anchor,c=>c.row*1000);
@@ -52,7 +52,7 @@ test('source columns persist through processing, fade smoothly, reset and alloca
  const resources=owned.length;
  for(let i=0;i<20;i++){effects.reset();effects.draw(plan,null,i,false,false);}
  assert.equal(owned.length,resources);
- const timeline={influence:plan,deactivateStart:3};
+ const timeline={influence:plan,sourceArrivals:[{cell:source,end:3}],deactivateStart:9};
  for(const time of [0,.3,.7,2.9,3]){
   effects.draw(null,timeline,time,false,false);assert.equal(effects.snapshot().particles,0);
   assert.deepEqual(effects.snapshot().lights.cells,[source]);assert.equal(effects.snapshot().lights.strength,1);
