@@ -3,7 +3,7 @@ import { useEffect, useRef, useLayoutEffect } from 'preact/hooks';
 import { COLORS, remainingUnits } from './model.js';
 import { art } from './assets.js';
 import { IdleBackdrop } from './IdleBackdrop.js';
-import { magnetRadius, rangeArt } from './magnet-radius.js';
+import { magnetRadius, rangeArt, rangeHue } from './magnet-radius.js';
 import { potentialStars } from './model-v4.js';
 
 export function MagnetIcon({ color = 'violet' }) {
@@ -30,10 +30,10 @@ function MagnetTray({state, selected, locked, reduced, onSelect, onToolDown}) {
   },[state.queueTurn,reduced]);
   return h('div',{className:'magnet-tray cream-panel',ref},state.magnets.map(color=>h('button',{
     key:color,type:'button',className:'magnet-tool '+(selected===color?'is-selected':''),
-    style:{'--magnet-color':COLORS[color].hex},disabled:locked,'data-magnet-color':color,
+    style:{'--magnet-color':COLORS[color].hex,'--range-hue':rangeHue(color)+'deg'},disabled:locked,'data-magnet-color':color,
     'aria-label':COLORS[color].label+' magnet, '+magnetRadius(state,color)+' hex '+(magnetRadius(state,color)===1?'ring':'rings'),'aria-pressed':selected===color,
     onClick:()=>onSelect(color),onPointerDown:event=>onToolDown(event,color)
-  },h(MagnetIcon,{color}),h('span',{className:'magnet-range','aria-hidden':'true'},h('img',{src:rangeArt(magnetRadius(state,color)),alt:''})))));
+  },h(MagnetIcon,{color}),h('span',{className:'magnet-range','data-radius':magnetRadius(state,color),'aria-hidden':'true'},h('img',{src:rangeArt(magnetRadius(state,color)),alt:''})),h('span',{className:'range-label','aria-hidden':'true'},magnetRadius(state,color)===1?'1 RING':'2 RINGS'))));
 }
 
 function Modal({ children, label, onClose, variant = '', reduced = false }) {
@@ -69,7 +69,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
   return h('main', { className: 'prototype-shell' },
     h(IdleBackdrop, { active: phase === 'playing' && !paused && !loading && !error && !reduced }),
     h('div', { className: 'collection-layer', ref: collectionRef, 'aria-hidden': 'true' }),
-    h('img', {className:'floating-range',ref:rangeRef,hidden:true,alt:'','aria-hidden':'true'}),
+    h('span', {className:'floating-range',ref:rangeRef,hidden:true,'aria-hidden':'true'},h('img',{alt:''})),
     h('img', { className: 'drag-magnet', ref: dragRef, hidden: true, alt: '', 'aria-hidden': 'true', draggable: false }),
     h('div', { className: 'game-view' + (tutorial ? ' show-tutorial' : ''), inert: Boolean(overlay) },
       h('header', { className: 'topbar' },

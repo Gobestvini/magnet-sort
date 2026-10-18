@@ -6,7 +6,7 @@ import { sampleBorderWaves, BORDER_WAVE_WIDTH } from './border-preview.js';
 // Retained rims and source columns share the board owner and sampled clock.
 export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,tile={width:1.1,height:1.1,offsetY:0}) {
   const group=new THREE.Group();scene.add(group);
-  const lights=createSourceLights(scene,camera,plane,own,anchor,cellOrder);
+  const lights=createSourceLights(scene,camera,plane,own,anchor,cellOrder,tile);
   const rimShape=new THREE.Shape(),rimHole=new THREE.Path();
   // Authored 471x512 tile: upper rim ends at y=459; y=460..512 is its front wall.
   // Stay outside the well (WELL_PIXELS in chip.js), inside the rounded outer lip.
@@ -45,7 +45,7 @@ export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,t
       const lightPlan=timeline?.influence??plan;
       const finish=timeline?.deactivateStart??Infinity;
       const strength=paused?0:sourceLightStrength(time,finish,reduced);
-      lights.draw(lightPlan?.sources??[],lightPlan?.magnet?COLORS[lightPlan.magnet.color].hex:null,strength);
+      lights.draw(lightPlan?.sources??[],lightPlan?.magnet?COLORS[lightPlan.magnet.color].hex:null,strength,time,reduced);
       if(paused||timeline||!plan?.rings){previewKey=null;return;}
       const changed=previewKey!==plan.key||time<previewStart;
       if(changed){previewKey=plan.key;previewStart=time;}

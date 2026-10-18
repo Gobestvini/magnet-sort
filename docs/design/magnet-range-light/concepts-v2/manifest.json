@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-18",
+  "tool": "built-in image_gen",
+  "selected": "C",
+  "screens": [
+    "magnet-screen-a.png",
+    "magnet-screen-b.png",
+    "magnet-screen-c.png"
+  ],
+  "source": "source-screen.png",
+  "prompts": [
+    "PROMPTS.md",
+    "ASSET_PROMPTS.json"
+  ],
+  "sprites": [
+    {
+      "path": "public/art/range-map-1.png",
+      "radius": 1,
+      "tiles": 7,
+      "dimensions": [
+        1312,
+        1199
+      ],
+      "mode": "RGBA",
+      "bytes": 1181989,
+      "sha256": "35256f3fd99af0128e8bcf692b96e3adf863cff6e085e5847b9e984d5cce24b4",
+      "use": "tray/drag/hover, BASE_URL, decode before input, CSS hue rotate"
+    },
+    {
+      "path": "public/art/range-map-2.png",
+      "radius": 2,
+      "tiles": 19,
+      "dimensions": [
+        1315,
+        1197
+      ],
+      "mode": "RGBA",
+      "bytes": 1466326,
+      "sha256": "2e7b077df5cda44a8467e153016f282967f161c63154afe14b75e0b6622331f2",
+      "use": "tray/drag/hover, BASE_URL, decode before input, CSS hue rotate"
+    }
+  ]
+}

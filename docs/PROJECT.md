@@ -1,5 +1,7 @@
 # Карта проекта
 
+Выбор C и свет v2, 2026-10-18: public/art/range-map-{1,2}.png — сгенерированные RGBA мини-карты7/19; `magnet-radius.js` — URL/цвет карты, `App.js`/runtime — карта+подпись в tray/drag/hover. `source-light.js` — полный hex floor/back/front и чистый idle sampler; вход tile dimensions из influence-effects. `tests/source-light.test.js` и range-light-browser-check проверяют idle/FPS/reduced/слои/ресурсы/console WebGL. Сгенерированные экраны/промпты и живой preview: docs/design/magnet-range-light/. Отчёт: docs/reports/MAGNET_MAP_LIGHT_V2.md.
+
 Актуально 2026-10-18: сбор10, spawn6/10, radius1/2 в magnetRadii. `magnet-radius.js` — единый resolver типа и URL SVG; `source-light.js` — shader/pool и чистый sampler fade; `influence-effects.js` — retained rims + lights без частиц. `runtime.js` кеширует matching preview и позиционирует значок у drag/hover, `App.js` — tray/accessibility. Макеты: `docs/design/magnet-range-light/`; браузерная регрессия: `tools/range-light-browser-check.cjs`. [Отчёт](reports/TEN_RANGE_LIGHT.md). Описания прежних частиц/фиксированного радиуса ниже — история.
 
 Проверенный приём прямого притяжения, lifecycle preview и обновления seeded replays: [direct-magnet-effects](knowledge/direct-magnet-effects.md), 2026-10-16.

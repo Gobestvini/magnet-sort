@@ -6,7 +6,7 @@ import { canPlaceMagnet } from './model.js';
 import { createV4State, applyV4Magnet, V4_CELLS } from './model-v4.js';
 import { previewMagnetInfluence } from './magnet-influence.js';
 import { previewBorderRings } from './border-preview.js';
-import { magnetRadius, rangeArt } from './magnet-radius.js';
+import { magnetRadius, rangeArt, rangeHue } from './magnet-radius.js';
 import { v4Levels as prototypeLevels } from './levels-v4.js';
 import { makeTransferTimeline } from './motion.js';
 import { createThreeBoard } from './board.js';
@@ -88,8 +88,9 @@ function draw(alpha = 1) {
       const color=drag?.color??selected,radius=magnetRadius(state,color);
       const at=drag?{x:drag.previousX+(drag.x-drag.previousX)*alpha,y:drag.previousY+(drag.y-drag.previousY)*alpha}:board.magnetScreenPosition(previewCell);
       const size=drag?drag.previousSize+(drag.size-drag.previousSize)*alpha:board.magnetScreenSize();
-      const badgeSource=rangeArt(radius);if(rangeNode.getAttribute('src')!==badgeSource)rangeNode.setAttribute('src',badgeSource);
-      rangeNode.style.width=Math.max(24,Math.min(42,size*.52))+'px';
+      const badgeSource=rangeArt(radius),badgeImage=rangeNode.querySelector('img');if(badgeImage.getAttribute('src')!==badgeSource)badgeImage.setAttribute('src',badgeSource);
+      rangeNode.dataset.radius=String(radius);rangeNode.dataset.label=radius===1?'1 RING':'2 RINGS';rangeNode.style.setProperty('--range-hue',rangeHue(color)+'deg');
+      rangeNode.style.width=Math.max(30,Math.min(62,size*.72))+'px';
       rangeNode.style.transform=`translate(${at.x+size*.14}px,${at.y+size*.12}px)`;
     }
   }

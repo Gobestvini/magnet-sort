@@ -9,32 +9,58 @@ export function sourceLightStrength(time, finish = Infinity, reduced = false) {
   return time <= finish ? 1 : 1-smooth(Math.min(1,(time-finish)/fade));
 }
 
-export function createSourceLights(scene,camera,plane,own,anchor,cellOrder) {
-  const group=new THREE.Group(); scene.add(group);
-  const material=own(new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:THREE.DoubleSide,
-    uniforms:{color:{value:new THREE.Color()},strength:{value:0}},
-    vertexShader:`varying vec2 uvLight; void main(){uvLight=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-    fragmentShader:`uniform vec3 color; uniform float strength; varying vec2 uvLight;
-      void main(){float x=abs(uvLight.x-.5)*2.0; float y=uvLight.y;
-        float sides=1.0-smoothstep(.35,1.0,x);
-        float column=sides*pow(1.0-y,1.25)*smoothstep(0.0,.035,y)*.85;
-        float base=exp(-pow(x/.82,4.0)-pow((y-.025)/.027,2.0))*.65;
-        float a=(column+base)*strength;
-        gl_FragColor=vec4(mix(color,vec3(1.0),min(.8,.5+base*.3)),a);
+const TAU=Math.PI*2;
+export function sampleSourceLightIdle(time,reduced=false){
+  if(reduced)return {intensity:1,rise:0};
+  const t=Math.max(0,time);
+  return {intensity:.9+.1*Math.cos(t*TAU/3.2),rise:(t/2.6)%1};
+}
+export function sourceLightFootprint(tile){
+  return [[235,1],[469,136],[469,372],[235,510],[1,372],[1,136]].map(([x,y])=>[
+    (x-235)/471*tile.width,(256-y)/512*tile.height+tile.offsetY]);
+}
+
+// Full tile silhouette includes its front wall, not just the upper lip.
+// Back volume, full footprint fill and translucent front volume.
+// The owner releases two shared geometries and three materials; no per-frame resources.
+export function createSourceLights(scene,camera,plane,own,anchor,cellOrder,tile={width:1.1,height:1.2,offsetY:0}) {
+  const group=new THREE.Group();scene.add(group);
+  const footprint=sourceLightFootprint(tile),height=2.65;
+  const shape=vertices=>{const s=new THREE.Shape();vertices.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));s.closePath();return s;};
+  const hull=[footprint[0],footprint[1]].map(([x,y])=>[x,y+height]);
+  hull.push(...footprint.slice(2,5),[footprint[5][0],footprint[5][1]+height]);
+  const column=own(new THREE.ShapeGeometry(shape(hull))),floor=own(new THREE.ShapeGeometry(shape(footprint)));
+  const bottom=Math.min(...footprint.map(p=>p[1])),top=Math.max(...footprint.map(p=>p[1]));
+  const shared={color:{value:new THREE.Color()},strength:{value:0},idle:{value:1},rise:{value:0},reduced:{value:0}};
+  const material=layer=>own(new THREE.ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:THREE.DoubleSide,
+    uniforms:{...shared,layer:{value:layer}},
+    vertexShader:`varying vec2 local; void main(){local=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+    fragmentShader:`uniform vec3 color;uniform float strength;uniform float idle;uniform float rise;uniform float reduced;uniform float layer;varying vec2 local;
+      void main(){float x=abs(local.x)/${(tile.width*.477).toFixed(6)};
+        float y=clamp((local.y-(${bottom.toFixed(6)}))/${(height+top-bottom).toFixed(6)},0.0,1.0);
+        float sides=1.0-smoothstep(.82,1.02,x);
+        float wave=exp(-pow((y-rise)/.10,2.0))*sin(3.141593*rise)*(1.0-reduced);
+        float body=sides*pow(1.0-y,1.4);
+        float alpha=layer<.5?body*(.48+.22*wave):layer<1.5?.32:body*(.14+.09*wave);
+        vec3 light=mix(color,vec3(1.0),layer<1.5?.28:.12);
+        gl_FragColor=vec4(light,alpha*strength*idle);
         #include <colorspace_fragment>
       }`}));
-  const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion);
-  const meshes=Array.from({length:18},()=>{const mesh=new THREE.Mesh(plane,material);mesh.quaternion.copy(camera.quaternion);mesh.scale.set(.94,2.75,1);mesh.visible=false;group.add(mesh);return mesh;});
-  let cells=[];
+  const materials=[material(0),material(1),material(2)];
+  const pool=Array.from({length:18},()=>materials.map((mat,i)=>{const mesh=new THREE.Mesh(i===1?floor:column,mat);mesh.quaternion.copy(camera.quaternion);mesh.visible=false;group.add(mesh);return mesh;}));
+  let cells=[],orders=[];
   return {
-    draw(sources,color,strength){
-      cells=[];material.uniforms.strength.value=strength;
-      if(color)material.uniforms.color.value.set(color);
-      meshes.forEach((mesh,i)=>{mesh.visible=Boolean(sources[i]&&strength>0);if(!mesh.visible)return;
-        mesh.position.copy(anchor(sources[i])).addScaledVector(up,1.375);
-        mesh.renderOrder=cellOrder(sources[i])+3;cells.push({...sources[i]});});
+    draw(sources,color,strength,time=0,reduced=false){
+      cells=[];orders=[];const idle=sampleSourceLightIdle(time,reduced);
+      shared.strength.value=strength;shared.idle.value=idle.intensity;shared.rise.value=idle.rise;shared.reduced.value=reduced?1:0;
+      if(color)shared.color.value.set(color);
+      pool.forEach((layers,i)=>{const visible=Boolean(sources[i]&&strength>0);
+        layers.forEach((mesh,layer)=>{mesh.visible=visible;if(!visible)return;
+          mesh.position.copy(anchor(sources[i]));mesh.renderOrder=cellOrder(sources[i])+[3,4,70][layer];});
+        if(visible){cells.push({...sources[i]});orders.push({cell:{...sources[i]},back:layers[0].renderOrder,floor:layers[1].renderOrder,front:layers[2].renderOrder});}
+      });
     },
     reset(){this.draw([],null,0);},
-    snapshot:()=>({cells,strength:material.uniforms.strength.value,pool:meshes.length}),
+    snapshot:()=>({cells,strength:shared.strength.value,pool:pool.length,idle:{intensity:shared.idle.value,rise:shared.rise.value},layers:3,footprint,orders}),
   };
 }
