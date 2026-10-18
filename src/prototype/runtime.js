@@ -43,6 +43,7 @@ const cleanups = [];
 let drag = null, dragNode = null;
 const dragRef = node => { dragNode = node; };
 let boardGeneration = 0, loading = true, loadingProgress = 0;
+let startupProgress = () => {};
 function listen(target, name, handler, options) {
   target.addEventListener(name, handler, options);
   cleanups.push(() => target.removeEventListener(name, handler, options));
@@ -129,7 +130,7 @@ function cancelGesture() {
   drag = null;
   if (active?.element.hasPointerCapture?.(active.id)) active.element.releasePointerCapture(active.id);
 }
-function interactive() { return !disposed && board && !error && !paused && !document.hidden && phase === 'playing'; }
+function interactive() { return !disposed && board && !loading && !root.inert && !error && !paused && !document.hidden && phase === 'playing'; }
 function select(color) {
   if (!interactive() || !state.magnets.includes(color)) return;
   selected = color; notice = 'Place a magnet on an empty tile.'; ui(); draw(); schedule();
@@ -239,7 +240,7 @@ async function initializeBoard() {
   let textures;
   try {
     textures = await loadBoardTextures(progress => {
-      if (!disposed && generation === boardGeneration) { loadingProgress = progress; ui(); }
+      if (!disposed && generation === boardGeneration) { loadingProgress = progress; startupProgress(progress); ui(); }
     });
     if (disposed || generation !== boardGeneration) {
       Object.values(textures).forEach(texture => texture.dispose()); return;
@@ -253,6 +254,7 @@ async function initializeBoard() {
   }
   loading = false;
   ui();
+  return !error;
 }
 function snapshot() {
   return { state: structuredClone(state), phase, selected, paused, levelIndex, puzzleId: level.id,
@@ -262,13 +264,14 @@ function snapshot() {
     drag: drag ? { x: drag.x, y: drag.y, targetX: drag.targetX, targetY: drag.targetY, size:drag.size, targetSize:drag.targetSize, homeSize:drag.homeSize, angle: drag.angle, released: drag.released } : null,
     gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error, loading };
 }
-function dispose() {
+export function dispose() {
   if (disposed) return;
   disposed = true; boardGeneration++; cancelGesture(); cancelFrame(); timeline = null;
   collection.dispose(); observer.disconnect(); cleanups.forEach(cleanup => cleanup()); board?.dispose(); board = null;
   render(null, root); if (import.meta.env.DEV) delete window.gameDebug;
 }
-ui(); initializeBoard();
+ui();
+export function startRuntime(onProgress = () => {}) { startupProgress = onProgress; return initializeBoard(); }
 listen(canvas, 'pointerdown', boardDown);
 listen(window, 'pointermove', pointerMove);
 listen(window, 'pointerup', pointerUp);

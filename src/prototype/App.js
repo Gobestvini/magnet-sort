@@ -5,6 +5,7 @@ import { art } from './assets.js';
 import { IdleBackdrop } from './IdleBackdrop.js';
 import { magnetRadius, rangeArt, rangeHue } from './magnet-radius.js';
 import { potentialStars } from './model-v4.js';
+import { assetUrl } from '../art/urls.js';
 
 export function MagnetIcon({ color = 'violet' }) {
   const key = Object.entries(COLORS).find(([, info]) => info.hex === color)?.[0] ?? color;
@@ -100,9 +101,9 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
     loading && h('div', { className: 'loading-screen' },
       h('div', { className: 'loading-frame' }, h('img', { className: 'loading-logo', src: art('logo-exact'), alt: 'Magnet Sort' }),
         h('div', { className: 'loading-magnets', 'aria-hidden': 'true' }, ['blue', 'violet', 'coral'].map(color => h(MagnetIcon, { color }))),
-        h('h2', null, 'LOADING'), h('p', { role: 'status' }, 'Loading artwork…'),
         h('div', { className: 'loading-progress', role: 'progressbar', 'aria-label': 'Artwork loading', 'aria-valuenow': loadingProgress, 'aria-valuemin': 0, 'aria-valuemax': 100 },
-          h('div', { style: { width: loadingProgress + '%' } })), h('strong', null, loadingProgress + '%'))),
+          h('div', { style: { width: loadingProgress + '%' } })),
+        h('img', { src: assetUrl('art/loading/studio.webp'), alt: 'A game by Plus Vibe', style: { width:'42%', height:'90px', objectFit:'contain', margin:'20px auto' } }))),
     error ? h(Modal, { key:'error', reduced, label: 'Launch error' },
       h('h2', null, "COULDN'T OPEN THE BOARD"), h('div', { className: 'modal-magnet' }, h(MagnetIcon)),
       h('p', null, 'Please try again'), h('button', { className: 'primary-button', onClick: onRetryRenderer }, 'Retry'),

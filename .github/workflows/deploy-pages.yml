@@ -25,6 +25,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium
+      - run: node tools/loading-browser-check.cjs
       - run: node tools/pages-browser-check.cjs
       - uses: actions/upload-pages-artifact@v4
         with:

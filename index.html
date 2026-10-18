@@ -7,9 +7,14 @@
     <meta name="description" content="Magnet Sort — place a magnet and watch matching pieces flip one at a time." />
     <title>Magnet Sort</title>
     <link rel="icon" href="data:," />
+    <!--startup-styles-->
   </head>
-  <body>
-    <div id="ui-root"><p role="status" style="font:900 24px system-ui;text-align:center;color:white;background:#3521cb;margin:0;min-height:100svh;padding-top:40vh">MAGNET SORT<br><small>Preparing the board…</small></p></div>
+  <body data-startup="loading">
+    <div id="startup-preloader" role="status" aria-label="Preparing Magnet Sort"><span class="startup-spinner" aria-hidden="true"></span><span class="startup-sr">Preparing Magnet Sort…</span></div>
+    <section id="startup-error" role="alert" hidden><p>Couldn’t load Magnet Sort. Check your connection and try again.</p><button type="button" onclick="location.reload()">Retry</button></section>
+    <noscript><style>#startup-preloader{display:none!important}</style><p style="color:white;text-align:center">Please enable JavaScript to play Magnet Sort.</p></noscript>
+    <div id="ui-root" inert></div>
+    <script>addEventListener('error',function(event){if(event.target.tagName==='SCRIPT'&&document.body.dataset.startup){document.getElementById('startup-preloader').hidden=true;document.getElementById('startup-error').hidden=false;document.querySelector('#startup-error button').focus();}},true);</script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

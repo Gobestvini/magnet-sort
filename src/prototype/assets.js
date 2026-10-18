@@ -1,14 +1,11 @@
 import * as THREE from 'three';
-import { COLORS } from './model.js';
 import { rangeArt } from './magnet-radius.js';
+import { boardAssets, uiAssets } from '../art/catalog.js';
+import { assetUrl } from '../art/urls.js';
+export { boardAssets } from '../art/catalog.js';
 
 // Runtime URLs must share Vite's deployment base (including GitHub Pages subpaths).
-export const art = name => `${import.meta.env.BASE_URL}art/mockup/${name}.png`;
-export const boardAssets = ['tile', 'tile-blocked', ...Object.keys(COLORS).flatMap(color => [`chip-${color}`, `magnet-${color}`, `tile-magnetic-${color}`])];
-const uiAssets = ['range-1','range-2','defeat-panel', 'defeat-illustration', 'moves-star', 'background-v2', 'background-grid-mask-v2', 'victory-panel-v2', 'logo-exact', 'panel', 'modal', 'button-purple', 'button-green', 'button-light',
-  'tool-neutral-frame', 'tool-selected-frame', 'pause', 'close', 'hint', 'restart', 'progress-empty', 'progress-full',
-  'switch-off', 'switch-thumb', 'loading-track', 'loading-fill', 'tutorial-arrow',
-  'victory-star-v2', 'confetti-violet', 'confetti-yellow', 'confetti-blue', 'tutorial-hand'];
+export const art = name => assetUrl(`art/mockup/${name}.png`);
 
 function decodeArtwork(name) {
   const image = new Image();
@@ -19,16 +16,17 @@ function decodeArtwork(name) {
 // Decode every shared texture before creating the scene. A failed batch releases
 // its successful loads too, so Retry never accumulates orphan GPU resources.
 export async function loadBoardTextures(onProgress = () => {}) {
-  await document.fonts.load('1000 82px Nunito');
-  const loader = new THREE.TextureLoader();
   let completed = 0;
-  const progress = () => onProgress(Math.round(++completed / (boardAssets.length + uiAssets.length) * 100));
+  const progress = () => onProgress(Math.round(++completed / (boardAssets.length + uiAssets.length + 3) * 100));
+  await document.fonts.load('1000 82px Nunito'); progress();
+  const loader = new THREE.TextureLoader();
+  const images = [...uiAssets, 'range-1', 'range-2'];
   const results = await Promise.allSettled([...boardAssets.map(async name => {
     const texture = await loader.loadAsync(art(name));
     texture.colorSpace = THREE.SRGBColorSpace;
     progress();
     return [name, texture];
-  }), ...uiAssets.map(async name => { await decodeArtwork(name); progress(); })]);
+  }), ...images.map(async name => { await decodeArtwork(name); progress(); })]);
   if (results.some(result => result.status === 'rejected')) {
     for (const result of results) if (result.status === 'fulfilled' && result.value) result.value[1].dispose();
     throw new Error('Could not load the board artwork');

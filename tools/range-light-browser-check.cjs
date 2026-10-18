@@ -7,7 +7,7 @@ const {readyTools,keyboardPlace}=require('./v4-browser-check.cjs');
  const p=await b.newPage({viewport,hasTouch:name==='mobile',isMobile:name==='mobile'}),errors=[];
  p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
  p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url());});
- await p.goto((process.env.GAME_BASE_URL||'http://127.0.0.1:5175/')+'?seed=1');await p.waitForFunction(()=>window.gameDebug&&!document.querySelector('.loading-screen'));await readyTools(p);
+ await p.goto((process.env.GAME_BASE_URL||'http://127.0.0.1:5175/')+'?seed=1');await p.waitForFunction(()=>window.gameDebug&&!document.body.dataset.startup&&!document.querySelector('.loading-screen'));await readyTools(p);
  const badges=await p.locator('.magnet-tool').evaluateAll(ns=>ns.map(n=>({label:n.getAttribute('aria-label'),src:n.querySelector('.magnet-range img').getAttribute('src')})));
  assert(badges.some(b=>b.src.includes('range-map-1.png')));assert(badges.some(b=>b.src.includes('range-map-2.png')));assert(badges.every(b=>/hex rings?/.test(b.label)));assert.equal(await p.locator('.range-label,.floating-range').count(),0);assert.equal(await p.getByText(/^[12] RINGS?$/).count(),0);
  const centers=await p.locator('.magnet-tool').evaluateAll(ns=>ns.map(n=>{const a=n.getBoundingClientRect(),img=n.querySelector(':scope>img:not(.tutorial-hand)').getBoundingClientRect();return {dx:img.x+img.width/2-a.x-a.width/2,dy:img.y+img.height/2-a.y-a.height/2};}));assert(centers.every(c=>Math.abs(c.dx)<1&&Math.abs(c.dy)<1),JSON.stringify(centers));

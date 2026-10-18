@@ -1,0 +1,25 @@
+/* Inlined into HTML by Vite so the first paint has no external dependencies. */
+html,body{margin:0;background:#3521cb}body[data-startup] #ui-root{visibility:hidden}
+#startup-preloader,#startup-shell,#startup-error{position:fixed;inset:0;z-index:100;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:#3521cb;color:#fff;font:700 18px/1.4 system-ui,sans-serif}
+#startup-preloader[hidden],#startup-shell[hidden],#startup-error[hidden]{display:none!important}
+.startup-spinner{width:44px;height:44px;border:5px solid #ffffff40;border-top-color:#fff;border-radius:50%;animation:startup-spin .8s linear infinite}
+@keyframes startup-spin{to{transform:rotate(360deg)}}
+.startup-sr{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#startup-shell{background-size:cover;background-position:center;overflow:hidden}
+.startup-content{position:relative;width:min(100%,500px);height:min(100%,880px);margin:auto;box-sizing:border-box;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#startup-shell img{position:absolute;object-fit:contain;display:block;max-width:none;pointer-events:none}
+#startup-shell .startup-logo{left:12%;top:9%;width:76%;height:25%}
+.startup-magnets{position:absolute;left:10%;top:38%;width:80%;height:24%;display:flex;gap:4%;align-items:center;justify-content:center}
+#startup-shell .startup-magnets img{position:static;width:29%;height:100%}
+.startup-magnets img:first-child{transform:rotate(-16deg)}.startup-magnets img:last-child{transform:rotate(16deg)}
+.startup-meter{position:absolute;left:15%;top:68%;width:70%;height:5%;min-height:20px;max-height:44px}
+#startup-shell .startup-track{inset:0;width:100%;height:100%;object-fit:fill}
+.startup-meter-window{position:absolute;inset:22% 4%;overflow:hidden;border-radius:999px;background:#29116c}
+#startup-shell .startup-fill{inset:0;width:100%;height:100%;object-fit:fill;clip-path:inset(0 calc(100% - var(--loaded,0%)) 0 0)}
+#startup-shell .studio-logo{left:29%;top:79%;width:42%;height:12%}
+#startup-error{flex-direction:column;gap:20px;text-align:center;padding:24px}
+#startup-error p{margin:0;max-width:400px}#startup-error button{font:inherit;border:2px solid #fff;border-radius:18px;background:#fff;color:#3521cb;padding:14px 36px;cursor:pointer;min-height:48px}
+#startup-error button:focus-visible{outline:3px solid #a5fff2;outline-offset:5px}
+@media(orientation:landscape) and (max-height:600px){.startup-content{width:min(100%,680px)}#startup-shell .startup-logo{top:5%;height:23%}.startup-magnets{top:31%;height:29%}.startup-meter{top:65%}#startup-shell .studio-logo{top:77%;height:18%}}
+@media(prefers-reduced-motion:reduce){.startup-spinner{animation:none}}
+@media(forced-colors:active){.startup-meter-window{border:1px solid CanvasText}.startup-fill{background:Highlight}}

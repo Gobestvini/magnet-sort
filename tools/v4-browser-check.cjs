@@ -65,7 +65,7 @@ async function smoke(base,output='artifacts/v4-browser'){
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   page.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url());});
   await page.goto(base+(base.includes('?')?'&':'?')+'seed='+planned.seed);
-  await page.waitForFunction(()=>!document.querySelector('.loading-screen'));
+  await page.waitForFunction(()=>!document.body.dataset.startup&&!document.querySelector('.loading-screen'));
   const count=await page.locator('.magnet-tool').count();assert.ok(count>=1&&count<=3);
   assert.equal(await page.locator('.moves-panel strong').textContent(),'0');
   assert.equal(await page.locator('[role=progressbar]').getAttribute('aria-valuemax'),'50');
