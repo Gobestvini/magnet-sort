@@ -9,7 +9,7 @@ const {readyTools,keyboardPlace}=require('./v4-browser-check.cjs');
  p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url());});
  await p.goto((process.env.GAME_BASE_URL||'http://127.0.0.1:5175/')+'?seed=1');await p.waitForFunction(()=>window.gameDebug&&!document.querySelector('.loading-screen'));await readyTools(p);
  const badges=await p.locator('.magnet-tool').evaluateAll(ns=>ns.map(n=>({label:n.getAttribute('aria-label'),src:n.querySelector('.magnet-range img').getAttribute('src')})));
- assert(badges.some(b=>b.src.includes('range-map-1.png')));assert(badges.some(b=>b.src.includes('range-map-2.png')));assert(badges.every(b=>/hex rings?/.test(b.label)));assert.equal(await p.locator('.range-label').count(),badges.length);
+ assert(badges.some(b=>b.src.includes('range-map-1.png')));assert(badges.some(b=>b.src.includes('range-map-2.png')));assert(badges.every(b=>/hex rings?/.test(b.label)));assert.equal(await p.locator('.range-label,.floating-range').count(),0);assert.equal(await p.getByText(/^[12] RINGS?$/).count(),0);
  const setup=await p.evaluate(async()=>{
   const{createV4State,applyV4Magnet}=await import('/src/prototype/model-v4.js');const{resolveMagnetInfluence}=await import('/src/prototype/magnet-influence.js');
   const{makeTransferTimeline}=await import('/src/prototype/motion.js');const before=createV4State(window.gameDebug.getLevel(),1);before.magnets=['blue'];before.magnetRadii={blue:2};
@@ -39,10 +39,10 @@ const {readyTools,keyboardPlace}=require('./v4-browser-check.cjs');
  assert.equal(resources.first.geometries,resources.last.geometries);assert.equal(resources.first.textures,resources.last.textures);
  const reduced=await p.evaluate(()=>{const{before,resolution}=window.rangeFixture;return window.gameDebug.inspectPresentation(before,resolution,.2,true);});assert.equal(reduced.renderer.influence.lights.cells.length,3);assert.equal(reduced.renderer.influence.particles,0);
  await p.evaluate(()=>window.gameDebug.finishInspection());
- // Real input: badge follows dragged tool; cancellation consumes no move.
+ // Real drag has no adjacent mini-map; tray icons alone communicate range.
  if(name==='desktop'){
  const tool=p.locator('.magnet-tool').first(),rect=await tool.boundingBox();await p.mouse.move(rect.x+rect.width/2,rect.y+rect.height/2);await p.mouse.down();await p.mouse.move(640,380,{steps:10});
- assert.equal(await p.locator('.floating-range').isVisible(),true);await p.mouse.move(50,500);await p.mouse.up();await p.waitForTimeout(900);assert.equal(await p.locator('.moves-panel strong').textContent(),'0');
+ assert.equal(await p.locator('.floating-range').count(),0);assert(await p.evaluate(()=>Boolean(window.gameDebug.snapshot().drag)));await p.mouse.move(50,500);await p.mouse.up();await p.waitForTimeout(900);assert.equal(await p.locator('.moves-panel strong').textContent(),'0');
  }
  // Live hover and keyboard preview matches actual source IDs.
  const planned=await p.evaluate(async()=>{const s=window.gameDebug.snapshot().state;const{canPlaceMagnet}=await import('/src/prototype/model.js');const{previewMagnetInfluence}=await import('/src/prototype/magnet-influence.js');for(const color of s.magnets)for(const cell of s.cells.filter(c=>canPlaceMagnet(s,c))){const plan=previewMagnetInfluence(s,cell,color);if(plan.sources.length)return{color,cell,sources:plan.sources};}});
@@ -54,7 +54,7 @@ const {readyTools,keyboardPlace}=require('./v4-browser-check.cjs');
  await p.evaluate(()=>window.gameDebug.setPaused(true));const frozen=await p.evaluate(()=>window.gameDebug.snapshot().timeline.elapsed);await p.waitForTimeout(150);assert.equal(await p.evaluate(()=>window.gameDebug.snapshot().timeline.elapsed),frozen);
  await p.getByRole('button',{name:'Resume',exact:true}).click();await p.evaluate(()=>window.gameDebug.finishTestPresentation());await readyTools(p);
  await p.getByRole('button',{name:'Restart',exact:true}).click();await readyTools(p);const reset=await p.evaluate(()=>window.gameDebug.snapshot());assert.equal(reset.state.movesUsed,0);assert(reset.state.stacks.every(s=>s.units.length<=10));
- for(const size of [{width:320,height:844},{width:844,height:390}]){await p.setViewportSize(size);await p.waitForTimeout(80);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);const labels=await p.locator('.range-label').evaluateAll(ns=>ns.map(n=>{const a=n.getBoundingClientRect(),b=n.parentElement.getBoundingClientRect();return a.left>=b.left&&a.right<=b.right&&a.bottom<=b.bottom;}));assert(labels.every(Boolean));}assert.equal(await p.locator('canvas').count(),1);assert.deepEqual(errors,[]);await p.close();
+ for(const size of [{width:320,height:844},{width:844,height:390}]){await p.setViewportSize(size);await p.waitForTimeout(80);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);const labels=await p.locator('.magnet-range').evaluateAll(ns=>ns.map(n=>{const a=n.getBoundingClientRect(),b=n.parentElement.getBoundingClientRect();return a.left>=b.left&&a.right<=b.right&&a.bottom<=b.bottom;}));assert(labels.every(Boolean));assert.equal(await p.locator('.floating-range,.range-label').count(),0);}assert.equal(await p.locator('canvas').count(),1);assert.deepEqual(errors,[]);await p.close();
  }}finally{await b.close();}
  console.log('Range badges, full-hex floor/back/front lights and animated idle, persistence/fade, zero particles, real input, pause/reset/resize/reduced and 20 resource cycles passed (desktop/mobile viewport).');
 })().catch(e=>{console.error(e);process.exitCode=1;});

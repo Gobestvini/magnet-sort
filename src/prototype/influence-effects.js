@@ -32,7 +32,12 @@ export function createInfluenceEffects(scene,camera,plane,own,anchor,cellOrder,t
         gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
     fragmentShader:`uniform vec2 center; uniform vec3 color; uniform vec3 radii; uniform vec3 alphas; uniform float reduced; varying vec2 field;
       void main(){float d=distance(field,center);float a=0.0;
-        for(int i=0;i<3;i++){a=max(a,(1.0-smoothstep(0.0,${BORDER_WAVE_WIDTH.toFixed(2)},abs(d-radii[i])))*alphas[i]);}
+        for(int i=0;i<3;i++){
+          float band=clamp(1.0-abs(d-radii[i])/${BORDER_WAVE_WIDTH.toFixed(2)},0.0,1.0);
+          // Quintic easing reaches alpha zero with flat first/second derivatives.
+          float feather=band*band*band*(band*(band*6.0-15.0)+10.0);
+          a=max(a,feather*alphas[i]);
+        }
         a=mix(a*.95,.45,reduced);gl_FragColor=vec4(color,a);
         #include <colorspace_fragment>
       }` }));

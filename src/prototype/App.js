@@ -33,7 +33,7 @@ function MagnetTray({state, selected, locked, reduced, onSelect, onToolDown}) {
     style:{'--magnet-color':COLORS[color].hex,'--range-hue':rangeHue(color)+'deg'},disabled:locked,'data-magnet-color':color,
     'aria-label':COLORS[color].label+' magnet, '+magnetRadius(state,color)+' hex '+(magnetRadius(state,color)===1?'ring':'rings'),'aria-pressed':selected===color,
     onClick:()=>onSelect(color),onPointerDown:event=>onToolDown(event,color)
-  },h(MagnetIcon,{color}),h('span',{className:'magnet-range','data-radius':magnetRadius(state,color),'aria-hidden':'true'},h('img',{src:rangeArt(magnetRadius(state,color)),alt:''})),h('span',{className:'range-label','aria-hidden':'true'},magnetRadius(state,color)===1?'1 RING':'2 RINGS'))));
+  },h(MagnetIcon,{color}),h('span',{className:'magnet-range','data-radius':magnetRadius(state,color),'aria-hidden':'true'},h('img',{src:rangeArt(magnetRadius(state,color)),alt:''})))));
 }
 
 function Modal({ children, label, onClose, variant = '', reduced = false }) {
@@ -58,7 +58,7 @@ function Modal({ children, label, onClose, variant = '', reduced = false }) {
 }
 
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, runId, canvasRef, hostRef, dragRef, rangeRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
+  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, tutorialTarget }) {
   const tutorial = levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
@@ -69,7 +69,6 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
   return h('main', { className: 'prototype-shell' },
     h(IdleBackdrop, { active: phase === 'playing' && !paused && !loading && !error && !reduced }),
     h('div', { className: 'collection-layer', ref: collectionRef, 'aria-hidden': 'true' }),
-    h('span', {className:'floating-range',ref:rangeRef,hidden:true,'aria-hidden':'true'},h('img',{alt:''})),
     h('img', { className: 'drag-magnet', ref: dragRef, hidden: true, alt: '', 'aria-hidden': 'true', draggable: false }),
     h('div', { className: 'game-view' + (tutorial ? ' show-tutorial' : ''), inert: Boolean(overlay) },
       h('header', { className: 'topbar' },

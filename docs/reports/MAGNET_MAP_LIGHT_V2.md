@@ -25,3 +25,11 @@ Pool18×3 meshes, две общие ShapeGeometry и три ShaderMaterial пр�
 - Проверки gameplay/36 seeded routes по-прежнему проходят; правила/баланс/RNG не менялись.
 
 Логи и кадры: artifacts/light-v2/ и artifacts/light-v2/release/. Публикация выполняется по постоянному AGENTS.md; итоговые GitHub run IDs и published smoke сохраняются в artifacts/light-v2/release/final-deploy.json после завершения deploy. Чужие локальные renderer-изменения не входят в коммит.
+
+## Уточнения после скриншота пользователя — 2026-10-18
+
+Предыдущая проверка подтвердила polygon, но не достаточную видимую альфу внизу. Исправлены sides shader у земли (без бокового сужения), floor.72 и передний ground+.32. Реальная pixel-регрессия читает lit/off screenshots по переднему центру, двум передним углам и обоим внешним плечам; старая версия провалила cyan-порог, новая проходит desktop/mobile. Тест: node tools/light-base-browser-check.cjs; результаты и кадры artifacts/light-base-fix/.
+
+По новому указанию мини-карта остаётся только в панели выбора. Подписи1/2 RINGS удалены из текущего UI; floating overlay и его код/ref/CSS полностью удалены, при drag/hover карта не появляется на поле. Радиус остаётся в aria-label. Три исходных PNG-концепта не переписывались: это история в закрытом details; актуальный preview показывает только иконки без подписей.
+
+Волна через маски расширена втрое: radial half-width.16→.48; края квинтически уходят к alpha0. Скорость/направление/количество волн и геометрия масок не менялись. Просмотрены фазы.25/.5/.75с, ошибок WebGL нет. Обновлённый range-light-browser проверил реальный drag, отсутствие подписей и floating overlay, hold/fade/reduced/pause/reset и20 resource cycles. Финальный чистый release: pnpm check:full —194/194 tests и build passed; оба browser-сценария passed, production /magnet-sort/ desktop/mobile дошли до победы за7 ходов, retry/pause passed. Чужие board/glow/draw-order исключены. Логи и кадры в artifacts/light-base-fix/release/.

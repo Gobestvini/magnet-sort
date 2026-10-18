@@ -12,7 +12,8 @@ export function previewBorderRings(state,cell,color){
 }
 export const BORDER_WAVE_DURATION = 2.4;
 export const BORDER_WAVE_REACH = 3.4;
-export const BORDER_WAVE_WIDTH = .16;
+// Radial half-width in board units: broad enough to feather across each rim.
+export const BORDER_WAVE_WIDTH = .48;
 // Original inward waves intersect only the retained upper-rim masks.
 export function sampleBorderWaves(seconds,reduced=false){
   if(reduced)return [];

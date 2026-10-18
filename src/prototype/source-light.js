@@ -38,10 +38,12 @@ export function createSourceLights(scene,camera,plane,own,anchor,cellOrder,tile=
     fragmentShader:`uniform vec3 color;uniform float strength;uniform float idle;uniform float rise;uniform float reduced;uniform float layer;varying vec2 local;
       void main(){float x=abs(local.x)/${(tile.width*.477).toFixed(6)};
         float y=clamp((local.y-(${bottom.toFixed(6)}))/${(height+top-bottom).toFixed(6)},0.0,1.0);
-        float sides=1.0-smoothstep(.82,1.02,x);
+        // Keep the entire lower hex illuminated. Side falloff begins above it.
+        float ground=1.0-smoothstep(.10,.28,y);
+        float sides=mix(1.0,1.0-smoothstep(.82,1.02,x),smoothstep(.12,.38,y));
         float wave=exp(-pow((y-rise)/.10,2.0))*sin(3.141593*rise)*(1.0-reduced);
         float body=sides*pow(1.0-y,1.4);
-        float alpha=layer<.5?body*(.48+.22*wave):layer<1.5?.32:body*(.14+.09*wave);
+        float alpha=layer<.5?body*(.48+.22*wave):layer<1.5?.72:body*(.14+.32*ground+.09*wave);
         vec3 light=mix(color,vec3(1.0),layer<1.5?.28:.12);
         gl_FragColor=vec4(light,alpha*strength*idle);
         #include <colorspace_fragment>
