@@ -12,10 +12,9 @@ html,body{margin:0;background:#3521cb}body[data-startup] #ui-root{visibility:hid
 .startup-magnets{position:absolute;left:10%;top:38%;width:80%;height:24%;display:flex;gap:4%;align-items:center;justify-content:center}
 #startup-shell .startup-magnets img{position:static;width:29%;height:100%}
 .startup-magnets img:first-child{transform:rotate(-16deg)}.startup-magnets img:last-child{transform:rotate(16deg)}
-.startup-meter{position:absolute;left:15%;top:68%;width:70%;height:5%;min-height:20px;max-height:44px}
-#startup-shell .startup-track{inset:0;width:100%;height:100%;object-fit:fill}
-.startup-meter-window{position:absolute;inset:22% 4%;overflow:hidden;border-radius:999px;background:#29116c}
-#startup-shell .startup-fill{inset:0;width:100%;height:100%;object-fit:fill;clip-path:inset(0 calc(100% - var(--loaded,0%)) 0 0)}
+.startup-meter{position:absolute;left:50%;top:68%;transform:translateX(-50%);width:min(70%,360px);height:30px;box-sizing:border-box;border:2px solid #f0c675;border-radius:999px;background:linear-gradient(#fffaf1,#ecd7bb);box-shadow:inset 0 0 0 1px #fffaf1,0 2px 0 #7f4a9d80}
+.startup-meter-window{position:absolute;inset:4px;overflow:hidden;border-radius:999px;background:#29116c;box-shadow:inset 0 1px 3px #160a4670}
+.startup-fill{height:100%;width:var(--loaded,0%);border-radius:inherit;background:linear-gradient(#bd72ff,#8a38ed 45%,#6520c9);box-shadow:inset 0 2px 0 #e4b4ff80}
 #startup-shell .studio-logo{left:29%;top:79%;width:42%;height:12%}
 #startup-error{flex-direction:column;gap:20px;text-align:center;padding:24px}
 #startup-error p{margin:0;max-width:400px}#startup-error button{font:inherit;border:2px solid #fff;border-radius:18px;background:#fff;color:#3521cb;padding:14px 36px;cursor:pointer;min-height:48px}

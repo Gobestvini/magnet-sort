@@ -41,12 +41,12 @@ export function createLoadingShell() {
     const image = new Image(); image.src = assetUrl(path); await image.decode(); image.alt = ''; return image;
   })).then(images => {
     if (disposed || failed) throw new Error('Loading cancelled');
-    const [background, logo, blue, violet, coral, track, fill, studio] = images;
+    const [background, logo, blue, violet, coral, studio] = images;
     shell.style.backgroundImage = `url("${background.src}")`;
     logo.className = 'startup-logo'; logo.alt = 'Magnet Sort';
     const magnets = document.createElement('div'); magnets.className = 'startup-magnets'; magnets.setAttribute('aria-hidden', 'true'); magnets.append(blue, violet, coral);
-    track.className = 'startup-track'; fill.className = 'startup-fill';
-    const window = document.createElement('div'); window.className = 'startup-meter-window'; window.append(fill); meter.append(track, window);
+    const fill = document.createElement('div'); fill.className = 'startup-fill';
+    const window = document.createElement('div'); window.className = 'startup-meter-window'; window.append(fill); meter.append(window);
     studio.className = 'studio-logo'; studio.alt = 'A game by Plus Vibe';
     content.append(logo, magnets, meter, studio);
     preloader.hidden = true; shell.hidden = false;
