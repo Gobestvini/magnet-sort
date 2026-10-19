@@ -1,0 +1,1987 @@
+{
+  "source": "b14de71",
+  "date": "2026-10-19",
+  "description": "Captured before the experimental profile seam; complete state and result/events for each listed accepted action.",
+  "traces": [
+    {
+      "number": 1,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "1d54e85867bc51577a5127a6601ce99dd231be71a9edc5fe05a985052c434398"
+    },
+    {
+      "number": 1,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      "sha256": "2cd60b70131e4c1a2df8ac94699f6168570a7fab8120c23dc47bf126d3742407"
+    },
+    {
+      "number": 1,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "72ba27240a57b188c5b44ec7091bef8a03786d80dfc6b5730e719e712e5ae0f6"
+    },
+    {
+      "number": 2,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "b492a2c4ccccb2e2570493bd189c6d1c760250f79c76b351bc7df39aad7fe4e8"
+    },
+    {
+      "number": 2,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "0cc7443357edeabb9779206209f93b8bf1b9f94cadba348bd393d19e6862da0c"
+    },
+    {
+      "number": 2,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "6f0f1ca7399ad022965f1c1f40368823872ab3bea3f96865e650e65d31302857"
+    },
+    {
+      "number": 3,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "aa5309ddcc07128f74dbd9ee5d431059bdbb19c558e3665a773b00d70facaab3"
+    },
+    {
+      "number": 3,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "d0deb4c2f9581b5962acab832f030e7f51024ffaf18fe6d3c06d5eb54ae7da8d"
+    },
+    {
+      "number": 3,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      "sha256": "a8a224c361f8978efab121878734716b2d4d1fe996d9a04b751f5bc1cc807a35"
+    },
+    {
+      "number": 4,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        }
+      ],
+      "sha256": "51e14d71dd3a8da5c6170da254ec409a45bf7d018e2ff7fd71b5404bef90e9ba"
+    },
+    {
+      "number": 4,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "c895a13c46d3b15938c76f933dc7daa71f093b77337bb77ea08a3edac06bc178"
+    },
+    {
+      "number": 4,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "099c0a89a2316635c81e03d62ae16ed779d522cca42889c44770f17f921767f4"
+    },
+    {
+      "number": 5,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 5
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "0c3d6bde798fa6672c3617082ef645f1d6529efaa4003b3a0097a8a1bd2441ac"
+    },
+    {
+      "number": 5,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        }
+      ],
+      "sha256": "13af65b520ecdeb9e4b062900ee8cca598b14f5fce1002f93d3670e7810cc7b4"
+    },
+    {
+      "number": 5,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "dda672b51b1b7cd8a5a9c564e76a4f7551e1d066d1f94b5714a0d4d8bc7ea4fa"
+    },
+    {
+      "number": 6,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        }
+      ],
+      "sha256": "b6ebea217a03155471b544e244f55db133760df0e0a8936dc608fd183a074c5e"
+    },
+    {
+      "number": 6,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      "sha256": "bfb2c1597f06fae311650356ea8432413e0f53564d2a865cac3789ba761a7dc4"
+    },
+    {
+      "number": 6,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "a5e28e763164b3ffdaafd7090c549c85ce477a17828badfe481b76f9494cb02b"
+    },
+    {
+      "number": 7,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "e16add0ad1fe0a71a2f5833de7ba1dc7d6d56bf790091aff9c0d30795cff30cb"
+    },
+    {
+      "number": 7,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      "sha256": "15a838aa8aa170a478ddd2070ac75e5df38165eb5cdbd26f61410a0cb735b26c"
+    },
+    {
+      "number": 7,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "8d1159bff415267b49de5c3aaf35e916406fe89c3cbc1273d07b3e95995da899"
+    },
+    {
+      "number": 8,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "7dc556982527a063da904ddcd7c41d12ee14ffe4c9493e6f210973ad5de2eb07"
+    },
+    {
+      "number": 8,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "0225e0f8d708c8c54805afdd365bab6c0a7127cd409996e9654f99d877f473b9"
+    },
+    {
+      "number": 8,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      "sha256": "d42f8c53cdf20b7a0ff20b284d37f5ec5ba053ca2235aecf934b52c578bf4eef"
+    },
+    {
+      "number": 9,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "f979cd6287282bc7bfbcba22fb15db9fec38380a0244706a91e997283efbff5c"
+    },
+    {
+      "number": 9,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 5,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "a7464ea77cb7b36e3e2c050c0d031898b5d449f425d0dbf4d3dd34222ec25a8c"
+    },
+    {
+      "number": 9,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 5,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "b5b3b838da5903c5214e22517fa4e6f99e35700953dbc5f7cab4616ecdbbb105"
+    },
+    {
+      "number": 10,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "3f51ed0419c6dc00dfb9634d58b35cfb99c1572f9f23c65dae157b1e02ffadd5"
+    },
+    {
+      "number": 10,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        }
+      ],
+      "sha256": "45129fc34a71e5fcb1655b06d7875036f54015a55793b5d0e22fab7ba01164a6"
+    },
+    {
+      "number": 10,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 5,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "1f3275e862fb97ac1d4d2080f23199c6dfe71f4fea100f7f81a6fbf83e23a4d5"
+    },
+    {
+      "number": 11,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "49a097cf316b02795c618f7edae733b2e129a4cc372080b54d29d0aaef8a79b4"
+    },
+    {
+      "number": 11,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "eec9da642d5992b1666e030bc2afe2d66005f5285a7d36cf8c6ff1a7d74747da"
+    },
+    {
+      "number": 11,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 5
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 1,
+            "row": 5
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      "sha256": "168fe9610cf7dd86e04b4759e41cd1d9b8aedecdedd5856d7db089506a5fd2e7"
+    },
+    {
+      "number": 12,
+      "seed": 0,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        }
+      ],
+      "sha256": "7318fa5e43d9147a53b1efabdd819779682bd2772ec47c08783eec25c87c31ad"
+    },
+    {
+      "number": 12,
+      "seed": 1,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "pink",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        }
+      ],
+      "sha256": "3f061b974209d2e4d70ac81b3a710ff2eb3fcbd8b62ea4fb26cd449f0968c3ae"
+    },
+    {
+      "number": 12,
+      "seed": 2,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        }
+      ],
+      "sha256": "b72965b6c5fe0dfb19e8b31dab660c816b752888dbde7b125cee6c63954670ee"
+    }
+  ]
+}

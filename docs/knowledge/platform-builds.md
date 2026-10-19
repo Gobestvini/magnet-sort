@@ -1,5 +1,13 @@
 # Platform artifact integrity
 
+Follow-up2026-10-19, TASK-0066–0069: default `pnpm check:full` invokes a build
+that clears dist, including explicit web/embed/telegram directories. Running it
+beside a platform browser harness caused a missing-canvas/404 failure. Rebuild
+all explicit targets after the default build and only then run their readers
+and browser checks. The sequential rerun, including interruption of an actual
+collection flight, passed. Keep independent browser checks parallel only against
+completed immutable output; do not overlap any writer of that dist.
+
 2026-10-19, adapted from White Tower and rechecked in Magnet Sort.
 
 Problem: one generic build cannot demonstrate SDK isolation or safely retain a

@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-19",
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1120,
+    "height": 1080
+  },
+  "device": "Local Windows headless Chromium; one machine, sequential; not a phone or human playtest",
+  "rows": [
+    {
+      "profile": "A",
+      "level": 10,
+      "seed": 0,
+      "turn": 1,
+      "timelineSeconds": 4.67,
+      "wallSeconds": 4.819
+    },
+    {
+      "profile": "A",
+      "level": 10,
+      "seed": 0,
+      "turn": 2,
+      "timelineSeconds": 2.66,
+      "wallSeconds": 2.773
+    },
+    {
+      "profile": "A",
+      "level": 10,
+      "seed": 0,
+      "turn": 3,
+      "timelineSeconds": 2.35,
+      "wallSeconds": 2.473
+    },
+    {
+      "profile": "B",
+      "level": 10,
+      "seed": 0,
+      "turn": 1,
+      "timelineSeconds": 4.67,
+      "wallSeconds": 4.829
+    },
+    {
+      "profile": "B",
+      "level": 10,
+      "seed": 0,
+      "turn": 2,
+      "timelineSeconds": 2.66,
+      "wallSeconds": 2.775
+    },
+    {
+      "profile": "B",
+      "level": 10,
+      "seed": 0,
+      "turn": 3,
+      "timelineSeconds": 2.35,
+      "wallSeconds": 2.474
+    },
+    {
+      "profile": "C",
+      "level": 10,
+      "seed": 0,
+      "turn": 1,
+      "timelineSeconds": 4.67,
+      "wallSeconds": 4.812
+    },
+    {
+      "profile": "C",
+      "level": 10,
+      "seed": 0,
+      "turn": 2,
+      "timelineSeconds": 2.84,
+      "wallSeconds": 2.96
+    },
+    {
+      "profile": "C",
+      "level": 10,
+      "seed": 0,
+      "turn": 3,
+      "timelineSeconds": 2.66,
+      "wallSeconds": 2.776
+    }
+  ]
+}

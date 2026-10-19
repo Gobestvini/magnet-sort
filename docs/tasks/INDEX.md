@@ -2,14 +2,14 @@
 
 ## Улучшения Telegram-билда: исследование и очередь — 2026-10-19
 
-[Исследование, сравнение игр и приоритеты](../reports/TELEGRAM_IMPROVEMENT_IDEAS.md). Проверены текущий v4, White Tower, Зеркальные коты и официальные источники Hexa Sort/Royal Match/Toon Blast/Water Sort. Свежий baseline:240 модельных партий, поздний темп требует отдельной оценки. Реализация не запускалась. Эта очередь — предложения; не команда выполнить всё автоматически.
+[Исследование, сравнение игр и приоритеты](../reports/TELEGRAM_IMPROVEMENT_IDEAS.md). По запросу выполнены0066/0067 и техническая часть0069: [save](../reports/V4_SAVE_CONTINUE.md), [forecast](../reports/SPAWN_FORECAST.md), [темп](../reports/TELEGRAM_SESSION_PACE.md). Сохранение остаётся review по физическому Telegram close/reopen; темп — review по двум добровольным игрокам. Остальные задачи не запускались.
 
 | Задача | Статус | Приоритет | Зависимости | Исполнитель |
 | --- | --- | --- | --- | --- |
-| [TASK-0066: Сохранять и продолжать партию v4](TASK-0066-v4-save-continue.md) | ready | high | нет | сильная; высокий |
-| [TASK-0067: Прогноз пополнения поля](TASK-0067-spawn-forecast.md) | ready | high | нет | средняя; высокий |
+| [TASK-0066: Сохранять и продолжать партию v4](TASK-0066-v4-save-continue.md) | review | high | технически выполнена; phone review | сильная; высокий |
+| [TASK-0067: Прогноз пополнения поля](TASK-0067-spawn-forecast.md) | done | high | нет | средняя; высокий |
 | [TASK-0068: Полная отмена последнего хода](TASK-0068-v4-undo.md) | draft | high | TASK-0066 done | сильная; высокий |
-| [TASK-0069: Исследовать короткую сессию](TASK-0069-telegram-session-pace.md) | ready | high | нет; исследование без смены production | сильная; высокий |
+| [TASK-0069: Исследовать короткую сессию](TASK-0069-telegram-session-pace.md) | review | high | технически выполнена; human A/B review | сильная; высокий |
 | [TASK-0070: Объясняющая подсказка](TASK-0070-explaining-hint.md) | draft | normal | TASK-0066 done | средняя; высокий |
 | [TASK-0071: Отдельная доска дня v4](TASK-0071-v4-daily.md) | draft | normal | TASK-0066/0068 done, принятый результат0069 | сильная; высокий |
 | [TASK-0072: Telegram-вызов другу](TASK-0072-telegram-friend-challenge.md) | draft | normal | TASK-0066/0068 done | сильная; высокий |

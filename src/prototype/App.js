@@ -7,6 +7,7 @@ import { magnetRadius, rangeArt, rangeHue } from './magnet-radius.js';
 import { potentialStars } from './model-v4.js';
 import { assetUrl } from '../art/urls.js';
 import { TutorialGuide } from './TutorialGuide.js';
+import { forecastText } from './spawn-forecast.js';
 
 export function MagnetIcon({ color = 'violet' }) {
   const key = Object.entries(COLORS).find(([, info]) => info.hex === color)?.[0] ?? color;
@@ -59,8 +60,23 @@ function Modal({ children, label, onClose, variant = '', reduced = false }) {
     h('div', { className: 'modal-panel' }, onClose && h('button', { className: 'round-button modal-close', onClick: onClose, 'aria-label': 'Close pause' }, h('img', { src: art('close'), alt: '' })), children));
 }
 
+function SaveStatus({ status, onFreshSave, onReloadSave }) {
+  if (!status || status.reason === 'transient') return null;
+  const message = status.saved ? 'Progress saved on this device.' : ({
+    'invalid-data': 'Your saved progress could not be read. This game is running without saving.',
+    'unsupported-version': 'Your save belongs to another game version. This game is running without saving.',
+    conflict: 'Progress changed in another tab. Reload to use that save. This tab is not saving.',
+    'action-limit': 'This attempt is too long to save. You can keep playing in this tab.'
+  }[status.reason] ?? 'Progress could not be saved. You can keep playing in this tab.');
+  return h('div', { className: 'save-status', 'aria-label': 'Save status' },
+    h('p', { role: 'status' }, message),
+    status.reason === 'conflict' ? h('button', { className: 'secondary-button light-button', onClick: onReloadSave }, 'Reload saved game') :
+    !status.saved && status.reason !== 'action-limit' &&
+      h('button', { className: 'secondary-button light-button', onClick: onFreshSave }, 'Start fresh save'));
+}
+
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget, audioSettings, onAudioChange }) {
+  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget, audioSettings, onAudioChange, saveStatus, onFreshSave, onReloadSave, spawnForecast }) {
   const tutorial = levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
@@ -86,7 +102,9 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
         h('div', { className: 'moves-group' },
           h('div', { className:'potential-stars', 'data-reduced':reduced, role:'img', 'aria-label':`Potential stars: ${potentialStars(goal,state.movesUsed??state.turn)} of 3` },
             [1,2,3].map(n=>h('img',{key:n,src:art('moves-star'),alt:'',className:n<=potentialStars(goal,state.movesUsed??state.turn)?'lit':'dim'}))),
-          h('div', { className: 'moves-panel cream-panel' }, h('span', null, 'MOVES'), h('strong', null, state.movesUsed??state.turn)))),
+          h('div', { className: 'moves-panel cream-panel' }, h('span', null, 'MOVES'), h('strong', null, state.movesUsed??state.turn))),
+      spawnForecast && h('p', { className: 'spawn-forecast', title: 'Up to this many stacks, if space remains',
+        'aria-label': forecastText(spawnForecast) + '. Up to this many stacks, if space remains.' }, forecastText(spawnForecast))),
       h('section', { className: 'board-panel', 'aria-label': 'Game board' },
         h('div', { className: 'board-host', ref: hostRef },
           h('canvas', { ref: canvasRef, tabIndex: overlay ? -1 : 0, 'aria-label': 'Board: arrow keys select a tile, Enter places a magnet', onKeyDown: onKeyboard, 'aria-describedby': 'keyboard-cell' })),
@@ -123,7 +141,8 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
               onInput:event=>onAudioChange({[channel+'Volume']:Number(event.currentTarget.value)/100},event)}),
             h('output',{'aria-hidden':'true'},Math.round(audioSettings[channel+'Volume']*100)+'%'))))),
       h('button', { className: 'primary-button', onClick: onPause }, 'Resume'),
-      h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Restart')) :
+      h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Restart'),
+      h(SaveStatus, { status: saveStatus, onFreshSave, onReloadSave })) :
     result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Board full', variant: state.terminal === 'won' ? 'victory-dialog' : 'defeat-dialog' },
       h('div', { className: 'result-card', role: 'region', 'aria-label': 'Result' },
         state.terminal === 'won' ? null : h('h2', { className: 'live-heading defeat-heading' }, 'BOARD FULL'),

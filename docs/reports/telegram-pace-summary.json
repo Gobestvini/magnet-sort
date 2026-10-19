@@ -1,0 +1,1290 @@
+{
+  "metadata": {
+    "date": "2026-10-19",
+    "version": "telegram-pace-1",
+    "sourceRevision": "b14de719ea200b8a6b889232014a6c813957774d",
+    "sourceDirty": true,
+    "inputSha256": {
+      "src/prototype/model-v4.js": "691e5069e2c16dbcee8db2f51b39f5f27872665c6591c1be62ab88d6f2b86394",
+      "src/prototype/model.js": "0bd0d9ee794ce3a7622fc5db0e87bf9389ed6623ee7e2143c7380d8038fe08f9",
+      "src/prototype/magnet-influence.js": "4876d9154a5bd2ee0350c6c8ab740b549035e76afa5cbda5dbab8ff25fc17f1d",
+      "src/prototype/magnet-radius.js": "82065f6fd989e275b7d5122b22ec66334fbecbd39ce5217c67c35239d051584c",
+      "src/prototype/difficulty.js": "b38d582ccd1b3403ebd21774117b9968afea1aec9c8597354cf767027a61bd9b",
+      "src/prototype/levels-v4.js": "4d3a58203befbf47a995d89b60d1d3e49888de1945efb27a798fd8fe5966c3b3",
+      "src/prototype/motion.js": "79bac7dd79eca9005f145386c5ea3913fedd50ddffac535157e61886ea7998df",
+      "src/prototype/source-light.js": "1097395bd9a64483c21583d3072ed199ec3ad607614ef3320f29172be1186ef7",
+      "src/game/hex.js": "a17c6c2c860c9d60c9030ce18a09f6f7fb23824849c0665e15ea721827c35559",
+      "tools/verify-v4-balance.mjs": "cbdd8bc62e5bbf027db5647057c5f57a073d4b5527531add641486567a7893c8",
+      "tools/experiments/pace-profiles.js": "b52008c25fb62af608580ac49700dd4a2fd59e30b7983d476a1f5d59638c6467",
+      "tools/experiments/telegram-pace.mjs": "ea5e2c727f0de6a5f91e52955ae8451b8e8bda7b3f47eb4f36669ef249c68862"
+    },
+    "seedRange": [
+      0,
+      49
+    ],
+    "cutoff": 320,
+    "policies": [
+      "greedy",
+      "random"
+    ],
+    "quantiles": "nearest-rank ceil(p*n)-1 among greedy wins",
+    "evidence": "Model/replay and exact input-locked timeline budget. Not human completion time, CPU benchmark or device FPS."
+  },
+  "profiles": {
+    "A": {
+      "id": "A",
+      "label": "Current",
+      "goals": [
+        50,
+        100,
+        150,
+        200,
+        250,
+        300,
+        350,
+        400,
+        450,
+        500,
+        550,
+        600
+      ],
+      "spawnIntervals": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3
+      ]
+    },
+    "B": {
+      "id": "B",
+      "label": "Short goal",
+      "goals": [
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150
+      ],
+      "spawnIntervals": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3
+      ]
+    },
+    "C": {
+      "id": "C",
+      "label": "Short goal, cadence 2 late",
+      "goals": [
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
+        150
+      ],
+      "spawnIntervals": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    }
+  },
+  "summary": [
+    {
+      "profile": "A",
+      "number": 1,
+      "goal": 50,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 37,
+        "lost": 13,
+        "unknown": 0
+      },
+      "medianMoves": 5,
+      "p90Moves": 7,
+      "medianNormalSeconds": 28.14,
+      "p90NormalSeconds": 32.525,
+      "medianReducedSeconds": 6.855,
+      "minFree": 14,
+      "currentStars": [
+        0,
+        24,
+        26
+      ],
+      "proposedStars": {
+        "threeAtMost": 5,
+        "twoAtMost": 6,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "A",
+      "number": 2,
+      "goal": 100,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 34,
+        "lost": 16,
+        "unknown": 0
+      },
+      "medianMoves": 12,
+      "p90Moves": 14,
+      "medianNormalSeconds": 58.38,
+      "p90NormalSeconds": 64.515,
+      "medianReducedSeconds": 14.41,
+      "minFree": 14,
+      "currentStars": [
+        0,
+        50,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 11,
+        "twoAtMost": 13,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "A",
+      "number": 3,
+      "goal": 150,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 29,
+        "lost": 21,
+        "unknown": 0
+      },
+      "medianMoves": 19,
+      "p90Moves": 21,
+      "medianNormalSeconds": 91.005,
+      "p90NormalSeconds": 96.925,
+      "medianReducedSeconds": 22.26,
+      "minFree": 10,
+      "currentStars": [
+        0,
+        50,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 17,
+        "twoAtMost": 19,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "A",
+      "number": 4,
+      "goal": 200,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 5,
+        "lost": 45,
+        "unknown": 0
+      },
+      "medianMoves": 27,
+      "p90Moves": 29,
+      "medianNormalSeconds": 127.36,
+      "p90NormalSeconds": 136.61,
+      "medianReducedSeconds": 30.977,
+      "minFree": 7,
+      "currentStars": [
+        0,
+        50,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 26,
+        "twoAtMost": 28,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "A",
+      "number": 5,
+      "goal": 250,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 1,
+        "lost": 49,
+        "unknown": 0
+      },
+      "medianMoves": 34,
+      "p90Moves": 37,
+      "medianNormalSeconds": 159.55,
+      "p90NormalSeconds": 168.26,
+      "medianReducedSeconds": 39.185,
+      "minFree": 5,
+      "currentStars": [
+        0,
+        50,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 33,
+        "twoAtMost": 35,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "A",
+      "number": 6,
+      "goal": 300,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 40,
+      "p90Moves": 43,
+      "medianNormalSeconds": 188.61,
+      "p90NormalSeconds": 196.53,
+      "medianReducedSeconds": 46.16,
+      "minFree": 2,
+      "currentStars": [
+        0,
+        50,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 39,
+        "twoAtMost": 41,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "A",
+      "number": 7,
+      "goal": 350,
+      "cadence": 2,
+      "greedy": {
+        "won": 43,
+        "lost": 7,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 92,
+      "p90Moves": 98,
+      "medianNormalSeconds": 331.34,
+      "p90NormalSeconds": 349.86,
+      "medianReducedSeconds": 80.885,
+      "minFree": 0,
+      "currentStars": [
+        43,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 89,
+        "twoAtMost": 93,
+        "sample": 43
+      }
+    },
+    {
+      "profile": "A",
+      "number": 8,
+      "goal": 400,
+      "cadence": 2,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 106,
+      "p90Moves": 113,
+      "medianNormalSeconds": 379.18,
+      "p90NormalSeconds": 400.915,
+      "medianReducedSeconds": 92.4,
+      "minFree": 1,
+      "currentStars": [
+        50,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 103,
+        "twoAtMost": 107,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "A",
+      "number": 9,
+      "goal": 450,
+      "cadence": 2,
+      "greedy": {
+        "won": 48,
+        "lost": 2,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 117,
+      "p90Moves": 123,
+      "medianNormalSeconds": 420.515,
+      "p90NormalSeconds": 437.285,
+      "medianReducedSeconds": 102.085,
+      "minFree": 0,
+      "currentStars": [
+        48,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 114,
+        "twoAtMost": 118,
+        "sample": 48
+      }
+    },
+    {
+      "profile": "A",
+      "number": 10,
+      "goal": 500,
+      "cadence": 3,
+      "greedy": {
+        "won": 36,
+        "lost": 14,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 200,
+      "p90Moves": 209,
+      "medianNormalSeconds": 623.77,
+      "p90NormalSeconds": 652.765,
+      "medianReducedSeconds": 150.42,
+      "minFree": 0,
+      "currentStars": [
+        36,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 190,
+        "twoAtMost": 201,
+        "sample": 36
+      }
+    },
+    {
+      "profile": "A",
+      "number": 11,
+      "goal": 550,
+      "cadence": 3,
+      "greedy": {
+        "won": 42,
+        "lost": 8,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 213,
+      "p90Moves": 229,
+      "medianNormalSeconds": 674.295,
+      "p90NormalSeconds": 715.98,
+      "medianReducedSeconds": 162.92,
+      "minFree": 0,
+      "currentStars": [
+        42,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 209,
+        "twoAtMost": 217,
+        "sample": 42
+      }
+    },
+    {
+      "profile": "A",
+      "number": 12,
+      "goal": 600,
+      "cadence": 3,
+      "greedy": {
+        "won": 8,
+        "lost": 42,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 236,
+      "p90Moves": 250,
+      "medianNormalSeconds": 738.465,
+      "p90NormalSeconds": 774.225,
+      "medianReducedSeconds": 178.075,
+      "minFree": 0,
+      "currentStars": [
+        8,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 234,
+        "twoAtMost": 237,
+        "sample": 8
+      }
+    },
+    {
+      "profile": "B",
+      "number": 1,
+      "goal": 40,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 41,
+        "lost": 9,
+        "unknown": 0
+      },
+      "medianMoves": 4,
+      "p90Moves": 5,
+      "medianNormalSeconds": 21.185,
+      "p90NormalSeconds": 26.41,
+      "medianReducedSeconds": 5.243,
+      "minFree": 15,
+      "currentStars": [
+        0,
+        18,
+        32
+      ],
+      "proposedStars": {
+        "threeAtMost": 4,
+        "twoAtMost": 4,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "B",
+      "number": 2,
+      "goal": 50,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "medianMoves": 5,
+      "p90Moves": 7,
+      "medianNormalSeconds": 27.855,
+      "p90NormalSeconds": 32.245,
+      "medianReducedSeconds": 6.89,
+      "minFree": 15,
+      "currentStars": [
+        0,
+        23,
+        27
+      ],
+      "proposedStars": {
+        "threeAtMost": 5,
+        "twoAtMost": 6,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "B",
+      "number": 3,
+      "goal": 60,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 46,
+        "lost": 4,
+        "unknown": 0
+      },
+      "medianMoves": 7,
+      "p90Moves": 8,
+      "medianNormalSeconds": 33.865,
+      "p90NormalSeconds": 38.56,
+      "medianReducedSeconds": 8.367,
+      "minFree": 13,
+      "currentStars": [
+        0,
+        44,
+        6
+      ],
+      "proposedStars": {
+        "threeAtMost": 6,
+        "twoAtMost": 7,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "B",
+      "number": 4,
+      "goal": 70,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 33,
+        "lost": 17,
+        "unknown": 0
+      },
+      "medianMoves": 9,
+      "p90Moves": 12,
+      "medianNormalSeconds": 41.495,
+      "p90NormalSeconds": 50.32,
+      "medianReducedSeconds": 10.071,
+      "minFree": 9,
+      "currentStars": [
+        3,
+        47,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 8,
+        "twoAtMost": 9,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "B",
+      "number": 5,
+      "goal": 80,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 25,
+        "lost": 25,
+        "unknown": 0
+      },
+      "medianMoves": 11,
+      "p90Moves": 13,
+      "medianNormalSeconds": 49.945,
+      "p90NormalSeconds": 56.935,
+      "medianReducedSeconds": 12.246,
+      "minFree": 9,
+      "currentStars": [
+        2,
+        48,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 10,
+        "twoAtMost": 11,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "B",
+      "number": 6,
+      "goal": 90,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 22,
+        "lost": 28,
+        "unknown": 0
+      },
+      "medianMoves": 12,
+      "p90Moves": 16,
+      "medianNormalSeconds": 56.51,
+      "p90NormalSeconds": 65.945,
+      "medianReducedSeconds": 13.903,
+      "minFree": 7,
+      "currentStars": [
+        6,
+        44,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 11,
+        "twoAtMost": 13,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "B",
+      "number": 7,
+      "goal": 100,
+      "cadence": 2,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 4,
+        "lost": 46,
+        "unknown": 0
+      },
+      "medianMoves": 29,
+      "p90Moves": 33,
+      "medianNormalSeconds": 101.9,
+      "p90NormalSeconds": 113.81,
+      "medianReducedSeconds": 24.69,
+      "minFree": 5,
+      "currentStars": [
+        50,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 28,
+        "twoAtMost": 30,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "B",
+      "number": 8,
+      "goal": 110,
+      "cadence": 2,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 3,
+        "lost": 47,
+        "unknown": 0
+      },
+      "medianMoves": 33,
+      "p90Moves": 38,
+      "medianNormalSeconds": 114.105,
+      "p90NormalSeconds": 124.475,
+      "medianReducedSeconds": 27.677,
+      "minFree": 2,
+      "currentStars": [
+        50,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 30,
+        "twoAtMost": 34,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "B",
+      "number": 9,
+      "goal": 120,
+      "cadence": 2,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 2,
+        "lost": 48,
+        "unknown": 0
+      },
+      "medianMoves": 36,
+      "p90Moves": 39,
+      "medianNormalSeconds": 121.825,
+      "p90NormalSeconds": 130.335,
+      "medianReducedSeconds": 29.559,
+      "minFree": 4,
+      "currentStars": [
+        50,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 33,
+        "twoAtMost": 36,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "B",
+      "number": 10,
+      "goal": 130,
+      "cadence": 3,
+      "greedy": {
+        "won": 48,
+        "lost": 2,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 59,
+      "p90Moves": 71,
+      "medianNormalSeconds": 179.145,
+      "p90NormalSeconds": 207.445,
+      "medianReducedSeconds": 42.881,
+      "minFree": 0,
+      "currentStars": [
+        48,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 53,
+        "twoAtMost": 60,
+        "sample": 48
+      }
+    },
+    {
+      "profile": "B",
+      "number": 11,
+      "goal": 140,
+      "cadence": 3,
+      "greedy": {
+        "won": 49,
+        "lost": 1,
+        "unknown": 0
+      },
+      "random": {
+        "won": 1,
+        "lost": 49,
+        "unknown": 0
+      },
+      "medianMoves": 60,
+      "p90Moves": 72,
+      "medianNormalSeconds": 182.975,
+      "p90NormalSeconds": 216.07,
+      "medianReducedSeconds": 43.783,
+      "minFree": 0,
+      "currentStars": [
+        49,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 56,
+        "twoAtMost": 61,
+        "sample": 49
+      }
+    },
+    {
+      "profile": "B",
+      "number": 12,
+      "goal": 150,
+      "cadence": 3,
+      "greedy": {
+        "won": 40,
+        "lost": 10,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 70,
+      "p90Moves": 81,
+      "medianNormalSeconds": 210.625,
+      "p90NormalSeconds": 232.375,
+      "medianReducedSeconds": 50.025,
+      "minFree": 0,
+      "currentStars": [
+        40,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 65,
+        "twoAtMost": 75,
+        "sample": 40
+      }
+    },
+    {
+      "profile": "C",
+      "number": 1,
+      "goal": 40,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 41,
+        "lost": 9,
+        "unknown": 0
+      },
+      "medianMoves": 4,
+      "p90Moves": 5,
+      "medianNormalSeconds": 21.185,
+      "p90NormalSeconds": 26.41,
+      "medianReducedSeconds": 5.243,
+      "minFree": 15,
+      "currentStars": [
+        0,
+        18,
+        32
+      ],
+      "proposedStars": {
+        "threeAtMost": 4,
+        "twoAtMost": 4,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "C",
+      "number": 2,
+      "goal": 50,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "medianMoves": 5,
+      "p90Moves": 7,
+      "medianNormalSeconds": 27.855,
+      "p90NormalSeconds": 32.245,
+      "medianReducedSeconds": 6.89,
+      "minFree": 15,
+      "currentStars": [
+        0,
+        23,
+        27
+      ],
+      "proposedStars": {
+        "threeAtMost": 5,
+        "twoAtMost": 6,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "C",
+      "number": 3,
+      "goal": 60,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 46,
+        "lost": 4,
+        "unknown": 0
+      },
+      "medianMoves": 7,
+      "p90Moves": 8,
+      "medianNormalSeconds": 33.865,
+      "p90NormalSeconds": 38.56,
+      "medianReducedSeconds": 8.367,
+      "minFree": 13,
+      "currentStars": [
+        0,
+        44,
+        6
+      ],
+      "proposedStars": {
+        "threeAtMost": 6,
+        "twoAtMost": 7,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "C",
+      "number": 4,
+      "goal": 70,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 33,
+        "lost": 17,
+        "unknown": 0
+      },
+      "medianMoves": 9,
+      "p90Moves": 12,
+      "medianNormalSeconds": 41.495,
+      "p90NormalSeconds": 50.32,
+      "medianReducedSeconds": 10.071,
+      "minFree": 9,
+      "currentStars": [
+        3,
+        47,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 8,
+        "twoAtMost": 9,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "C",
+      "number": 5,
+      "goal": 80,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 25,
+        "lost": 25,
+        "unknown": 0
+      },
+      "medianMoves": 11,
+      "p90Moves": 13,
+      "medianNormalSeconds": 49.945,
+      "p90NormalSeconds": 56.935,
+      "medianReducedSeconds": 12.246,
+      "minFree": 9,
+      "currentStars": [
+        2,
+        48,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 10,
+        "twoAtMost": 11,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "C",
+      "number": 6,
+      "goal": 90,
+      "cadence": 1,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 22,
+        "lost": 28,
+        "unknown": 0
+      },
+      "medianMoves": 12,
+      "p90Moves": 16,
+      "medianNormalSeconds": 56.51,
+      "p90NormalSeconds": 65.945,
+      "medianReducedSeconds": 13.903,
+      "minFree": 7,
+      "currentStars": [
+        6,
+        44,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 11,
+        "twoAtMost": 13,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "C",
+      "number": 7,
+      "goal": 100,
+      "cadence": 2,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 4,
+        "lost": 46,
+        "unknown": 0
+      },
+      "medianMoves": 29,
+      "p90Moves": 33,
+      "medianNormalSeconds": 101.9,
+      "p90NormalSeconds": 113.81,
+      "medianReducedSeconds": 24.69,
+      "minFree": 5,
+      "currentStars": [
+        50,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 28,
+        "twoAtMost": 30,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "C",
+      "number": 8,
+      "goal": 110,
+      "cadence": 2,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 3,
+        "lost": 47,
+        "unknown": 0
+      },
+      "medianMoves": 33,
+      "p90Moves": 38,
+      "medianNormalSeconds": 114.105,
+      "p90NormalSeconds": 124.475,
+      "medianReducedSeconds": 27.677,
+      "minFree": 2,
+      "currentStars": [
+        50,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 30,
+        "twoAtMost": 34,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "C",
+      "number": 9,
+      "goal": 120,
+      "cadence": 2,
+      "greedy": {
+        "won": 50,
+        "lost": 0,
+        "unknown": 0
+      },
+      "random": {
+        "won": 2,
+        "lost": 48,
+        "unknown": 0
+      },
+      "medianMoves": 36,
+      "p90Moves": 39,
+      "medianNormalSeconds": 121.825,
+      "p90NormalSeconds": 130.335,
+      "medianReducedSeconds": 29.559,
+      "minFree": 4,
+      "currentStars": [
+        50,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 33,
+        "twoAtMost": 36,
+        "sample": 50
+      }
+    },
+    {
+      "profile": "C",
+      "number": 10,
+      "goal": 130,
+      "cadence": 2,
+      "greedy": {
+        "won": 28,
+        "lost": 22,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 43,
+      "p90Moves": 50,
+      "medianNormalSeconds": 144.045,
+      "p90NormalSeconds": 158.275,
+      "medianReducedSeconds": 34.721,
+      "minFree": 0,
+      "currentStars": [
+        28,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 41,
+        "twoAtMost": 44,
+        "sample": 28
+      }
+    },
+    {
+      "profile": "C",
+      "number": 11,
+      "goal": 140,
+      "cadence": 2,
+      "greedy": {
+        "won": 35,
+        "lost": 15,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 44,
+      "p90Moves": 50,
+      "medianNormalSeconds": 147.46,
+      "p90NormalSeconds": 163.26,
+      "medianReducedSeconds": 35.758,
+      "minFree": 0,
+      "currentStars": [
+        35,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 42,
+        "twoAtMost": 45,
+        "sample": 35
+      }
+    },
+    {
+      "profile": "C",
+      "number": 12,
+      "goal": 150,
+      "cadence": 2,
+      "greedy": {
+        "won": 4,
+        "lost": 46,
+        "unknown": 0
+      },
+      "random": {
+        "won": 0,
+        "lost": 50,
+        "unknown": 0
+      },
+      "medianMoves": 42,
+      "p90Moves": 49,
+      "medianNormalSeconds": 146.245,
+      "p90NormalSeconds": 165.655,
+      "medianReducedSeconds": 35.59,
+      "minFree": 0,
+      "currentStars": [
+        4,
+        0,
+        0
+      ],
+      "proposedStars": {
+        "threeAtMost": 42,
+        "twoAtMost": 43,
+        "sample": 4
+      }
+    }
+  ],
+  "witnessCounts": {
+    "A": 36,
+    "B": 36,
+    "C": 36
+  }
+}

@@ -108,6 +108,10 @@ body,.loading-screen{background-image:url('/art/mockup/background-v2.png');backg
 .pause-dialog .modal-close{right:8px;top:8px;width:44px;height:44px}
 .pause-dialog .modal-magnet{width:86px;height:72px}
 .audio-settings{display:grid;gap:14px;text-align:left}
+.save-status{font-size:14px;line-height:1.35;text-align:center;color:#35275b}
+.save-status p{margin:0}
+.save-status button{margin-top:8px;font-size:16px;min-height:44px}
+.spawn-forecast{grid-column:1/-1;margin:0;min-height:20px;color:#fff;text-shadow:0 1px 2px #270489;text-align:center;font-size:clamp(12px,3.3vw,16px);font-weight:800;line-height:1.25}
 .audio-setting{border-radius:17px;padding:10px 14px;background:#e4cff0a6;border:1px solid #caa5e1}
 .audio-setting-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:20px;font-weight:900;color:#5915ab}
 .audio-toggle{min-width:70px;min-height:44px;border:2px solid #7b41b7;border-radius:22px;background:#faf3ff;color:#632c94;font:inherit;font-size:17px;box-shadow:0 2px 0 #58248733;cursor:pointer}

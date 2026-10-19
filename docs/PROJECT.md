@@ -1,5 +1,16 @@
 # Карта проекта
 
+Save/forecast/pace,2026-10-19: `prototype/progress-v4.js` проверяет versioned seed/action
+journal и storage revision; `session.js` владеет committed state, resume/next-entry,
+records и transient attempts. `runtime.js` сохраняет submit до timeline;
+`App.js` показывает статус в паузе. `spawn-forecast.js` выводит ближайший schedule,
+переключая before/after на реальной стадии spawn/queue. Tests: progress-v4,
+spawn-forecast и experiment-profile; browser: save-v4/spawn-forecast-browser-check.cjs.
+`model-v4.js::createV4Rules` — узкий explicit seam для tools/experiments A/B/C;
+default kernel/contentVersion не меняются, DEV iframe использует transient session.
+[Save](reports/V4_SAVE_CONTINUE.md), [forecast](reports/SPAWN_FORECAST.md),
+[темп](reports/TELEGRAM_SESSION_PACE.md), [знание/ограничения](knowledge/v4-save-and-pace.md).
+
 Аудио v4, 2026-10-19: `src/prototype/audio-score.js` — оригинальная 80-секундная
 Little Orbits и 11 семейств SFX; `audio.js` — runtime-owned context/mix,
 bounded scheduler/voices, presentation-boundary cues и lifecycle;

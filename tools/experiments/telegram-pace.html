@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Magnet Sort — сравнение темпа</title>
+<style>
+body{margin:0;padding:20px;background:#15213b;color:#eef4ff;font:16px system-ui}main{max-width:1080px;margin:auto}h1{font-size:24px}form{display:flex;gap:12px;flex-wrap:wrap;align-items:end}label{display:grid;gap:5px}input,select,button,textarea{font:inherit;padding:8px;border-radius:8px;border:1px solid #9badca}input{width:100px}button{cursor:pointer;background:#bbd6ff;color:#15213b;min-height:44px}iframe{display:block;width:390px;max-width:100%;height:844px;border:1px solid #7584a3;border-radius:12px;background:#3021ba;margin-top:16px}#work{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}aside{flex:1;min-width:260px}textarea{width:100%;box-sizing:border-box;min-height:140px}p{line-height:1.5}#live{white-space:pre-line}small{color:#bdcbe4}
+</style>
+<main>
+<h1>Magnet Sort: сравнение темпа A / B / C</h1>
+<p>Локальный DEV-пилот. Кампания и её сохранение не меняются. A — текущие правила; B — цель 30+10×N; C — такая же цель, пополнение раз в два хода на уровнях 7–12. Анимации и управление общие с игрой.</p>
+<form id="setup">
+<label>Игрок (код)<input id="player" value="P1" maxlength="16"></label>
+<label>Вариант<select id="profile"><option>A</option><option>B</option><option>C</option></select></label>
+<label>Уровень<input id="level" type="number" min="1" max="12" value="1"></label>
+<label>Seed<input id="seed" type="number" min="0" max="4294967295" value="0"></label>
+<button>Начать попытку</button>
+</form>
+<div id="work"><iframe title="Pace preview" id="game" src="about:blank"></iframe>
+<aside>
+<p id="live" role="status">Выберите вариант и нажмите «Начать попытку».</p>
+<p>Для двух игроков: P1 играет A→кандидат, P2 — кандидат→A. По одной ранней (1), средней (6) и поздней (12) доске, seed 0. При поражении сохраните результат; не подбирайте удобный seed.</p>
+<label>Наблюдения<textarea id="notes" placeholder="Понятен ли момент спавна? Что ожидали перед ходом? Почему проиграли? Хочется ли повторить? Устройство, браузер и заметные паузы."></textarea></label>
+<p><button type="button" id="export">Скачать журнал JSON</button></p>
+<small>Фиксируются версия, параметры, действия, результат и видимое время. Idle — время без принятого хода дольше 15 секунд: это условный индикатор, а не достоверное время размышления. Данные остаются в этой странице; отправки на сервер нет.</small>
+</aside></div></main>
+<script type="module" src="./telegram-pace-preview.js"></script>
+</html>

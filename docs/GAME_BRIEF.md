@@ -1,5 +1,11 @@
 # Magnet Sort — паспорт игрового цикла v4
 
+2026-10-19: собственный v4 save сохраняет принятые действия до анимации и
+восстанавливает партию replay; локальные рекорды, entry после победы и статус
+storage описаны в [V4_SAVE_CONTINUE](reports/V4_SAVE_CONTINUE.md). Прогноз
+пополнения — read-only HUD. Эксперимент A/B/C остаётся DEV-only; production
+цель50*N и cadence1/2/3 не изменены. Undo/daily/challenge пока не добавлены.
+
 Актуально 2026-10-18. Правила: [GDD v0.4](design/GDD_V0.4.md); rendering/lifecycle: [THREE_RENDERING](design/THREE_RENDERING.md); результаты: [баланс](reports/V4_BALANCE.md).
 
 - Игрок выбирает один из трёх магнитов и размещает его на пустой hex-клетке; tap/drag/keyboard. Стопки вручную не двигаются.

@@ -48,4 +48,7 @@ Checks: `pnpm check:full`, explicit builds, `pnpm test:platforms`, plus existing
 loading/Pages/tutorial tools. `PUBLICATION_ROOT` selects the artifact root;
 `PLATFORM_BASE_URL` selects deployed HTTPS; `PUBLICATION_LAYOUT=combined` selects
 web at that root. Mock bridge / viewport checks are not native Telegram or phone
-acceptance. The active v4 game has no durable campaign saves.
+acceptance. Since TASK-0066 active v4 has local versioned replay-based campaign
+saves shared by all targets; transient seed/DEV attempts do not write them.
+This is not an account or cross-device cloud-save service. See
+[save/resume evidence](../reports/V4_SAVE_CONTINUE.md).

@@ -1,5 +1,17 @@
 # Magnet Sort — 3D-прототип
 
+Сохранение и прогноз, 2026-10-19: активный v4 сохраняет seed/журнал ходов и
+продолжает незавершённую партию; Retry повторяет seed, после победы следующий
+вход открывает следующий уровень. В паузе — статус сохранения/recovery; конфликт
+вкладок не перетирает новую запись. Прогноз под HUD показывает ближайший спавн.
+[Сохранение](docs/reports/V4_SAVE_CONTINUE.md), [прогноз](docs/reports/SPAWN_FORECAST.md).
+Native Telegram/физический телефон остаются отдельной review.
+
+Темп: [сравнены A/B/C](docs/reports/TELEGRAM_SESSION_PACE.md),3600 модельных партий,
+108 replays. B — кандидат для человеческой проверки; production цели/спавн
+сохранены. Локальный DEV-preview: `tools/experiments/telegram-pace.html`
+при работающем `pnpm dev`; это не опубликованный игровой режим.
+
 Платформы, 2026-10-19: отдельные `build:web`, `build:embed`, `build:telegram`
 и `build:platforms`; изоляция SDK, лицензии, SHA-256 ресурсов, resource cache
 и воспроизводимый `package:embed`. [Перенос практик White Tower](docs/platforms/README.md).

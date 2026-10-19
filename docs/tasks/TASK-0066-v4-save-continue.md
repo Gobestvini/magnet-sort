@@ -1,6 +1,6 @@
 # TASK-0066: Сохранять и продолжать активную партию v4
 
-- Статус: ready
+- Статус: review
 - Приоритет: high
 - Создана: 2026-10-19
 - Обновлена: 2026-10-19
@@ -53,11 +53,13 @@ Runtime/App и компактные новые src/prototype/session.js, progres
 
 ## 6. Критерии готовности
 
-- [ ] Закрытие сразу после accepted placement и во время collection восстанавливает идентичный state без дубля прогресса.
-- [ ] Повторный старт после won/последнего won и после lost имеет заданное поведение; Retry сохраняет seed.
-- [ ] Повреждённый save, denied/quota и обычный конфликт вкладок не ломают игру и не стирают запись молча.
-- [ ] Legacy/audio keys и чужие изменения сохранены; web/embed/Telegram используют общий owner.
-- [ ] Проверки и ограничения записаны в разделе 10, статус файла и INDEX совпадают; собственный commit/push/deploy выполнен по AGENTS.md.
+- [x] Закрытие сразу после accepted placement и во время collection восстанавливает идентичный state без дубля прогресса.
+- [x] Повторный старт после won/последнего won и после lost имеет заданное поведение; Retry сохраняет seed.
+- [x] Повреждённый save, denied/quota и обычный конфликт вкладок не ломают игру и не стирают запись молча.
+- [x] Legacy/audio keys и чужие изменения сохранены; web/embed/Telegram используют общий owner.
+- [x] Проверки и ограничения записаны в разделе 10, статус файла и INDEX совпадают; собственный commit/push/deploy выполнен по AGENTS.md.
+
+- [ ] Реальный Telegram close/reopen на физическом телефоне — review.
 
 ## 7. Проверки
 
@@ -87,10 +89,10 @@ Production web и Telegram mock bridge: accepted→reload на разных ст
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: —
-- Итоговый статус и дата: —
+- Результат: Реализован общий session/replay-save, техническая часть завершена; review для реального закрытия/открытия Telegram на физическом телефоне.
+- Изменённые файлы и зачем: progress-v4.js/session.js — schema/replay/storage/entry policy; runtime/App/prototype.css — интеграция и статус; tests/progress-v4.test.js/tools/save-v4-browser-check.cjs — поведение и отказы.
+- Команды и фактические результаты:24 релевантных tests PASS; общий pnpm check:full239/239 + build PASS; build:platforms PASS. Подробнее docs/reports/V4_SAVE_CONTINUE.md.
+- Ручные проверки: Codex browser pause/save status, production web/Telegram mock390×844/844×390; immediate reload, won/lost/final, recovery, две вкладки и denied/quota.
+- Выполненные критерии: технические критерии выполнены, старые audio/legacy keys не затронуты; доставка общего коммита и published smoke отражены в финальном ответе.
+- Непроверенное, блокеры и отклонения от плана: физический телефон/настоящий Telegram close/reopen недоступны; mock не объявлен их заменой. LocalStorage conflict protection optimistic, без CAS.
+- Итоговый статус и дата: review,2026-10-19.

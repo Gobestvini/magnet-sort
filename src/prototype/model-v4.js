@@ -5,8 +5,10 @@ import { levelPalette, levelGroupCounts, spawnInterval } from './difficulty.js';
 
 export const V4_CONFIG = Object.freeze({ initialStacks: 5, maxStacksPerTurn: 3, minHeight: 6, maxHeight: 10, heightStep: 4, clearSize: 10 });
 export function stacksForMove(movesUsed, levelNumber=1) {
+  return countStacksForMove(movesUsed, levelNumber, spawnInterval(levelNumber));
+}
+function countStacksForMove(movesUsed, levelNumber, interval) {
   const span=5*levelNumber*levelNumber;
-  const interval=spawnInterval(levelNumber);
   if(movesUsed%interval!==0)return 0;
   return movesUsed<=span?1:movesUsed<=2*span?2:V4_CONFIG.maxStacksPerTurn;
 }
@@ -78,12 +80,12 @@ export function spawnStacks(state, requested, openingGroups=[]) {
   state.stacks.sort((a,b)=>compare(a.cell,b.cell));
   return events;
 }
-export function createV4State(level, seed) {
+function createState(level, seed, goal) {
   validateV4Level(level);
   if(!Number.isInteger(seed)||seed<0||seed>0xffffffff)throw new Error('Invalid uint32 seed');
   const state={rulesVersion:4,puzzleId:level.id,levelNumber:level.number,cells:V4_CELLS.map(c=>({...c})),
     blockers:level.blockers.map(c=>({...c})),stacks:[],magnets:[],clearSize:V4_CONFIG.clearSize,
-    goal:50*level.number,cleared:0,movesUsed:0,turn:0,spawnedUnits:0,nextUnitId:1,rng:seed,seed,terminal:null,stars:0};
+    goal:goal??50*level.number,cleared:0,movesUsed:0,turn:0,spawnedUnits:0,nextUnitId:1,rng:seed,seed,terminal:null,stars:0};
   // Distinct seeded locations guarantee a visibly varied early opening,
   // without re-rolling boards or changing the later spawn distribution.
   spawnStacks(state,V4_CONFIG.initialStacks,level.number<=3?[1,2]:[]);
@@ -91,7 +93,7 @@ export function createV4State(level, seed) {
   state.magnetRadii=fillMagnetRadii(state);
   return state;
 }
-export function applyV4Magnet(state, action) {
+function applyMagnet(state, action, interval) {
   const reject=reason=>({accepted:false,reason,state,events:[]});
   if(state.terminal)return reject('terminal');
   if(action?.type!=='placeMagnet'||!state.magnets.includes(action.color))return reject('invalid-magnet');
@@ -105,12 +107,30 @@ export function applyV4Magnet(state, action) {
     next.terminal='won';next.stars=earnedStars(next.goal,next.movesUsed,'won');next.magnets=retained;
     next.magnetRadii=Object.fromEntries(retained.map(c=>[c,state.magnetRadii?.[c]??2]));
   }else{
-    events.push(...spawnStacks(next,stacksForMove(next.movesUsed,next.levelNumber)));
+    events.push(...spawnStacks(next,countStacksForMove(next.movesUsed,next.levelNumber,interval??spawnInterval(next.levelNumber))));
     next.magnets=fillMagnetQueue(next,retained);
     next.magnetRadii=fillMagnetRadii(next,retained);
     events.push({type:'magnetsChanged',before:[...state.magnets],after:[...next.magnets],used:action.color});
     if(!next.cells.some(c=>canPlaceMagnet(next,c)))next.terminal='lost';
   }
   return {accepted:true,state:next,events,magnet:resolution.magnet,influence:{magnet:resolution.magnet,affectedCells:resolution.affectedCells,paths:resolution.paths,sources:resolution.sources}};
+}
+
+export function createV4State(level, seed) { return createState(level, seed); }
+export function applyV4Magnet(state, action) { return applyMagnet(state, action); }
+
+// Explicit experiment seam: the production entry always uses the two defaults
+// above. No profile is serialized into v4 saves or changes its content version.
+export function createV4Rules({ goals, spawnIntervals }) {
+  if (!Array.isArray(goals) || goals.length !== 12 || goals.some(n => !Number.isInteger(n) || n < 1 || n > 1000000) ||
+      !Array.isArray(spawnIntervals) || spawnIntervals.length !== 12 || spawnIntervals.some(n => !Number.isInteger(n) || n < 1 || n > 3))
+    throw new TypeError('Invalid experiment profile');
+  const targets = [...goals], intervals = [...spawnIntervals];
+  return Object.freeze({
+    createV4State: (level, seed) => createState(level, seed, targets[level?.number - 1]),
+    applyV4Magnet: (state, action) => applyMagnet(state, action, intervals[state.levelNumber - 1]),
+    stacksForMove: (moves, number) => countStacksForMove(moves, number, intervals[number - 1]),
+    spawnInterval: number => intervals[number - 1]
+  });
 }
 
