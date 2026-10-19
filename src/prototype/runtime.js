@@ -14,6 +14,8 @@ import { createMagnetDrag, stepMagnetDrag, dragSettled } from './drag.js';
 import { PrototypeApp } from './App.js';
 import { createCollectionView } from './collection.js';
 import { tutorialPlacement } from './tutorial-guide.js';
+import { createAudioSettings } from './audio-settings.js';
+import { createPrototypeAudio } from './audio.js';
 
 const root = document.querySelector('#ui-root');
 // Preact mounts into an empty host; the static boot message belongs to HTML only.
@@ -28,6 +30,11 @@ let levelIndex = 0, level = prototypeLevels[0], state = createV4State(level, run
 let boardLevel = { ...level, cells: V4_CELLS };
 let runId = 1;
 let userPaused = false, platformPaused = false;
+let windowFocused = document.hasFocus();
+const audioPreferences = createAudioSettings();
+let audioSettings = audioPreferences.get();
+const audio = createPrototypeAudio({ settings: audioSettings, debug: import.meta.env.DEV });
+audio.beginRun(runId);
 let selected = state.magnets[0], phase = 'playing', paused = false, notice = `Collect ${state.goal} pieces. Place a magnet on an empty tile.`;
 let displayedCleared = 0;
 const collection = createCollectionView();
@@ -57,17 +64,35 @@ function listen(target, name, handler, options) {
   target.addEventListener(name, handler, options);
   cleanups.push(() => target.removeEventListener(name, handler, options));
 }
+function syncAudio() {
+  audio.setLifecycle({ paused: paused || loading || Boolean(error), blocked: platformPaused || document.hidden || !windowFocused || root.inert });
+}
+function audioGesture(event) {
+  if (!event.isTrusted || (event.type === 'keydown' && (event.repeat || event.ctrlKey || event.metaKey || event.altKey))) return;
+  // An iframe receives pointerdown before its default focus action. Trusted input
+  // inside the game is already an explicit return; the user pause still applies.
+  if (!document.hidden && (event.type === 'pointerdown' || event.type === 'click')) windowFocused = true;
+  syncAudio(); void audio.unlockFromGesture();
+}
+function changeAudio(patch, event) {
+  audioSettings = audioPreferences.update(patch);
+  audio.setSettings(audioSettings);
+  if (event?.isTrusted) { syncAudio(); void audio.unlockFromGesture(); }
+  if ('sfxEnabled' in patch && patch.sfxEnabled) audio.playUi();
+  ui();
+}
+function uiAction(action) { action(); audio.playUi(); }
 function ui() {
   if (disposed) return;
   const magnets = timeline && elapsed < timeline.queueStart ? timeline.before.magnets : state.magnets;
   const queueTurn=timeline && elapsed < timeline.queueStart ? timeline.before.turn : state.turn;
   render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, magnetRadii:timeline&&elapsed<timeline.queueStart?timeline.before.magnetRadii:state.magnetRadii, magnets, queueTurn, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
     canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
-    getTutorialTarget,
-    onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!userPaused), onReset: reset,
-    onNext: () => loadLevel((levelIndex + 1) % prototypeLevels.length), onHint: hint,
+    getTutorialTarget, audioSettings, onAudioChange: changeAudio,
+    onSelect: select, onToolDown: toolDown, onPause: () => uiAction(() => setPaused(!userPaused)), onReset: () => uiAction(reset),
+    onNext: () => uiAction(() => loadLevel((levelIndex + 1) % prototypeLevels.length)), onHint: hint,
     onReduced: event => { reduced = event.currentTarget.checked; ui(); }, onKeyboard: keyboard,
-    onRetryRenderer: initializeBoard }), root);
+    onRetryRenderer: () => uiAction(initializeBoard) }), root);
   // Match the former held size (80% of the button, capped at 100px, with 12% lift).
   for (const tool of root.querySelectorAll('.magnet-tool')) {
     tool.querySelector('img').style.width = Math.min(100, tool.getBoundingClientRect().width * .8) * 1.12 + 'px';
@@ -79,6 +104,7 @@ function draw(alpha = 1) {
     tool.toggleAttribute('data-dragging', drag?.color === tool.dataset.magnetColor);
   }
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
+  if (timeline) audio.advanceTimeline(time);
   const previewCell=keyboardCell??hover;
   const previewKey=!paused&&phase==='playing'&&selected&&previewCell?cellId(previewCell)+':'+selected:null;
   if(influenceCache.state!==state||influenceCache.key!==previewKey)influenceCache={state,key:previewKey,plan:previewKey?previewBorderRings(state,previewCell,selected):null};
@@ -123,7 +149,9 @@ function tick(now) {
     if (drag) { stepMagnetDrag(drag, dt, reduced); if (dragSettled(drag, reduced)) drag = null; }
   });
   if (timeline && elapsed >= timeline.duration) {
+    audio.advanceTimeline(timeline.duration);
     timeline = null; phase = state.terminal ?? 'playing';
+    audio.playResult(state.terminal);
     selected = null;
     notice = state.terminal === 'won' ? 'Goal reached!' : state.terminal === 'lost' ? 'No empty tiles left. Try again.' : 'Choose a magnet for the next move.';
     ui();
@@ -139,15 +167,17 @@ function cancelGesture() {
 function interactive() { return !disposed && board && !loading && !root.inert && !error && !paused && !document.hidden && phase === 'playing'; }
 function select(color) {
   if (!interactive() || !state.magnets.includes(color)) return;
+  audio.playGame('select');
   selected = color; notice = 'Place a magnet on an empty tile.'; ui(); draw(); schedule();
 }
 function submit(action) {
   if (!interactive()) return { accepted: false, reason: 'locked' };
   const before = state;
   const resolution = applyV4Magnet(before, action);
-  if (!resolution.accepted) { notice = 'This tile is occupied. Choose an empty tile.'; ui(); return resolution; }
+  if (!resolution.accepted) { audio.playGame('reject'); notice = 'This tile is occupied. Choose an empty tile.'; ui(); return resolution; }
   state = resolution.state;
   timeline = makeTransferTimeline(before, resolution, reduced);
+  audio.beginTimeline(timeline, state.turn); audio.playGame('place');
   elapsed = 0; previousElapsed = 0; phase = 'resolving';
   keyboardCell = null; cancelGesture(); cancelFrame(); ui(); draw(); schedule();
   return resolution;
@@ -195,7 +225,7 @@ function pointerUp(event) {
   const valid = interactive() && cell && canPlaceMagnet(state, cell);
   cancelGesture();
   if (valid) place(cell);
-  else if (interactive() && cell) { notice = 'This tile is occupied. Choose an empty tile.'; ui(); }
+  else if (interactive() && cell) { audio.playGame('reject'); notice = 'This tile is occupied. Choose an empty tile.'; ui(); }
   if (released && moved && !reduced) {
     const target = valid ? board.magnetScreenPosition(cell) : active.home ?? { x: active.x, y: active.y };
     drag = released; drag.targetX = target.x; drag.targetY = target.y; drag.released = true; drag.age = 0;
@@ -219,7 +249,7 @@ function setPaused(value) {
 }
 export function setPlatformPaused(value) { platformPaused = Boolean(value); updatePause(); }
 function updatePause() {
-  paused = userPaused || platformPaused; cancelGesture(); cancelFrame(); ui(); draw();
+  paused = userPaused || platformPaused; syncAudio(); cancelGesture(); cancelFrame(); ui(); draw();
   if (!paused) schedule();
 }
 function reset() { loadLevel(levelIndex, runSeed); }
@@ -231,6 +261,7 @@ function loadLevel(index, seed = fixedSeed ?? newSeed()) {
   boardLevel = { ...level, cells: V4_CELLS }; displayedMagnets=state.magnets.join(',');displayedQueueTurn=0;
   phase = 'playing'; userPaused = false; paused = platformPaused; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
   displayedCleared = 0; collection.clear();
+  audio.beginRun(runId); syncAudio();
   ui(); draw();
 }
 function hint() {
@@ -245,6 +276,7 @@ function resize() {
 async function initializeBoard() {
   const generation = ++boardGeneration;
   cancelGesture(); cancelFrame(); loading = true; loadingProgress = 0;
+  syncAudio();
   board?.dispose(); board = null; error = null;
   ui();
   let textures;
@@ -263,6 +295,7 @@ async function initializeBoard() {
     error = failure.message;
   }
   loading = false;
+  syncAudio();
   ui();
   return !error;
 }
@@ -270,18 +303,22 @@ function snapshot() {
   return { state: structuredClone(state), phase, selected, paused, levelIndex, puzzleId: level.id,
     timeline: timeline ? { duration: timeline.duration, elapsed, activeUnits: timeline.segments.filter(segment => segment.type === 'unitMoved' && segment.start <= elapsed && segment.end > elapsed).length } : null,
     renderer: board?.snapshot() ?? null, canvasCount: root.querySelectorAll('canvas').length,
-    displayedCleared, collection: collection.snapshot(),
+    displayedCleared, collection: collection.snapshot(), audio: audio.snapshot(),
     drag: drag ? { x: drag.x, y: drag.y, targetX: drag.targetX, targetY: drag.targetY, size:drag.size, targetSize:drag.targetSize, homeSize:drag.homeSize, angle: drag.angle, released: drag.released } : null,
     gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error, loading };
 }
 export function dispose() {
   if (disposed) return;
   disposed = true; boardGeneration++; cancelGesture(); cancelFrame(); timeline = null;
+  audio.dispose();
   collection.dispose(); observer.disconnect(); cleanups.forEach(cleanup => cleanup()); board?.dispose(); board = null;
   render(null, root); if (import.meta.env.DEV) delete window.gameDebug;
 }
 ui();
 export function startRuntime(onProgress = () => {}) { startupProgress = onProgress; return initializeBoard(); }
+listen(root, 'pointerdown', audioGesture, { capture: true });
+listen(root, 'click', audioGesture, { capture: true });
+listen(root, 'keydown', audioGesture, { capture: true });
 listen(canvas, 'pointerdown', boardDown);
 listen(window, 'pointermove', pointerMove);
 listen(window, 'pointerup', pointerUp);
@@ -292,12 +329,13 @@ listen(window, 'lostpointercapture', event => { if (gesture?.id === event.pointe
 listen(canvas, 'pointerleave', () => { if (!gesture) { hover = null; draw(); } });
 listen(window, 'resize', resize);
 listen(window, 'scroll', () => draw(), { passive: true });
-listen(window, 'blur', () => setPaused(true));
-listen(document, 'visibilitychange', () => { if (document.hidden) setPaused(true); });
+listen(window, 'blur', () => { windowFocused = false; setPaused(true); });
+listen(window, 'focus', () => { windowFocused = true; syncAudio(); });
+listen(document, 'visibilitychange', () => { if (document.hidden) setPaused(true); else syncAudio(); });
 listen(canvas, 'webglcontextlost', event => { event.preventDefault(); setPaused(true); error = 'WebGL context lost'; ui(); });
 listen(canvas, 'webglcontextrestored', initializeBoard);
 const observer = new ResizeObserver(resize); observer.observe(host);
-if (import.meta.env.DEV) window.gameDebug = { snapshot, reset, setPaused, loadLevel,
+if (import.meta.env.DEV) window.gameDebug = { snapshot, reset, setPaused, setPlatformPaused, loadLevel,
   finishTestPresentation:()=>{
     if(!timeline||paused)return;
     elapsed=timeline.duration;previousElapsed=elapsed;

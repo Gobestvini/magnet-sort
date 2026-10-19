@@ -4,6 +4,38 @@
 
 Отдельные PNG и nine-slice из утверждённых мокапов: [MOCKUP_ASSETS](MOCKUP_ASSETS.md), каталог `public/art/mockup/`. Ниже — исторические ресурсы Pixi MVP.
 
+## Активное аудио v4 — 2026-10-19
+
+TASK-0065: оригинальная композиция **Little Orbits**, D major, 96 BPM, 4/4,
+32 такта / 80 секунд, форма A / A′ / B / A-return. Партитура — 384 явно заданные
+ноты в `src/prototype/audio-score.js`: мягкий mallet, pad-трезвучия, бас,
+низкий pulse и тихий brush. Используются sine/triangle осцилляторы и огибающие,
+без записей, сторонних мелодий, samples и внешних генераторов. Код и партитура
+созданы для Magnet Sort; сторонних аудиолицензий/файлов нет, сетевой вес аудиофайлов — 0.
+
+| Сигнал | Момент |
+| --- | --- |
+| `ui`, `select`, `place`, `reject` | Действие UI, один выбор/drag, accepted placement, занятая клетка/X |
+| `move`, `collect`, `arrive` | Посадка `unitMoved`, accentStart десятки, flights[].end сбора |
+| `spawn`, `queue` | Start соответствующего presentation segment |
+| `won`, `lost` | Переход к результату после timeline, один раз за run; музыка кратко приглушается |
+
+`audio.js` принадлежит runtime: один gesture-started AudioContext, отдельные
+music/SFX gain buses, low-pass и общий compressor, максимум 16 голосов, из них
+8 SFX. Музыка использует audio clock и один lookahead timer 100 мс / 250 мс.
+Pause сохраняет позицию музыки; hidden/platform/blur полностью останавливают вывод.
+Dispose закрывает контекст, освобождает nodes/listeners/timer. В игровой idle нет
+дополнительного RAF. В production нет audio debug journal.
+
+`audio-settings.js`: изолированный `magnet-sort.audio.v1`, defaults 35% music / 70%
+SFX, оба enabled после разрешённого жеста. Кнопки Music/Sounds и две громкости
+на паузе; volume=0 не меняет enabled. Ошибка storage оставляет настройки в памяти.
+Legacy progress и haptics не переносятся. Пользователь одобрил записи музыки и
+эффектов 2026-10-19; технические проверки и ограничения — в [GAME_AUDIO](../reports/GAME_AUDIO.md).
+
+API сверены по [AudioContext](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext)
+и [OfflineAudioContext.startRendering](https://developer.mozilla.org/en-US/docs/Web/API/OfflineAudioContext/startRendering), 2026-10-19.
+
 ## Визуальный стиль по референсу — 2026-10-07
 
 Фишки, округлённые hex-лунки, деревянные ящики и U-магнит созданы для проекта как SVG в src/render/art.js. Референс пользователя используется для композиции и материалов; фрагменты приложенной картинки в runtime не копируются. public/art/garden.svg — оригинальный векторный сад с небом, листьями и горшками. SVG-иконки HUD/result создаются в src/ui/icons.js.
@@ -14,7 +46,7 @@
 
 Отчёт и сценарий визуальной проверки: [VISUAL_REFERENCE.md](../reports/VISUAL_REFERENCE.md).
 
-## Аудио и тактильная обратная связь
+## Историческое аудио Pixi MVP и тактильная обратная связь
 
 В задаче TASK-0017 звуковые сигналы создаются кодом через Web Audio API; внешние записи, samples, fonts и изображения для звука не используются.
 

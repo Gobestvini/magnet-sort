@@ -103,3 +103,18 @@ body,.loading-screen{background-image:url('/art/mockup/background-v2.png');backg
 .tutorial-guide .tutorial-drag-hand{position:absolute;left:-8px;top:-5px;width:64px;height:64px;max-width:none;object-fit:contain;filter:drop-shadow(0 3px 2px #24065555)}
 .tutorial-guide[data-still=true] .tutorial-carrier{opacity:1;transform:translate(var(--guide-x),var(--guide-y));will-change:auto}
 .tutorial-guide[data-still=true] .tutorial-ghost-magnet{display:none}
+.pause-dialog{padding:20px;align-items:center;overflow:hidden}
+.pause-dialog .modal-panel{max-height:calc(100svh - 40px);overflow-y:auto;overflow-x:hidden;padding:26px 24px;gap:16px;overscroll-behavior:contain;scrollbar-width:thin}
+.pause-dialog .modal-close{right:8px;top:8px;width:44px;height:44px}
+.pause-dialog .modal-magnet{width:86px;height:72px}
+.audio-settings{display:grid;gap:14px;text-align:left}
+.audio-setting{border-radius:17px;padding:10px 14px;background:#e4cff0a6;border:1px solid #caa5e1}
+.audio-setting-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:20px;font-weight:900;color:#5915ab}
+.audio-toggle{min-width:70px;min-height:44px;border:2px solid #7b41b7;border-radius:22px;background:#faf3ff;color:#632c94;font:inherit;font-size:17px;box-shadow:0 2px 0 #58248733;cursor:pointer}
+.audio-toggle[aria-pressed=true]{background:#6e35b8;color:#fff;border-color:#572299}
+.audio-toggle:focus-visible,.audio-volume input:focus-visible{outline:3px solid #f5b325;outline-offset:3px}
+.audio-volume{display:flex;align-items:center;gap:10px;min-height:44px;color:#6c4886;font-weight:800}
+.audio-volume input{width:100%;min-width:0;min-height:44px;accent-color:#793ac6;cursor:pointer;margin:0}
+.audio-volume output{width:4ch;flex-shrink:0;text-align:right;font-size:14px;font-variant-numeric:tabular-nums}
+@media(max-height:550px){.pause-dialog .modal-panel{padding:18px 22px;gap:10px}.pause-dialog .modal-magnet{display:none}.audio-settings{gap:8px}.audio-setting{padding:4px 12px}.audio-setting-heading{font-size:18px}.pause-dialog .primary-button,.pause-dialog .secondary-button{min-height:44px}}
+@media(min-width:701px) and (max-height:550px){.audio-setting{display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px;align-items:center}.audio-setting-heading{font-size:16px;gap:8px}.audio-toggle{min-width:54px}.audio-volume{gap:6px}}

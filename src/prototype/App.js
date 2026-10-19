@@ -34,7 +34,7 @@ function MagnetTray({state, selected, locked, reduced, onSelect, onToolDown}) {
     key:color,type:'button',className:'magnet-tool '+(selected===color?'is-selected':''),
     style:{'--magnet-color':COLORS[color].hex,'--range-hue':rangeHue(color)+'deg'},disabled:locked,'data-magnet-color':color,
     'aria-label':COLORS[color].label+' magnet, '+magnetRadius(state,color)+' hex '+(magnetRadius(state,color)===1?'ring':'rings'),'aria-pressed':selected===color,
-    onClick:()=>onSelect(color),onPointerDown:event=>onToolDown(event,color)
+    onClick:event=>{ if(event.detail===0)onSelect(color); },onPointerDown:event=>onToolDown(event,color)
   },h(MagnetIcon,{color}),h('span',{className:'magnet-range','data-radius':magnetRadius(state,color),'aria-hidden':'true'},h('img',{src:rangeArt(magnetRadius(state,color)),alt:''})))));
 }
 
@@ -60,7 +60,7 @@ function Modal({ children, label, onClose, variant = '', reduced = false }) {
 }
 
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget }) {
+  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget, audioSettings, onAudioChange }) {
   const tutorial = levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
@@ -109,8 +109,19 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
       h('h2', null, "COULDN'T OPEN THE BOARD"), h('div', { className: 'modal-magnet' }, h(MagnetIcon)),
       h('p', null, 'Please try again'), h('button', { className: 'primary-button', onClick: onRetryRenderer }, 'Retry'),
       h('small', null, 'Check your connection and browser support')) :
-    paused ? h(Modal, { key:'pause', reduced, label: 'Paused', onClose: onPause },
+    paused ? h(Modal, { key:'pause', reduced, label: 'Paused', onClose: onPause, variant: 'pause-dialog' },
       h('h2', { className: 'live-heading' }, 'PAUSED'), h('div', { className: 'modal-magnet' }, h(MagnetIcon)),
+      h('div', { className: 'audio-settings', 'aria-label': 'Audio settings' },
+        [['music','Music'],['sfx','Sounds']].map(([channel,label])=>h('div',{key:channel,className:'audio-setting'},
+          h('div',{className:'audio-setting-heading'},h('span',{id:channel+'-name'},label),
+            h('button',{type:'button',className:'audio-toggle','aria-label':label,'aria-pressed':audioSettings[channel+'Enabled'],
+              onClick:event=>onAudioChange({[channel+'Enabled']:!audioSettings[channel+'Enabled']},event)},audioSettings[channel+'Enabled']?'On':'Off')),
+          h('label',{className:'audio-volume',htmlFor:channel+'-volume'},
+            h('span',{className:'sr-only'},label+' volume'),
+            h('input',{id:channel+'-volume',type:'range',min:0,max:100,step:1,value:Math.round(audioSettings[channel+'Volume']*100),
+              'aria-label':label+' volume','aria-valuetext':Math.round(audioSettings[channel+'Volume']*100)+'%',
+              onInput:event=>onAudioChange({[channel+'Volume']:Number(event.currentTarget.value)/100},event)}),
+            h('output',{'aria-hidden':'true'},Math.round(audioSettings[channel+'Volume']*100)+'%'))))),
       h('button', { className: 'primary-button', onClick: onPause }, 'Resume'),
       h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Restart')) :
     result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Board full', variant: state.terminal === 'won' ? 'victory-dialog' : 'defeat-dialog' },

@@ -11,7 +11,8 @@
 - Шаги идут вверх с нуля, отмена/промах не расходуют ход. Победа — goal; поражение — нет пустой клетки. 3/2/1 звезды зависят от числа принятых ходов по общим порогам. Числа спавна и звёзд — стартовый баланс автора, не исследованная оптимальность.
 - 12 уровней хранят лишь identity/number/blockers. Старые authored v3 данные и legacy MVP сохранены как регрессии; случайные поля не объявляются доказанными старым solver.
 - Three.js 0.186.1 + Preact, английский интерфейс, RGBA PNG assets, единый SVG backdrop/idle, один app-owned RAF/fixed step, immutable model/events, reduced motion, pause/hidden/resize/reset/dispose.
-- За границами запроса: перенос legacy save/social/ads/audio, монетизация, physics engine, свободная камера, Telegram. Коммит/push/Pages выполняются по постоянному разрешению AGENTS.md.
+- Аудио с 2026-10-19: оригинальная 80-секундная Little Orbits и эффекты активной игры; на паузе раздельные Music/Sounds и громкости с сохранением. Gesture unlock, pause/hidden/platform/blur, reset/dispose; legacy haptics и progress не переносятся. [Партитура и источники](design/ASSETS.md).
+- За границами запроса: перенос legacy save/social/ads/haptics, монетизация, physics engine и свободная камера. Платформы уже подключены через отдельные web/embed/telegram entry; реальный Telegram без запроса не запускать. Коммит/push/Pages выполняются по постоянному разрешению AGENTS.md.
 
 ## Устройства и evidence
 

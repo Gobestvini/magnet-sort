@@ -1,5 +1,16 @@
 # Карта проекта
 
+Аудио v4, 2026-10-19: `src/prototype/audio-score.js` — оригинальная 80-секундная
+Little Orbits и 11 семейств SFX; `audio.js` — runtime-owned context/mix,
+bounded scheduler/voices, presentation-boundary cues и lifecycle;
+`audio-settings.js` — отдельное versioned storage с fallback. `runtime.js`
+подключает доверенный ввод, pause/platform/hidden/focus/reset/dispose;
+`App.js`/`prototype.css` показывают Music/Sounds и два volume на паузе.
+`tests/prototype-audio.test.js`, `tests/audio-settings.test.js` и
+`tools/audio-browser-check.cjs` проверяют настройки, сигнал, синхронизацию,
+ввод, результат и ресурсы; platform browser tool также проверяет звук в iframe
+и mock bridge pause. [Источники и партитура](design/ASSETS.md), [проверки](reports/GAME_AUDIO.md).
+
 Платформы, 2026-10-19: `src/platforms/bootstrap.js` владеет общей загрузкой,
 runtime и адаптером; `web/`, `embed/`, `telegram/` — отдельные entry/bridge.
 `tools/platforms/` — profiles/runner, graph isolation, licenses, final-byte hashes,

@@ -1,6 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
 const {chromium}=require('playwright');
 const {smoke,keyboardPlace,readyTools}=require('../v4-browser-check.cjs');
+const {probe:audioProbe}=require('../audio-browser-check.cjs');
 // Only the bridge boundary is simulated. The production renderer/game are real.
 async function bridge(page) {
   await page.route('https://telegram.org/js/telegram-web-app.js',route=>route.fulfill({contentType:'text/javascript',body:''}));
@@ -33,7 +34,7 @@ async function main() {
     if(!process.env.PLATFORM_SMOKE_SKIP){await smoke(web,'artifacts/platforms/web');await smoke(base+'telegram/','artifacts/platforms/telegram',bridge);}
     const browser=await chromium.launch({headless:true});
     try {
-      const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});await bridge(page);
+      const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});await bridge(page);await audioProbe(page);
       const errors=[];page.on('pageerror',e=>errors.push(e.message));
       await page.goto(web);await page.waitForFunction(()=>!document.body.dataset.startup);
       await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
@@ -42,11 +43,17 @@ async function main() {
       assert.equal(await page.evaluate(()=>tgTest.ready),1);
       assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--platform-inset-top')),'36px');
       await page.getByRole('button',{name:'Pause',exact:true}).click();
+      await page.waitForFunction(()=>__audioProbe().states.includes('running'));
       await page.evaluate(()=>{tgTest.emit('deactivated');tgTest.emit('activated');});
       await page.getByRole('dialog',{name:'Paused',exact:true}).waitFor(); // Platform resume preserves user pause.
       await page.getByRole('button',{name:'Resume',exact:true}).click();
+      await page.waitForFunction(()=>__audioProbe().timers===1);
       await page.evaluate(()=>tgTest.emit('deactivated'));await page.getByRole('dialog',{name:'Paused',exact:true}).waitFor();
+      await page.waitForTimeout(80);assert.equal(await page.evaluate(()=>__audioProbe().timers),0);
+      assert.ok(await page.evaluate(()=>__audioProbe().rms)<.0001,'platform deactivation silences audio');
       await page.evaluate(()=>tgTest.emit('activated'));assert.equal(await page.getByRole('dialog',{name:'Paused',exact:true}).count(),0);
+      // The SDK cannot grant autoplay: use the next actual trusted input if resume requires it.
+      await page.locator('.magnet-tool').first().click();await page.waitForFunction(()=>__audioProbe().timers===1);
       await page.screenshot({path:'artifacts/platforms/telegram-portrait.png',fullPage:true});
       await page.setViewportSize({width:844,height:390});
       await page.evaluate(()=>{Telegram.WebApp.viewportStableHeight=390;Telegram.WebApp.viewportHeight=390;tgTest.emit('viewportChanged',{isStateStable:true});});
@@ -73,9 +80,11 @@ async function main() {
       const plain=await browser.newPage();await plain.route('https://telegram.org/js/telegram-web-app.js',r=>r.fulfill({contentType:'text/javascript',body:'window.Telegram={WebApp:{initData:""}};'}));
       await plain.goto(base+'telegram/');await plain.getByText(/Open Magnet Sort from/).waitFor();assert.equal(await plain.locator('canvas').count(),0);await plain.close();
       if(server){
-        const host=await browser.newPage({viewport:{width:800,height:1000},reducedMotion:'reduce'});const sdk=[];host.on('request',r=>{if(r.url().includes('telegram.org'))sdk.push(r.url());});
+        const host=await browser.newPage({viewport:{width:800,height:1000},reducedMotion:'reduce'});await audioProbe(host);const sdk=[];host.on('request',r=>{if(r.url().includes('telegram.org'))sdk.push(r.url());});
         await host.goto(new URL('/host.html',base).href);const frame=host.frameLocator('iframe');await frame.locator('.magnet-tool:not(:disabled)').first().waitFor();
         await frame.getByRole('button',{name:'Pause',exact:true}).click();await frame.getByRole('button',{name:'Resume',exact:true}).click();
+        const gameFrame=await (await host.locator('iframe').elementHandle()).contentFrame();
+        await gameFrame.waitForFunction(()=>__audioProbe().contexts===1&&__audioProbe().timers===1&&__audioProbe().rms>.001);
         assert.deepEqual(sdk,[]);await host.screenshot({path:'artifacts/platforms/embed.png',fullPage:true});await host.close();
       }
     }finally{await browser.close();}
