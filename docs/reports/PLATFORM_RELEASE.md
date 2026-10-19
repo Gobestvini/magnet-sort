@@ -41,7 +41,14 @@ Publication results are verified separately after committing. HTTPS targets:
 https://play.plusvibegames.com/magnet-sort/ and its `telegram/` subdirectory;
 GitHub Pages publishes the same combined tree and retains the embed ZIP.
 
-Remaining external prerequisite: owner confirmed no game bot exists yet.
-[BotFather setup](../platforms/telegram.md) includes exact URL and suggested
-name/username. No live t.me link, actual Telegram-client launch or physical-phone
-acceptance is claimed by the automated bridge tests.
+Game bot setup completed on 2026-10-19: owner created @MagnetSortPuzzleBot;
+default Play menu/description/About were applied with Bot API read-back.
+BotFather confirmed Main Mini App URL, getMe has_main_web_app=true, and the
+profile displays OPEN APP. Main link: https://t.me/MagnetSortPuzzleBot?startapp.
+
+Actual Telegram Web (weba 9.6) launch through OPEN APP, one accepted placement
+(MOVES 1), Pause and Resume passed with the official live bridge. The owner
+explicitly accepted Telegram Mini Apps terms before launch. This supplements
+the earlier mock-bridge tests; it is not native Desktop/physical-phone evidence.
+No account launch data or bot credentials were persisted. Screenshot/status
+are in ignored artifacts/bot-setup. [Setup and remaining device checks](../platforms/telegram.md).

@@ -21,6 +21,16 @@ checks exercise real worker scope, corrupted cache repair, web→Telegram,
 mock-bridge pause/ready/geometry and iframe. See
 [report](../reports/PLATFORM_RELEASE.md) and [commands](../platforms/README.md).
 
-Limits: cache/SDK mocks are browser evidence, not a physical device or portal
-approval. Source identity requires a clean build. Resource caching does not
-provide offline HTML/game launch. BotFather creation remains external.
+Bot setup follow-up, 2026-10-19: owner-created @MagnetSortPuzzleBot now has a
+read-back-verified Play menu and BotFather Main Mini App. getMe flag and profile
+OPEN APP independently confirmed the latter; a real authorized Telegram Web
+launch, one move and pause/resume passed. A successful setChatMenuButton response
+initially preceded the expected getChatMenuButton result; later read-back
+matched. Query, JSON-body and form transports were tried, so no single transport
+is claimed as the cause or fix. Verify eventual state rather than assuming that
+an acknowledged write is already visible. Token remained ephemeral and absent
+from files. See the project report for evidence and device limits.
+
+Limits: cache/SDK mocks and actual Telegram Web are different browser evidence;
+neither is a physical device or portal approval. Source identity requires a
+clean build. Resource caching does not provide offline HTML/game launch.

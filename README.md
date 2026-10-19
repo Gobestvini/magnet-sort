@@ -4,8 +4,9 @@
 и `build:platforms`; изоляция SDK, лицензии, SHA-256 ресурсов, resource cache
 и воспроизводимый `package:embed`. [Перенос практик White Tower](docs/platforms/README.md).
 Telegram: [HTTPS-адрес](https://play.plusvibegames.com/magnet-sort/telegram/),
-[подключение бота](docs/platforms/telegram.md). Бот ещё не создан;
-native Telegram/телефон не проверены.
+[подключение бота](docs/platforms/telegram.md), [запуск в Telegram](https://t.me/MagnetSortPuzzleBot?startapp).
+Main Mini App и Play настроены; реальный Telegram Web: запуск, ход и pause/resume
+проверены. Native Telegram Desktop и физический телефон отдельно не проверены.
 
 Обучение, 2026-10-18: стрелка идёт от выбранного магнита к свободной клетке с притяжением его цвета; рука с копией магнита повторяет перетаскивание. Подсказка обновляется при выборе, resize/scroll и скрывается во время ввода, паузы и после первого хода. При уменьшенном движении остаётся статичной. Проверка dev/production: `node tools/tutorial-browser-check.cjs` (по умолчанию обслуживает `dist` под `/magnet-sort/`; для dev задать `GAME_BASE_URL`).
 
