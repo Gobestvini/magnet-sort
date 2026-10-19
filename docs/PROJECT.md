@@ -1,5 +1,15 @@
 # Карта проекта
 
+Платформы, 2026-10-19: `src/platforms/bootstrap.js` владеет общей загрузкой,
+runtime и адаптером; `web/`, `embed/`, `telegram/` — отдельные entry/bridge.
+`tools/platforms/` — profiles/runner, graph isolation, licenses, final-byte hashes,
+resource worker, publication staging и reproducible embed ZIP. Общая регистрация
+кэша — `src/loading/resource-cache.js`. Runtime объединяет user/platform pause OR.
+`tests/platform-release.test.js`, `tests/telegram-setup.test.js` и
+`tools/platforms/browser-check.cjs` проверяют контракты и production artifacts.
+[Команды и ограничения](platforms/README.md), [настройка Telegram](platforms/telegram.md),
+[проверенный приём](knowledge/platform-builds.md).
+
 Обучение, 2026-10-18: `tutorial-guide.js` выбирает legal/effective клетку без RNG и задаёт кривую; `TutorialGuide.js` измеряет выбранную tray-картинку и текущую проекцию board, владеет WAAPI/observers/listeners. `App.js` монтирует guide только на первом ходе первого уровня без overlay; runtime кеширует cell по state/color. `tests/tutorial-guide.test.js` — 100 seed и чистота; `tools/tutorial-browser-check.cjs` — реальные pointer/touch события в Chromium, пять viewport, selection/resize/scroll/cancel/pause/reduced/reset/dispose. [Проверенный приём](knowledge/tutorial-drag.md).
 
 Загрузка/production, 2026-10-18: `index.html` + inline `src/loading/shell.css` дают первый paint без картинок/внешнего CSS. `src/main.js` ждёт decode shell до импорта runtime; `src/loading/shell.js` владеет RAF, timeout/error/Retry, inert и reveal; `visible-progress.js` считает только видимое время (минимум 1000 мс). `src/art/catalog.js` — allowlist ресурсов/preload, `urls.js` — URL resolver; `tools/production-art.mjs` подключает hashed WebP в JS/CSS без изменения оригиналов, исключает public целиком и выдаёт build-info/resource-sizes. `deploy/` — отдельный atomic publisher и дополнительный Caddy route; `tools/loading-browser-check.cjs` — стадии, четыре viewport, reduced motion и пять отказов/Retry. [Отчёт](reports/STARTUP_PRODUCTION.md), [проверенный приём](knowledge/startup-production.md).

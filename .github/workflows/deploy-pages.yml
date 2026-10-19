@@ -23,14 +23,22 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
+      - run: pnpm check:full
       - run: pnpm exec playwright install --with-deps chromium
       - run: node tools/loading-browser-check.cjs
       - run: node tools/pages-browser-check.cjs
       - run: node tools/tutorial-browser-check.cjs
+      - run: pnpm build:platforms
+      - run: pnpm test:platforms
+      - run: pnpm package:embed
+      - uses: actions/upload-artifact@v4
+        with:
+          name: magnet-sort-embed
+          path: artifacts/magnet-sort-embed
+      - run: node tools/platforms/stage-publication.mjs
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: dist
+          path: artifacts/public-game
 
   deploy:
     needs: build

@@ -10,8 +10,9 @@ route = '''
     # Magnet Sort static game
     redir /magnet-sort /magnet-sort/ 308
     handle_path /magnet-sort/* {
-        @magnet_assets path /assets/*
-        @magnet_fresh not path /assets/*
+        redir /telegram /magnet-sort/telegram/ 308
+        @magnet_assets path /assets/* /telegram/assets/*
+        @magnet_fresh not path /assets/* /telegram/assets/*
         root @magnet_fresh /srv/static/magnet-sort/current
         root @magnet_assets /srv/static/magnet-sort/shared
         header @magnet_fresh Cache-Control "no-cache"

@@ -1,5 +1,12 @@
 # Magnet Sort — 3D-прототип
 
+Платформы, 2026-10-19: отдельные `build:web`, `build:embed`, `build:telegram`
+и `build:platforms`; изоляция SDK, лицензии, SHA-256 ресурсов, resource cache
+и воспроизводимый `package:embed`. [Перенос практик White Tower](docs/platforms/README.md).
+Telegram: [HTTPS-адрес](https://play.plusvibegames.com/magnet-sort/telegram/),
+[подключение бота](docs/platforms/telegram.md). Бот ещё не создан;
+native Telegram/телефон не проверены.
+
 Обучение, 2026-10-18: стрелка идёт от выбранного магнита к свободной клетке с притяжением его цвета; рука с копией магнита повторяет перетаскивание. Подсказка обновляется при выборе, resize/scroll и скрывается во время ввода, паузы и после первого хода. При уменьшенном движении остаётся статичной. Проверка dev/production: `node tools/tutorial-browser-check.cjs` (по умолчанию обслуживает `dist` под `/magnet-sort/`; для dev задать `GAME_BASE_URL`).
 
 Загрузка и production, 2026-10-18: CSS-прелоадер → игровой экран с логотипом Plus Vibe без видимых процентов → готовое поле после минимум 1 с видимого показа. Перенесены подход и бренд из White Tower; игровые изображения сохранены Magnet Sort. `pnpm build` минифицирует JS/CSS, переводит PNG в WebP с неизменными размерами и выпускает только используемые ресурсы. Серверный адрес: [Plus Vibe](https://play.plusvibegames.com/magnet-sort/); [публикация и откат](deploy/README.md), [проверки](docs/reports/STARTUP_PRODUCTION.md).

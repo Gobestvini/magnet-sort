@@ -17,9 +17,17 @@
     "context": "node tools/telegram/knowledge.js",
     "test:browser": "node tools/browser-check.cjs",
     "telegram": "node tools/telegram/bot.js",
-    "telegram:check": "node tools/telegram/bot.js --check"
+    "telegram:check": "node tools/telegram/bot.js --check",
+    "build:web": "node tools/platforms/build.mjs web",
+    "build:embed": "node tools/platforms/build.mjs embed",
+    "build:telegram": "node tools/platforms/build.mjs telegram",
+    "build:platforms": "node tools/platforms/build.mjs all",
+    "telegram:setup": "node tools/platforms/telegram-setup.mjs",
+    "test:platforms": "node tools/platforms/browser-check.cjs",
+    "package:embed": "node tools/platforms/package.mjs"
   },
   "devDependencies": {
+    "fflate": "0.8.3",
     "playwright": "^1.63.0",
     "sharp": "0.35.5",
     "vite": "7.1.9"

@@ -56,12 +56,13 @@ async function readyTools(page){
  }
  throw new Error('Available magnets did not return after resolution');
 }
-async function smoke(base,output='artifacts/v4-browser'){
+async function smoke(base,output='artifacts/v4-browser',setupPage=async()=>{}){
  const planned=await route();fs.mkdirSync(output,{recursive:true});
  const browser=await chromium.launch({headless:true,...(process.env.BROWSER_CHANNEL?{channel:process.env.BROWSER_CHANNEL}:{})});
  try{
  for(const [name,viewport,touch] of [['desktop',{width:1280,height:900},false],['mobile',{width:390,height:844},true]]){
   const page=await browser.newPage({viewport,hasTouch:touch,isMobile:touch,reducedMotion:'reduce'});
+  await setupPage(page);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   page.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url());});
   await page.goto(base+(base.includes('?')?'&':'?')+'seed='+planned.seed);

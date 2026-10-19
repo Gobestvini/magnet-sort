@@ -27,6 +27,7 @@ let runSeed = fixedSeed ?? newSeed();
 let levelIndex = 0, level = prototypeLevels[0], state = createV4State(level, runSeed);
 let boardLevel = { ...level, cells: V4_CELLS };
 let runId = 1;
+let userPaused = false, platformPaused = false;
 let selected = state.magnets[0], phase = 'playing', paused = false, notice = `Collect ${state.goal} pieces. Place a magnet on an empty tile.`;
 let displayedCleared = 0;
 const collection = createCollectionView();
@@ -63,7 +64,7 @@ function ui() {
   render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, magnetRadii:timeline&&elapsed<timeline.queueStart?timeline.before.magnetRadii:state.magnetRadii, magnets, queueTurn, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
     canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
     getTutorialTarget,
-    onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!paused), onReset: reset,
+    onSelect: select, onToolDown: toolDown, onPause: () => setPaused(!userPaused), onReset: reset,
     onNext: () => loadLevel((levelIndex + 1) % prototypeLevels.length), onHint: hint,
     onReduced: event => { reduced = event.currentTarget.checked; ui(); }, onKeyboard: keyboard,
     onRetryRenderer: initializeBoard }), root);
@@ -214,7 +215,11 @@ function keyboard(event) {
   ui(); draw(); schedule();
 }
 function setPaused(value) {
-  paused = Boolean(value); cancelGesture(); cancelFrame(); ui(); draw();
+  userPaused = Boolean(value); updatePause();
+}
+export function setPlatformPaused(value) { platformPaused = Boolean(value); updatePause(); }
+function updatePause() {
+  paused = userPaused || platformPaused; cancelGesture(); cancelFrame(); ui(); draw();
   if (!paused) schedule();
 }
 function reset() { loadLevel(levelIndex, runSeed); }
@@ -224,7 +229,7 @@ function loadLevel(index, seed = fixedSeed ?? newSeed()) {
   cancelGesture(); cancelFrame(); timeline = null; elapsed = 0; previousElapsed = 0; keyboardCell = null;
   levelIndex = index; level = prototypeLevels[index]; runSeed=seed; state = createV4State(level, runSeed);
   boardLevel = { ...level, cells: V4_CELLS }; displayedMagnets=state.magnets.join(',');displayedQueueTurn=0;
-  phase = 'playing'; paused = false; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
+  phase = 'playing'; userPaused = false; paused = platformPaused; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
   displayedCleared = 0; collection.clear();
   ui(); draw();
 }

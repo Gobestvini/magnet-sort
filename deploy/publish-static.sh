@@ -12,7 +12,7 @@ python3 - "$SOURCE" <<'PY'
 import json, pathlib, re, sys
 root = pathlib.Path(sys.argv[1])
 info = json.loads((root / 'build-info.json').read_text())
-if info['game'] != 'magnet-sort' or info['base'] != './' or not info['minified'] or not re.fullmatch('[a-f0-9]{40}', info['revision']):
+if info['game'] != 'magnet-sort' or info.get('target') != 'web' or info['base'] != './' or not info['minified'] or not re.fullmatch('[a-f0-9]{40}', info['revision']):
     raise SystemExit('Wrong game, base or revision')
 if not (root / 'index.html').is_file() or not (root / 'assets').is_dir():
     raise SystemExit('Incomplete static release')
@@ -22,12 +22,28 @@ for p in root.rglob('*'):
 for asset in info['assets']:
     if not asset.startswith('assets/') or '..' in asset or not (root / asset).is_file():
         raise SystemExit('Missing or unsafe build asset')
+import hashlib
+for target, directory in [('web', root), ('telegram', root / 'telegram')]:
+    target_info = json.loads((directory / 'build-info.json').read_text())
+    graph = json.loads((directory / 'platform-modules.json').read_text())
+    if target_info.get('game') != 'magnet-sort' or target_info.get('target') != target or target_info.get('revision') != info['revision'] or target_info.get('base') != './' or graph != {'target': target, 'adapters': [target]}:
+        raise SystemExit('Mixed platform release')
+    manifest = json.loads((directory / 'resource-cache.json').read_text())
+    for asset in manifest['assets']:
+        name = asset['url']
+        if not name.startswith('assets/') or '..' in name or '\\' in name:
+            raise SystemExit('Unsafe resource path')
+        data = (directory / name).read_bytes()
+        if len(data) != asset['bytes'] or hashlib.sha256(data).hexdigest() != asset['sha256']:
+            raise SystemExit('Resource checksum mismatch')
 PY
 [[ ! -e "$ROOT/releases/$RELEASE" ]] || { echo 'Release already exists' >&2; exit 1; }
 cp -R -- "$SOURCE" "$ROOT/releases/$RELEASE"
 chmod -R a+rX "$ROOT/releases/$RELEASE"
 # Old content-hashed URLs must remain usable by clients already running the game.
 cp -Rn -- "$SOURCE/assets/." "$ROOT/shared/assets/"
+mkdir -p "$ROOT/shared/telegram/assets"
+cp -Rn -- "$SOURCE/telegram/assets/." "$ROOT/shared/telegram/assets/"
 ln -s "releases/$RELEASE" "$ROOT/.current-$RELEASE"
 mv -Tf -- "$ROOT/.current-$RELEASE" "$ROOT/current"
 echo "Magnet Sort release switched to $RELEASE"

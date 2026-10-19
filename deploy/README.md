@@ -1,5 +1,17 @@
 # Magnet Sort static publication
 
+Since 2026-10-19 publish a combined tree: web root + `telegram/`.
+Run full checks/default browser checks, `pnpm build:platforms`,
+`pnpm test:platforms`, then `node tools/platforms/stage-publication.mjs`.
+Upload **artifacts/public-game contents** rather than dist. The updated publisher
+requires both targets at the same source revision and verifies every asset hash.
+Install the updated configure-caddy.py/publish-static.sh; back up, configure,
+validate and reload Caddy using the existing procedure below. Both `/assets/`
+and `/telegram/assets/` use retained shared hashed files. HTML/metadata/workers
+remain no-cache. Verify both build-info revisions and the Telegram launch gate.
+For full HTTPS platform checks use PLATFORM_BASE_URL with PUBLICATION_LAYOUT=combined.
+Bot creation and Main Mini App are separate: [Telegram setup](../docs/platforms/telegram.md).
+
 Production: https://play.plusvibegames.com/magnet-sort/ . GitHub Pages remains
 https://gobestvini.github.io/magnet-sort/ . Both use the same relative-base build.
 
