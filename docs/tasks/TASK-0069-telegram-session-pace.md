@@ -90,7 +90,7 @@ Preview A/B/C на desktop и при наличии физическом тел�
 - Результат: Сравнены A/B/C на3600 модельных runs,108 replay-verified witnesses; B рекомендован для человеческой проверки. Production пресет не переключён.
 - Изменённые файлы и зачем: узкий createV4Rules seam, transient DEV injection и forecast schedule; tools/experiments/* — presets/runner/golden traces/preview; tests/experiment-profile.test.js; отчёт и агрегированные JSON.
 - Команды и фактические результаты: baseline --measure-only PASS; node tools/experiments/telegram-pace.mjs PASS; default36 traces/A совпали;239/239 full tests/build PASS; DEV A/B/C browser и9 real timeline/wall samples PASS.
-- Ручные проверки: browser осмотр существующей игры/forecast и локальный real renderer preview. Двух добровольных игроков не было; automatic strategy не выдана за людей.
+- Ручные проверки: browser осмотр существующей игры/forecast и локальный real renderer preview; дополнительно реальная победа B/L1 подтверждает учёт финальной анимации в журнале through-result-2. Двух добровольных игроков не было; automatic strategy не выдана за людей.
 - Выполненные критерии: воспроизводимость/hash inputs, unknown отдельно, witnesses, сравнение темпа/звёзд и сохранность default. Полный отчёт docs/reports/TELEGRAM_SESSION_PACE.md.
 - Непроверенное, блокеры и отклонения от плана: человеческое A/B сравнение и физический телефон; поэтому review. Пресеты/звёзды не внедрены, следующий release scope не расширялся.
 - Итоговый статус и дата: review,2026-10-19.

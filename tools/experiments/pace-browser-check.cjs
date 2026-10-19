@@ -31,8 +31,29 @@ async function main(){
   await page.screenshot({path:'artifacts/telegram-pace/preview-'+id+'.png',fullPage:true});
  }
  assert.deepEqual(errors,[]);
+ // Human timing includes the final collection, even after model.terminal is set.
+ await page.locator('#profile').selectOption('B');await page.locator('#level').fill('1');
+ await page.getByRole('button',{name:'Начать попытку',exact:true}).click();
+ await page.waitForFunction(expected=>{const w=document.querySelector('iframe').contentWindow;return new URLSearchParams(w.location.search).get('paceRun')===String(expected)&&w.gameDebug?.snapshot().state.levelNumber===1;},++run);
+ const finalFrame=page.frames().find(f=>f.url().includes('paceRun='));
+ await finalFrame.waitForFunction(()=>!window.gameDebug.snapshot().loading&&!document.body.dataset.startup);
+ const {runPace}=await import('./telegram-pace.mjs'),winning=runPace('B',1,0);
+ assert.equal(winning.outcome,'won');
+ for(const action of winning.actions){
+  if(await finalFrame.getByRole('dialog',{name:'Paused',exact:true}).count())await finalFrame.getByRole('button',{name:'Resume',exact:true}).click();
+  await finalFrame.locator('[data-magnet-color="'+action.color+'"]').click();
+  await keyboardPlace({locator:s=>finalFrame.locator(s),keyboard:page.keyboard},action.cell);
+  const current=await finalFrame.evaluate(()=>window.gameDebug.snapshot());
+  if(current.state.terminal){
+   await page.waitForFunction(()=>document.querySelector('#live').textContent.includes('resolving'));
+   const beforeTime=Number((await page.locator('#live').textContent()).match(/Видимое время: (\d+)/)[1]);
+   await finalFrame.waitForFunction(()=>window.gameDebug.snapshot().phase==='won');
+   await page.waitForFunction(before=>{const t=document.querySelector('#live').textContent;return t.includes('won')&&Number(t.match(/Видимое время: (\d+)/)[1])>before;},beforeTime);
+  }else await finalFrame.waitForFunction(()=>window.gameDebug.snapshot().phase==='playing');
+ }
+ assert.deepEqual(errors,[]);
  fs.writeFileSync('artifacts/telegram-pace/browser-timing.json',JSON.stringify({date:'2026-10-19',browser:browser.version(),viewport:{width:1120,height:1080},device:'Local Windows headless Chromium; one machine, sequential; not a phone or human playtest',rows},null,2));
- console.log('PASS local A/B/C preview, shared real renderer/session/input, no campaign writes, nine normal-motion wall/timeline measurements.');
+ console.log('PASS local A/B/C preview, shared real renderer/session/input, no campaign writes, nine wall/timeline measurements; final collection included in human timing.');
  }finally{await browser.close();}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

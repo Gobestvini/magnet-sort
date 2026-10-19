@@ -8,7 +8,7 @@ $('setup').addEventListener('submit',event=>{
   if(!Number.isInteger(level)||level<1||level>12||!Number.isInteger(seed)||seed<0||seed>0xffffffff)return;
   const rules=paceRules(id);
   window.__magnetPaceExperiment={rules,levelIndex:level-1};
-  active={version:PACE_VERSION,player:$('player').value||'P1',profile:id,level,seed,startedAt:new Date().toISOString(),activeSeconds:0,idleSeconds:0,actions:[],outcome:'playing',notes:''};
+  active={version:PACE_VERSION,timingVersion:'through-result-2',player:$('player').value||'P1',profile:id,level,seed,startedAt:new Date().toISOString(),activeSeconds:0,idleSeconds:0,actions:[],outcome:'playing',notes:''};
   last=performance.now();lastMove=last;lastCount=0;$('notes').value='';
   frame.src='/?seed='+seed+'&paceRun='+(++sequence);
 });
@@ -18,8 +18,8 @@ const timer=setInterval(()=>{
   let s;try{s=frame.contentWindow.gameDebug?.snapshot();}catch{return;}
   if(!s||s.loading)return;
   if(s.state.movesUsed!==lastCount){lastCount=s.state.movesUsed;lastMove=now;}
-  if(!document.hidden&&!s.paused&&!s.state.terminal){active.activeSeconds+=dt;if(now-lastMove>15000)active.idleSeconds+=dt;}
-  active.actions=s.attempt.actions;active.outcome=s.state.terminal??'playing';active.moves=s.state.movesUsed;active.cleared=s.state.cleared;active.stars=s.state.stars;
+  if(!document.hidden&&!s.paused&&!s.error&&['playing','resolving'].includes(s.phase)){active.activeSeconds+=dt;if(now-lastMove>15000)active.idleSeconds+=dt;}
+  active.actions=s.attempt.actions;active.outcome=s.phase==='resolving'?'resolving':s.state.terminal??'playing';active.moves=s.state.movesUsed;active.cleared=s.state.cleared;active.stars=s.state.stars;
   $('live').textContent=active.profile+' · уровень '+active.level+' · '+active.outcome+'\nХоды: '+active.moves+'; сбор: '+active.cleared+'/'+s.state.goal+'\nВидимое время: '+Math.round(active.activeSeconds)+' с; idle (>15 с): '+Math.round(active.idleSeconds)+' с';
 },200);
 $('export').addEventListener('click',()=>{
