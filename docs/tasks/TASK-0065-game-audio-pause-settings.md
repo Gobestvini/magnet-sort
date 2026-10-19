@@ -1,6 +1,6 @@
 # TASK-0065: Музыка и звуки всей игры с настройками на паузе
 
-- Статус: review
+- Статус: done
 - Приоритет: high
 - Создана: 2026-10-19
 - Обновлена: 2026-10-19
@@ -104,7 +104,7 @@
 - [x] Pause/platform pause/blur/hidden/mute/reset/HMR/dispose соблюдают контракт; нет роста voices/contexts/timers после 20 циклов.
 - [x] Audio/storage/autoplay failures оставляют игру рабочей; mute не меняет seeded state/events и результат действий.
 - [x] Автотесты, production browser regression, новые audio browser scenarios и прослушивание выполнены и отражены раздельно. Недоступное прослушивание означает review, не done.
-- [ ] Отчёт и INDEX обновлены, проверенный собственный коммит отправлен и опубликован, опубликованная игра проверена. При push/deploy ошибке коммит сохранён, причина и невыполненный критерий явно записаны.
+- [x] Отчёт и INDEX обновлены, проверенный собственный коммит отправлен и опубликован, опубликованная игра проверена. При push/deploy ошибке коммит сохранён, причина и невыполненный критерий явно записаны.
 
 ## 7. Проверки
 
@@ -144,6 +144,6 @@
 - Изменённые файлы и зачем: `audio-score.js`, `audio.js`, `audio-settings.js`; runtime/App/CSS для ввода, timeline/lifecycle и UI; unit/browser/platform проверки; ASSETS, PROJECT, GAME_BRIEF и [GAME_AUDIO](../reports/GAME_AUDIO.md).
 - Команды и фактические результаты: 10 новых unit tests; `pnpm check:full` — 224/224 + build; dev/production audio browser — success, все 4 viewport; selection и Pages regression — success; `build:platforms`/`test:platforms` — success. Точные сценарии/метрики и логи в GAME_AUDIO.
 - Ручные проверки / прослушивание: просмотрены стабильные pause screenshots portrait/landscape. Пользователь одобрил музыку и эффекты 2026-10-19 после передачи двух циклов музыки и SFX reel.
-- Выполненные критерии: все локальные функциональные и технические, художественное звучание одобрено; публикация ещё проверяется.
+- Выполненные критерии: все обязательные. Код `b14de71` в remote main, deploy-pages.yml success, build-info SHA совпал; опубликованные audio и Pages browser scenarios прошли по HTTPS. Звучание одобрено пользователем. [Подробный отчёт](../reports/GAME_AUDIO.md).
 - Непроверенное, блокеры и отклонения от плана: физический телефон/native Telegram/реальный OS background не проверялись; headless blur/visibility — событийный browser surrogate, SDK mock. Существенных отклонений от scope нет. Другие незакоммиченные изменения основной папки сохранены.
-- Итоговый статус и дата: review, 2026-10-19; ожидается подтверждённая публикация.
+- Итоговый статус и дата: done, 2026-10-19.

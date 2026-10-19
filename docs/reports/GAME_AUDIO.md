@@ -35,7 +35,7 @@ platform/hidden/blur блокируют весь звук. Reset/Next сохра
 | `node --test tests/prototype-audio.test.js tests/audio-settings.test.js` | 10/10: lazy unlock, отказ resume/constructor, late async/dispose, independent settings, invalid data/storage throws, idempotent cues, pause/reduced, voice caps и одинаковые model events на всех 12 уровнях |
 | `pnpm check:full` | 224/224 и production build; legacy audio tests зелёные |
 | `node tools/audio-browser-check.cjs` (dev 5175) | 320×720, 390×844, 844×390, 1280×800; normal/reduced, реальный audio graph, pointer/touch/keyboard, отсутствие autoplay bypass, настройки/reload, четыре On/Off сочетания, volume=0, drag/reject/cancel, победа и поражение, 20 reset/pause циклов, dispose |
-| Финальная dev-проверка после обработки iframe focus | Desktop сценарий повторно прошёл; затем `tools/selection-browser-check.cjs` подтвердил tap/touch, отсутствие ghost drag, reselection, keyboard и reset/pause |
+| Финальная dev-проверка после обработки iframe focus | Desktop сценарий повторно прошёл, в том числе Next level с сохранёнными громкостями и музыка при loadLevel всех 12 уровней; затем `tools/selection-browser-check.cjs` подтвердил tap/touch, отсутствие ghost drag, reselection, keyboard и reset/pause |
 | Production audio, `GAME_BASE_URL=http://127.0.0.1:5176/magnet-sort/` | Те же четыре viewport, реальный сигнал/UI без gameDebug, победа seed0 за 7 ходов, поражение seed3 за 12, fallback без AudioContext/storage |
 | `node tools/pages-browser-check.cjs` на том же production URL | Desktop/mobile seeded victory, retry и pause — success |
 | `pnpm build:platforms`, `pnpm test:platforms` | Web/embed/telegram сборки; production SDK isolation/cache/hash/ready, звук iframe после жеста и полная тишина при mock platform deactivation — success |
@@ -53,10 +53,17 @@ SFX peak .24093 / RMS .03989; выключенные каналы — точны
 
 ## Публикация
 
-Локальные критерии выполнены. На момент подготовки первого коммита статус review:
-ожидаются push в remote main, успешный deploy-pages.yml, совпадение опубликованного
-build-info и production smoke/audio по HTTPS. Финальный SHA и результаты будут
-записаны после фактической публикации.
+Игровой коммит `b14de719ea200b8a6b889232014a6c813957774d` отправлен в remote main.
+[Deploy GitHub Pages](https://github.com/Gobestvini/magnet-sort/actions/runs/39276588056)
+завершился success; опубликованный build-info подтверждает тот же SHA, web target
+и 59 ресурсов. Игра: [GitHub Pages](https://gobestvini.github.io/magnet-sort/).
+
+По этому HTTPS URL фактически прошли `tools/audio-browser-check.cjs` (все четыре
+viewport, native audio graph/UI без gameDebug, Next/settings, победа/поражение,
+20 циклов и API/storage fallback) и `tools/pages-browser-check.cjs`
+(desktop/mobile, 7 ходов, victory/retry/pause). Задача закрыта со статусом done.
+Последующий коммит отчёта/базы знаний не меняет runtime; его Pages publication
+проверяется отдельно перед финальным ответом.
 
 ## Ограничения и артефакты
 
@@ -71,4 +78,5 @@ build-info и production smoke/audio по HTTPS. Финальный SHA и ре�
 Логи `audio-*.log`, `.telegram-check-logs/`; WAV, screenshots, JSON метрик —
 `artifacts/audio/`, `artifacts/audio/dev-final/`, `artifacts/audio/production/`;
 регрессия выбора — `artifacts/selection-browser/`. Перед удалением временного
-checkout эти файлы сохраняются в artifacts основной папки.
+checkout эти файлы сохраняются в `artifacts/task-0065-release/` основной папки.
+WAV для пользовательской приёмки также сохранены в `artifacts/audio-preview/`.

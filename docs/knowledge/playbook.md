@@ -8,6 +8,25 @@
 
 2026-10-19, анализ исходников на `2c77551` и 240 модельных партий. Признак: в репозитории есть progress/daily/challenge, но при запуске v4 партия начинается заново. Причина по коду: platform bootstrap импортирует `prototype/runtime.js`; legacy-модули используют другую модель/каталог и не подключены к нему. Рабочий исследовательский приём: проследить entry → runtime → модель, затем проверять применимость функции и сравнивать темп по текущим seed/actions, а не по историческому done. На seed0…9 greedy-медианы побед L10/11 —201/214 ходов, L12 —0/10 побед этой стратегии. Это модельная выборка, не оценка игрока и не доказательство непроходимости. [Исследование, воспроизведение и предложения](../reports/TELEGRAM_IMPROVEMENT_IDEAS.md). Ограничения: сохранения/новые механики только предложены; после смены rules/content результаты пересчитать.
 
+## Звук активного v4
+
+Признак: legacy `src/audio/feedback.js` существует, но активный entry не звучит.
+Причина: новые runtime/events не используют v1 audio. Рабочий способ в `b14de71`:
+`prototype/audio.js` принадлежит runtime, `audio-score.js` хранит партитуру/patches,
+`audio-settings.js` — отдельный `magnet-sort.audio.v1`. UI/input cues вызываются
+один раз, pointer click после toolDown не повторяет select; timeline cues читают
+`unitMoved.end`, `unitsCleared.accentStart`, `flights[].end` и spawn/queue start.
+Последний интервал обрабатывается до удаления timeline, результат — по переходу
+phase, не по раннему `state.terminal`. Предпочтения и музыка переживают loadLevel.
+
+Проверка 2026-10-19: 224 unit/build, dev и production Chromium, signal rendering,
+4 viewport, normal/reduced, all-12 loadLevel, 20 циклов, reject/cancel, win seed0
+и loss seed3, fallback storage/API; звучание одобрено пользователем. [Отчёт и
+точные команды](../reports/GAME_AUDIO.md). Физический телефон и native Telegram
+не проверялись. Headless blur/visibility — событийный boundary surrogate.
+Переносимый приём и ограничения сохранены в общей PetProgects knowledge,
+`interaction-and-content.md`; специфичные партитура/громкости остаются здесь.
+
 ## Сначала играбельность
 
 Сначала один законченный цикл: действие игрока, понятная обратная связь, цель/ошибка и повтор. На placeholder-графике проверь ощущение управления и читаемость. После этого добавляй контент и polish. Задавай пример поведения и способ проверки, а не только «красиво» или «как известная игра». Держи краткую визуальную концепцию, референс и одинаковые screenshots до/после. Не копируй большой чужой движок ради небольшой механики.
