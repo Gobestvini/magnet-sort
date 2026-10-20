@@ -16,6 +16,11 @@ back through Bot API. No bot credential was written to disk, repository or clien
 the updated photo was checked in Telegram Web's header and profile. Source,
 uploaded export, exact prompt and circle-size QA: [avatar provenance](../design/telegram-avatar/README.md).
 
+2026-10-20: the matching **640×360 description picture** was installed using
+BotFather's Edit Description Picture flow. BotFather confirmed the update and
+Telegram Web displayed it above **What can this bot do?**. Source, upload export,
+reference and exact prompt: [description picture provenance](../design/telegram-description/README.md).
+
 Real Telegram Web acceptance, 2026-10-19: authorized account, official live bridge
 (weba 9.6), profile OPEN APP → published game → legal first placement → MOVES 1,
 Pause dialog → Resume. No bridge mock or injected launch data was used. The

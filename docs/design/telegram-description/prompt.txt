@@ -1,0 +1,10 @@
+Use case: style-transfer.
+Asset type: Telegram bot description illustration for Magnet Sort, exact wide 16:9 composition, to be displayed at 640x360 pixels.
+Primary request: Create a new wide promotional illustration in exactly the same polished casual puzzle-game art style as the provided avatar.
+Input images: Image 1 is the approved Magnet Sort avatar. Preserve its blue magnet design, glossy rounded beveled materials, ivory tips, purple backdrop and friendly lighting. Use it as a style and identity reference, not as an image to stretch.
+Scene/backdrop: luminous deep violet to royal-blue gradient with a subtle large hexagon grid and restrained soft glow.
+Subject: a large candy-blue horseshoe U magnet with white ivory tips, positioned on the left, tilted slightly in three-quarter perspective. Its opening faces toward the center-right and gently attracts several coral-orange, violet, turquoise and golden hexagonal puzzle chips. On the right, a small clean honeycomb arrangement of chunky hexagonal chips suggests a colorful sorting puzzle. A few floating chips bridge the gap, with elegant curved light trails implying magnetic attraction.
+Style/medium: premium stylized 3D mobile puzzle game illustration, smooth rounded silhouettes, bright readable colors, crisp highlights, soft shadows.
+Composition/framing: horizontal 16:9, balanced full-bleed image, large readable objects, generous safe margins, magnet and puzzle chips fully inside frame. Keep details simple enough to remain legible at 640x360.
+Lighting/mood: playful, satisfying, bright studio rim lighting.
+Constraints: no text, no letters, no numbers, no UI, no buttons, no watermark, no characters, no red horseshoe magnet. Keep the blue magnet immediately recognizable as the one in the avatar.
