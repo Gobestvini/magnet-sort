@@ -8,7 +8,7 @@ import { paceRules, PACE_PROFILES } from '../tools/experiments/pace-profiles.js'
 import { createV4Session } from '../src/prototype/session.js';
 import { forecast } from '../src/prototype/spawn-forecast.js';
 const frozen=JSON.parse(readFileSync(new URL('../tools/experiments/default-traces.json',import.meta.url)));
-test('default production and explicit A preserve all 36 pre-seam state/event trace hashes',()=>{
+test('default production and explicit A match all 36 current-content state/event trace hashes',()=>{
  const A=paceRules('A');
  for(const t of frozen.traces)for(const rules of [{createV4State,applyV4Magnet},A]){
   let s=rules.createV4State(v4Levels[t.number-1],t.seed);const hash=createHash('sha256').update(JSON.stringify(s));

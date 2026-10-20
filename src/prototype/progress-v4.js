@@ -2,7 +2,7 @@ import { createV4State, applyV4Magnet } from './model-v4.js';
 import { v4Levels } from './levels-v4.js';
 
 export const PROGRESS_V4_KEY = 'magnet-sort.v4.progress.v1';
-export const V4_CONTENT_VERSION = 'ten-range-2026-10-18.1';
+export const V4_CONTENT_VERSION = 'sub-ten-2026-10-20.1';
 export const MAX_ATTEMPT_ACTIONS = 2048;
 const MAX_SAVE_BYTES = 512 * 1024;
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);

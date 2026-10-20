@@ -3,7 +3,7 @@ import { COLORS, canPlaceMagnet, topColor } from './model.js';
 import { resolveMagnetInfluence } from './magnet-influence.js';
 import { levelPalette, levelGroupCounts, spawnInterval } from './difficulty.js';
 
-export const V4_CONFIG = Object.freeze({ initialStacks: 5, maxStacksPerTurn: 3, minHeight: 6, maxHeight: 10, heightStep: 4, clearSize: 10 });
+export const V4_CONFIG = Object.freeze({ initialStacks: 5, maxStacksPerTurn: 3, minHeight: 6, maxHeight: 8, heightStep: 2, clearSize: 10 });
 export function stacksForMove(movesUsed, levelNumber=1) {
   return countStacksForMove(movesUsed, levelNumber, spawnInterval(levelNumber));
 }

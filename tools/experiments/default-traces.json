@@ -1,7 +1,7 @@
 {
-  "source": "b14de71",
-  "date": "2026-10-19",
-  "description": "Captured before the experimental profile seam; complete state and result/events for each listed accepted action.",
+  "source": "TASK-0074, base 9f6756d",
+  "date": "2026-10-20",
+  "description": "Current sub-ten content; first six accepted actions of each of 36 verified winning routes. Replaces incompatible pre-seam traces after explicit generation change.",
   "traces": [
     {
       "number": 1,
@@ -25,38 +25,38 @@
         },
         {
           "type": "placeMagnet",
-          "color": "coral",
+          "color": "violet",
           "cell": {
-            "col": 2,
-            "row": 1
+            "col": 4,
+            "row": 2
           }
         },
         {
           "type": "placeMagnet",
           "color": "blue",
           "cell": {
-            "col": 5,
-            "row": 4
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 3
           }
         },
         {
           "type": "placeMagnet",
           "color": "violet",
           "cell": {
-            "col": 2,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "violet",
-          "cell": {
-            "col": 4,
+            "col": 3,
             "row": 1
           }
         }
       ],
-      "sha256": "1d54e85867bc51577a5127a6601ce99dd231be71a9edc5fe05a985052c434398"
+      "sha256": "a1d80b004470cf28214c46657be5c5a22bf64c5bf6342b36990a9e04e3f00e17"
     },
     {
       "number": 1,
@@ -99,19 +99,19 @@
           "color": "violet",
           "cell": {
             "col": 4,
-            "row": 2
+            "row": 3
           }
         },
         {
           "type": "placeMagnet",
-          "color": "blue",
+          "color": "coral",
           "cell": {
             "col": 3,
             "row": 2
           }
         }
       ],
-      "sha256": "2cd60b70131e4c1a2df8ac94699f6168570a7fab8120c23dc47bf126d3742407"
+      "sha256": "5f244e9ddf936449b548b8ff34ff9ea05c7a9f58a6f9f4b047c61e78143134a2"
     },
     {
       "number": 1,
@@ -127,6 +127,22 @@
         },
         {
           "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
           "color": "blue",
           "cell": {
             "col": 5,
@@ -135,38 +151,22 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
-          "cell": {
-            "col": 2,
-            "row": 3
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "coral",
-          "cell": {
-            "col": 3,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
           "color": "blue",
           "cell": {
-            "col": 3,
-            "row": 3
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "blue",
-          "cell": {
-            "col": 3,
+            "col": 4,
             "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
           }
         }
       ],
-      "sha256": "72ba27240a57b188c5b44ec7091bef8a03786d80dfc6b5730e719e712e5ae0f6"
+      "sha256": "a4d30f6c5ff1866301ca00cc2c9bf46ef83acef957ef8c7e66e237124ba9e033"
     },
     {
       "number": 2,
@@ -190,22 +190,6 @@
         },
         {
           "type": "placeMagnet",
-          "color": "coral",
-          "cell": {
-            "col": 1,
-            "row": 1
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "blue",
-          "cell": {
-            "col": 5,
-            "row": 4
-          }
-        },
-        {
-          "type": "placeMagnet",
           "color": "violet",
           "cell": {
             "col": 4,
@@ -214,14 +198,30 @@
         },
         {
           "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
           "color": "violet",
           "cell": {
-            "col": 3,
+            "col": 4,
             "row": 1
           }
         }
       ],
-      "sha256": "b492a2c4ccccb2e2570493bd189c6d1c760250f79c76b351bc7df39aad7fe4e8"
+      "sha256": "507893b7ecbfa64d510201dc002889ae43b057d7c7a29faf6ab74d28de34f9cd"
     },
     {
       "number": 2,
@@ -245,6 +245,14 @@
         },
         {
           "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
           "color": "coral",
           "cell": {
             "col": 2,
@@ -253,30 +261,22 @@
         },
         {
           "type": "placeMagnet",
-          "color": "blue",
+          "color": "coral",
           "cell": {
-            "col": 4,
-            "row": 4
+            "col": 1,
+            "row": 1
           }
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
-          "cell": {
-            "col": 4,
-            "row": 3
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "blue",
+          "color": "coral",
           "cell": {
             "col": 2,
-            "row": 3
+            "row": 1
           }
         }
       ],
-      "sha256": "0cc7443357edeabb9779206209f93b8bf1b9f94cadba348bd393d19e6862da0c"
+      "sha256": "1b62c4905a9bbcaf20671f3a41664b7df158a3a71f8feff26395c4e8b5407618"
     },
     {
       "number": 2,
@@ -308,9 +308,9 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
+          "color": "blue",
           "cell": {
-            "col": 4,
+            "col": 2,
             "row": 3
           }
         },
@@ -318,7 +318,7 @@
           "type": "placeMagnet",
           "color": "coral",
           "cell": {
-            "col": 3,
+            "col": 4,
             "row": 4
           }
         },
@@ -327,11 +327,11 @@
           "color": "blue",
           "cell": {
             "col": 2,
-            "row": 3
+            "row": 2
           }
         }
       ],
-      "sha256": "6f0f1ca7399ad022965f1c1f40368823872ab3bea3f96865e650e65d31302857"
+      "sha256": "3c6f409488051b48c7bf403e261c53826a691e3790f2d90b837261374e7d1644"
     },
     {
       "number": 3,
@@ -355,10 +355,10 @@
         },
         {
           "type": "placeMagnet",
-          "color": "coral",
+          "color": "violet",
           "cell": {
-            "col": 1,
-            "row": 1
+            "col": 3,
+            "row": 3
           }
         },
         {
@@ -366,7 +366,7 @@
           "color": "blue",
           "cell": {
             "col": 5,
-            "row": 4
+            "row": 2
           }
         },
         {
@@ -381,12 +381,12 @@
           "type": "placeMagnet",
           "color": "violet",
           "cell": {
-            "col": 3,
+            "col": 2,
             "row": 1
           }
         }
       ],
-      "sha256": "aa5309ddcc07128f74dbd9ee5d431059bdbb19c558e3665a773b00d70facaab3"
+      "sha256": "7e639e895a14d65da539961434ffd7964f99579bf0e803747c958c73eb57e217"
     },
     {
       "number": 3,
@@ -418,10 +418,10 @@
         },
         {
           "type": "placeMagnet",
-          "color": "blue",
+          "color": "coral",
           "cell": {
-            "col": 5,
-            "row": 3
+            "col": 1,
+            "row": 1
           }
         },
         {
@@ -436,12 +436,12 @@
           "type": "placeMagnet",
           "color": "blue",
           "cell": {
-            "col": 3,
-            "row": 1
+            "col": 4,
+            "row": 3
           }
         }
       ],
-      "sha256": "d0deb4c2f9581b5962acab832f030e7f51024ffaf18fe6d3c06d5eb54ae7da8d"
+      "sha256": "9f0e067cb202a00d01de51e3e61fab24d4c557e959ebe1a75e6fbacbfe5e0ea0"
     },
     {
       "number": 3,
@@ -457,14 +457,6 @@
         },
         {
           "type": "placeMagnet",
-          "color": "blue",
-          "cell": {
-            "col": 4,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
           "color": "violet",
           "cell": {
             "col": 1,
@@ -473,15 +465,7 @@
         },
         {
           "type": "placeMagnet",
-          "color": "blue",
-          "cell": {
-            "col": 3,
-            "row": 3
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "coral",
+          "color": "violet",
           "cell": {
             "col": 3,
             "row": 4
@@ -491,12 +475,28 @@
           "type": "placeMagnet",
           "color": "blue",
           "cell": {
-            "col": 3,
+            "col": 4,
             "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
           }
         }
       ],
-      "sha256": "a8a224c361f8978efab121878734716b2d4d1fe996d9a04b751f5bc1cc807a35"
+      "sha256": "4a3c96feda70db93ef364aaedc3c1c1595a2643ffb83ab0c45a1735907c4e234"
     },
     {
       "number": 4,
@@ -551,7 +551,7 @@
           }
         }
       ],
-      "sha256": "51e14d71dd3a8da5c6170da254ec409a45bf7d018e2ff7fd71b5404bef90e9ba"
+      "sha256": "3ba8831893012853d1af0d603b6b4dd3bac75e13d9787a8bf26304a2402c0de5"
     },
     {
       "number": 4,
@@ -559,7 +559,15 @@
       "actions": [
         {
           "type": "placeMagnet",
-          "color": "coral",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
           "cell": {
             "col": 4,
             "row": 3
@@ -567,14 +575,6 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
-          "cell": {
-            "col": 3,
-            "row": 3
-          }
-        },
-        {
-          "type": "placeMagnet",
           "color": "gold",
           "cell": {
             "col": 3,
@@ -585,28 +585,28 @@
           "type": "placeMagnet",
           "color": "coral",
           "cell": {
-            "col": 2,
+            "col": 5,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
             "row": 1
           }
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
+          "color": "blue",
           "cell": {
             "col": 3,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "gold",
-          "cell": {
-            "col": 2,
-            "row": 3
+            "row": 1
           }
         }
       ],
-      "sha256": "c895a13c46d3b15938c76f933dc7daa71f093b77337bb77ea08a3edac06bc178"
+      "sha256": "d002224abc82282343fc71f6f72ef61718e9c1203a346bc677a89c7909127ce5"
     },
     {
       "number": 4,
@@ -624,15 +624,7 @@
           "type": "placeMagnet",
           "color": "coral",
           "cell": {
-            "col": 1,
-            "row": 1
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "coral",
-          "cell": {
-            "col": 3,
+            "col": 5,
             "row": 2
           }
         },
@@ -646,10 +638,18 @@
         },
         {
           "type": "placeMagnet",
-          "color": "coral",
+          "color": "gold",
           "cell": {
             "col": 2,
-            "row": 1
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 4
           }
         },
         {
@@ -661,7 +661,7 @@
           }
         }
       ],
-      "sha256": "099c0a89a2316635c81e03d62ae16ed779d522cca42889c44770f17f921767f4"
+      "sha256": "d7dc8cdba43ce3d91fa0d1eb219c62272cdd2d9fac03b2d713461dbc4ad76ef4"
     },
     {
       "number": 5,
@@ -709,14 +709,14 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
+          "color": "blue",
           "cell": {
             "col": 1,
-            "row": 3
+            "row": 1
           }
         }
       ],
-      "sha256": "0c3d6bde798fa6672c3617082ef645f1d6529efaa4003b3a0097a8a1bd2441ac"
+      "sha256": "d906eff201e7c490f6f7bacab1195951c08be6e01f2b781df1c0953e7d330c69"
     },
     {
       "number": 5,
@@ -740,10 +740,10 @@
         },
         {
           "type": "placeMagnet",
-          "color": "gold",
+          "color": "coral",
           "cell": {
-            "col": 4,
-            "row": 1
+            "col": 5,
+            "row": 2
           }
         },
         {
@@ -766,12 +766,12 @@
           "type": "placeMagnet",
           "color": "coral",
           "cell": {
-            "col": 1,
+            "col": 3,
             "row": 2
           }
         }
       ],
-      "sha256": "13af65b520ecdeb9e4b062900ee8cca598b14f5fce1002f93d3670e7810cc7b4"
+      "sha256": "c4e0f6b09a644850ae2e2ca6d91f24e62058cb4c302164b4e701a621f59da3ac"
     },
     {
       "number": 5,
@@ -789,7 +789,7 @@
           "type": "placeMagnet",
           "color": "coral",
           "cell": {
-            "col": 4,
+            "col": 5,
             "row": 2
           }
         },
@@ -803,10 +803,10 @@
         },
         {
           "type": "placeMagnet",
-          "color": "coral",
+          "color": "gold",
           "cell": {
-            "col": 2,
-            "row": 1
+            "col": 3,
+            "row": 3
           }
         },
         {
@@ -821,12 +821,12 @@
           "type": "placeMagnet",
           "color": "coral",
           "cell": {
-            "col": 3,
+            "col": 2,
             "row": 3
           }
         }
       ],
-      "sha256": "dda672b51b1b7cd8a5a9c564e76a4f7551e1d066d1f94b5714a0d4d8bc7ea4fa"
+      "sha256": "59c552c3790c0cee568cc92909ba826a770fd591b65260ec13b6028e050b326d"
     },
     {
       "number": 6,
@@ -874,14 +874,14 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
+          "color": "blue",
           "cell": {
-            "col": 3,
-            "row": 4
+            "col": 1,
+            "row": 1
           }
         }
       ],
-      "sha256": "b6ebea217a03155471b544e244f55db133760df0e0a8936dc608fd183a074c5e"
+      "sha256": "5e473e084bf74d8c6988e372f19b23cf909ba5e4227bd14b81c9a6f91d316bdf"
     },
     {
       "number": 6,
@@ -936,7 +936,7 @@
           }
         }
       ],
-      "sha256": "bfb2c1597f06fae311650356ea8432413e0f53564d2a865cac3789ba761a7dc4"
+      "sha256": "8ac784dfa3aeb69ab433808ab5947a3407eb9bc53890de8f1dd2e4f9d3456eac"
     },
     {
       "number": 6,
@@ -954,7 +954,7 @@
           "type": "placeMagnet",
           "color": "coral",
           "cell": {
-            "col": 3,
+            "col": 4,
             "row": 2
           }
         },
@@ -968,30 +968,30 @@
         },
         {
           "type": "placeMagnet",
-          "color": "coral",
+          "color": "blue",
           "cell": {
-            "col": 1,
-            "row": 1
+            "col": 3,
+            "row": 4
           }
         },
         {
           "type": "placeMagnet",
           "color": "violet",
           "cell": {
-            "col": 5,
-            "row": 3
+            "col": 4,
+            "row": 4
           }
         },
         {
           "type": "placeMagnet",
           "color": "blue",
           "cell": {
-            "col": 3,
-            "row": 1
+            "col": 2,
+            "row": 2
           }
         }
       ],
-      "sha256": "a5e28e763164b3ffdaafd7090c549c85ce477a17828badfe481b76f9494cb02b"
+      "sha256": "cbc4d8036d301f051d132203fe5baf8e0176dd6ae93f77ff64ddad2de1fa2229"
     },
     {
       "number": 7,
@@ -1023,9 +1023,17 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
+          "color": "gold",
           "cell": {
-            "col": 1,
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
             "row": 3
           }
         },
@@ -1034,19 +1042,11 @@
           "color": "violet",
           "cell": {
             "col": 1,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "blue",
-          "cell": {
-            "col": 3,
-            "row": 1
+            "row": 3
           }
         }
       ],
-      "sha256": "e16add0ad1fe0a71a2f5833de7ba1dc7d6d56bf790091aff9c0d30795cff30cb"
+      "sha256": "9724b8f1541ca73ebcb8c101694821fff30180b8c046a7f6dfcbc625ede51480"
     },
     {
       "number": 7,
@@ -1101,7 +1101,7 @@
           }
         }
       ],
-      "sha256": "15a838aa8aa170a478ddd2070ac75e5df38165eb5cdbd26f61410a0cb735b26c"
+      "sha256": "715c28d0879dfcec9f3566c91603a272edd45117eba866e99a5cfbb1498198ff"
     },
     {
       "number": 7,
@@ -1133,30 +1133,30 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
+          "color": "lime",
           "cell": {
-            "col": 4,
+            "col": 1,
             "row": 2
           }
         },
         {
           "type": "placeMagnet",
-          "color": "coral",
+          "color": "lime",
           "cell": {
-            "col": 5,
-            "row": 2
+            "col": 1,
+            "row": 1
           }
         },
         {
           "type": "placeMagnet",
           "color": "gold",
           "cell": {
-            "col": 2,
-            "row": 3
+            "col": 1,
+            "row": 2
           }
         }
       ],
-      "sha256": "8d1159bff415267b49de5c3aaf35e916406fe89c3cbc1273d07b3e95995da899"
+      "sha256": "8e736cb8dc9fbd1cc304fc1cc664cdf060f217ad87619db4cf9fce6a7acfac76"
     },
     {
       "number": 8,
@@ -1211,7 +1211,7 @@
           }
         }
       ],
-      "sha256": "7dc556982527a063da904ddcd7c41d12ee14ffe4c9493e6f210973ad5de2eb07"
+      "sha256": "2209345efce78effbe082eecfe9d667392b0bdac612f45c4dc90a54147026f25"
     },
     {
       "number": 8,
@@ -1266,7 +1266,7 @@
           }
         }
       ],
-      "sha256": "0225e0f8d708c8c54805afdd365bab6c0a7127cd409996e9654f99d877f473b9"
+      "sha256": "e8e7150662f5b2bbb774e688a03f5ef3a04ef15667596ebbd142bebfefffeefd"
     },
     {
       "number": 8,
@@ -1298,30 +1298,30 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
+          "color": "lime",
           "cell": {
-            "col": 4,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "coral",
-          "cell": {
-            "col": 4,
-            "row": 3
+            "col": 2,
+            "row": 1
           }
         },
         {
           "type": "placeMagnet",
           "color": "lime",
           "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
             "col": 2,
             "row": 2
           }
         }
       ],
-      "sha256": "d42f8c53cdf20b7a0ff20b284d37f5ec5ba053ca2235aecf934b52c578bf4eef"
+      "sha256": "6b66088dd7190a31058370c8e9e089057df6a6878f227433972cca99fb6bef17"
     },
     {
       "number": 9,
@@ -1345,23 +1345,15 @@
         },
         {
           "type": "placeMagnet",
-          "color": "blue",
+          "color": "violet",
           "cell": {
-            "col": 1,
-            "row": 1
+            "col": 4,
+            "row": 2
           }
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
-          "cell": {
-            "col": 2,
-            "row": 1
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "violet",
+          "color": "gold",
           "cell": {
             "col": 3,
             "row": 2
@@ -1372,11 +1364,19 @@
           "color": "blue",
           "cell": {
             "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
             "row": 1
           }
         }
       ],
-      "sha256": "f979cd6287282bc7bfbcba22fb15db9fec38380a0244706a91e997283efbff5c"
+      "sha256": "6eaf3e811c484c53fe26e648737ff15692b202ef5f43f5042e734d417bbbd257"
     },
     {
       "number": 9,
@@ -1431,7 +1431,7 @@
           }
         }
       ],
-      "sha256": "a7464ea77cb7b36e3e2c050c0d031898b5d449f425d0dbf4d3dd34222ec25a8c"
+      "sha256": "9646f807bbaa079a5cf37cb758195dc962e1455ea14c51f8ab636e1c8434552d"
     },
     {
       "number": 9,
@@ -1463,73 +1463,10 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
-          "cell": {
-            "col": 4,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "coral",
-          "cell": {
-            "col": 5,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "gold",
-          "cell": {
-            "col": 5,
-            "row": 3
-          }
-        }
-      ],
-      "sha256": "b5b3b838da5903c5214e22517fa4e6f99e35700953dbc5f7cab4616ecdbbb105"
-    },
-    {
-      "number": 10,
-      "seed": 0,
-      "actions": [
-        {
-          "type": "placeMagnet",
-          "color": "gold",
-          "cell": {
-            "col": 3,
-            "row": 3
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "lime",
-          "cell": {
-            "col": 1,
-            "row": 4
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "violet",
-          "cell": {
-            "col": 3,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
           "color": "lime",
           "cell": {
             "col": 2,
-            "row": 3
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "coral",
-          "cell": {
-            "col": 1,
-            "row": 4
+            "row": 1
           }
         },
         {
@@ -1539,9 +1476,17 @@
             "col": 1,
             "row": 1
           }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
         }
       ],
-      "sha256": "3f51ed0419c6dc00dfb9634d58b35cfb99c1572f9f23c65dae157b1e02ffadd5"
+      "sha256": "2d27494cc85cad88ecf7af588700e62da4d7dd80338264434967a2b3ef6f68ee"
     },
     {
       "number": 10,
@@ -1596,7 +1541,7 @@
           }
         }
       ],
-      "sha256": "45129fc34a71e5fcb1655b06d7875036f54015a55793b5d0e22fab7ba01164a6"
+      "sha256": "ebc8d29edbea617eaf0d80ee25068d6373455daa125303411ab4c97175e274d7"
     },
     {
       "number": 10,
@@ -1620,15 +1565,7 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
-          "cell": {
-            "col": 3,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "gold",
+          "color": "blue",
           "cell": {
             "col": 5,
             "row": 3
@@ -1636,22 +1573,85 @@
         },
         {
           "type": "placeMagnet",
-          "color": "lime",
+          "color": "gold",
           "cell": {
-            "col": 2,
-            "row": 3
+            "col": 5,
+            "row": 4
           }
         },
         {
           "type": "placeMagnet",
-          "color": "lime",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        }
+      ],
+      "sha256": "3129c8d1486be7054d7c7a7bd38e92549edcbd0c8883debb3f3005236892fe1d"
+    },
+    {
+      "number": 10,
+      "seed": 5,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "teal",
           "cell": {
             "col": 3,
             "row": 1
           }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
         }
       ],
-      "sha256": "1f3275e862fb97ac1d4d2080f23199c6dfe71f4fea100f7f81a6fbf83e23a4d5"
+      "sha256": "1ae9c0d6036edad1eedca41b5086285c49845e60b96b110837bd215fe59f988d"
     },
     {
       "number": 11,
@@ -1667,9 +1667,25 @@
         },
         {
           "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
           "color": "lime",
           "cell": {
             "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 2,
             "row": 2
           }
         },
@@ -1683,30 +1699,14 @@
         },
         {
           "type": "placeMagnet",
-          "color": "coral",
-          "cell": {
-            "col": 4,
-            "row": 1
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "gold",
-          "cell": {
-            "col": 1,
-            "row": 1
-          }
-        },
-        {
-          "type": "placeMagnet",
           "color": "lime",
           "cell": {
-            "col": 2,
-            "row": 3
+            "col": 1,
+            "row": 4
           }
         }
       ],
-      "sha256": "49a097cf316b02795c618f7edae733b2e129a4cc372080b54d29d0aaef8a79b4"
+      "sha256": "a3709ae9624722347a518849d6f42d49a9953d1b8c600327c7e81aa5618feca9"
     },
     {
       "number": 11,
@@ -1761,7 +1761,7 @@
           }
         }
       ],
-      "sha256": "eec9da642d5992b1666e030bc2afe2d66005f5285a7d36cf8c6ff1a7d74747da"
+      "sha256": "1b04c0a193a5e44c2f7166430a7f787cc88c7de5fd3c5216452f65d199dbb775"
     },
     {
       "number": 11,
@@ -1809,95 +1809,40 @@
         },
         {
           "type": "placeMagnet",
-          "color": "violet",
+          "color": "teal",
           "cell": {
-            "col": 3,
-            "row": 2
+            "col": 2,
+            "row": 1
           }
         }
       ],
-      "sha256": "168fe9610cf7dd86e04b4759e41cd1d9b8aedecdedd5856d7db089506a5fd2e7"
+      "sha256": "dd3c65726379bf9689522d9d5f345efeef2424772c8b355de2c819e7d404cda1"
     },
     {
       "number": 12,
-      "seed": 0,
+      "seed": 7,
       "actions": [
         {
           "type": "placeMagnet",
-          "color": "lime",
+          "color": "gold",
           "cell": {
             "col": 3,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "lime",
-          "cell": {
-            "col": 5,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "coral",
-          "cell": {
-            "col": 2,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "teal",
-          "cell": {
-            "col": 3,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "violet",
-          "cell": {
-            "col": 2,
-            "row": 3
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "teal",
-          "cell": {
-            "col": 1,
             "row": 1
           }
-        }
-      ],
-      "sha256": "7318fa5e43d9147a53b1efabdd819779682bd2772ec47c08783eec25c87c31ad"
-    },
-    {
-      "number": 12,
-      "seed": 1,
-      "actions": [
+        },
         {
           "type": "placeMagnet",
           "color": "gold",
           "cell": {
-            "col": 2,
-            "row": 2
+            "col": 5,
+            "row": 1
           }
         },
         {
           "type": "placeMagnet",
           "color": "gold",
           "cell": {
-            "col": 3,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "blue",
-          "cell": {
-            "col": 2,
+            "col": 5,
             "row": 2
           }
         },
@@ -1905,6 +1850,69 @@
           "type": "placeMagnet",
           "color": "pink",
           "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "lime",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      "sha256": "6aa4249a1fa609c7c2c71803ae1348a206fdcdca02f5daeb899c47fcff75abbe"
+    },
+    {
+      "number": 12,
+      "seed": 8,
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "pink",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "pink",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "pink",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
+          "cell": {
             "col": 2,
             "row": 3
           }
@@ -1913,44 +1921,20 @@
           "type": "placeMagnet",
           "color": "blue",
           "cell": {
-            "col": 1,
-            "row": 3
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "gold",
-          "cell": {
-            "col": 1,
-            "row": 3
+            "col": 3,
+            "row": 1
           }
         }
       ],
-      "sha256": "3f061b974209d2e4d70ac81b3a710ff2eb3fcbd8b62ea4fb26cd449f0968c3ae"
+      "sha256": "faecbab257d8944c0e961a479e03f61f697410b54f06aaf9fb1c7f51f5e69fff"
     },
     {
       "number": 12,
-      "seed": 2,
+      "seed": 9,
       "actions": [
         {
           "type": "placeMagnet",
-          "color": "coral",
-          "cell": {
-            "col": 5,
-            "row": 2
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "gold",
-          "cell": {
-            "col": 4,
-            "row": 3
-          }
-        },
-        {
-          "type": "placeMagnet",
-          "color": "violet",
+          "color": "teal",
           "cell": {
             "col": 3,
             "row": 2
@@ -1958,7 +1942,7 @@
         },
         {
           "type": "placeMagnet",
-          "color": "lime",
+          "color": "violet",
           "cell": {
             "col": 2,
             "row": 3
@@ -1966,7 +1950,15 @@
         },
         {
           "type": "placeMagnet",
-          "color": "coral",
+          "color": "pink",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "teal",
           "cell": {
             "col": 3,
             "row": 1
@@ -1974,14 +1966,22 @@
         },
         {
           "type": "placeMagnet",
-          "color": "lime",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
           "cell": {
             "col": 2,
             "row": 2
           }
         }
       ],
-      "sha256": "b72965b6c5fe0dfb19e8b31dab660c816b752888dbde7b125cee6c63954670ee"
+      "sha256": "24b6d9b48660a4d2394a7b4a1263a2824fb2b51617cc67b567a3ef9f50878775"
     }
   ]
 }

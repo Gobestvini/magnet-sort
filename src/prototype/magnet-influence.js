@@ -15,7 +15,7 @@ export function resolveMagnetInfluence(state, action) {
   const events=[],sources=[],paths=[];let batch=0;
   // Recover impossible imported/debug states before any transfer. Every ID is
   // presented by the same collection pipeline, including mixed-color overflow.
-  for(const stack of next.stacks)if(stack.units.length>10){
+  for(const stack of next.stacks)if(stack.units.length>=next.clearSize){
     const units=stack.units.splice(0);next.cleared+=units.length;
     events.push({type:'unitsCleared',batch:++batch,cell:{...stack.cell},units});
   }

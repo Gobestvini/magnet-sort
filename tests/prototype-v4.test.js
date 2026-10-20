@@ -12,7 +12,7 @@ test('v4 seeded initialization and LCG are exact, reproducible, zero seed is val
  const a=createV4State(level,0);assert.deepEqual(a,createV4State(level,0));assert.notDeepEqual(a,createV4State(level,1));
  assert.equal(a.stacks.length,5);assert.equal(a.goal,50);assert.equal(a.movesUsed,0);assert.ok(a.magnets.length>=1&&a.magnets.length<=3);assertMass(a);
  assert.deepEqual(new Set(a.stacks.map(s=>new Set(s.units.map(u=>u.color)).size)),new Set([1,2]));
- for(const s of a.stacks){assert.ok([6,10].includes(s.units.length));assert.notEqual(cellId(s.cell),'r1c1');}
+ for(const s of a.stacks){assert.ok([6,8].includes(s.units.length));assert.notEqual(cellId(s.cell),'r1c1');}
  assert.throws(()=>createV4State(level,-1));assert.throws(()=>createV4State(level,2**32));
 });
 test('invalid placement returns original state without draws, steps or queue consumption',()=>{

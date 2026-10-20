@@ -50,7 +50,7 @@ test('lost journal restores loss and retry repeats initial conditions',()=>{
  restored.start(0,3);assert.deepEqual(restored.state,createV4State(v4Levels[0],3));
 });
 test('corruption and unsupported version are preserved until explicit fresh-save action',()=>{
- for(const raw of ['{broken',JSON.stringify({schemaVersion:99}),JSON.stringify({...wonSave(1).progress,revision:1.5})]){
+ for(const raw of ['{broken',JSON.stringify({schemaVersion:99}),JSON.stringify({...wonSave(1).progress,revision:1.5}),JSON.stringify({...wonSave(1).progress,contentVersion:'ten-range-2026-10-18.1'})]){
   const storage=memory();storage.setItem(KEY,raw);const s=setup(storage);
   assert.equal(s.status().saved,false);s.submit(firstAction(s.state));assert.equal(storage.getItem(KEY),raw);
   assert.equal(s.recoverSave(),true);assert.equal(JSON.parse(storage.getItem(KEY)).activeAttempt.actions.length,1);

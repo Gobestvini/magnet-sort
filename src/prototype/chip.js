@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-// World-space rise projects to about one tenth of a wafer's width on screen.
-export const CHIP_HEIGHT = .14;
+// Shared rise keeps all colors compact in idle, transfer, badges and collection.
+export const CHIP_HEIGHT = .08;
 export const CHIP_DEPTH = .028;
 export const WELL_INSET = .975;
 export const WELL_PIXELS = [[235,53],[420,155],[420,310],[235,415],[50,310],[50,155]];

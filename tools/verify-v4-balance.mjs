@@ -78,7 +78,7 @@ async function main(){
     }
   }
   const difficulty=model.difficulty??{levelPalette,levelGroupCounts,spawnInterval};
-  const report={label,date:'2026-10-18',config:model.V4_CONFIG,bands:v4Levels.map(l=>({number:l.number,palette:difficulty.levelPalette(l.number),groups6:difficulty.levelGroupCounts(l.number,6),groups10:difficulty.levelGroupCounts(l.number,10),spawnInterval:difficulty.spawnInterval(l.number)})),summary,
+  const report={label,date:'2026-10-20',config:model.V4_CONFIG,bands:v4Levels.map(l=>({number:l.number,palette:difficulty.levelPalette(l.number),groups6:difficulty.levelGroupCounts(l.number,6),groupsMax:difficulty.levelGroupCounts(l.number,model.V4_CONFIG.maxHeight),spawnInterval:difficulty.spawnInterval(l.number)})),summary,
     records:records.map(({actions,...r})=>r),witnesses,alternatives};
   const output=`artifacts/v4-balance/${label}.json`;fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(report,null,2));
   const failures=summary.filter(s=>s.greedyWins<(s.number<=3?45:35)||(s.number>=4&&s.greedyWins-s.randomWins<5));

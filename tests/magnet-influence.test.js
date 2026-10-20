@@ -13,12 +13,12 @@ test('every position in both rings flies directly once per ID, even/odd rows and
   const cells=base().cells.filter(c=>[1,2].includes(hexDistance(target,c)));
   if(target.col===3)assert.equal(cells.length,18);
   for(const cell of cells){
-   const s=base([stack(cell,Array(10).fill('blue'))]),before=structuredClone(s);
+   const s=base([stack(cell,Array(9).fill('blue'))]),before=structuredClone(s);
    const r=resolveMagnetInfluence(s,{cell:target,color:'blue'});
-   assert.deepEqual(s,before);assert.equal(r.state.cleared,10);assert.equal(remainingUnits(r.state),0);
+   assert.deepEqual(s,before);assert.equal(r.state.cleared,0);assert.equal(remainingUnits(r.state),9);
    const moves=r.events.filter(e=>e.type==='unitMoved');
-   assert.equal(moves.length,10);assert.equal(new Set(moves.map(e=>e.unit.id)).size,10);
-   moves.forEach((e,i)=>{assert.deepEqual(e.from,cell);assert.deepEqual(e.to,target);assert.equal(e.fromIndex,9-i);});
+   assert.equal(moves.length,9);assert.equal(new Set(moves.map(e=>e.unit.id)).size,9);
+   moves.forEach((e,i)=>{assert.deepEqual(e.from,cell);assert.deepEqual(e.to,target);assert.equal(e.fromIndex,8-i);});
    assert.deepEqual(r.paths,[[cell,target]]);assert.deepEqual(r.affectedCells,[cell]);
    const timeline=makeTransferTimeline(s,r);
    for(const move of timeline.segments.filter(e=>e.type==='unitMoved')){
@@ -26,7 +26,7 @@ test('every position in both rings flies directly once per ID, even/odd rows and
     assert.equal(new Set(frame.units.map(u=>u.id)).size,frame.units.length);
     const unit=frame.units.find(u=>u.id===move.unit.id);assert.deepEqual(unit.from,cell);assert.deepEqual(unit.to,target);
    }
-   assert.equal(sampleTransferTimeline(timeline,timeline.duration).collected,10);
+   assert.equal(sampleTransferTimeline(timeline,timeline.duration).collected,0);
   }
  }
 });

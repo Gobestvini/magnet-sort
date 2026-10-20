@@ -11,6 +11,13 @@
 
 Границы: active v4/Three.js; legacy v3 BFS и sampler переворота сохранены. Текущий radius частиц .022 (раньше .04); preview-particles.js даёт индивидуальные duration/phase и height/bend по stateless hash cell/index/cycle без RNG модели. Высота .75–1.55, period 1.05–1.85 — визуальные настройки, не измеренный физический эффект. Публикуемый diff проверять без локальных чужих board/draw-order изменений.
 
+## Стопки меньше порога и компактные слои — 2026-10-20
+
+- Признак: на поле стоит готовая десятка; причина: генерация 6/10 и защитное условие >10. Способ: 6/8 с равными непрерывными группами, защитный сбор >=clearSize в любой точке через прежний unitsCleared. Смешанная стопка собирается целиком, каждый ID один раз; normal pull сохраняет остаток <10.
+- Seed/action replay меняется даже при прежнем числе RNG draws. Обновлены contentVersion, 36 verifyReplay witnesses, 4 альтернативы и 36 трасс production/explicit A. Старый contentVersion сохраняется до явного recovery, не переигрывается новыми правилами молча.
+- Компактность: единый CHIP_HEIGHT .08 вместо .14 уже обслуживает idle, transfer, badge и collection; компенсация первого слоя chipLayout сохраняет footprint. Перерисовка PNG не потребовалась. Не копировать высоту отдельно в view или HUD.
+- Проверка: 2026-10-20, 239 unit tests и build; compact-stacks-browser-check на desktop/390×844/844×390, 47 ID всех 7 цветов до/после, measured pitch .14→.08, normal/reduced и 20 одинаковых повторов без роста geometries. Исходные screenshots просмотрены. Это Chromium surrogate, не физический телефон. Источник: TASK-0074/0075, COMPACT_STACKS; баланс поздних уровней не объявляется решённым.
+
 ## Обновление 2026-10-18: радиусы и столбы вместо частиц
 
 - Признак: значок обещает другую зону, чем реальное притяжение → причина: радиус отдельно в preview/actions → способ: magnetRadii по цвету слота, один magnetRadius для dry resolve/rings/UI; retained тип сохраняется, action.radius игнорируется. Проверка: tests/ten-range.test.js, seeded выдача/immutability на 12×50 seed и desktop/mobile browser; 2026-10-18. Отсутствующая карта в исторических fixtures трактуется как radius2.
