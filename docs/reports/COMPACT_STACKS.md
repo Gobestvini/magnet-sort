@@ -29,6 +29,10 @@ Seed/action replay несовместим с прежней генерацией
 
 ## Публикация
 
-Ожидается commit/push, Deploy GitHub Pages и published browser smoke. До подтверждения этой стадии задачи находятся в review.
+Коммит реализации `d66c2ce5188d87e726be00812c2be75281b64a46` отправлен в remote main. [Check game](https://github.com/Gobestvini/magnet-sort/actions/runs/39413561423) и [Deploy GitHub Pages](https://github.com/Gobestvini/magnet-sort/actions/runs/39413561389) success, включая loading/pages/tutorial, platform builds/tests и embed packaging. Опубликованный build-info.json подтвердил точную ревизию d66c2ce. `GAME_BASE_URL=https://gobestvini.github.io/magnet-sort/ node tools/pages-browser-check.cjs` из checkout того же коммита: desktop/mobile, победа за7 ходов, collected/stars, retry/pause PASS. TASK-0074/0075 — done. Последующий коммит закрытия меняет только документацию.
+
+При повторной локальной проверке на Node24 наблюдался нестабильный сбой неизменённого legacy campaign.test.js (один native exit3221225477, один standalone TypeError в compareIds). Финальный полный прогон239/239 и независимый Linux CI/Node22 прошли. Legacy модуль в этих задачах не менялся; это ограничение воспроизводимости локальной среды, отдельная причина не установлена.
+
+Снимки и итоговые логи сохранены в основной рабочей папке: `artifacts/compact-before/`, `artifacts/compact-stacks/`, `artifacts/compact-stacks/verification-logs/`. Применён приём проверки релиза из чистого checkout и точной ревизии; новая проектная заметка добавлена в существующую docs/knowledge/direct-magnet-effects.md.
 
 Физический телефон и native Telegram не запускались. Производительность реального телефона не измерялась.
