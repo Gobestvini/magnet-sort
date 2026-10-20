@@ -12,6 +12,10 @@ Mini App URL above; getMe reports has_main_web_app=true and the profile shows
 OPEN APP. The default Play menu, description and About were applied and read
 back through Bot API. No bot credential was written to disk, repository or client.
 
+2026-10-20: a game-style avatar was generated and installed via BotFather;
+the updated photo was checked in Telegram Web's header and profile. Source,
+uploaded export, exact prompt and circle-size QA: [avatar provenance](../design/telegram-avatar/README.md).
+
 Real Telegram Web acceptance, 2026-10-19: authorized account, official live bridge
 (weba 9.6), profile OPEN APP → published game → legal first placement → MOVES 1,
 Pause dialog → Resume. No bridge mock or injected launch data was used. The
