@@ -1,5 +1,10 @@
 # Очередь Magnet Sort
 
+2026-10-23: по прямому запросу завершён локальный diff отрисовки board/draw-order,
+неиспользуемая правка glow убрана. 239 тестов/build, 324 browser кадра и отдельные
+range-light/pages/tutorial smoke PASS. [Отчёт](../reports/DRAW_ORDER_COMPLETION.md).
+Исторический художественный review TASK-0042 этим не закрывается.
+
 ## Стопки меньше 10 и меньшая высота — 2026-10-20
 
 Обе задачи выполнены по поручению пользователя. Коммит d66c2ce, 239 тестов/build, Check/Pages success и published desktop/mobile smoke. [Отчёт и ограничения сложности](../reports/COMPACT_STACKS.md).

@@ -5,9 +5,7 @@ import { sampleTransferTimeline, collectionPacking, sampleHexFlip, sampleHexTran
 import {createChipBodyGeometry,createInsetFaceGeometry,chipLayout,CHIP_HEIGHT,WELL_PIXELS,topColorCount} from './chip.js';
 import { createMagnetGlow } from './magnet-glow.js';
 import { createInfluenceEffects } from './influence-effects.js';
-// Renderer-owned painter order; no dependency on untracked local modules.
-const paintCell = cell => 1000 + 1000 * cell.row;
-const paintUnit = pose => pose.from ? 18000 : paintCell(pose.cell) + 10 + 2 * pose.index;
+import { cellDrawOrder, unitDrawOrder } from './draw-order.js';
 
 const UNIT_HEIGHT = CHIP_HEIGHT;
 const FLOOR = .16;
@@ -117,7 +115,7 @@ export function createThreeBoard(canvas, textures) {
       const tile = artwork(blocked.has(id)?'tile-blocked':'tile', tileWidth);
       tile.scale.y=tileHeight;
       tile.position.set(pos.x, FLOOR, pos.z);tile.position.addScaledVector(screenUp,(234/512-.5)*tileHeight);
-      tile.renderOrder = paintCell(cell);
+      tile.renderOrder = cellDrawOrder(cell);
       boardRoot.add(tile); cellMeshes.set(id, tile);
       tile.userData={cell,blocked:blocked.has(id)};
       if(blocked.has(id)){tile.material=materials['tile-blocked'];blockerMeshes.set(id,tile);}
@@ -175,7 +173,7 @@ export function createThreeBoard(canvas, textures) {
         mesh.position.addScaledVector(screenUp, layout.offset * (1 - packing.scale));
       }
       // Keep ground plaques at their natural depth; raise only airborne units.
-      const order=paintUnit(pose);
+      const order=unitDrawOrder(pose);
       mesh.children[0].renderOrder=order;mesh.children[1].renderOrder=order+1;
       mesh.children[0].visible=Boolean(pose.from);
       mesh.userData = { id: pose.id, color: pose.color, cell: pose.cell ?? null, index: pose.index ?? null,
@@ -193,10 +191,10 @@ export function createThreeBoard(canvas, textures) {
       const clearBadge=sampled?.clearBadges?.find(b=>cellId(b.cell)===id);
       const displayCount=clearBadge?.count??count;
       badge.visible=Boolean(clearBadge)||(!units.some(unit=>unit.pack>0)&&!sampled?.hiddenCells?.includes(`${top.cell.row}:${top.cell.col}`));
-      badge.renderOrder=paintUnit(top)+2;badge.material=labelMaterial(displayCount);badge.position.set(pos.x+layout.offsetX,FLOOR+(.5+(top.layer??top.index))*UNIT_HEIGHT,pos.z);
+      badge.renderOrder=unitDrawOrder(top)+2;badge.material=labelMaterial(displayCount);badge.position.set(pos.x+layout.offsetX,FLOOR+(.5+(top.layer??top.index))*UNIT_HEIGHT,pos.z);
       badge.position.addScaledVector(screenUp,layout.offset+.028);badge.userData={cell:top.cell,count:displayCount,visible:badge.visible};
       let shadow=shadows.get(id);if(!shadow){shadow=new THREE.Mesh(plane,shadowMaterial);shadow.quaternion.copy(camera.quaternion);shadow.scale.set(.99,.8,1);scene.add(shadow);shadows.set(id,shadow);}
-      shadow.renderOrder=paintCell(top.cell)+1;shadow.position.set(pos.x+layout.offsetX,FLOOR,pos.z);shadow.position.addScaledVector(screenUp,-.065);
+      shadow.renderOrder=cellDrawOrder(top.cell)+1;shadow.position.set(pos.x+layout.offsetX,FLOOR,pos.z);shadow.position.addScaledVector(screenUp,-.065);
     }
     for(const [id,badge]of labels)if(!stacks.has(id)){scene.remove(badge);labels.delete(id);}
     for(const [id,shadow]of shadows)if(!stacks.has(id)){scene.remove(shadow);shadows.delete(id);}
@@ -229,7 +227,7 @@ export function createThreeBoard(canvas, textures) {
     if (activeMagnet) {
       magnet.position.copy(magnetAnchor(activeMagnet.cell));
       magnet.material = materials['magnet-' + activeMagnet.color];
-      magnet.renderOrder = paintCell(activeMagnet.cell)+6;
+      magnet.renderOrder = cellDrawOrder(activeMagnet.cell)+6;
     }
     scene.updateMatrixWorld(true); renderer.render(scene, camera);
     return sampled;

@@ -1,5 +1,11 @@
 # Карта проекта
 
+Отрисовка, 2026-10-23: `prototype/draw-order.js` задаёт прежние painter bands
+для плиток/стоящих фишек/перелётов, `board.js` использует общий модуль.
+`tools/draw-order-browser-check.cjs` проверяет слои света, счётчиков, ближних рядов
+и перелётов на desktop/portrait/landscape; normal/reduced и ID.
+[Разбор локального diff и проверки](reports/DRAW_ORDER_COMPLETION.md).
+
 Save/forecast/pace,2026-10-19: `prototype/progress-v4.js` проверяет versioned seed/action
 journal и storage revision; `session.js` владеет committed state, resume/next-entry,
 records и transient attempts. `runtime.js` сохраняет submit до timeline;
