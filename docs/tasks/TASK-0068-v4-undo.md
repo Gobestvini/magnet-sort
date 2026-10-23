@@ -1,12 +1,12 @@
 # TASK-0068: Отменять весь последний ход v4
 
-- Статус: draft
+- Статус: done
 - Приоритет: high
 - Создана: 2026-10-19
-- Обновлена: 2026-10-19
+- Обновлена: 2026-10-23
 - Проект: Magnet Sort, `C:/Users/gobes/OneDrive/Документы/PetProgects/Magnet Sort`, remote `https://github.com/Gobestvini/magnet-sort`
 - Рекомендуемый исполнитель: сильная; высокий уровень рассуждения — полный rollback RNG/спавна/очереди и связь с сохранением.
-- Зависимости: TASK-0066 done и проверенный актуальный session/save contract; до этого не ready.
+- Зависимости: технический session/save contract TASK-0066 реализован и проверен; пользователь прямо поручил Undo 2026-10-23. Отдельный phone review TASK-0066 сохраняется.
 
 ## 1. Цель и запрос пользователя
 
@@ -15,6 +15,13 @@
 Исходный запрос пользователя: «проработай механики и идеи что можно добавить в телеграм билд игры чтобы его улучшить посмотри как это сделано в других играх головоломках в том числе и в наших». Требования ниже — предложения автора для ограниченного среза. Подготовка не запускает реализацию.
 
 ## 2. Проверенный контекст
+
+Актуализация 2026-10-23, HEAD a73bc1a: createV4Session владеет state/attempt,
+submit сохраняет accepted actions до timeline, replaceAttempt/replayAttempt
+восстанавливают полный state, assisted уже входит в schema. Rendering diff завершён
+предыдущим запросом; посторонняя .codex-remote-attachments/ остаётся вне работы.
+Техническая зависимость перепроверяется tests/progress-v4 и новым Undo suite;
+проверка настоящего Telegram на телефоне не объявляется выполненной.
 
 Проверено чтением кода 2026-10-19, HEAD 2c77551ade5f790d4462a3d7e956ebe33ea65d5a. Активны Three.js0.186.1/Preact11/Vite7.1.9 и rules v4. Полный исходный запрос, ссылки на конкурентов и аудит наших игр: [исследование](../reports/TELEGRAM_IMPROVEMENT_IDEAS.md). Чужие локальные board.js, magnet-glow.js, draw-order.js и .codex-remote-attachments/ не включать и не откатывать. После изменения HEAD контекст перепроверить.
 
@@ -50,11 +57,11 @@ Session/save из 0066, runtime/App/prototype.css; tests/v4-undo.test.js и tool
 
 ## 6. Критерии готовности
 
-- [ ] После хода с очисткой, новым спавном и refill Undo восстанавливает весь before; повтор даёт идентичный after.
-- [ ] Lost→Undo→playing и Undo до нуля работают, won Undo недоступен.
-- [ ] Сохранение/reload не теряют историю/assisted, controls не проходят в поле.
-- [ ] 20 reset/Undo/pause циклов не дают stale collection/накопления ресурсов.
-- [ ] Проверки и ограничения записаны в разделе 10, статус файла и INDEX совпадают; собственный commit/push/deploy выполнен по AGENTS.md.
+- [x] После хода с очисткой, новым спавном и refill Undo восстанавливает весь before; повтор даёт идентичный after.
+- [x] Lost→Undo→playing и Undo до нуля работают, won Undo недоступен.
+- [x] Сохранение/reload не теряют историю/assisted, controls не проходят в поле.
+- [x] 20 reset/Undo/pause циклов не дают stale collection/накопления ресурсов.
+- [x] Проверки и ограничения записаны в разделе 10, статус файла и INDEX совпадают; собственный commit/push/deploy выполнен по AGENTS.md. SHA/CI/published smoke — итоговое сообщение и release.json.
 
 ## 7. Проверки
 
@@ -84,10 +91,10 @@ Session/save из 0066, runtime/App/prototype.css; tests/v4-undo.test.js и tool
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: —
-- Итоговый статус и дата: —
+- Результат: Бесплатный повторный Undo в playing/lost, полный replay префикса, помощь сохраняется; после won отмена запрещена.
+- Изменённые файлы и зачем: session.js — owner undo/canUndo и persist; runtime.js — guards и общий clearPresentation; App/prototype.css и Telegram viewport.css — actions/lost controls, 44px и compact layout; новые unit/browser tools.
+- Команды и фактические результаты: 22 профильных tests PASS; pnpm check:full 248/248 + build PASS; build:platforms/test:platforms PASS; undo-v4-browser-check production+DEV и tutorial-browser-check PASS. Подробности docs/reports/V4_UNDO.md.
+- Ручные проверки: Просмотрены финальные portrait/landscape PNG, восстановленное поле и обе кнопки lost. Реальные UI touch/keyboard события, повтор/reload/lost, layout bounds и 20 reset/move/pause/Undo циклов проверены Chromium.
+- Выполненные критерии: full state rollback/repeat, sequential Undo до нуля, assisted/retry, resumed log/lost, won lock, сохранение старых achievements, отсутствие stale presentation и роста GPU ресурсов. Своё commit/push/Pages и published SHA/smoke отражаются в итоговом ответе и artifacts/undo-v4/release.json.
+- Непроверенное, блокеры и отклонения от плана: Физический телефон и native Telegram не запускались; hidden — synthetic handler boundary. TASK-0066 technical dependency подтверждена, её отдельный phone review сохранён. Для нового ряда действий пришлось адаптировать компактную Telegram-сетку, без изменения правил/ассетов/баланса. Replay линейный по истории; phone timing не измерен.
+- Итоговый статус и дата: done, 2026-10-23; [отчёт](../reports/V4_UNDO.md).

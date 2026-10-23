@@ -1,5 +1,9 @@
 # Очередь Magnet Sort
 
+2026-10-23: [TASK-0068 Undo](../reports/V4_UNDO.md) реализован: полный rollback,
+lost/reload, повтор до нуля и assisted; 248 tests/build, production web/Telegram mock,
+20 lifecycle cycles, layout/platform/tutorial checks PASS. Phone review TASK-0066 остаётся отдельным.
+
 2026-10-23: по прямому запросу завершён локальный diff отрисовки board/draw-order,
 неиспользуемая правка glow убрана. 239 тестов/build, 324 browser кадра и отдельные
 range-light/pages/tutorial smoke PASS. [Отчёт](../reports/DRAW_ORDER_COMPLETION.md).
@@ -22,7 +26,7 @@ range-light/pages/tutorial smoke PASS. [Отчёт](../reports/DRAW_ORDER_COMPLE
 | --- | --- | --- | --- | --- |
 | [TASK-0066: Сохранять и продолжать партию v4](TASK-0066-v4-save-continue.md) | review | high | технически выполнена; phone review | сильная; высокий |
 | [TASK-0067: Прогноз пополнения поля](TASK-0067-spawn-forecast.md) | done | high | нет | средняя; высокий |
-| [TASK-0068: Полная отмена последнего хода](TASK-0068-v4-undo.md) | draft | high | TASK-0066 done | сильная; высокий |
+| [TASK-0068: Полная отмена последнего хода](TASK-0068-v4-undo.md) | done | high | технический save contract проверен; прямой запрос 2026-10-23 | сильная; высокий |
 | [TASK-0069: Исследовать короткую сессию](TASK-0069-telegram-session-pace.md) | review | high | технически выполнена; human A/B review | сильная; высокий |
 | [TASK-0070: Объясняющая подсказка](TASK-0070-explaining-hint.md) | draft | normal | TASK-0066 done | средняя; высокий |
 | [TASK-0071: Отдельная доска дня v4](TASK-0071-v4-daily.md) | draft | normal | TASK-0066/0068 done, принятый результат0069 | сильная; высокий |

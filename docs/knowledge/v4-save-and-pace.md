@@ -1,5 +1,25 @@
 # V4 save, прогноз и темп: проверенные границы
 
+## Undo — 2026-10-23
+
+Признак: откат только stacks оставляет другой spawn/queue/RNG и теряет историю
+после reload. Способ: session владеет accepted журналом, Undo заново воспроизводит
+его префикс теми же rules и синхронно сохраняет assisted=true. Внутренний журнал
+уже проверен owner; его replay не ограничен лимитом чтения внешнего save. Won
+не отменяется; Retry создаёт новую attempt, прошлые achievements не уменьшаются.
+Runtime очищает presentation через один helper с Restart, включая audio cues,
+collection/RAF/gesture; displayedCleared сразу равен восстановленной модели.
+
+Проверка: 22 профильных tests, 248 full tests/build, production web/Telegram mock,
+touch/keyboard/reload/lost/assisted, три отмены до нуля, 20 resource cycles,
+layout и tutorial smoke. Источник: [V4_UNDO](../reports/V4_UNDO.md).
+Полезная ошибка: compact Telegram selector с :root[data-platform-viewport]
+сжимал Undo до34px, а фиксированный ряд HUD не учитывал forecast/новую кнопку.
+Решение: Undo в actions, явный бюджет compact rows, scoped minimum44px; проверять
+реальные bounds и пересечения после окончания tray animation, затем смотреть PNG.
+Ограничения: Chromium surrogate; hidden — synthetic handler boundary, не OS
+background; физический телефон не проверен. Replay O(actions), без snapshot-cache.
+
 2026-10-19, TASK-0066/0067/0069. Источник: session/progress-v4/spawn-forecast,
 model-v4 explicit factory и tools/experiments. [Save](../reports/V4_SAVE_CONTINUE.md),
 [forecast](../reports/SPAWN_FORECAST.md), [темп/входные hashes](../reports/TELEGRAM_SESSION_PACE.md).

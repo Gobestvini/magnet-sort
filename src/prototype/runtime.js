@@ -98,7 +98,7 @@ function ui() {
   const queueTurn=timeline && elapsed < timeline.queueStart ? timeline.before.turn : state.turn;
   render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, magnetRadii:timeline&&elapsed<timeline.queueStart?timeline.before.magnetRadii:state.magnetRadii, magnets, queueTurn, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
     canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
-    getTutorialTarget, audioSettings, onAudioChange: changeAudio, saveStatus: session.status(),
+    getTutorialTarget, audioSettings, onAudioChange: changeAudio, saveStatus: session.status(), canUndo: canUndo(), onUndo: () => uiAction(undo),
     spawnForecast: displayedForecast(state, timeline, elapsed, experiment?.rules),
     onFreshSave: () => uiAction(() => { session.recoverSave(); ui(); }),
     onReloadSave: () => location.reload(),
@@ -268,16 +268,34 @@ function updatePause() {
   if (!paused) schedule();
 }
 function reset() { loadLevel(levelIndex, runSeed); }
+function canUndo() {
+  return !disposed && board && !loading && !error && !paused && !document.hidden && !timeline &&
+    (phase === 'playing' || phase === 'lost') && session.canUndo;
+}
+function clearPresentation() {
+  runId++;
+  cancelGesture(); cancelFrame(); timeline = null; elapsed = 0; previousElapsed = 0;
+  collection.clear();
+  displayedCleared = state.cleared; displayedMagnets = state.magnets.join(','); displayedQueueTurn = state.turn; displayedForecastKey = '';
+  audio.beginRun(runId); syncAudio();
+}
+function undo() {
+  if (root.inert || !canUndo()) return { accepted: false, reason: 'locked' };
+  const result = session.undo();
+  if (!result.accepted) return result;
+  state = result.state; phase = 'playing'; selected = null;
+  notice = 'Last move undone. Choose a magnet.';
+  clearPresentation(); ui(); draw();
+  canvas?.focus({ preventScroll: true });
+  return result;
+}
 function loadLevel(index, seed = fixedSeed ?? newSeed()) {
   if(!Number.isInteger(index)||!prototypeLevels[index])throw new Error('Invalid level index');
-  runId++;
-  cancelGesture(); cancelFrame(); timeline = null; elapsed = 0; previousElapsed = 0; keyboardCell = null;
   state = session.start(index, seed);
   levelIndex = index; level = prototypeLevels[index]; runSeed=state.seed;
-  boardLevel = { ...level, cells: V4_CELLS }; displayedMagnets=state.magnets.join(',');displayedQueueTurn=0;
+  boardLevel = { ...level, cells: V4_CELLS };
   phase = 'playing'; userPaused = false; paused = platformPaused; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
-  displayedCleared = 0; collection.clear();
-  audio.beginRun(runId); syncAudio();
+  clearPresentation();
   ui(); draw();
 }
 function hint() {

@@ -1,5 +1,12 @@
 # Карта проекта
 
+Undo v4, 2026-10-23: `prototype/session.js::canUndo/undo` воспроизводит укороченный
+accepted journal и сохраняет монотонный assisted; `runtime.js::clearPresentation`
+общий для Undo/Restart, без нового board/RAF. App показывает Undo в actions/lost;
+Telegram compact grid учитывает forecast и 44px Undo. `tests/v4-undo.test.js`,
+`tools/undo-v4-browser-check.cjs` — full state/replay/storage и UI/lifecycle/layout.
+[Отчёт и команды](reports/V4_UNDO.md).
+
 Отрисовка, 2026-10-23: `prototype/draw-order.js` задаёт прежние painter bands
 для плиток/стоящих фишек/перелётов, `board.js` использует общий модуль.
 `tools/draw-order-browser-check.cjs` проверяет слои света, счётчиков, ближних рядов

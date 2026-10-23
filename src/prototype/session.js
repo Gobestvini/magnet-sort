@@ -17,6 +17,7 @@ export function createV4Session({ newSeed, fixedSeed = null, rules = defaultRule
   let transient = fixedSeed === null ? null : { ...campaign };
   let disposed = false;
   const current = () => transient ?? campaign;
+  const canUndo = () => !disposed && current().state.terminal !== 'won' && current().attempt.actions.length > 0;
   function persist() {
     if (transient || disposed || !store) return;
     progress = withAttempt(progress, campaign.attempt, campaign.state);
@@ -36,6 +37,7 @@ export function createV4Session({ newSeed, fixedSeed = null, rules = defaultRule
   return {
     get state() { return current().state; },
     get attempt() { return structuredClone(current().attempt); },
+    get canUndo() { return canUndo(); },
     get progress() { return structuredClone(progress); },
     status() { return transient || !store ? { saved: false, reason: 'transient' } : store.status(); },
     checkConflict() { if (!transient && store) store.checkConflict(); },
@@ -50,6 +52,22 @@ export function createV4Session({ newSeed, fixedSeed = null, rules = defaultRule
         persist(); // Synchronous and before the runtime begins presentation.
       }
       return result;
+    },
+    undo() {
+      const active = current();
+      if (!canUndo()) return { accepted: false, reason: disposed ? 'disposed' : 'no-undo', state: active.state };
+      const attempt = { ...active.attempt, actions: active.attempt.actions.slice(0, -1), assisted: true };
+      // These are owner-validated accepted actions. Replay also works beyond the
+      // durable save's action limit, while that attempt remains in memory only.
+      let state = rules.createV4State(v4Levels.find(level => level.id === attempt.levelId), attempt.seed);
+      for (const action of attempt.actions) {
+        const result = rules.applyV4Magnet(state, action);
+        if (!result.accepted) throw Error('Accepted history could not be replayed');
+        state = result.state;
+      }
+      active.attempt = attempt; active.state = state;
+      persist();
+      return { accepted: true, state };
     },
     start(index, seed = fixedSeed ?? newSeed()) {
       if (disposed || !Number.isInteger(index) || !v4Levels[index]) throw new TypeError('Invalid level');
