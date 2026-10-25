@@ -1,5 +1,10 @@
 # Карта проекта
 
+Лидерборды, подготовка2026-10-25: [серверный контракт](design/LEADERBOARDS_SERVER.md)
+фиксирует отдельный Node24/SQLite/Compose на действующем VPS, Ed25519 существующего
+игрового бота, API/worker/DB/backup и включение обеих вкладок в TASK-0076 ready.
+Серверные пути/команды в контракте — будущие, код и новый API ещё не созданы.
+
 Daily v4, 2026-10-25: `prototype/daily-catalog-v1.js` замораживает30 пар
 L1–6/seeds0–4 и literal preset/version; `daily-rules.js` создаёт B через общий
 kernel. `daily-v4.js` владеет UTC rotation, strict replay, отдельным store,

@@ -1,12 +1,12 @@
 # TASK-0076: Лидерборды кампании и доски дня
 
-- Статус: draft
+- Статус: ready
 - Приоритет: normal
 - Создана: 2026-10-25
 - Обновлена: 2026-10-25
 - Проект: Magnet Sort, `C:/Users/gobes/OneDrive/Документы/PetProgects/Magnet Sort`, remote `https://github.com/Gobestvini/magnet-sort`
 - Рекомендуемый исполнитель: gpt-6.1-sol; высокий уровень рассуждения — серверная идентичность, детерминированная проверка результатов, транзакции и интеграция двух режимов.
-- Зависимости: TASK-0066/0068/0070 done; TASK-0071 должна завершить daily и зафиксировать её контракт. До ready требуется согласованный и доступный HTTPS API/БД для Magnet Sort, описанный в разделе 8. TASK-0072 не требуется.
+- Зависимости: TASK-0066/0068/0070 done; технический контракт TASK-0071 принят по опубликованному f799c84 (оставшийся review реального Telegram/телефона не блокирует реализацию). API/БД — результат этой задачи, не её предусловие. TASK-0072 не требуется.
 - Заменяет: отменённую TASK-0073 по прямому запросу пользователя; номер 0073 сохраняется в истории.
 
 ## 1. Цель и запрос пользователя
@@ -15,126 +15,130 @@
 
 Сейчас результаты v4 хранятся локально; настоящего межпользовательского рейтинга нет. После реализации игрок открывает один экран Leaderboards с вкладками Campaign и Daily, видит реальные результаты других участников, своё место и правила подсчёта. Кампания и доска дня продолжаются независимо от доступности сервиса. Первый срез — Telegram-участники с серверно подтверждённой идентичностью; web/embed показывают понятное ограничение участия. Вход в Telegram из браузерного fallback — только по добровольной кнопке.
 
-Метрика кампании, политика помощи и технический вариант ниже — предложения автора для ограниченного первого выпуска, а не дополнительные слова пользователя. Их нужно зафиксировать вместе с инфраструктурой до ready. Подготовка этого файла не запускает реализацию.
+Пользователь дополнительно попросил проработать сервер, чтобы можно было запускать задачу, и проверить существующего игрового бота. Серверный контракт теперь зафиксирован в [LEADERBOARDS_SERVER](../design/LEADERBOARDS_SERVER.md), публичный ID существующего MagnetSortPuzzleBot подтверждён. Метрики/помощь — выбранные проектные решения v1, а не дополнительные слова пользователя. Подготовка этого файла не запускает реализацию: сервер, клиент и публикация обоих рейтингов входят в одну ready-задачу.
 
 ## 2. Проверенный контекст
 
-Дата проверки: 2026-10-25. Git HEAD при подготовке: `daef7633862011482c5e9127b04dd146398d9816`. `package.json`: Three.js 0.186.1, Preact 11, Vite 7.1.9; активны seeded rules v4. Параллельно выполняется TASK-0071: в рабочем дереве меняются `runtime.js`, `session.js`, `App.js`, `prototype.css`, появляются daily-модули/каталог/witnesses. Это незавершённая работа другого потока, её нельзя включать в свой коммит, откатывать или считать принятым интерфейсом. Перед стартом перечитать итог TASK-0071 и проверить актуальный HEAD.
+Актуализация2026-10-25, HEAD `f799c844b079c2b00217b34971328d8143be3616`. `package.json`: Three.js0.186.1, Preact11, Vite7.1.9; active seeded rules v4. TASK-0071 уже опубликована: техническая/независимая приёмка,268 tests и30 winning witnesses; её review касается отдельно реального Telegram/телефона. Перед реализацией сверить новый HEAD и прочитать отчёт71, не переносить dirty-файлы других чатов.
 
 | Файл / символ | Проверенный факт и назначение |
 | --- | --- |
-| `src/prototype/progress-v4.js::createAttempt/replayAttempt/withAttempt` | Локальный журнал `levelId/seed/actions/assisted`; completedByLevel хранит только bestStars, полных старых победных журналов нет. LocalStorage не служит доказательством рейтинга. |
-| `src/prototype/session.js::createV4Session` | Владелец committed state и accepted journal; Hint помечает assisted, Undo воспроизводит префикс. Публикация результата должна получать snapshot через владельца, не читать DOM. |
-| `src/prototype/model-v4.js::createV4State/applyV4Magnet/earnedStars` | Детерминированный replay и вычисление победы/ходов/звёзд без браузера; использовать тот же kernel на сервере. |
-| `src/prototype/levels-v4.js::v4Levels` | 12 уровней кампании; начальные стопки зависят от seed. Сравнение скорости разных случайных полей не является соревнованием на одной доске. |
-| `docs/tasks/TASK-0071-v4-daily.md` | Daily: одна UTC-дата и версия каталога задают общее поле, короткий B отдельно от кампании A. Фактический готовый API следует взять из результата 0071; текущие новые daily-файлы ещё не приняты. |
-| `src/prototype/runtime.js::ui/dispose`, `src/prototype/App.js::PrototypeApp` | Связь session с интерфейсом и lifecycle; добавить вход из паузы/результата и закрытие рейтинга с корректным возвратом. |
-| `src/platforms/telegram/adapter.js::createTelegramPlatform` | Сейчас initData лишь проверяется на непустую строку как launch gate; серверной авторизации/учётной записи нет. |
-| `src/platforms/bootstrap.js::startGame`, `web/adapter.js`, `embed/adapter.js` | Bridge принадлежит адаптеру. Сейчас в runtime передаётся pause; новый сервис подключать явной capability, без Telegram globals в общей игре. |
-| `deploy/README.md`, `.github/workflows/deploy-pages.yml` | Текущий выпуск статический: web и telegram. В репозитории нет готового backend Magnet Sort; Pages-публикация сама API/БД не создаёт. Соседние серверы/аккаунты других игр не являются частью этой задачи по умолчанию. |
-| `tests/progress-v4.test.js`, `tests/v4-undo.test.js`, `tests/hint-v4.test.js` | Сохранение, replay, assistance — существующие регрессионные проверки. |
+| `src/prototype/progress-v4.js::createAttempt/replayAttempt/withAttempt` | Журнал levelId/seed/actions/assisted; completedByLevel хранит только bestStars. Старые local records не являются доказательством рейтинга. |
+| `src/prototype/session.js::createV4Session` | Владелец committed state и accepted journal; Hint помечает assisted, Undo воспроизводит префикс. Публиковать snapshot владельца, не DOM. |
+| `src/prototype/model-v4.js::createV4State/applyV4Magnet/earnedStars`, `levels-v4.js::v4Levels` | Детерминированный replay без браузера,12 уровней кампании со случайными seeds; moves разных полей не сравниваются. |
+| `src/prototype/daily-catalog-v1.js` | Frozen catalog `daily-30-2026-10-25.1`, preset `short-b-2026-10-25.1`, content `sub-ten-2026-10-20.1`, literal DAILY_GOALS/DAILY_SPAWN_INTERVALS;30 досок. JSON catalog SHA256 `3e02ff4c6b5b8a5cc3325681215928a02462074a89aaf60f19511b94bebdf06c`. |
+| `src/prototype/daily-rules.js::DAILY_RULES`; `daily-v4.js::getDaily/replayDailyAttempt/createV4ModeSession` | Чистые B rules отделены от mode session; UTC descriptor и отдельное local daily сохранение уже существуют. Backend импортирует pure catalog/rules, не браузерного владельца сессии. |
+| `tools/fixtures/daily-v4-witnesses.json`, `tools/generate-daily-catalog.mjs`, `tests/daily-catalog.test.js`, `tests/daily-v4.test.js` |30 winning replays, drift/hash/UTC/version и campaign isolation. Все свидетели повторить на сервере. |
+| `src/prototype/runtime.js::ui/dispose`, `App.js::PrototypeApp` | UI/lifecycle entry из паузы/результата. |
+| `src/platforms/telegram/adapter.js::createTelegramPlatform`, `bootstrap.js::startGame` | Пока initData лишь opaque launch gate; SDK принадлежит адаптеру. Добавить явную auth capability без Telegram globals в общей игре; сохранить web/embed fallback. |
+| `deploy/README.md`, `.github/workflows/deploy-pages.yml` | Сейчас публикуется статика. API/БД Magnet Sort ещё не созданы, frontend Pages сам backend не выпускает. |
+| `docs/design/LEADERBOARDS_SERVER.md` | Нормативный готовый контракт: Node/SQLite/Compose, auth/API/schema/лимиты/retention/backup/rollout. Не выбирать другой backend заново. |
 
-Официальный источник Telegram, прочитан 2026-10-25: [проверка Mini App initData на сервере](https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app). Документация требует проверять initData до доверия к её данным; initDataUnsafe не является доверенной идентичностью, auth_date позволяет ограничить давность запуска. Проверка источника не подтверждает наличие авторизации в нашей игре.
+Read-only VPS аудит25.10.2026 подтвердил ARM64/4CPU/7729MiB RAM, около6954MiB available и62GiB свободного диска, Docker29.9.1/Compose5.6.0/Caddy2.11.7, действующую сеть tower-edge и рабочие White Tower/CarWars. Это snapshot, не гарантия нагрузки; их API/БД/backup сохранять. Публичный ID существующего `@MagnetSortPuzzleBot` — **8820798959**, подтверждён в авторизованном Telegram WebK DOM. Дополнительно реальный Play launch проверен Ed25519 production key в памяти: signatureValid=true, freshAuthDate=true. Raw initData/профиль не сохранялись/не выводились, токен бота не использовался, сообщения не отправлялись. Новый HTTP auth ещё предстоит реализовать.
+
+Официальная [Ed25519-проверка Mini App данных](https://core.telegram.org/bots/webapps#validating-data-for-third-party-use) проверена25.10.2026; raw initData доверен только после серверной проверки. Реальная подпись нового backend ещё не проверена. Не нужен новый бот или bot token.
 
 ## 3. Область изменений
 
-Один наблюдаемый результат: работающий серверный рейтинг с двумя вкладками. Входит минимальный API, долговременное хранение, валидатор replay, клиент, экран рейтинга и интеграция публикации побед. Предлагаемые новые пути: `server/leaderboards/`, `src/prototype/leaderboards-client.js`, `src/prototype/Leaderboards.js`, `tests/leaderboards.test.js`, `tools/leaderboards-browser-check.cjs`, `docs/reports/LEADERBOARDS.md`. До ready зафиксировать точную структуру, команды запуска/миграции/тестов/backup сервиса в `server/README.md` или соответствующем согласованном документе. Не добавлять серверные зависимости в клиентский import graph.
+Один результат: настоящий межпользовательский рейтинг с двумя вкладками, серверной валидацией и восстановлением данных. Входит self-contained backend `server/package.json`/`server/package-lock.json`, ESM `server/leaderboards/`, server tests, `server/Dockerfile`, `server/deploy/`, `server/README.md`; клиент `src/prototype/leaderboards-client.js`, экран `src/prototype/Leaderboards.js`, `tests/leaderboards-client.test.js`, `tools/leaderboards-browser-check.cjs`, `docs/reports/LEADERBOARDS.md`. Узко расширить session/runtime/App/prototype.css/platform/bootstrap, target endpoint config и CI для server package. Native server dependencies не добавлять во frontend import graph.
 
-Допускаются узкие изменения session/runtime/App/prototype.css и platform/bootstrap capability; исправления build/deploy только для своего API и конфигурации клиента. Сохранять существующие правила A/B, save/recovery/conflict, accepted journal, Hint/Undo, аудио, pause, reduced motion, пользовательский прогресс и текущие game URLs. Для UI/lifecycle сверить `docs/design/GDD_V0.4.md`, `docs/design/THREE_RENDERING.md` и разделы «Ввод и hit testing», «Lifecycle и качество» в `docs/knowledge/pixijs-practices.md`; старый `docs/design/PIXI_RENDERING.md` не является контрактом активного Three.js runtime. Применить game-quality/ai-economy и browser-game-tools по правилам проекта.
+Использовать выбранные в LEADERBOARDS_SERVER Node24.22.1-bookworm-slim (при реализации pin реальный manifest digest), better-sqlite3 13.0.3/SQLite3.53.4; один DB owner и bounded replay workers. Production daily включается в рамках этой же задачи через pure frozen catalog/rules71 и30 серверно перепроверенных witnesses. Никакой дополнительной backend-задачи или ожидания нового каталога не требуется.
 
-Не входят: цветовые заказы, friend challenge, платежи/призы, рейтинги друзей/стран/кланов, сезоны с наградами, рассылки, отдельная web-регистрация, импорт аккаунтов/БД соседней игры, редизайн поля или облачная синхронизация всей кампании.
+Сохранить A/B, save/recovery/conflict, accepted journal, Hint/Undo, audio/settings, reduced motion и user/platform/hidden pause. Для UI/lifecycle прочитать GDD_V0.4.md/THREE_RENDERING.md и разделы «Ввод и hit testing», «Lifecycle и качество» в docs/knowledge/pixijs-practices.md; старый PIXI_RENDERING.md не является активным Three.js контрактом. Применить game-quality/ai-economy/browser-game-tools по правилам проекта.
+
+Не входят: цветовые заказы, friend challenge, платежи/призы, рейтинги друзей/стран/кланов, сезоны с наградами, рассылки, создание другого Telegram-бота, отдельная web-регистрация, импорт аккаунтов/БД соседней игры, редизайн поля или cloud save всей кампании.
 
 ## 4. Требуемое поведение
 
 ### 4.1. Два сравнения и честная помощь
 
-Предложение v1: участие добровольное, Hint и Undo разрешены всем участникам обоих рейтингов. UI прямо пишет, что помощь разрешена. Assisted можно хранить для справки, но нельзя обещать серверное доказательство отсутствия помощи на основании одного клиентского boolean. Не вводить скрытую категорию «без помощи». Внешние solver/модифицированный клиент replay-проверка не исключает; рейтинг подтверждает корректный результат по правилам, а не человеческий способ игры.
+Помощь Hint/Undo разрешена всем участникам обоих рейтингов, это видно в UI. Assisted можно хранить для справки; клиентский boolean не доказывает unassisted. Replay подтверждает допустимую победу, а не человеческий способ игры/отсутствие внешнего solver.
 
-Campaign: для каждой подтверждённой учётной записи и contentVersion хранить лучший серверно перепроверенный результат каждого уникального уровня. Сначала больше завершённых уникальных уровней, затем больше сумма bestStars по ним. Retry не добавляет новый уровень, более слабая победа не уменьшает bestStars. Ходы/время не используются как критерий между разными seeds. Одинаковые показатели имеют общее место по competition ranking (1,1,3), порядок строк внутри ничьей стабилен по внутреннему ID. Не называть это гарантированно равной сложностью случайных полей. Сервер не принимает присланные total/completedByLevel как доказательство; старый локальный прогресс сохраняется, в рейтинг попадают только победы с валидным replay. Существующие завершённые уровни можно переиграть; не требовать сбросить кампанию ради участия.
+Campaign: для подтверждённого account и boardKey rules/content/preset хранить лучший серверно проверенный результат каждого уникального уровня. Больше завершённых уровней, затем больше сумма bestStars; слабая победа не уменьшает best, Retry не создаёт новый completed level. Ходы/время разных seeds не сравниваются; это рейтинг прогресса, а не одинаковой сложности полей. Ничьи competition ranking1,1,3, порядок строк стабилен по opaque playerId. Старый local progress сохраняется, но без полного replay не импортируется как verified record; старый уровень можно переиграть.
 
-Daily: отдельный boardKey включает UTC date, catalogVersion, contentVersion и presetId; сервер сам разрешает levelId/seed из замороженного каталога. Только terminal won; меньше movesUsed — выше место, одинаковое число ходов делит место. Один лучший результат пользователя на boardKey; повторная идентичная отправка не меняет рейтинг, улучшение обновляет best. Дата определяется сервером при регистрации попытки; начатая до UTC-полуночи доска остаётся прежней. Предлагаемое окно приёма — до конца следующего UTC-дня, после чего исторический результат доступен только для чтения. Прямо показывать дату открытого рейтинга; устаревший ответ после переключения вкладки/дня не подменяет текущие строки. Не смешивать кампанию A, daily B и разные версии контента.
+Daily: boardKey rules/date/catalog/content/preset, сервер разрешает точные levelId/seed из каталога71. Только terminal won; меньше moves — выше место, одинаковое число ходов делит место. Один best/account/day/version, tie сохраняет раннюю запись. Дата авторитетна на сервере при регистрации; вчерашнюю offline-попытку без зарегистрированного вчера run не регистрировать задним числом. Вчерашний registered run принимается до конца следующего UTC-дня. Полночь не меняет активное поле; mismatch — понятная ошибка, не молчаливая подмена seed. CampaignA и dailyB/версии никогда не смешиваются.
 
-### 4.2. Идентичность, проверка и запись
+### 4.2. Сервер, identity и запись
 
-Предлагаемый минимальный контракт: `POST /auth/telegram` → короткоживущая сервисная сессия; `POST /runs` → серверный runId с владельцем, mode и неизменным descriptor; `POST /runs/:id/result` → accepted/rejected plus canonical best; `GET /leaderboards/campaign` и `GET /leaderboards/daily?date=...` → page, ownRow, boardKey, правила/версия. Названия допустимо заменить равноценными после фиксации контракта; никаких mutations через GET.
+Нормативный протокол/schema/error/retention — LEADERBOARDS_SERVER. HTTPS base `https://api.plusvibegames.com/magnet-sort/v1`; auth, run registration/result, reads Top50+ownRow, capabilities/health, account deletion. Реализовать фиксированные Ed25519 production public key и `MAGNET_SORT_BOT_ID=8820798959` существующего MagnetSortPuzzleBot; age300с/skew30с, duplicate/encoding/wrong-bot/malformed/signature rejection. Никакого нового бота или bot token. Test keys внедряются только в isolated tests/staging, не production env/API.
 
-Auth проверяет официальный initData на сервере токеном именно игрового бота либо согласованной официальной подписью. До ready зафиксировать метод, TTL, clock-skew и rate limits; отвергать подделку, неверного бота, истёкший запуск, некорректную/двусмысленную сериализацию и ID другого пользователя. Из клиента нельзя задавать trusted userId. Токен бота, сервисные ключи, initData и session credentials не попадают в Git, URL, dist, метрики или логи; клиентская VITE-конфигурация содержит только публичный endpoint.
+Auth bootstrap при свежем Telegram launch в пределах5мин не публикует результат автоматически. Opaque bearer32 random bytes/24h без sliding expiry; в DB только hash, клиент scoped sessionStorage для reload своей вкладки; raw initData не сохраняется. Offline expired launch предлагает добровольное переоткрытие Mini App, сохраняя игру. Участие/публикация добровольные, регистрация требует publishConsent:true.
 
-Server run привязан к проверенному пользователю и точной версии правил; смена владельца/mode/seed/version после регистрации запрещена. Кампания использует текущий seed существующей попытки без изменения поля. Сервис проверяет допустимость level/seed/version и принимает конечный accepted journal; создаёт initial state общим kernel, применяет каждый action, требует terminal won и сам вычисляет moves/stars. Присланные stars/moves/terminal игнорируются либо сверяются с расчётом. Client assisted не влияет на право участия. Для регистрации уже начатой offline-попытки разрешён только тот же descriptor; это не доказательство реального времени прохождения.
+POST /runs идемпотентен по owner+стабильному clientAttemptId, bound к immutable descriptor; повтор другого descriptor — conflict. result принимает accepted journal, перепроверяет каждый action общими rules, требует won и сам считает moves/stars/cleared. Присланные totals не доказательство. Один DB owner/короткие транзакции/unique constraints: тот же runId+digest возвращает прежний receipt, конфликтующий digest не перезаписывает принятый результат; concurrent submits/restart не дублируют best. Body256KiB/actions2048, auth body16KiB/initData8KiB;2 workers, queue16, active250мс/full operation5с. Остальные точные budgets/expiry/cleanup/ошибки — контракт, не отключать их ради теста.
 
-Bounded payload/action count, CPU budget, auth/request rate limits и срок жизни run обязательны и численно фиксируются в контракте до ready. Существующий MAX_ATTEMPT_ACTIONS=2048 — ориентир совместимости, не основание выполнять неограниченную работу на HTTP owner. Недопустимые команды, ход после terminal, unknown version и чрезмерные данные дают явный отказ без записи. Повтор result с тем же runId+digest возвращает прежний результат; конфликтующий digest даёт conflict. Выбор best и агрегат кампании обновляются атомарно с unique constraints; две вкладки/одновременные улучшения/restart сервиса не дублируют запись.
-
-Участник виден под ограниченным display name из проверенной сессии, с нейтральным fallback; HTML/управляющие символы не исполняются. В публичных строках использовать opaque ID, не раскрывать сырой Telegram ID, initData, email, телефон или полные журналы ходов. Фото/username не обязательны. У сервиса документированы удаление своей записи и срок хранения; фактическую политику согласовать в gate.
+Public ID opaque, имя plain text с ограничениями; не выдавать private Telegram IDs, initData/bearer/replay в публичных строках/URL/логах. Account deletion удаляет live server records/session по контракту, local save не трогает; backup retention объясняется отдельно. Production не содержит fixture-игроков или test key fallback.
 
 ### 4.3. Экран, сеть и сохранность партии
 
-Leaderboard открывается добровольной кнопкой из pause/result; отображает Campaign/Daily, место, имя, показатели и своё выделенное место даже вне первой страницы. В первой версии — Top 50 и ownRow; отсутствие результата у пользователя показано явно. Empty/loading/ready/error/offline/auth-expired/version-mismatch — разные состояния, Retry выполняет ограниченный новый запрос. Демонстрационные строки разрешены только в тестах и не выдаются за реальных участников production.
+Один Leaderboards экран из pause/result: Campaign/Daily, Top50 и выделенное ownRow даже вне Top50, метрика/правила/дата daily. Нет своей победы → понятный статус. Empty/loading/ready/error/offline/auth-expired/version-mismatch различаются; Retry ограничен, устаревшие ответы другого дня/вкладки не подменяют текущие данные. Web/embed без auth capability не публикуют выдуманного участника; читают public API и объясняют добровольный вход в Telegram.
 
-Публикация победы после регистрации участия не блокирует ход, result, Retry или Next. Сетевой отказ не сбрасывает прогресс и не показывает успех; показывается «результат не отправлен» с добровольным повтором. Не хранить неограниченную offline-очередь и не переотправлять запросы бесконечно. Reload/две вкладки/потеря ответа после commit дают ту же запись по runId. Короткоживущую auth-сессию возобновлять безопасно; не удалять игроку save при её истечении.
+Стабильный clientAttemptId/runId сохраняется отдельно от игрового журнала; новый Retry игры — новая attempt, сетевой Retry — прежняя. Публикация snapshot не блокирует result/Next/Retry/ход. Сетевой отказ показывает «результат не отправлен», успех только после canonical acknowledgement; нет бесконечных retries/неограниченной offline-очереди. Reload/две вкладки/обрыв после commit сохраняют idempotency и игру.
 
-Открытый рейтинг блокирует ввод поля и ставит игру на паузу через текущего владельца; закрытие сохраняет user/platform/hidden pause semantics и точное состояние/selection/history. Pending fetch отменяется при dispose/смене вида, поздний ответ не монтирует удалённый UI. Portrait/landscape, keyboard focus/Escape и safe areas сохраняются. При отсутствии auth capability web/embed не публикуют анонимную строку от выдуманной учётной записи и продолжают обычную игру; чтение рейтинга в них допустимо только по согласованному публичному API.
+Открытый рейтинг блокирует поле и пользуется текущим pause owner; закрытие сохраняет user/platform/hidden pause, state/selection/history/audio. Fetch отменяется при смене вида/dispose, поздний ответ не монтирует удалённый UI. Portrait/landscape/keyboard focus/Escape/touch/safe areas сохраняются. Совпадение серверного daily descriptor с local71 проверяется до регистрации; серверное время не переписывает начатую local attempt.
+
+### 4.4. Свой deploy и backup
+
+Отдельные Compose project/alias magnet-sort-leaderboards на tower-edge, native ARM image, своя `/srv/magnet-sort/leaderboards/{releases,data,backups}` и config `/etc/magnet-sort/leaderboards.env`, без host-порта и чужой DB. Только свой API marker в фактически смонтированном Caddy API-блоке перед White Tower fallback: strips /magnet-sort, оставляет /v1. Snapshot/hash remote config → scoped patch → validate → reload без recreate чужих сервисов; статический домен не менять.
+
+Свой online SQLite backup/проверка/restore, отдельный restic repository в подкаталоге уже существующего offsite storage, собственный timer/retention по контракту (каждые5h, delay≤5min, snapshot/upload≤55min для целевого RPO≤6h); не пользоваться White Tower forget/prune и не менять его timer. Snapshot до first production write и restore в отдельный путь обязательны. Runbook/rollback должны сохранять accepted records и учитывать совместимость schema/image. Pin image digest и actual SQLite version подтвердить на ARM; Pages frontend не заменяет deploy API.
 
 ## 5. План для исполнителя
 
-1. Проверить done TASK-0071, итоговые daily exports и HEAD. Закрыть gate раздела 8, записать выбранный API/БД/runtime/auth/storage/ranking contract, затем переводить draft → ready. При отсутствующем gate доступна подготовка контракта, не незаметное развёртывание чужого сервиса.
-2. Выделить чистый shared replay/сравнение без DOM и серверный repository с транзакциями; не копировать модель с расходящимися правилами. Проверить детерминизм всеми существующими и daily witnesses.
-3. Реализовать серверную auth/run/result/query boundaries и миграцию/backup/rollback; прогнать негативные сценарии и concurrent retry на выбранной реальной БД.
-4. Подключить capability/client через platform/bootstrap и session snapshot, затем экран/публикацию побед. Не перезаписывать локальные completedByLevel сетевым ответом и не включать экспериментальные цветовые заказы.
-5. Пройти автоматические и браузерные сценарии, отдельную проверку критиком, согласованный staging и production smoke. Обновить PROJECT/INDEX, отчёт и точные команды эксплуатации. Публикация — только по действующим разрешениям и AGENTS.md; собственный frontend commit/push/Pages не заменяет deploy/проверку API.
+1. Прочитать AGENTS.md, LEADERBOARDS_SERVER и принятый технический результат71/f799c84; сверить HEAD, pure imports/catalog/witnesses и доступ к текущему VPS/боту. Backend отсутствует: его создать в этой задаче, не трактовать отсутствие API как dependency blocker.
+2. Создать отдельный locked server package, strict auth/schema/migrations/repository, bounded shared-kernel workers и API. Подключить оба production rules profiles, real frozen daily catalog и30 witnesses. Прогнать native DB/worker/ARM security/concurrency/expiry/backup tests.
+3. Реализовать platform capability/auth bootstrap/client, stable ranked attempt identity и snapshots; добавить две вкладки/сетевые состояния с сохранением local campaign/daily.
+4. Подготовить собственные container/backup/route/rollout/rollback, пройти isolated staged auth/replay с test keys и реальные браузерные регрессии. Fixtures не добавлять публичным участникам.
+5. Передать итог независимому критику, исправить замечания; выполнить свои commit/push/backend+frontend deploy и public checks по AGENTS.md, обновить PROJECT/INDEX/LEADERBOARDS.md. Изменение shared Caddy при параллельной правке требует перечитать snapshot, а не затирать его.
 
 ## 6. Критерии готовности
 
-- [ ] Gate закрыт конкретной конфигурацией и контрактом; TASK-0071 принята, версии daily/кампании зафиксированы.
-- [ ] Две независимые подтверждённые тестовые учётные записи видят одинаковые настоящие Campaign/Daily строки и свои места; перечитывание после restart сервиса сохраняет результаты.
-- [ ] Campaign best/unique count/stars и daily moves/ties/UTC/version boundaries соответствуют разделу 4; retries/concurrent writes не дублируют/не ухудшают best.
-- [ ] Forged/expired auth, чужой run, неверный replay/descriptor/version, завышенные показатели, oversized payload и replay после terminal отклонены без записи.
-- [ ] Сохранение, Hint/Undo, campaign↔daily, reload/две вкладки, offline/error/late response, keyboard/touch/landscape/dispose сохраняют игру и честный статус отправки.
-- [ ] Production не содержит секретов/фиктивных игроков; данные и логи ограничены по контракту, feature не рекламирует защиту от внешнего solver или доказательство unassisted.
-- [ ] Есть независимая приёмка итогового diff, команды/результаты/ограничения в LEADERBOARDS.md, свои commit/push/deploy и проверка опубликованного frontend + API.
+- [ ] Один полный срез: actual ARM backend обоих профилей, реальная SQLite, strict existing-bot auth, HTTP contract и две UI вкладки.30 daily witnesses совпадают с frozen71.
+- [ ] Две контролируемые identities в isolated staging видят общие Campaign/Daily строки/ownRow; best/ties/unique count/stars/moves/UTC/version/идемпотентность/конкурентность/restart соответствуют контракту.
+- [ ] Forged/expired/wrong-bot auth, malformed/duplicate/oversized input, чужой run, неверный replay/descriptor/version и ход после terminal отклонены без записи; budgets/worker timeout/queue проверены без блокировки HTTP owner.
+- [ ] Save/Hint/Undo/campaign↔daily/reload/two-tabs/offline/error/expiry/stale response/keyboard/touch/landscape/dispose сохраняют игру и честный статус отправки.
+- [ ] Production не содержит test keys/фиктивных участников/секретов; account deletion/retention корректны, UI не обещает bot-proof/unassisted.
+- [ ] Свои HTTPS/Compose/DB/backup timer/offsite snapshot/restore/rollback подтверждены, чужие endpoints/DB/backup не затронуты.
+- [ ] Независимый критик принял итог; команды/evidence/ограничения в LEADERBOARDS.md, свои commit/push/deploy и опубликованный frontend+API проверены; real Telegram/телефон отмечены отдельно.
 
 ## 7. Проверки
 
 ### Автоматические
 
-Все команды из корня проекта: `node --test tests/progress-v4.test.js tests/v4-undo.test.js tests/hint-v4.test.js`; после появления нового файла — `node --test tests/leaderboards.test.js`; финальные `pnpm check:full`, `pnpm build:platforms`, `pnpm test:platforms`; новый `node tools/leaderboards-browser-check.cjs`. До ready добавить точные backend test/migration/start commands по выбранному стеку; не выдавать отсутствующий server script за существующую команду.
+Из корня игры существующие команды: `node --test tests/progress-v4.test.js tests/v4-undo.test.js tests/hint-v4.test.js tests/daily-v4.test.js tests/daily-catalog.test.js`; `node tools/generate-daily-catalog.mjs --check`; финальные `pnpm check:full`, `pnpm build:platforms`, `pnpm test:platforms`. Full build очищает dist, platform builds выполнять после него.
 
-Новые проверки: реальные транзакции выбранной БД (не только mock), auth signatures/expiry/wrong-bot, one user/two accounts, replay tampering/limits, campaign aggregate/idempotency/concurrency, daily frozen descriptor/server UTC/midnight grace/version, DB restart и ownRow/ties. Client/browser — deterministic fake service с задержкой/ошибкой/повтором/обрывом после commit, реальная очистка fetch и несмешение boardKey. Сканировать собранные bundles/логи на отсутствие fixture credentials и Telegram bot secret, не печатать сами секреты.
+Новые команды этой задачи (пока не существуют): `node --test tests/leaderboards-client.test.js`, `node tools/leaderboards-browser-check.cjs`; отдельный server package реализует scripts `npm --prefix server ci`, `npm --prefix server test`, `npm --prefix server run migrate`, `npm --prefix server start`, `npm --prefix server run backup`, `npm --prefix server run restore:check`, `npm --prefix server run smoke`. Их safe config/arguments зафиксировать в server/README; production migrations не запускать как побочный эффект тестов.
 
-### Ручные
+Server suite: strict Ed25519 с generated test keys/clock, bearer hash/expiry, auth/body/rate/worker bounds, actual SQLite transactions/parallel commits/restart, all30 daily replays/catalog drift/UTC and version, deletion/cleanup/online WAL backup→restore. Обязательно повторить в actual ARM image с pinned runtime/addon/SQLite. Caddy fixture: prefix stripping/no-store/CORS/errors и чужие routes/upstream outage. Client: delayed/aborted/out-of-order fake service, lost response after commit, idempotency persistence, auth expiry и campaign/daily isolation. Не выдавать mocks за native DB/реальную Telegram identity.
 
-Web и Telegram mock: открытие/закрытие обеих вкладок, пустой рейтинг, Top50+ownRow, победа→отправка→перечитывание, assistance, Retry, offline→Retry, expired auth, reload до/после server commit. Проверить 390×844 и 844×390, keyboard focus/Escape, touch, safe area и 20 open/close/dispose cycles без накопления запросов/listeners. Сравнить campaign/daily state/journal/selection до/после.
+### Ручные и операционные
 
-Staging с двумя контролируемыми подтверждёнными identities: разные победы, улучшение/ничья, конкурентные submits, restart БД/API, серверная полночь на тестовом clock. Production smoke должен проверить настоящий HTTPS сервис и одну собственную запись без фиктивных публичных игроков. Реальный Telegram/физический телефон отмечать отдельным evidence; не запускать Telegram и не привлекать/писать другим людям без запроса. Если такая приёмка требуется и недоступна, оставить review с конкретным недостающим сценарием, не заявлять end-to-end по одному mock.
+Web + Telegram mock: обе вкладки, empty/Top50/ownRow/ties, victory→submit→reload, assistance, Retry, offline→Retry, expired auth/version/midnight.390×844 и844×390, focus/Escape/touch/safe areas и20 open/close/dispose cycles без роста listeners/requests; точный state/journal/selection/audio до/после.
+
+Isolated staging с двумя test-key identities: ranking improvements/ties/concurrent submits, restart и restore; production не содержит этих fixtures. Production: own HTTPS health/capabilities/auth rejection/both rankings, native constraints/own persistence/backup timer/snapshot/restore, route regressions White Tower production/test/CarWars и статических игр до/после. Реальная проверка подписи/первой собственной записи — на существующем MagnetSortPuzzleBot, без создания нового бота; raw initData и bearer не выводить. Реальные Telegram/native app/физический телефон — отдельный evidence; не привлекать и не писать людям. Если обязательная real end-to-end identity проверка недоступна, зафиксировать review этой проверки, не называть staging участниками production.
 
 ## 8. Предположения, вопросы и условия остановки
 
-Подтверждено пользователем: нужны оба рейтинга вместо TASK-0073. Подтверждено кодом: сейчас нет серверной identity/БД Magnet Sort, campaign bestStars локальные, TASK-0071 ещё меняет общие файлы.
+Существенные архитектурные неизвестные сняты: серверный контракт, собственные VPS/сеть/HTTPS пути, стек/БД, лимиты/backup и ID существующего бота конкретны. Production API/БД и клиентские рейтинги — результат реализации76, а не требуемый заранее сервис. TASK-0071 технически принята по f799c84, её device review не препятствует backend/import каталога. Отдельная серверная задача не нужна.
 
-Предложение: собственный небольшой Node.js API и транзакционная БД для Magnet Sort с переиспользованием чистого ESM kernel; конкретная БД/хостинг не утверждены. Новая платная услуга или изменение сервера другой игры не разрешаются самой подготовкой задачи.
+Ready разрешает начать код, но не объявляет deployed/auth/native/backup checks выполненными. Перед внешним deploy повторить read-only access/resources/remote config preflight; native image digest и секрет нового backup repository создаются/фиксируются при реализации по контракту. Не нужен новый Telegram-бот или bot token. Auth использует строго8820798959; смена/несовпадение бота — отказ, не подбор другого ID.
 
-Gate перед ready:
-
-1. TASK-0071 done либо явно принят её итоговый технический контракт; зафиксированы immutable catalog/preset/content versions.
-2. Выбраны API host/base path, runtime/БД, владелец эксплуатации, способ серверного секрета игрового бота/официальной подписи, auth TTL/skew/rate/run/payload/CPU limits, migrations/backup/restore/rollback, CORS для нужных targets и правила хранения/удаления. Секреты не просить присылать в чат.
-3. Зафиксированы предложенные campaign comparator, политика «помощь разрешена всем», server daily date/grace и политика старых local results. Если пользователь предпочитает unassisted-only, нужен другой серверный протокол assistance; один клиентский флаг задачу не решает.
-
-Без этих решений задача остаётся draft: можно исследовать/зафиксировать контракт, но нельзя молча выпускать клиентский «глобальный рейтинг» или считать подготовку заменой реализации. При несовпадении кода, занятых общих файлах, отсутствующем доступе к своему backend или необходимости менять соседнюю игру записать точный blocker и согласовать границу. Перечитывать источники Telegram при реализации, не считать эту дату вечной гарантией API.
+При изменении правил/каталога/API сначала актуализировать версии/fixtures/контракт, не подменять игроку начатое поле. Отсутствующий фактический доступ к VPS/offsite или несовместимая параллельная Caddy правка блокирует соответствующий deploy: сохранить свой коммит/отчёт, не вмешиваться в чужие игры. Непройденные обязательные ARM/restore/production identity проверки не заменять unit/mocks; указать конкретный review/blocker. Чужие dirty файлы не трогать, общие runtime/App править последовательно.
 
 ## 9. Сообщение для передачи модели
 
 ```text
-Подготовь к реализации, затем выполни docs/tasks/TASK-0076-leaderboards.md в C:/Users/gobes/OneDrive/Документы/PetProgects/Magnet Sort. Прочитай AGENTS.md и задачу целиком; проверь HEAD, результат TASK-0071 и gate раздела 8. Draft не означает разрешения обходить нерешённую инфраструктуру: сначала зафиксируй конкретный контракт/доступность, затем ready. Реализуй оба настоящих рейтинга с серверной identity/replay validation и сохранностью local campaign/daily; выполни проверки, независимый review и действующий порядок commit/push/deploy. Заполни раздел 10, LEADERBOARDS.md и INDEX. Не меняй чужие незакоммиченные файлы, не создавай новые чаты и не отправляй сообщения игрокам.
+Выполни ready docs/tasks/TASK-0076-leaderboards.md в C:/Users/gobes/OneDrive/Документы/PetProgects/Magnet Sort. Прочитай AGENTS.md, задание и docs/design/LEADERBOARDS_SERVER.md целиком; проверь HEAD и принятый технический daily контракт f799c84. Создай self-contained сервер/API/DB/backup и UI обоих рейтингов в рамках этой одной задачи. Backend пока отсутствует и является результатом работы, дополнительную задачу для него не создавай. Используй существующего MagnetSortPuzzleBot id8820798959 с Ed25519 без bot token/нового бота, frozen71 catalog/rules и native ARM stack по контракту. Сохрани local campaign/daily/Hint/Undo/settings, пройди проверки и независимого критика. Заполни раздел10/LEADERBOARDS.md/INDEX/PROJECT, заверши своими commit/push/backend+frontend deploy по AGENTS.md. Чужие dirty файлы/API/БД/backup не трогай, сообщения людям/новые чаты не создавай. Непройденное evidence отметь явно, без ложного done.
 ```
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась. Этот файл — подготовка задачи, не реализация рейтинга.
+- Результат: Не выполнялась. Подготовлена одна ready-задача; новый сервер/клиент/backup ещё не реализованы и не развёрнуты.
 - Изменённые файлы и зачем: —
 - Команды и фактические результаты: —
 - Ручные проверки: —
 - Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: gate раздела 8; готовый результат TASK-0071 ещё отсутствует.
-- Итоговый статус и дата: draft, 2026-10-25.
+- Непроверенное, блокеры и отклонения от плана: новое API/auth/ARM image/SQLite/backup/нагрузка и UI обоих рейтингов ещё не проверялись; подготовка не считается реализацией.
+- Итоговый статус и дата: ready, 2026-10-25.
 
 ## Рекомендация модели исполнителя
 
