@@ -11,6 +11,20 @@ ROOT = pathlib.Path("/srv/magnet-sort/leaderboards")
 CONFIG = pathlib.Path("/etc/magnet-sort")
 
 
+def derive_repository(previous):
+    # Restic's audited legacy SFTP form supports both absolute paths and paths
+    # relative to the SSH user's home. Preserve that meaning and its /./ form.
+    match = re.fullmatch(r'sftp:([A-Za-z0-9_.@-]+):([A-Za-z0-9_./-]+)', previous)
+    if not match or '..' in match[2].split('/') or match[2].endswith('/') or match[2].split('/')[-1] == '.':
+        raise ValueError('Expected the audited SFTP storage repository')
+    parent, separator, _ = match[2].rpartition('/')
+    sibling = parent + separator + 'magnet-sort-leaderboards'
+    repository = 'sftp:' + match[1] + ':' + sibling
+    if repository == previous:
+        raise ValueError('Dedicated repository must differ from the existing game')
+    return repository
+
+
 def private(path):
     s = path.stat()
     if path.is_symlink() or s.st_uid != 0 or s.st_mode & 0o777 != 0o600:
@@ -39,14 +53,7 @@ def provision(source):
                 raise ValueError("Unsupported storage environment syntax")
             env[key] = tokens[0]
     previous = env.get("RESTIC_REPOSITORY", "")
-    match = re.fullmatch(r"sftp:([^\s:]+):(/[^\s]+)", previous)
-    if not match or ".." in pathlib.PurePosixPath(match[2]).parts:
-        raise ValueError("Expected the audited SFTP storage repository")
-    # Preserve the SFTP server's /./ home notation instead of normalizing it.
-    parent = match[2].rsplit("/", 1)[0] or "/"
-    repository = "sftp:" + match[1] + ":" + parent.rstrip("/") + "/magnet-sort-leaderboards"
-    if repository == previous:
-        raise ValueError("Dedicated repository must differ from the existing game")
+    repository = derive_repository(previous)
     subprocess.run(["docker", "network", "inspect", "tower-edge"], check=True, stdout=subprocess.DEVNULL)
     CONFIG.mkdir(mode=0o700, parents=True, exist_ok=True)
     for name in ("releases", "data", "backups", "caddy-snapshots"):

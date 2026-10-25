@@ -10,6 +10,7 @@ function read(storage, key, limit = 32768) { try { const raw = storage?.getItem(
 function write(storage, key, value) { try { if (!storage) return false; if (value === null) storage.removeItem(key); else storage.setItem(key, JSON.stringify(value)); return true; } catch { return false; /* Storage failure never changes gameplay. */ } }
 
 export function rankingDescriptor(snapshot) {
+  if (!eligibleSnapshot(snapshot)) return null;
   const attempt = snapshot.attempt;
   if (!attempt || !snapshot.state) return null;
   return snapshot.mode === 'daily' ? {
@@ -18,6 +19,7 @@ export function rankingDescriptor(snapshot) {
     levelId: attempt.levelId, seed: attempt.seed
   } : { rulesVersion: 4, contentVersion: V4_CONTENT_VERSION, presetId: 'campaign-a-v1', levelId: attempt.levelId, seed: attempt.seed };
 }
+function eligibleSnapshot(snapshot) { return ['campaign', 'daily'].includes(snapshot.mode) && !snapshot.challenge?.preview; }
 
 export class LeaderboardsError extends Error {
   constructor(code, retryable = false) { super(code); this.name = 'LeaderboardsError'; this.code = code; this.retryable = retryable; }
@@ -136,7 +138,7 @@ export function createLeaderboardsController({ capability, getSnapshot, onChange
     const matches = current && JSON.stringify(current.descriptor) === JSON.stringify(rankingDescriptor(snapshot));
     const publication = metadataConflict ? 'error' : pending ? operations.has(pending.clientAttemptId) ? 'sending' : pending.failed ? 'error' : 'pending' : !matches ? 'idle' : current.submitted ? 'sent' : operations.has(current.clientAttemptId) ? 'sending' : current.failed ? 'error' : current.runId ? 'registered' : state.publicationError === 'SAVE_CONFLICT' ? 'error' : 'idle';
     return { ...clone(state), publication, publicationError: metadataConflict ? 'RANKING_CONFLICT' : current?.errorCode ?? state.publicationError, authError:metadataConflict?'RANKING_CONFLICT':state.authError, pendingMode, pendingCount:Object.keys(metadata.pending).length, rankingSaveFailed,
-      consent: metadata.consent, canParticipate: client.canParticipate, signedIn: client.signedIn, available: client.available, player: client.player };
+      consent: metadata.consent, eligible:eligibleSnapshot(snapshot), canParticipate: client.canParticipate, signedIn: client.signedIn, available: client.available, player: client.player };
   }
   function entry(snapshot) {
     const mode = snapshot.mode ?? 'campaign', descriptor = rankingDescriptor(snapshot);
@@ -164,6 +166,7 @@ export function createLeaderboardsController({ capability, getSnapshot, onChange
     return { current:record, snapshot:record?.snapshot ?? snapshot };
   }
   async function publish(snapshot, current, automatic = false) {
+    if (!eligibleSnapshot(snapshot) || !eligibleSnapshot(getSnapshot())) return;
     if (disposed || !metadata.consent || !client.canParticipate || !client.available || !current) return;
     if (metadataConflict) { emit(); return; }
     if (['conflict', 'invalid-data', 'unsupported-version'].includes(snapshot.saveStatus?.reason)) { current.failed = true; current.errorCode = 'SAVE_CONFLICT'; persist(); state.publication = 'error'; state.publicationError = 'SAVE_CONFLICT'; emit(); return; }
@@ -183,7 +186,7 @@ export function createLeaderboardsController({ capability, getSnapshot, onChange
           const active = metadata.attempts[snapshot.mode ?? 'campaign'];
           if (active?.clientAttemptId === current.clientAttemptId) { active.runId = current.runId; persist(); }
         }
-        if (disposed || !metadata.consent) return;
+        if (disposed || !metadata.consent || !eligibleSnapshot(getSnapshot())) return;
         if (snapshot.state.terminal === 'won') {
           await client.submit(current.runId, snapshot.attempt);
           if (disposed) return;
@@ -227,23 +230,23 @@ export function createLeaderboardsController({ capability, getSnapshot, onChange
   const controller = {
     get view() { return view(); },
     async bootstrap() { try { await client.bootstrap(); state.authError = null; } catch (error) { if (error.code !== 'ABORTED') state.authError = error.code ?? 'REQUEST_FAILED'; } if(disposed)return; emit(); if (metadata.consent) this.observe(); },
-    open() { state.open = true; const snapshot = getSnapshot(); state.tab = snapshot.mode ?? 'campaign'; state.date = snapshot.daily?.entry?.date ?? snapshot.daily?.today ?? new Date(now()).toISOString().slice(0, 10); emit(); void load(); },
+    open() { state.open = true; const snapshot = getSnapshot(); state.tab = snapshot.mode === 'daily' ? 'daily' : 'campaign'; state.date = snapshot.daily?.entry?.date ?? snapshot.daily?.today ?? new Date(now()).toISOString().slice(0, 10); emit(); void load(); },
     close() { state.open = false; readAbort?.abort(); ++readGeneration; emit(); },
     tab(mode) { if (!['campaign', 'daily'].includes(mode)) return; state.tab = mode; void load(); },
     retry() { void load(); },
-    async join() { metadata.consent = true; persist(); const snapshot = clone(getSnapshot()); const item = metadata.pending[snapshot.mode ?? 'campaign']; const selected = item ? {snapshot:item.snapshot,current:item} : publication(snapshot); await publish(selected.snapshot, selected.current); emit(); },
+    async join() { const snapshot = clone(getSnapshot()); if(!eligibleSnapshot(snapshot))return; metadata.consent = true; persist(); const item = metadata.pending[snapshot.mode ?? 'campaign']; const selected = item ? {snapshot:item.snapshot,current:item} : publication(snapshot); await publish(selected.snapshot, selected.current); emit(); },
     leave() { metadata.consent = false; persist(); emit(); },
-    observe() { if(disposed)return; const snapshot = clone(getSnapshot()); const active = entry(snapshot); if (!metadata.consent) return; const selected = publication(snapshot), current = selected.current; void publish(selected.snapshot, current, true).then(() => {
+    observe() { if(disposed)return; const snapshot = clone(getSnapshot()); if(!eligibleSnapshot(snapshot))return; const active = entry(snapshot); if (!metadata.consent) return; const selected = publication(snapshot), current = selected.current; void publish(selected.snapshot, current, true).then(() => {
       // A win may commit while early registration was in flight. Re-read the
       // owner's journal instead of publishing that earlier nonterminal snapshot.
       if (disposed || !metadata.consent) return;
       const latest = clone(getSnapshot()), latestEntry = entry(latest);
-      if (latestEntry === active && latest.state.terminal === 'won' && !latestEntry.submitted && !current?.failed && !operations.has(current.clientAttemptId)) {
+      if (eligibleSnapshot(latest) && latestEntry === active && latest.state.terminal === 'won' && !latestEntry.submitted && !current?.failed && !operations.has(current.clientAttemptId)) {
         const winner = publication(latest); if (!winner.current.submitted) void publish(winner.snapshot, winner.current, true);
       }
     }); },
-    renew(mode) { delete metadata.attempts[mode]; persist(); state.publication = 'idle'; state.publicationError = null; state.savedResultMode = null; },
-    async retryPublication(mode) { const snapshot = clone(getSnapshot()); const pending = metadata.pending[mode ?? snapshot.mode ?? 'campaign'] ?? Object.values(metadata.pending)[0]; const item = pending ? {snapshot:pending.snapshot,current:pending} : publication(snapshot); await publish(item.snapshot, item.current); if (!disposed && metadata.consent && !item.current?.failed) this.observe(); },
+    renew(mode) { if(!['campaign','daily'].includes(mode))return; delete metadata.attempts[mode]; persist(); state.publication = 'idle'; state.publicationError = null; state.savedResultMode = null; },
+    async retryPublication(mode) { const snapshot = clone(getSnapshot()); if(!eligibleSnapshot(snapshot))return; const pending = metadata.pending[mode ?? snapshot.mode ?? 'campaign'] ?? Object.values(metadata.pending)[0]; const item = pending ? {snapshot:pending.snapshot,current:pending} : publication(snapshot); await publish(item.snapshot, item.current); if (!disposed && metadata.consent && !item.current?.failed) this.observe(); },
     discardPending() { const mode = view().pendingMode; if (!mode) return; const previous = metadata.pending[mode], active = metadata.attempts[mode]; if (active?.clientAttemptId === previous.clientAttemptId) active.skipPublication = true; delete metadata.pending[mode]; persist(); state.publicationError = null; emit(); },
     async remove() { state.deleting = true; emit(); try { await client.remove(); metadata = { version: 1, consent: false, attempts: {}, pending:{} }; persist(); state.publication = 'idle'; state.authError = 'REOPEN_TELEGRAM'; await load(); } catch (error) { state.authError = error.code ?? 'REQUEST_FAILED'; } finally { state.deleting = false; emit(); } },
     debug() { return { ...client.debug(), pendingPublications: operations.size, readGeneration }; },

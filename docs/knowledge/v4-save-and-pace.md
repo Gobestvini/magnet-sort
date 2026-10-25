@@ -49,7 +49,31 @@ TASK-0076 ready; реализация нового сервера/API/БД/backu
 выбор B и закрытие отдельной TASK-0057 из этого не следуют. Ниже сохранены даты
 и ограничения исходных автоматических проверок.
 
+## Вызов другу — 2026-10-25
+
+Источник: [V4_CHALLENGE](../reports/V4_CHALLENGE.md), challenge-v4/content/session,
+platform context и generator. Manifestиз8LFsources+layouts+profiles имеет
+SHA-2561641a993…9601492; payload102/111chars, fixedA/B, cap160. Hash — только
+совместимость, moves/assisted — непроверенное заявление; наград по payload нет.
+
+Признак: platform launch приходит после constructor, preview уже переписал
+кампанию. Способ: adapter context устанавливается bootstrap до import runtime,
+incoming preview задаёт suspendedStartup. Отдельный transient owner начинает
+initialseed только по Play; base campaign/daily не пишутся при preview/Cancel/play.
+Полезная ошибка: URLseed рядом с challenge выбирал чужой DEVbase; incoming теперь
+игнорирует fixedSeed/customDEVprofile, а обычный DEV остаётся прежним.
+
+Проверка2026-10-25:291tests/build, SDKisolation/platform, productionweb/Telegram
+mock/embed, A/B initialstate, chooser/cancel/error/copy, rawcampaign/day isolation,
+won/lost/Hint/Undo/Return, comparison/help,8cycles/resize/dispose и independentQA PASS.
+Реальных сообщений/доставки не было; taskreview только для разрешённой реальной
+пересылки/получателя. Основной staticURLбота обновляется тем же проверенным
+CIartifact, без изменения botsettings/backend/чужих routes.
+
 ## Доска дня — 2026-10-25
+
+Пользователь принял новый режим2026-10-25: «проверил доску дня всё норм» и
+разрешил TASK-0072.0071 done, без сообщённых параметров устройства/клиента.
 
 Пользователь отдельно выбрал B только daily: goal30+10*N, действующий spawn;
 кампания A не переключалась. Каталог `daily-30-2026-10-25.1` заморожен:
@@ -69,7 +93,7 @@ independentcritic PASS.8modecycles послеwarm стабильны, sharedaudi
 Полезная ошибка: platform rootselector сильнее общих pause minheight; новые
 Retry/Recovery получили отдельные scoped44px classes и browser bounds checks.
 Ограничения: дата клиентская, optimistic localStorage безCAS; реальные
-Telegram/телефон нового режима отдельно не проверены и остаются review.
+Telegram/телефон агентом отдельно не проверены. Пользовательская приёмка получена.
 
 ## Hint — 2026-10-25
 

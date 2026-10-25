@@ -1,4 +1,5 @@
-// Adapted from White Tower: bridge/lifecycle only; no account or game services.
+import { readTelegramChallenge, telegramChallengeLink, telegramChooserLink } from '../challenge-links.js';
+// Adapted from White Tower: bridge/lifecycle and explicit sharing; no account services.
 export class TelegramLaunchError extends Error {
   constructor() {
     super(...arguments);
@@ -34,6 +35,11 @@ export function loadTelegramBridge(signal) {
 function supports(bridge, minimum) {
   const major = Number(bridge.version.split(".")[0]);
   return Number.isFinite(major) && major >= minimum;
+}
+function supportsSharing(bridge) {
+  const parts = bridge?.version?.split('.');
+  const major = Number(parts?.[0]), minor = Number(parts?.[1] ?? 0);
+  return Number.isInteger(major) && Number.isInteger(minor) && (major > 6 || (major === 6 && minor >= 1));
 }
 function inset(value) {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
@@ -73,6 +79,20 @@ export function createTelegramPlatform(options = {}) {
   }
   return {
     id: "telegram",
+    getLaunchChallenge() {
+      if (disposed || !bridge) return { payload: null, error: null };
+      return readTelegramChallenge(bridge.initData, (options.location ?? globalThis.location)?.search);
+    },
+    challengeLink: telegramChallengeLink,
+    shareChallenge(payload) {
+      const url = telegramChallengeLink(payload);
+      if (disposed || !supportsSharing(bridge) || typeof bridge?.openTelegramLink !== 'function') return { status: 'unsupported', url };
+      try {
+        // Opening the chooser is not delivery; this API has no send callback.
+        bridge.openTelegramLink(telegramChooserLink(url));
+        return { status: 'opened', url };
+      } catch { return { status: 'error', url }; }
+    },
     init() {
       initialization ??= (async () => {
         if (disposed) return;

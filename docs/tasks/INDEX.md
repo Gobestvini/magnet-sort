@@ -1,5 +1,12 @@
 # Очередь Magnet Sort
 
+2026-10-25: пользователь принял доску дня0071 («проверил доску дня всё норм»)
+и поручил0072 — вызов другу в Telegram.0071 done по пользовательской приёмке;
+новые параметры устройства/клиента не сообщены.72 реализована:291tests/build,
+challenge/platform/daily/Hint/Undo/tutorial/Pages/loading и независимый critic PASS.
+[Контракт и ограничения](../reports/V4_CHALLENGE.md). Review — реальная пересылка
+и запуск у получателя при отдельном разрешении отправить конкретный тест.
+
 2026-10-25: серверный контракт [LEADERBOARDS_SERVER](../design/LEADERBOARDS_SERVER.md)
 зафиксирован по read-only аудиту действующего VPS. TASK-0076 ready: отдельные
 Node24/SQLite/Compose, Ed25519 существующего MagnetSortPuzzleBot8820798959,
@@ -56,8 +63,8 @@ range-light/pages/tutorial smoke PASS. [Отчёт](../reports/DRAW_ORDER_COMPLE
 | [TASK-0068: Полная отмена последнего хода](TASK-0068-v4-undo.md) | done | high | технический save contract проверен; прямой запрос 2026-10-23 | сильная; высокий |
 | [TASK-0069: Исследовать короткую сессию](TASK-0069-telegram-session-pace.md) | done | high | пользовательская приёмка 2026-10-25; production A | сильная; высокий |
 | [TASK-0070: Объясняющая подсказка](TASK-0070-explaining-hint.md) | done | normal | пользовательская приёмка2026-10-25 | средняя; высокий |
-| [TASK-0071: Отдельная доска дня v4](TASK-0071-v4-daily.md) | review | normal | реализована; native Telegram/phone review по §7 | сильная; высокий |
-| [TASK-0072: Telegram-вызов другу](TASK-0072-telegram-friend-challenge.md) | draft | normal | TASK-0066/0068 done | сильная; высокий |
+| [TASK-0071: Отдельная доска дня v4](TASK-0071-v4-daily.md) | done | normal | пользовательская приёмка2026-10-25 | сильная; высокий |
+| [TASK-0072: Telegram-вызов другу](TASK-0072-telegram-friend-challenge.md) | review | normal | реализована; реальная пересылка/получатель по §7 | сильная; высокий |
 | [TASK-0073: Пилот цветовых заказов](TASK-0073-color-orders-pilot.md) | cancelled | normal | отменена пользователем2026-10-25; заменена0076 | — |
 | [TASK-0076: Лидерборды кампании и доски дня](TASK-0076-leaderboards.md) | in-progress | normal | реализация сервера и обоих рейтингов поручена пользователем2026-10-25 | gpt-6.1-sol; high |
 

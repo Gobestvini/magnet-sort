@@ -11,6 +11,20 @@ assisted/unassisted рекорды остаются отдельно. Серве
 победу, но не отсутствие внешнего solver. [Контракт](LEADERBOARDS_SERVER.md),
 [статус реализации/проверки](../reports/LEADERBOARDS.md).
 
+## Вызов другу — 2026-10-25
+
+После победы игрок добровольно открывает Challenge a friend. Ссылка описывает
+начальную доску, seed и поставляемый A/B profile, версии/hash и заявленные
+moves/assisted; stacks/actions и личные данные не передаются. Shared score,
+unverified — честная маркировка заявления отправителя, без наград за payload.
+Получатель сначала видит preview с Play challenge/Cancel, затем отдельную попытку
+с Retry/Hint/Undo и Return to campaign. Возврат восстанавливает кампанию/историю;
+reload приглашения снова открывает preview, не сохраняет transient journal.
+Сравнение только одинакового контента и категории помощи. Telegram chooser
+открывается по кнопке; unsupported/error/cancel оставляют ссылку и Copy.
+Неподдерживаемая ссылка предлагает Update/Return вместо другой доски.
+[Версии, формат и проверки](../reports/V4_CHALLENGE.md).
+
 ## Доска дня — 2026-10-25
 
 Добровольная Daily board в pause/result использует одну доску на UTC-день

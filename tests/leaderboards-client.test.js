@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createLeaderboardsClient, createLeaderboardsController, rankingDescriptor } from '../src/prototype/leaderboards-client.js';
 import { getDaily } from '../src/prototype/daily-v4.js';
+import { createV4ChallengeSession } from '../src/prototype/challenge-session.js';
+import { encodeChallenge, CONTENT_VERSION, CHALLENGE_RULES_HASH, CAMPAIGN_PRESET_ID } from '../src/prototype/challenge-v4.js';
 
 const baseUrl = 'https://api.example.test/magnet-sort/v1';
 const storage = () => { const entries = new Map(); return { getItem: k => entries.get(k) ?? null, setItem: (k,v) => entries.set(k,v), removeItem: k => entries.delete(k), entries }; };
@@ -166,4 +169,32 @@ test('auth lifetime follows server time when the device clock is wrong',async()=
   const actual=Date.now(),sent=[];const session=storage();
   const client=createLeaderboardsClient({baseUrl,authenticate:()=> 'signed-launch-data',sessionStorage:session,now:()=>actual+365*86400000,fetch:async(url,opts)=>{sent.push(opts);return url.includes('/auth/')?response({token:'server-token',expiresAt:actual+86400000,serverTime:actual}):response({rows:[],ownRow:null,serverTime:actual});}});
   await client.bootstrap();assert.equal(client.signedIn,true);await client.list('campaign','2026-10-25');assert.equal(sent.at(-1).headers.Authorization,'Bearer server-token');client.dispose();
+});
+
+test('real friend-challenge preview and victory never register or submit a ranked campaign result',async()=>{
+  const witness=JSON.parse(readFileSync(new URL('../tools/fixtures/v4-progression-witnesses.json',import.meta.url))).find(row=>row.number===1);
+  const gameStorage=storage(),rankingStorage=storage(),api=service();
+  const payload=encodeChallenge({schema:1,levelNumber:1,seed:witness.seed,presetId:CAMPAIGN_PRESET_ID,contentVersion:CONTENT_VERSION,rulesHash:CHALLENGE_RULES_HASH,moves:witness.actions.length,assisted:false});
+  const game=createV4ChallengeSession({storage:gameStorage,newSeed:()=>123,launch:{payload,error:null}});
+  const getSnapshot=()=>({mode:game.mode,challenge:game.challenge,daily:game.daily,state:game.state,attempt:game.attempt,saveStatus:game.status()});
+  const controller=createLeaderboardsController({capability:{apiUrl:baseUrl,authenticate:()=> 'signed-launch-data'},getSnapshot,storage:rankingStorage,sessionStorage:storage(),fetch:api.fetch});
+  await controller.bootstrap();assert.equal(rankingDescriptor(getSnapshot()),null,'Preview is not the suspended campaign');await controller.join();assert.equal(rankingStorage.entries.size,0);
+  const savedBefore=JSON.stringify([...gameStorage.entries]);assert(game.playChallenge('blue'));
+  for(const action of witness.actions){assert(game.submit(action).accepted);controller.observe();}
+  assert.equal(game.state.terminal,'won');const won=structuredClone(game.state),attempt=game.attempt;
+  assert.equal(rankingDescriptor(getSnapshot()),null);await controller.join();await controller.retryPublication();controller.renew('challenge');controller.observe();await tick();
+  assert.equal(api.calls.filter(call=>call.path.endsWith('/runs')||call.path.endsWith('/result')).length,0);
+  assert.equal(rankingStorage.entries.size,0);assert.deepEqual(game.state,won);assert.deepEqual(game.attempt,attempt);assert.equal(JSON.stringify([...gameStorage.entries]),savedBefore);
+  controller.open();await tick();assert.equal(controller.view.tab,'campaign');assert.equal(controller.view.eligible,false);assert.equal(controller.view.status,'empty');
+  controller.dispose();game.dispose();
+});
+
+test('existing sharing consent cannot convert an unknown or friend-challenge win into a ranking',async()=>{
+  const x=setup();await x.controller.join();const savedRanking=JSON.stringify([...x.local.entries]),beforeCalls=x.api.calls.length;
+  for(const mode of ['challenge','unknown-mode',null,undefined]){
+    x.active={...snapshot(),mode,state:{terminal:'won'}};assert.equal(rankingDescriptor(x.active),null);
+    x.controller.observe();x.controller.renew(mode);await x.controller.join();await x.controller.retryPublication();await tick();
+    assert.equal(x.controller.view.eligible,false);assert.equal(x.api.calls.length,beforeCalls);assert.equal(JSON.stringify([...x.local.entries]),savedRanking);
+  }
+  x.active=snapshot();x.controller.observe();await tick();assert.equal(x.controller.view.eligible,true);assert.equal(x.api.calls.length,beforeCalls,'Campaign registration remains the original one');x.controller.dispose();
 });

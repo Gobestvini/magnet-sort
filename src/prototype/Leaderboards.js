@@ -47,6 +47,7 @@ export function Leaderboards({ view, onClose, onTab, onRetry, onJoin, onLeave, o
           view.ownRow && !ownInRows && h('div', { className: 'leaderboard-own-outside' }, h('p', null, 'Your place'), h('ol', { className: 'leaderboard-list' }, h(Row, { row: view.ownRow, mode: view.tab, own: true }))),
           !view.ownRow && h('p', { className: 'leaderboard-no-score' }, 'You have no submitted win in this ranking.'))),
       h('section', { className: 'leaderboard-participation', 'aria-label': 'Leaderboard participation' },
+        !view.eligible ? h('p', {role:'status'}, 'Friend challenges are not ranked. You can read these leaderboards; return to Campaign or Daily to share your wins.') :
         !view.canParticipate ? h('div', null, h('p', null, 'Play from the Magnet Sort bot in Telegram to submit your results. You can read the rankings here.'),
           h('a', { className: 'secondary-button light-button', href: 'https://t.me/MagnetSortPuzzleBot?startapp', target: '_blank', rel: 'noopener noreferrer' }, 'Play in Telegram')) :
         h('div', null,

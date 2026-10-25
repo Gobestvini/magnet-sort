@@ -32,7 +32,7 @@ load_backup() {
   source "$BACKUP_ENV"
   set +a
   require_private "$RESTIC_PASSWORD_FILE"
-  [[ "$RESTIC_REPOSITORY" == sftp:*:/magnet-sort-leaderboards || "$RESTIC_REPOSITORY" == sftp:*/*/magnet-sort-leaderboards ]] || {
+  [[ "$RESTIC_REPOSITORY" == sftp:*/magnet-sort-leaderboards || "$RESTIC_REPOSITORY" == sftp:*:magnet-sort-leaderboards ]] || {
     echo 'Refusing a non-dedicated restic repository' >&2; return 1;
   }
   [ "$RESTIC_REPOSITORY" != "${WHITE_TOWER_REPOSITORY_GUARD:?}" ] || return 1

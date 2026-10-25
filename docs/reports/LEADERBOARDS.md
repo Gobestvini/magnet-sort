@@ -42,10 +42,10 @@ receipt. Точное raw-value сравнение останавливает з
 
 | Вид | Результат |
 | --- | --- |
-| `pnpm check:full` | 290/290 tests и production build PASS |
+| `pnpm check:full` | 315/315 tests и production build PASS |
 | `npm --prefix server test` |17/17 native Windows SQLite/workers/API tests PASS |
 | ARM64 image | Node24.22.1, SQLite3.53.4;17/17 PASS при512MiB/1CPU/PID64/read-only/networknone/tmpfs64MiB, OOMfalse |
-| Deploy tests |8/8 на Linux, включая настоящий shell EXIT после failed restic;7PASS/1Linux-onlyskip на Windows |
+| Deploy tests |8/8 исходных тестов на Linux, включая настоящий shell EXIT после failed restic; расширенный набор11:10PASS/1Linux-onlyskip на Windows, Linux-повтор при выпуске |
 | `node tools/leaderboards-contract-check.mjs` | Real client → HTTP → SQLite/worker,2 isolated test-key identities, campaign ties/daily/ownRow/public reads/dedupe PASS |
 | Browser | Web/Telegram mock: обе таблицы, согласие/отправка, saved winning journal503→reload owner-next→original retry, stale/error responses, own place57,20 modal cycles и portrait/landscape |
 | Native Caddy | active/maintenance/remove config validate без reload PASS; CAS regression сохраняет чужую concurrent правку при ошибке reload |
@@ -60,6 +60,12 @@ Native QA source tree `a55afebaee67d1a9805898be851a38adbdf0d39a`; первый �
 неограниченные local backup snapshots/partials при failed upload/kill. Backend
 strict auth/DB/worker suite и client/API contract повторены отдельно от авторов.
 Окончательный допуск и browser/regression evidence фиксируются при завершении.
+
+Объединённый итог с friend challenges из `fcd0978` повторно прошёл315 tests/build,
+all-platform matrix, loading/tutorial/Pages и отдельные leaderboard/challenge/daily/Undo/Hint
+browser сценарии. Challenge preview/победа не регистрируются как campaign/daily.
+Provisioning учитывает проверенный legacy SFTP relative path и создаёт отдельный
+sibling repository; URI/traversal/reuse отвергаются.
 
 ## Публикация и границы
 
