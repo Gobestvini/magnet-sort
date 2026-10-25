@@ -39,7 +39,7 @@ function MagnetTray({state, selected, locked, reduced, onSelect, onToolDown}) {
   },h(MagnetIcon,{color}),h('span',{className:'magnet-range','data-radius':magnetRadius(state,color),'aria-hidden':'true'},h('img',{src:rangeArt(magnetRadius(state,color)),alt:''})))));
 }
 
-function Modal({ children, label, onClose, variant = '', reduced = false }) {
+function Modal({ children, label, onClose, variant = '', reduced = false,closeLabel='Close pause' }) {
   const ref = useRef(null);
   useEffect(() => {
     const previous = document.activeElement;
@@ -57,7 +57,7 @@ function Modal({ children, label, onClose, variant = '', reduced = false }) {
     if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
   }
   return h('div', { className: 'modal-backdrop ' + variant, 'data-reduced':reduced, role: 'dialog', tabIndex: -1, 'aria-modal': 'true', 'aria-label': label, ref, onKeyDown: keys },
-    h('div', { className: 'modal-panel' }, onClose && h('button', { className: 'round-button modal-close', onClick: onClose, 'aria-label': 'Close pause' }, h('img', { src: art('close'), alt: '' })), children));
+    h('div', { className: 'modal-panel' }, onClose && h('button', { className: 'round-button modal-close', onClick: onClose, 'aria-label': closeLabel }, h('img', { src: art('close'), alt: '' })), children));
 }
 
 function SaveStatus({ status, onFreshSave, onReloadSave }) {
@@ -95,6 +95,21 @@ function DailyPanel({daily,mode,onDaily,onReturnCampaign,onRetryDaily,result=fal
     ]:h('button',{type:'button',className:'secondary-button light-button','aria-label':'Daily board',onClick:onDaily},'Daily board'));
 }
 
+function ChallengeClaim({descriptor}) {
+  return h('div',{className:'challenge-claim'},
+    h('strong',null,'Shared score, unverified'),
+    h('p',null,`Level ${descriptor.levelNumber} · ${descriptor.moves} moves · ${descriptor.assisted?'with help':'without help'}`),
+    h('small',null,'The link reproduces the starting board and rules. The claimed score is not verified.'));
+}
+function ChallengeResult({challenge,state,attempt}) {
+  const comparison=challenge?.comparison;if(!comparison)return null;
+  return h('section',{className:'challenge-comparison','aria-label':'Challenge comparison'},
+    h('p',null,`Your result: ${state.movesUsed} moves · ${attempt.assisted?'with help':'without help'}`),
+    h(ChallengeClaim,{descriptor:challenge.descriptor}),
+    state.terminal==='won'&&h('p',null,comparison.comparable?({better:'Fewer moves than the shared score.',equal:'The same number of moves as the shared score.',worse:'More moves than the shared score.'}[comparison.outcome]):'Different help categories. These results are shown separately.'),
+    h('small',null,'Challenge results do not change campaign achievements.'));
+}
+
 // A viewport overlay follows the actual projected empty tile. It has no input
 // handlers or animation clock, and never covers stack faces or intercepts taps.
 function HintMarker({ hint, getTarget }) {
@@ -118,13 +133,14 @@ function HintMarker({ hint, getTarget }) {
 }
 
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget, hintChoice, getHintTarget, audioSettings, onAudioChange, saveStatus, onFreshSave, onReloadSave, spawnForecast, canUndo, onUndo, mode='campaign',daily,onDaily,onReturnCampaign,onRetryDaily }) {
-  const inDaily=mode==='daily',dailyUnavailable=Boolean(daily?.error);
-  const dailyPanel=(result=false)=>h(DailyPanel,{daily,mode,onDaily,onReturnCampaign,onRetryDaily,result});
-  const tutorial = !inDaily && levelIndex === 0 && state.turn === 0 && phase === 'playing';
+  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget, hintChoice, getHintTarget, audioSettings, onAudioChange, saveStatus, onFreshSave, onReloadSave, spawnForecast, canUndo, onUndo, mode='campaign',daily,onDaily,onReturnCampaign,onRetryDaily,
+  challenge,shareDialog,canShare,onPlayChallenge,onCancelChallenge,onRetryChallenge,onShareChallenge,onCopyChallenge,onCloseShare,attempt }) {
+  const inDaily=mode==='daily',inChallenge=mode==='challenge',dailyUnavailable=Boolean(daily?.error)&&!inChallenge;
+  const dailyPanel=(result=false)=>!inChallenge&&h(DailyPanel,{daily,mode,onDaily,onReturnCampaign,onRetryDaily,result});
+  const tutorial = mode==='campaign' && levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !hintChoice && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
-  const overlay = paused || result || Boolean(error) || loading || dailyUnavailable;
+  const overlay = paused || result || Boolean(error) || loading || dailyUnavailable || challenge?.preview || Boolean(shareDialog);
   const locked = overlay || phase === 'resolving';
   const goal=state.goal??state.initialUnits;
   const progress = Math.min(100,state.cleared / goal * 100);
@@ -136,7 +152,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
       h('header', { className: 'topbar' },
         h('a', { className: 'brand', href: '#', onClick: event => event.preventDefault(), 'aria-label': 'Magnet Sort' },
           h('img', { src: art('logo-exact'), alt: '', draggable: false })),
-        h('h1', { className: 'level-badge'+(inDaily?' daily-badge':''),'aria-label':inDaily?'Daily board '+daily.date:undefined }, inDaily?'DAILY':'LEVEL ', inDaily?h('small',{className:'daily-date'},daily.date.slice(5)):levelIndex + 1),
+        h('h1', { className: 'level-badge'+(inDaily?' daily-badge':'')+(inChallenge?' challenge-badge':''),'aria-label':inDaily?'Daily board '+daily.date:inChallenge?'Friend challenge':undefined }, inChallenge?'CHALLENGE':inDaily?'DAILY':'LEVEL ', inDaily?h('small',{className:'daily-date'},daily.date.slice(5)):inChallenge?null:levelIndex + 1),
         h('button', { className: 'round-button', onClick: onPause, disabled: Boolean(error), 'aria-label': 'Pause' }, h('img', { src: art('pause'), alt: '' }))),
       h('section', { className: 'hud', 'aria-label': 'Puzzle progress' },
         h('div', { className: 'goal-panel cream-panel' },
@@ -144,7 +160,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
           h('div', { className: 'progress-track', ref: progressRef, role: 'progressbar', 'aria-label': 'Pieces collected', 'aria-valuenow': Math.min(goal,state.cleared), 'aria-valuemin': 0, 'aria-valuemax': goal },
             h('div', { style: { width: progress + '%' } }))),
         h('div', { className: 'moves-group' },
-          h('div', { className:'potential-stars', 'data-reduced':reduced, role:'img', 'aria-label':`Potential stars: ${potentialStars(goal,state.movesUsed??state.turn)} of 3` },
+          !inChallenge&&h('div', { className:'potential-stars', 'data-reduced':reduced, role:'img', 'aria-label':`Potential stars: ${potentialStars(goal,state.movesUsed??state.turn)} of 3` },
             [1,2,3].map(n=>h('img',{key:n,src:art('moves-star'),alt:'',className:n<=potentialStars(goal,state.movesUsed??state.turn)?'lit':'dim'}))),
           h('div', { className: 'moves-panel cream-panel' }, h('span', null, 'MOVES'), h('strong', null, state.movesUsed??state.turn))),
       spawnForecast && h('p', { className: 'spawn-forecast', title: 'Up to this many stacks, if space remains',
@@ -175,6 +191,21 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
       h('h2', null, "COULDN'T OPEN THE BOARD"), h('div', { className: 'modal-magnet' }, h(MagnetIcon)),
       h('p', null, 'Please try again'), h('button', { className: 'primary-button', onClick: onRetryRenderer }, 'Retry'),
       h('small', null, 'Check your connection and browser support')) :
+    challenge?.preview ? h(Modal,{key:'challenge-preview',label:challenge.error?'Challenge unavailable':'Friend challenge',reduced,variant:'pause-dialog challenge-dialog'},
+      h('h2',null,challenge.error?'CHALLENGE UNAVAILABLE':'FRIEND CHALLENGE'),
+      challenge.error?h('p',null,challenge.error==='unsupported'?'This link uses another game version or rule set. Update the game or return to campaign.':'This challenge link could not be read. Your campaign has been kept.'):
+        h(ChallengeClaim,{descriptor:challenge.descriptor}),
+      !challenge.error&&h('button',{className:'primary-button challenge-action',onClick:onPlayChallenge},'Play challenge'),
+      !challenge.error&&h('button',{className:'secondary-button light-button challenge-action',onClick:onCancelChallenge},'Cancel'),
+      challenge.error&&h('button',{className:'secondary-button light-button challenge-action',onClick:onReturnCampaign},'Return to campaign'),
+      challenge.error&&h('button',{className:'secondary-button light-button challenge-action',onClick:onReloadSave},'Update game')) :
+    shareDialog ? h(Modal,{key:'challenge-share',label:'Share challenge',reduced,variant:'pause-dialog challenge-dialog',onClose:onCloseShare,closeLabel:'Close share'},
+      h('h2',null,'SHARE CHALLENGE'),h(ChallengeClaim,{descriptor:shareDialog.descriptor}),
+      h('label',{className:'challenge-link-label'},'Challenge link',h('input',{className:'challenge-link',readOnly:true,value:shareDialog.url,'aria-label':'Challenge link',onFocus:event=>event.currentTarget.select()})),
+      h('p',{className:'challenge-status',role:'status','aria-live':'polite'},shareDialog.copy==='copied'?'Link copied.':shareDialog.copy==='error'?'Could not copy. Select the link and copy it manually.':
+        ({opening:'Opening sharing…',opened:'Share window opened. Choose where to share; delivery is not confirmed.',cancelled:'Sharing cancelled. You can still copy the link.',unsupported:'Sharing is unavailable here. Copy the link.',error:'Sharing could not open. Copy the link.'}[shareDialog.status])),
+      h('button',{className:'secondary-button light-button challenge-action',onClick:onCopyChallenge},'Copy link'),
+      h('button',{className:'secondary-button light-button challenge-action',onClick:onCloseShare},'Close')) :
     dailyUnavailable ? h(Modal,{key:'daily-error',label:'Daily unavailable',reduced,variant:'pause-dialog'},
       h('h2',null,'DAILY UNAVAILABLE'),h('p',null,'This saved daily board could not be opened. Its data has been kept. Return to campaign or update the game.'),
       h('button',{className:'secondary-button light-button daily-recovery-button',onClick:onReturnCampaign,'aria-label':'Return to campaign'},'Return to campaign'),
@@ -193,18 +224,23 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
               onInput:event=>onAudioChange({[channel+'Volume']:Number(event.currentTarget.value)/100},event)}),
             h('output',{'aria-hidden':'true'},Math.round(audioSettings[channel+'Volume']*100)+'%'))))),
       h('button', { className: 'primary-button', onClick: onPause }, 'Resume'),
-      h('button', { className: 'secondary-button light-button'+(inDaily?' daily-retry-button':''), onClick: onReset,'aria-label':inDaily?'Retry daily':'Restart' }, inDaily?'Retry daily':'Restart'),
-      !inDaily&&h(SaveStatus, { status: saveStatus, onFreshSave, onReloadSave }),dailyPanel()) :
+      h('button', { className: 'secondary-button light-button'+(inDaily?' daily-retry-button':'')+(inChallenge?' challenge-action':''), onClick: inChallenge?onRetryChallenge:onReset,'aria-label':inChallenge?'Retry challenge':inDaily?'Retry daily':'Restart' }, inChallenge?'Retry challenge':inDaily?'Retry daily':'Restart'),
+      inChallenge&&h('button',{className:'secondary-button light-button challenge-action',onClick:onReturnCampaign},'Return to campaign'),
+      !inDaily&&!inChallenge&&h(SaveStatus, { status: saveStatus, onFreshSave, onReloadSave }),dailyPanel()) :
     result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Board full', variant: state.terminal === 'won' ? 'victory-dialog' : 'defeat-dialog' },
       h('div', { className: 'result-card', role: 'region', 'aria-label': 'Result' },
         state.terminal === 'won' ? null : h('h2', { className: 'live-heading defeat-heading' }, 'BOARD FULL'),
-        state.terminal === 'won' ? h('h2', { className: 'result-title' }, inDaily?'DAILY COMPLETE!':'LEVEL COMPLETE!') : h('p',{className:'defeat-reason'},'No empty tiles left'),
+        state.terminal === 'won' ? h('h2', { className: 'result-title' }, inChallenge?'CHALLENGE COMPLETE!':inDaily?'DAILY COMPLETE!':'LEVEL COMPLETE!') : h('p',{className:'defeat-reason'},'No empty tiles left'),
         state.terminal === 'lost' && h('img',{className:'defeat-illustration',src:art('defeat-illustration'),alt:'',draggable:false}),
-        state.terminal === 'won' && h('div',{className:'earned-stars','aria-label':`${state.stars??0} stars earned`},[1,2,3].map(n=>h('img',{src:art('victory-star-v2'),alt:'',className:n<=(state.stars??0)?'earned':'unearned'}))),
+        !inChallenge&&state.terminal === 'won' && h('div',{className:'earned-stars','aria-label':`${state.stars??0} stars earned`},[1,2,3].map(n=>h('img',{src:art('victory-star-v2'),alt:'',className:n<=(state.stars??0)?'earned':'unearned'}))),
         h('div', {className:'victory-stats'}, h('p',null,state.movesUsed??state.turn,h('small',null,'MOVES')),h('p',null,`${state.cleared} / ${goal}`,h('small',null,'COLLECTED'))),
         state.terminal === 'lost' && h('small', null, remainingUnits(state) + ' pieces left'),
         state.terminal === 'lost' && h('button', { type:'button', className:'secondary-button light-button undo-button', onClick:onUndo, disabled:!canUndo, 'aria-label':'Undo last move' }, 'Undo last move'),
-        !inDaily&&h('button', { className: state.terminal === 'won'?'primary-button':'secondary-button defeat-retry', onClick: state.terminal === 'won' ? onNext : onReset },
+        !inDaily&&!inChallenge&&h('button', { className: state.terminal === 'won'?'primary-button':'secondary-button defeat-retry', onClick: state.terminal === 'won' ? onNext : onReset },
           state.terminal === 'won' ? levelIndex + 1 === totalLevels ? 'Play from start' : 'Next level' : 'Try again'),
-        !inDaily&&state.terminal === 'won' && h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Play again'),dailyPanel(true))) : null);
+        !inDaily&&!inChallenge&&state.terminal === 'won' && h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Play again'),
+        inChallenge&&h(ChallengeResult,{challenge,state,attempt}),
+        inChallenge&&h('button',{className:'secondary-button light-button challenge-action',onClick:onRetryChallenge},'Retry challenge'),
+        inChallenge&&h('button',{className:'secondary-button light-button challenge-action',onClick:onReturnCampaign},'Return to campaign'),
+        state.terminal==='won'&&canShare&&h('button',{className:'secondary-button light-button challenge-action',onClick:onShareChallenge},'Challenge a friend'),dailyPanel(true))) : null);
 }

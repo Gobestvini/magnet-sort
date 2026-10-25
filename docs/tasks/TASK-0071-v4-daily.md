@@ -1,6 +1,6 @@
 # TASK-0071: Добавить отдельную доску дня v4
 
-- Статус: review
+- Статус: done
 - Приоритет: normal
 - Создана: 2026-10-19
 - Обновлена: 2026-10-25
@@ -62,7 +62,7 @@ stacksForMove сохранены; кампания остаётся goal50*N. Р
 - [x] Вход/выход/reload daily сохраняют campaign, Undo и настройки.
 - [x] Рекорды разделены по помощи; local/client limitations видимы и не маскируются рейтингом.
 - [x] Проверки и ограничения записаны в разделе 10, статус файла и INDEX совпадают; доставка собственного коммита фиксируется в release.json и итоговом сообщении.
-- [ ] Реальный Telegram/физический телефон (§7): отдельная пользовательская проверка новой доски дня. Техническая и независимая приёмка завершены; mock не заменяет это evidence.
+- [x] Пользователь принял доску дня2026-10-25: «проверил доску дня всё норм переходи к следующей задаче — вызову другу в Telegram». Параметры устройства/клиента не сообщены; это пользовательская приёмка, не агентский device-test.
 
 ## 7. Проверки
 
@@ -97,5 +97,5 @@ stacksForMove сохранены; кампания остаётся goal50*N. Р
 - Команды и фактические результаты: generator --check30/30 PASS, catalog4/4 tests, 268full tests/build, build:platforms/test:platforms PASS; production daily web/Telegram mock, Hint/Undo/tutorial/Pages PASS. Независимый критик повторил38targetedtests, generator, DEV mode/midnight/woncampaign и productionTelegram recovery/layout.
 - Ручные проверки: реальные touch/keyboard в браузере390×844/844×390, разные timezone при одинаковом UTC; просмотрены pause/result/Return/recovery screenshots. Midnight+reload, assistance/categories/ties/calendar, exact campaign raw/state/history/selection/audio и newdayentry PASS. DEV8modecycles (3warm+5measured), normal motion, pause/resume, resize/reduced/dispose PASS.
 - Выполненные критерии: все технические; 30winningreplays5–15ходов, ранжирование localbest и90dayexpiry включая unfinishedentry, сохранность ошибок/конфликтов и campaign won без автоперехода. Новые кнопки сохраняют44px в compactTelegram.
-- Непроверенное, блокеры и отклонения от плана: реальный Telegram/физический телефон нового режима не проверены; управляемый UTC-clock/browser/mock не выдан за устройство. По §7 остаётся review. Серверный рейтинг, призы и legacy daily не добавлялись.
-- Итоговый статус и дата: review,2026-10-25; техническая реализация и независимая приёмка завершены, отдельная проверка устройства ожидается.
+- Непроверенное, блокеры и отклонения от плана: агент не проверял реальный Telegram/телефон; управляемый UTC-clock/browser/mock не выдан за устройство. Пользователь принял режим2026-10-25 без параметров устройства/клиента. Серверный рейтинг, призы и legacy daily не добавлялись.
+- Итоговый статус и дата: done,2026-10-25; техническая, независимая и пользовательская приёмка завершены.

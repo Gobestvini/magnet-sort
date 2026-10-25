@@ -1,12 +1,21 @@
 # TASK-0072: Предложить другу ту же начальную доску
 
-- Статус: draft
+- Статус: review
 - Приоритет: normal
 - Создана: 2026-10-19
-- Обновлена: 2026-10-19
+- Обновлена: 2026-10-25
 - Проект: Magnet Sort, `C:/Users/gobes/OneDrive/Документы/PetProgects/Magnet Sort`, remote `https://github.com/Gobestvini/magnet-sort`
 - Рекомендуемый исполнитель: сильная; высокий уровень рассуждения — launch/share boundary, версии и сохранность кампании.
 - Зависимости: TASK-0066 и TASK-0068 done; актуальный session contract. TASK-0071 не требуется.
+
+2026-10-25: пользователь принял0071 и поручил реализацию0072. Зависимости
+выполнены, до начала core зафиксированы contentVersion=`sub-ten-2026-10-20.1`
+и SHA-256 rules/layout manifest:
+`1641a9930e9ce0163739f1e05b26878620a08d2547fc1ec2a91f6542d9601492`.
+Поставляются два профиля: `campaign-a-v1` и `short-b-2026-10-25.1`.
+Manifest включает12layouts, параметры профилей и8normalized-LF rules sources;
+UI/codec/platform в digest не входят. Logical descriptor содержит явные версии,
+профиль и полный hash; canonical encoding ограничен160 символами.
 
 ## 1. Цель и запрос пользователя
 
@@ -16,7 +25,10 @@
 
 ## 2. Проверенный контекст
 
-Проверено чтением кода 2026-10-19, HEAD 2c77551ade5f790d4462a3d7e956ebe33ea65d5a. Активны Three.js0.186.1/Preact11/Vite7.1.9 и rules v4. Полный исходный запрос, ссылки на конкурентов и аудит наших игр: [исследование](../reports/TELEGRAM_IMPROVEMENT_IDEAS.md). Чужие локальные board.js, magnet-glow.js, draw-order.js и .codex-remote-attachments/ не включать и не откатывать. После изменения HEAD контекст перепроверить.
+Перепроверено2026-10-25, HEAD4ed9851. Активны Three.js0.186.1/Preact11/Vite7.1.9,
+rules v4, isolated daily B и campaign A. Предыдущие board/draw-order изменения
+интегрированы; чужой untracked .codex-remote-attachments/ не трогать.
+Исходный аудит: [исследование](../reports/TELEGRAM_IMPROVEMENT_IDEAS.md).
 
 | Файл / символ | Проверенный факт / назначение |
 | --- | --- |
@@ -52,11 +64,12 @@
 
 ## 6. Критерии готовности
 
-- [ ] Отправитель и получатель получают одинаковую initial state при той же версии/seed.
-- [ ] Malformed/unknown ссылки не изменяют campaign и не запускают молча другую доску.
-- [ ] Cancel/error/unsupported дают понятное состояние; открытие chooser не записано как delivered.
-- [ ] Return/reload/Retry/Undo не меняют campaign progress/history; assisted сравнивается честно.
-- [ ] Проверки и ограничения записаны в разделе 10, статус файла и INDEX совпадают; собственный commit/push/deploy выполнен по AGENTS.md.
+- [x] Отправитель и получатель получают одинаковую initial state при той же версии/seed.
+- [x] Malformed/unknown ссылки не изменяют campaign и не запускают молча другую доску.
+- [x] Cancel/error/unsupported дают понятное состояние; открытие chooser не записано как delivered.
+- [x] Return/reload/Retry/Undo не меняют campaign progress/history; assisted сравнивается честно.
+- [x] Проверки и ограничения записаны в разделе 10, статус файла и INDEX совпадают; доставка своего коммита фиксируется в release.json и итоговом сообщении.
+- [ ] Реальная пересылка и запуск у получателя по §7: отдельная проверка при прямом разрешении отправить конкретный тест. До неё status review, без заявления о доставке.
 
 ## 7. Проверки
 
@@ -86,10 +99,10 @@ Web + Telegram mock: victory→share fallback, launch→preview→play→lost/Un
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: —
-- Итоговый статус и дата: —
+- Результат: После won доступен Challenge a friend с canonical A/B descriptor и честной маркировкой. Incoming preview/Cancel и отдельная transient попытка с Return сохраняют campaign/daily; chooser/copy только по действию игрока.
+- Изменённые файлы и зачем: challenge-v4/content/generator — codec/hash/версии; challenge-session/daily suspendedStartup/runtime/App/CSS — отдельный owner и UI; platform adapters/context/bootstrap/links — launch/share до constructor; tests/browser — регрессии. Подробнее docs/reports/V4_CHALLENGE.md.
+- Команды и фактические результаты: generator --check и291full tests/build PASS; build:platforms/test:platforms PASS; production challenge web/Telegram mock/embed, daily/Hint/Undo/tutorial/Pages/loading PASS. Независимый critic49tests,23postfixchallenge tests и actualDEVflows PASS.
+- Ручные проверки: браузерные реальные touch/keyboard/Copy/chooser-mock, preview/Cancel/invalid/unsupported/duplicate, A/B initial state, B share, help comparisons, won/lost/Retry/Undo/Return, raw campaign/daily/audio и newseed bounds. DEV loss использует controller prefix +последнийреальныйUIход;8warm/lifecyclecycles,resize/dispose PASS.
+- Выполненные критерии: все технические; payload102/111<=160, hash/versions фиксированы; не принимаются чужие stacks/actions/final win. P2 URLseed conflict исправлен и независимо перепроверен. Новые controls>=44px, stale share/copy callback не восстанавливает закрытый UI.
+- Непроверенное, блокеры и отклонения от плана: реальные Telegram chooser/пересылка/получатель не проверялись и сообщения не отправлялись. По §7 остаётся review до отдельно разрешённого end-to-end теста. Для работы t.me bot URL та же CI-built static сборка доставляется на существующий основной сервер; новые backend/бот settings/рейтинги не входят.
+- Итоговый статус и дата: review,2026-10-25; техническая и независимая приёмка завершены, реальная доставка не заявлена.

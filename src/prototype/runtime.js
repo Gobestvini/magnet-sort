@@ -16,7 +16,10 @@ import { createCollectionView } from './collection.js';
 import { tutorialPlacement } from './tutorial-guide.js';
 import { createAudioSettings } from './audio-settings.js';
 import { createPrototypeAudio } from './audio.js';
-import { createV4ModeSession, DAILY_V4_KEY } from './daily-v4.js';
+import { DAILY_V4_KEY } from './daily-v4.js';
+import { createV4ChallengeSession } from './challenge-session.js';
+import { encodeChallenge } from './challenge-v4.js';
+import { getRuntimePlatform } from '../platforms/runtime-context.js';
 import { PROGRESS_V4_KEY } from './progress-v4.js';
 import { displayedForecast } from './spawn-forecast.js';
 import { findV4Hint, hintText } from './hint-v4.js';
@@ -28,12 +31,17 @@ const stepper = createStepper();
 let reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function newSeed() { return crypto.getRandomValues(new Uint32Array(1))[0]; }
 const urlSeed = new URLSearchParams(location.search).get('seed');
-const fixedSeed = urlSeed !== null && /^\d+$/.test(urlSeed) && Number(urlSeed)<=0xffffffff ? Number(urlSeed) : null;
+let fixedSeed = urlSeed !== null && /^\d+$/.test(urlSeed) && Number(urlSeed)<=0xffffffff ? Number(urlSeed) : null;
 let experiment = null;
 if (import.meta.env.DEV) {
   try { experiment = window.parent.__magnetPaceExperiment ?? null; } catch { /* Cross-origin dev embeds have no experiment. */ }
 }
-const session = createV4ModeSession({ newSeed, fixedSeed: experiment ? fixedSeed ?? 0 : fixedSeed,
+const platform=getRuntimePlatform();
+let launch;
+try { launch=platform?.getLaunchChallenge?.()??{payload:null,error:null}; }
+catch { launch={payload:null,error:'invalid'}; }
+if(launch.payload!==null||launch.error){fixedSeed=null;experiment=null;}
+const session = createV4ChallengeSession({ launch,newSeed, fixedSeed: experiment ? fixedSeed ?? 0 : fixedSeed,
   rules: experiment?.rules, initialLevelIndex: experiment?.levelIndex ?? 0 });
 let state = session.state, runSeed = state.seed;
 let levelIndex = prototypeLevels.findIndex(candidate => candidate.id === state.puzzleId), level = prototypeLevels[levelIndex];
@@ -46,6 +54,7 @@ let audioSettings = audioPreferences.get();
 const audio = createPrototypeAudio({ settings: audioSettings, debug: import.meta.env.DEV });
 audio.beginRun(runId);
 let selected = state.terminal ? null : state.magnets[0], phase = state.terminal ?? 'playing', paused = false, notice = `Collect ${state.goal} pieces. Place a magnet on an empty tile.`;
+let shareDialog=null,shareGeneration=0;
 let displayedCleared = state.cleared;
 const collection = createCollectionView();
 let collectionLayer = null, counterNode = null, progressNode = null;
@@ -108,6 +117,8 @@ function ui() {
     canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
     getTutorialTarget, hintChoice, getHintTarget, audioSettings, onAudioChange: changeAudio, saveStatus: session.status(), canUndo: canUndo(), onUndo: () => uiAction(undo),
     mode:session.mode,daily:session.daily,onDaily:()=>uiAction(enterDaily),onReturnCampaign:()=>uiAction(returnCampaign),onRetryDaily:()=>uiAction(reset),
+    challenge:session.challenge,attempt:session.attempt,shareDialog,canShare:Boolean(session.shareDescriptor),onPlayChallenge:()=>uiAction(playChallenge),onCancelChallenge:()=>uiAction(cancelChallengePreview),
+    onRetryChallenge:()=>uiAction(reset),onShareChallenge:shareChallenge,onCopyChallenge:copyChallenge,onCloseShare:closeShare,
     spawnForecast: displayedForecast(state, timeline, elapsed, session.rules),
     onFreshSave: () => uiAction(() => { session.recoverSave(); ui(); }),
     onReloadSave: () => location.reload(),
@@ -188,7 +199,7 @@ function cancelGesture() {
   drag = null;
   if (active?.element.hasPointerCapture?.(active.id)) active.element.releasePointerCapture(active.id);
 }
-function interactive() { return !disposed && board && !loading && !root.inert && !error && !paused && !document.hidden && phase === 'playing'; }
+function interactive() { return !disposed && !session.challenge.preview && !shareDialog && board && !loading && !root.inert && !error && !paused && !document.hidden && phase === 'playing'; }
 function select(color) {
   if (!interactive() || !state.magnets.includes(color)) return;
   if (color !== selected) clearHint();
@@ -284,6 +295,7 @@ function canUndo() {
     (phase === 'playing' || phase === 'lost') && session.canUndo;
 }
 function clearPresentation() {
+  shareGeneration++;shareDialog=null;
   clearHint();
   runId++;
   cancelGesture(); cancelFrame(); timeline = null; elapsed = 0; previousElapsed = 0;
@@ -304,7 +316,7 @@ function undo() {
 function loadLevel(index, seed = fixedSeed ?? newSeed()) {
   if(!Number.isInteger(index)||!prototypeLevels[index])throw new Error('Invalid level index');
   state = session.start(index, seed);
-  levelIndex = index; level = prototypeLevels[index]; runSeed=state.seed;
+  levelIndex = prototypeLevels.findIndex(candidate=>candidate.id===state.puzzleId); level = prototypeLevels[levelIndex]; runSeed=state.seed;
   boardLevel = { ...level, cells: V4_CELLS };
   phase = 'playing'; userPaused = false; paused = platformPaused; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
   clearPresentation();
@@ -315,7 +327,7 @@ function syncModeView(selection) {
   levelIndex=prototypeLevels.findIndex(candidate=>candidate.id===state.puzzleId);level=prototypeLevels[levelIndex];boardLevel={...level,cells:V4_CELLS};
   clearPresentation();phase=state.terminal??'playing';userPaused=false;paused=platformPaused;
   selected=state.terminal?null:selection===null?null:state.magnets.includes(selection)?selection:state.magnets[0];
-  notice=session.mode==='daily'?'Daily board: collect the goal. Your campaign is saved.':'Campaign restored. Choose a magnet and an empty tile.';
+  notice=session.mode==='daily'?'Daily board: collect the goal. Your campaign is saved.':session.mode==='challenge'?'Friend challenge: collect the goal. Shared score is unverified.':'Campaign restored. Choose a magnet and an empty tile.';
   syncAudio();ui();draw();schedule();
 }
 function enterDaily() {
@@ -324,6 +336,35 @@ function enterDaily() {
 }
 function returnCampaign() {
   const selection=session.returnSelection;session.returnCampaign();syncModeView(selection);
+}
+function playChallenge(){if(!disposed&&!loading&&!error&&session.playChallenge(selected))syncModeView(undefined);}
+function cancelChallengePreview(){const selection=selected;if(session.cancelPreview())syncModeView(selection);}
+function closeShare(){shareGeneration++;shareDialog=null;ui();}
+function fallbackChallengeLink(payload){const url=new URL(location.href);url.search='';url.hash='';url.searchParams.set('challenge',payload);return url.href;}
+function shareChallenge(){
+  if(disposed||loading||error||state.terminal!=='won'||phase==='resolving')return;
+  const descriptor=session.shareDescriptor;if(!descriptor)return;
+  const payload=encodeChallenge(descriptor),generation=++shareGeneration;
+  let url=fallbackChallengeLink(payload),response;
+  try{url=platform?.challengeLink?.(payload)??url;
+    // Keep the platform call in this trusted click stack (before rendering or
+    // awaiting anything), so native/browser share retains user activation.
+    response=platform?.shareChallenge?.(payload)??{status:'unsupported',url};
+  }catch{response={status:'error',url};}
+  shareDialog={url,status:'opening',descriptor};ui();
+  Promise.resolve(response).then(result=>{
+    if(disposed||generation!==shareGeneration||!shareDialog)return;
+    shareDialog={...shareDialog,status:['opened','unsupported','error','cancelled'].includes(result?.status)?result.status:'error'};ui();
+  },()=>{if(!disposed&&generation===shareGeneration&&shareDialog){shareDialog={...shareDialog,status:'error'};ui();}});
+}
+function copyChallenge(){
+  if(disposed||!shareDialog)return;
+  const generation=shareGeneration,url=shareDialog.url;
+  let response;try{response=navigator.clipboard?.writeText(url);if(!response)throw Error('Clipboard unavailable');}
+  catch{shareDialog={...shareDialog,copy:'error'};ui();return;}
+  Promise.resolve(response).then(()=>{
+    if(!disposed&&generation===shareGeneration&&shareDialog){shareDialog={...shareDialog,copy:'copied'};ui();}
+  },()=>{if(!disposed&&generation===shareGeneration&&shareDialog){shareDialog={...shareDialog,copy:'error'};ui();}});
 }
 function hint() {
   if (!interactive()) return;
@@ -375,7 +416,8 @@ function snapshot() {
   return { state: structuredClone(state), phase, selected, paused, levelIndex, puzzleId: level.id,
     timeline: timeline ? { duration: timeline.duration, elapsed, activeUnits: timeline.segments.filter(segment => segment.type === 'unitMoved' && segment.start <= elapsed && segment.end > elapsed).length } : null,
     renderer: board?.snapshot() ?? null, canvasCount: root.querySelectorAll('canvas').length,
-    displayedCleared, mode:session.mode,daily:session.daily,campaign:session.campaign,returnSelection:session.returnSelection,
+    displayedCleared, mode:session.mode,daily:session.daily,campaign:session.campaign,base:session.base,challenge:session.challenge,
+    share:shareDialog?structuredClone(shareDialog):null,returnSelection:session.returnSelection,
     hint: hintChoice ? structuredClone(hintChoice) : null, collection: collection.snapshot(), audio: audio.snapshot(), saveStatus: session.status(), attempt: session.attempt,
     drag: drag ? { x: drag.x, y: drag.y, targetX: drag.targetX, targetY: drag.targetY, size:drag.size, targetSize:drag.targetSize, homeSize:drag.homeSize, angle: drag.angle, released: drag.released } : null,
     gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error, loading };
@@ -384,6 +426,7 @@ export function dispose() {
   if (disposed) return;
   disposed = true; boardGeneration++; cancelGesture(); cancelFrame(); timeline = null;
   clearHint();
+  shareGeneration++;shareDialog=null;
   audio.dispose();
   collection.dispose(); session.dispose(); observer.disconnect(); cleanups.forEach(cleanup => cleanup()); board?.dispose(); board = null;
   render(null, root); if (import.meta.env.DEV) delete window.gameDebug;

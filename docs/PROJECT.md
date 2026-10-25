@@ -1,5 +1,16 @@
 # Карта проекта
 
+Friend challenge v4,2026-10-25: `prototype/challenge-content-v4.js` — generated
+SHA-256 rules/layout manifest; `challenge-v4.js` — compact canonical codec160,
+совместимость A/B и непроверенное сравнение. `challenge-session.js` оборачивает
+mode owner отдельной transient попыткой; preview/Cancel/ошибки не пишут базу.
+`daily-v4.js` пропускает suspendedStartup для кампании. Runtime читает adapter
+из `platforms/runtime-context.js`, установленного bootstrap до import runtime;
+`challenge-links.js` и три adapter владеют launch/share, SDK не попадает в rules.
+UI показывает preview/share/fallback/Copy/Return. Generator/tests/browser:
+`tools/generate-challenge-content.mjs`, challenge-v4/challenge-mode/challenge-platform
+tests и `tools/challenge-v4-browser-check.cjs`. [Отчёт](reports/V4_CHALLENGE.md).
+
 Лидерборды, подготовка2026-10-25: [серверный контракт](design/LEADERBOARDS_SERVER.md)
 фиксирует отдельный Node24/SQLite/Compose на действующем VPS, Ed25519 существующего
 игрового бота, API/worker/DB/backup и включение обеих вкладок в TASK-0076 ready.

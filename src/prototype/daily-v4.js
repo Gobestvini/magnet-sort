@@ -93,7 +93,7 @@ export function createDailyStore({storage,getStorage=()=>globalThis.localStorage
 export function createV4ModeSession({now=()=>new Date(),...options}={}) {
   const store=createDailyStore(options);let progress=store.loaded?.progress??emptyDailyProgress();
   const resume=options.fixedSeed==null&&progress.activeView==='daily'&&progress.activeAttempt;
-  const campaign=createV4Session({...options,suspendedStartup:Boolean(resume||store.failedLaunch)});
+  const campaign=createV4Session({...options,suspendedStartup:Boolean(options.suspendedStartup||resume||store.failedLaunch)});
   let daily=null,mode='campaign',dailyError=store.failedLaunch?store.reason:null,disposed=false;
   let descriptor=progress.activeAttempt?getDaily(progress.activeAttempt.date):null;
   function open(attempt){
