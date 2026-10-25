@@ -1,0 +1,9 @@
+[Unit]
+Description=Magnet Sort growth backup every 15 minutes
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+RandomizedDelaySec=30
+Persistent=true
+[Install]
+WantedBy=timers.target

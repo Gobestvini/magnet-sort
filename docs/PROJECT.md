@@ -8,6 +8,13 @@ owner journal; adapter/bootstrap передаёт auth capability. Root/client/s
 real HTTP contract, native ARM/deploy/browser проверки — [отчёт](reports/LEADERBOARDS.md).
 [Нормативный серверный контракт](design/LEADERBOARDS_SERVER.md).
 
+Growth rollout2026-10-25: src/telemetry/ и server/telemetry.mjs — opt-in first-party
+events/aggregate dashboard; src/meta/progress.js — недельные задания, эмблемы/frames;
+src/commerce/ + server/commerce.mjs — capability ads/Stars ledger. src/growth/
+объединяет UI/runtime, server/main.mjs — отдельный HTTP service и свой API prefix.
+9build profiles,6portal ZIP: [контракт и evidence](reports/GROWTH_ROLLOUT.md).
+Account approvals/live ads/native device и реальные charges — отдельные проверки.
+
 Friend challenge v4,2026-10-25: `prototype/challenge-content-v4.js` — generated
 SHA-256 rules/layout manifest; `challenge-v4.js` — compact canonical codec160,
 совместимость A/B и непроверенное сравнение. `challenge-session.js` оборачивает

@@ -1,0 +1,26 @@
+services:
+  growth:
+    build:
+      context: ../../..
+      dockerfile: server/growth/Dockerfile
+    env_file: /etc/magnet-sort/growth.env
+    restart: unless-stopped
+    read_only: true
+    user: "1000:1000"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/tmp:size=64m]
+    pids_limit: 64
+    mem_limit: 384m
+    cpus: 0.75
+    volumes: [/srv/magnet-sort/growth/data:/data, /srv/magnet-sort/growth/backups:/backups]
+    networks:
+      edge:
+        aliases: [magnet-sort-growth]
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+networks:
+  edge:
+    external: true
+    name: tower-edge

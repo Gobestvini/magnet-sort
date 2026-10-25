@@ -9,6 +9,7 @@ import { assetUrl } from '../art/urls.js';
 import { TutorialGuide } from './TutorialGuide.js';
 import { forecastText } from './spawn-forecast.js';
 import { Leaderboards } from './Leaderboards.js';
+import { GrowthPanel } from '../growth/GrowthPanel.js';
 
 export function MagnetIcon({ color = 'violet' }) {
   const key = Object.entries(COLORS).find(([, info]) => info.hex === color)?.[0] ?? color;
@@ -136,24 +137,32 @@ function HintMarker({ hint, getTarget }) {
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
   reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget, hintChoice, getHintTarget, audioSettings, onAudioChange, saveStatus, onFreshSave, onReloadSave, spawnForecast, canUndo, onUndo, mode='campaign',daily,onDaily,onReturnCampaign,onRetryDaily,
   leaderboards,onLeaderboards,onCloseLeaderboards,onLeaderboardTab,onLeaderboardRetry,onLeaderboardJoin,onLeaderboardLeave,onLeaderboardRetrySubmission,onLeaderboardDiscardPending,onLeaderboardRemove,
-  challenge,shareDialog,canShare,onPlayChallenge,onCancelChallenge,onRetryChallenge,onShareChallenge,onCopyChallenge,onCloseShare,attempt }) {
+  challenge,shareDialog,canShare,onPlayChallenge,onCancelChallenge,onRetryChallenge,onShareChallenge,onCopyChallenge,onCloseShare,attempt,
+  growth, growthView, onGrowth, onCloseGrowth, onConsent, onClaimQuest, onSelectEmblem, onSelectFrame, onReloadMeta, onPurchase, onRestore, onRewarded }) {
   const inDaily=mode==='daily',inChallenge=mode==='challenge',dailyUnavailable=Boolean(daily?.error)&&!inChallenge;
   const dailyPanel=(result=false)=>!inChallenge&&h(DailyPanel,{daily,mode,onDaily,onReturnCampaign,onRetryDaily,result});
   const tutorial = mode==='campaign' && levelIndex === 0 && state.turn === 0 && phase === 'playing';
   const tutorialMessage = tutorial && !hintChoice && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
-  const overlay = paused || result || Boolean(error) || loading || dailyUnavailable || challenge?.preview || Boolean(shareDialog);
+  const overlay = paused || result || Boolean(error) || loading || dailyUnavailable || challenge?.preview || Boolean(shareDialog) || Boolean(growthView);
+  const growthButtons = () => growth && h('div', { className:'growth-entry-buttons' },
+    h('button', {type:'button',className:'secondary-button light-button',onClick:()=>onGrowth('progress')},'Quests & collection'),
+    growth.analytics.available && h('button',{type:'button',className:'secondary-button light-button',onClick:()=>onGrowth('privacy')},'Privacy & analytics'),
+    growth.commerce.purchases && h('button',{type:'button',className:'secondary-button light-button',onClick:()=>onGrowth('shop')},'Shop'));
   const locked = overlay || phase === 'resolving';
   const goal=state.goal??state.initialUnits;
   const progress = Math.min(100,state.cleared / goal * 100);
-  return h('main', { className: 'prototype-shell' },
+  return h('main', { className: 'prototype-shell', 'data-growth-frame':growth?.meta.selectedFrame??'plain', 'data-growth-aurora':String(growth?.aurora===true) },
     h(IdleBackdrop, { active: phase === 'playing' && !paused && !loading && !error && !reduced }),
     h('div', { className: 'collection-layer', ref: collectionRef, 'aria-hidden': 'true' }),
     h('img', { className: 'drag-magnet', ref: dragRef, hidden: true, alt: '', 'aria-hidden': 'true', draggable: false }),
     h('div', { className: 'game-view' + (tutorial ? ' show-tutorial' : ''), inert: Boolean(overlay) },
       h('header', { className: 'topbar' },
         h('a', { className: 'brand', href: '#', onClick: event => event.preventDefault(), 'aria-label': 'Magnet Sort' },
-          h('img', { src: art('logo-exact'), alt: '', draggable: false })),
+          h('img', { src: art('logo-exact'), alt: '', draggable: false }),
+          (growth?.meta.selectedEmblem||growth?.meta.selectedFrame!=='plain'&&growth?.meta.selectedFrame||growth?.aurora)&&
+            h('span',{className:'growth-equipped-emblem','aria-label':growth?.meta.selectedEmblem?'Selected collection emblem':'Cosmetic frame'},
+              h(MagnetIcon,{color:growth?.meta.emblems.find(e=>e.id===growth.meta.selectedEmblem)?.color??'violet'}))),
         h('h1', { className: 'level-badge'+(inDaily?' daily-badge':'')+(inChallenge?' challenge-badge':''),'aria-label':inDaily?'Daily board '+daily.date:inChallenge?'Friend challenge':undefined }, inChallenge?'CHALLENGE':inDaily?'DAILY':'LEVEL ', inDaily?h('small',{className:'daily-date'},daily.date.slice(5)):inChallenge?null:levelIndex + 1),
         h('button', { className: 'round-button', onClick: onPause, disabled: Boolean(error), 'aria-label': 'Pause' }, h('img', { src: art('pause'), alt: '' }))),
       h('section', { className: 'hud', 'aria-label': 'Puzzle progress' },
@@ -212,6 +221,10 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
       h('h2',null,'DAILY UNAVAILABLE'),h('p',null,'This saved daily board could not be opened. Its data has been kept. Return to campaign or update the game.'),
       h('button',{className:'secondary-button light-button daily-recovery-button',onClick:onReturnCampaign,'aria-label':'Return to campaign'},'Return to campaign'),
       h('button',{className:'secondary-button light-button daily-recovery-button',onClick:onReloadSave,'aria-label':'Update game'},'Update game')) :
+    growth?.commerce.busy && !growthView ? h('div',{className:'growth-overlay',role:'status','aria-label':'Secure window in progress'},
+      h('div',{className:'growth-panel cream-panel'},h('div',{className:'growth-content'},h('h2',null,'Please wait'),h('p',null,'Your board is paused. It will resume when the secure window closes.')))) :
+    growthView ? h(GrowthPanel, { key:'growth-'+growthView, view:growthView, data:growth, onClose:onCloseGrowth,
+      onConsent,onClaimQuest,onSelectEmblem,onSelectFrame,onReloadMeta,onPurchase,onRestore,onRewarded }) :
     leaderboards?.open ? h(Leaderboards, { view:leaderboards,onClose:onCloseLeaderboards,onTab:onLeaderboardTab,onRetry:onLeaderboardRetry,
       onJoin:onLeaderboardJoin,onLeave:onLeaderboardLeave,onRetryPublication:onLeaderboardRetrySubmission,onDiscardPending:onLeaderboardDiscardPending,onRemove:onLeaderboardRemove,reduced }) :
     paused ? h(Modal, { key:'pause', reduced, label: 'Paused', onClose: onPause, variant: 'pause-dialog' },
@@ -231,7 +244,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
       leaderboards&&h('button',{type:'button',className:'secondary-button light-button leaderboard-entry',onClick:onLeaderboards},'Leaderboards'),
       h('button', { className: 'secondary-button light-button'+(inDaily?' daily-retry-button':'')+(inChallenge?' challenge-action':''), onClick: inChallenge?onRetryChallenge:onReset,'aria-label':inChallenge?'Retry challenge':inDaily?'Retry daily':'Restart' }, inChallenge?'Retry challenge':inDaily?'Retry daily':'Restart'),
       inChallenge&&h('button',{className:'secondary-button light-button challenge-action',onClick:onReturnCampaign},'Return to campaign'),
-      !inDaily&&!inChallenge&&h(SaveStatus, { status: saveStatus, onFreshSave, onReloadSave }),dailyPanel()) :
+      !inDaily&&!inChallenge&&h(SaveStatus, { status: saveStatus, onFreshSave, onReloadSave }),growthButtons(),dailyPanel()) :
     result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Board full', variant: state.terminal === 'won' ? 'victory-dialog' : 'defeat-dialog' },
       h('div', { className: 'result-card', role: 'region', 'aria-label': 'Result' },
         state.terminal === 'won' ? null : h('h2', { className: 'live-heading defeat-heading' }, 'BOARD FULL'),
@@ -248,5 +261,8 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
         inChallenge&&h('button',{className:'secondary-button light-button challenge-action',onClick:onRetryChallenge},'Retry challenge'),
         inChallenge&&h('button',{className:'secondary-button light-button challenge-action',onClick:onReturnCampaign},'Return to campaign'),
         state.terminal==='won'&&canShare&&h('button',{className:'secondary-button light-button challenge-action',onClick:onShareChallenge},'Challenge a friend'),
-        leaderboards&&h('button',{type:'button',className:'secondary-button light-button leaderboard-entry',onClick:onLeaderboards},'Leaderboards'),dailyPanel(true))) : null);
+        leaderboards&&h('button',{type:'button',className:'secondary-button light-button leaderboard-entry',onClick:onLeaderboards},'Leaderboards'),
+        state.terminal === 'won' && growth?.commerce.rewarded && growth.commerce.bonusEligible && h('button',{type:'button',className:'secondary-button light-button',onClick:onRewarded,disabled:growth.commerce.busy},'Watch an ad · +1 bonus stamp'),
+        growth?.message&&h('p',{className:'growth-result-message',role:'status'},growth.message),
+        growthButtons(),dailyPanel(true))) : null);
 }

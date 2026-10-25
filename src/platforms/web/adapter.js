@@ -1,10 +1,22 @@
 import { readWebChallenge, webChallengeLink } from '../challenge-links.js';
+import { createConfiguredAds } from '../../commerce/bootstrap.js';
 
 export function createWebPlatform(options = {}) {
-  let disposed = false;
+  let disposed = false, provider, initialization;
   const location = () => options.location ?? globalThis.location;
   return {
-    id: 'web', async init() {}, ready() {},
+    id: 'web',
+    init() {
+      initialization ??= (async () => {
+        if (disposed) return;
+        const value = await createConfiguredAds('web');
+        if (disposed) value?.dispose();
+        else provider = value;
+      })();
+      return initialization;
+    },
+    ready() {},
+    commerceProvider: () => provider,
     getLaunchChallenge() { return disposed ? {payload:null,error:null} : readWebChallenge(location()?.search); },
     challengeLink(payload) { return webChallengeLink(payload, location()?.href); },
     async shareChallenge(payload) {
@@ -20,6 +32,6 @@ export function createWebPlatform(options = {}) {
       } catch (error) { return { status: error?.name === 'AbortError' ? 'cancelled' : 'error', url }; }
     },
     subscribePause(listener) { if (!disposed) listener(false); return () => {}; },
-    dispose() { disposed = true; }
+    dispose() { disposed = true; provider?.dispose(); }
   };
 }

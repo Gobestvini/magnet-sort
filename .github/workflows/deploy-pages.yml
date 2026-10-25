@@ -36,10 +36,15 @@ jobs:
       - run: pnpm test:platforms
       - run: node tools/leaderboards-browser-check.cjs
       - run: pnpm package:embed
+      - run: pnpm package:portals artifacts/portal-releases
       - uses: actions/upload-artifact@v4
         with:
           name: magnet-sort-embed
           path: artifacts/magnet-sort-embed
+      - uses: actions/upload-artifact@v4
+        with:
+          name: magnet-sort-portals
+          path: artifacts/portal-releases
       - run: node tools/platforms/stage-publication.mjs
       - uses: actions/upload-pages-artifact@v4
         with:

@@ -18,11 +18,17 @@ export function platformBuild(profile) {
       for (const chunk of Object.values(bundle)) if (chunk.type === 'chunk') for (const name of Object.keys(chunk.modules)) {
         const modulePath = name.replaceAll('\\', '/');
         if (/\/server\//.test(modulePath) || /(?:better-sqlite3|browser-external:node:)/.test(modulePath)) throw Error('Server dependencies must not enter the game bundle');
-        const match = modulePath.match(/\/src\/platforms\/(web|embed|telegram)\/adapter\.js$/);
+        const match = modulePath.match(/\/src\/platforms\/([^/]+)\/adapter\.js$/);
         if (match) adapters.add(match[1]);
       }
       if (adapters.size !== 1 || !adapters.has(profile.id)) throw Error(`Platform isolation failed for ${profile.id}`);
       this.emitFile({ type: 'asset', fileName: 'platform-modules.json', source: JSON.stringify({ target: profile.id, adapters: [...adapters] }) });
+      if(profile.id==='playgama')this.emitFile({type:'asset',fileName:'playgama-bridge-config.json',source:JSON.stringify({
+        $schema:'https://bridge.playgama.com/v2/stable/schema.json',
+        device:{useBuiltInOrientationPopup:false,supportedOrientations:['portrait','landscape']},
+        platforms:{},advertisement:{useBuiltInErrorPopup:false,interstitial:{preloadOnStart:false},rewarded:{preloadOnStart:false}},
+        payments:[],leaderboards:[],sendAnalyticsEvents:false,
+      })});
       const notices = [];
       for (const [name, license] of [['Three.js', 'node_modules/three/LICENSE'], ['Preact', 'node_modules/preact/LICENSE'], ['Nunito', 'public/fonts/OFL.txt']]) {
         notices.push(`<h2>${name}</h2><pre>${escape(await fs.readFile(path.resolve(config.root, license), 'utf8'))}</pre>`);

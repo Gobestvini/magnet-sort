@@ -1,4 +1,5 @@
 **
+!package.json
 !server/
 !server/**
 !src/
@@ -18,7 +19,12 @@
 !tools/
 !tools/fixtures/
 !tools/fixtures/daily-v4-witnesses.json
+!src/telemetry/
+!src/telemetry/schema.js
 server/node_modules/
+server/**/data/
+server/**/backups/
+server/**/*.env
 **/.env*
 **/*.sqlite*
 **/*.log

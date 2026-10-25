@@ -24,7 +24,8 @@
     "build:platforms": "node tools/platforms/build.mjs all",
     "telegram:setup": "node tools/platforms/telegram-setup.mjs",
     "test:platforms": "node tools/platforms/browser-check.cjs",
-    "package:embed": "node tools/platforms/package.mjs"
+    "package:embed": "node tools/platforms/package.mjs",
+    "package:portals": "node tools/platforms/package-portals.mjs"
   },
   "devDependencies": {
     "fflate": "0.8.3",

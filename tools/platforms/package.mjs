@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { zipSync } from 'fflate';
 import { readArtifact } from './stage-publication.mjs';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
-export async function packageEmbed({ input = 'dist/embed', output = 'artifacts/magnet-sort-embed' } = {}) {
-  const artifact = await readArtifact(input, 'embed');
+export async function packageEmbed({ input = 'dist/embed', output = 'artifacts/magnet-sort-embed', target = 'embed' } = {}) {
+  const artifact = await readArtifact(input, target);
   const destination = path.resolve(output);
   if (destination === artifact.root || destination.startsWith(artifact.root + path.sep)) throw Error('Package must be outside input');
   const zipped = Object.create(null), files = [];
@@ -16,7 +16,7 @@ export async function packageEmbed({ input = 'dist/embed', output = 'artifacts/m
     zipped[file] = [bytes, { mtime: new Date(1980, 0, 1), level: 9, os: 0, attrs: 0 }];
   }
   const zip = zipSync(zipped);
-  const manifest = { schemaVersion: 1, game: 'magnet-sort', target: 'embed', revision: artifact.info.revision, files, zip: { file: 'magnet-sort.zip', bytes: zip.length, sha256: hash(zip) } };
+  const manifest = { schemaVersion: 1, game: 'magnet-sort', target, revision: artifact.info.revision, files, zip: { file: 'magnet-sort.zip', bytes: zip.length, sha256: hash(zip) } };
   await fs.mkdir(path.dirname(destination), { recursive: true });
   await fs.mkdir(destination); // Immutable release: never overwrite an accepted package.
   await fs.writeFile(path.join(destination, manifest.zip.file), zip, { flag: 'wx' });

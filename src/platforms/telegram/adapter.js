@@ -1,5 +1,6 @@
 import { readTelegramChallenge, telegramChallengeLink, telegramChooserLink } from '../challenge-links.js';
-// Adapted from White Tower: bridge/lifecycle and explicit sharing; no account services.
+import { createConfiguredAds } from '../../commerce/bootstrap.js';
+// Bridge/lifecycle and explicit sharing own Telegram integration; services stay separate.
 export class TelegramLaunchError extends Error {
   constructor() {
     super(...arguments);
@@ -52,7 +53,7 @@ export function createTelegramPlatform(options = {}) {
   const subscriptions = [];
   const styles = /* @__PURE__ */ new Map();
   const previousAttribute = root.getAttribute("data-platform-viewport");
-  let disposed = false, readySent = false, paused = false, bridge, initialization;
+  let disposed = false, readySent = false, paused = false, bridge, initialization, provider;
   function write(name, value) {
     if (!styles.has(name)) styles.set(name, { value: root.style.getPropertyValue(name), priority: root.style.getPropertyPriority(name) });
     root.style.setProperty(name, value);
@@ -115,6 +116,8 @@ export function createTelegramPlatform(options = {}) {
         }
         value.expand();
         viewport();
+        const ads=await createConfiguredAds('telegram');
+        if(disposed)ads?.dispose();else provider=ads;
       })();
       return initialization;
     },
@@ -129,6 +132,7 @@ export function createTelegramPlatform(options = {}) {
       // persists it and the shared game does not read Telegram globals.
       return bridge.initData;
     },
+    commerceProvider:()=>provider,
     subscribePause(listener) {
       if (disposed) return () => {
       };
@@ -142,6 +146,7 @@ export function createTelegramPlatform(options = {}) {
       if (disposed) return;
       disposed = true;
       abort.abort();
+      provider?.dispose();
       listeners.clear();
       for (const [event, handler] of subscriptions) bridge?.offEvent(event, handler);
       subscriptions.length = 0;

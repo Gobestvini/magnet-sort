@@ -1,0 +1,7 @@
+[Unit]
+Description=Verified Magnet Sort growth database backup
+After=docker.service
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /srv/magnet-sort/growth/current/server/growth/deploy/backup.sh
+TimeoutStartSec=600

@@ -1,0 +1,9 @@
+FROM node:24.22.1-bookworm-slim@sha256:55fb5f5a527ea2c5c4a95f963e48ef90aa38c7b346054fdc8ee9957a2b55d205
+WORKDIR /app
+COPY --chown=node:node server/main.mjs server/commerce.mjs server/telegram-auth.mjs server/telemetry.mjs server/backup.mjs server/prune-backups.mjs /app/server/
+COPY --chown=node:node server/dashboard.html /app/server/dashboard.html
+COPY --chown=node:node src/telemetry/schema.js /app/src/telemetry/schema.js
+COPY --chown=node:node package.json /app/package.json
+USER node
+ENV NODE_ENV=production PORT=8080
+CMD ["node","server/main.mjs"]

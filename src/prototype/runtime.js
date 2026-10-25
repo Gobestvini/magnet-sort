@@ -24,6 +24,7 @@ import { PROGRESS_V4_KEY } from './progress-v4.js';
 import { displayedForecast } from './spawn-forecast.js';
 import { findV4Hint, hintText } from './hint-v4.js';
 import { createLeaderboardsController } from './leaderboards-client.js';
+import { createGrowthController } from '../growth/controller.js';
 
 const root = document.querySelector('#ui-root');
 // Preact mounts into an empty host; the static boot message belongs to HTML only.
@@ -48,7 +49,8 @@ let state = session.state, runSeed = state.seed;
 let levelIndex = prototypeLevels.findIndex(candidate => candidate.id === state.puzzleId), level = prototypeLevels[levelIndex];
 let boardLevel = { ...level, cells: V4_CELLS };
 let runId = 1;
-let userPaused = false, platformPaused = false, leaderboardPaused = false, leaderboards = null;
+let userPaused = false, platformPaused = false, leaderboardPaused = false, leaderboards = null, commercePaused = false, growthView = null;
+let runtimePlatform = null;
 let windowFocused = document.hasFocus();
 const audioPreferences = createAudioSettings();
 let audioSettings = audioPreferences.get();
@@ -76,6 +78,18 @@ let boardGeneration = 0, loading = true, loadingProgress = 0;
 let startupProgress = () => {};
 let tutorialChoice = {state:null,color:null,cell:null};
 let hintChoice = null, hintMessage = false, hintCache = {state:null,value:null};
+const growth = createGrowthController({
+  onChange: () => ui(),
+  onCommercePause(value) { commercePaused = value; updatePause(); },
+  getContext: () => ({ runId, mode: session.mode, puzzleId: state.puzzleId, seed: state.seed }),
+});
+function growthContext() { return { state, attempt: session.attempt, mode: session.mode, date: session.daily?.date, preview:session.challenge?.preview }; }
+function openGrowth(view) {
+  growthView = view; updatePause();
+  if (view === 'shop') void growth.openStore();
+}
+function closeGrowth() { growthView = null; updatePause(); }
+function growthTransition(next) { void growth.transition(next); }
 function clearHint() {
   hintChoice = null;
   if (hintMessage) { notice = 'Choose a magnet and an empty tile.'; keyboardCell = null; }
@@ -125,11 +139,16 @@ function ui() {
     onLeaderboardDiscardPending:()=>leaderboards?.discardPending(),
     challenge:session.challenge,attempt:session.attempt,shareDialog,canShare:Boolean(session.shareDescriptor),onPlayChallenge:()=>uiAction(playChallenge),onCancelChallenge:()=>uiAction(cancelChallengePreview),
     onRetryChallenge:()=>uiAction(reset),onShareChallenge:shareChallenge,onCopyChallenge:copyChallenge,onCloseShare:closeShare,
+    growth: growth.snapshot(), growthView, onGrowth: openGrowth, onCloseGrowth: closeGrowth,
+    onConsent: value => void growth.setConsent(value),
+    onClaimQuest: id => growth.claimQuest(id), onSelectEmblem: id => growth.selectEmblem(id),
+    onSelectFrame: id => growth.selectFrame(id), onReloadMeta: () => growth.reloadMeta(),
+    onPurchase: id => void growth.purchase(id), onRestore: () => void growth.restore(), onRewarded: () => void growth.rewarded(),
     spawnForecast: displayedForecast(state, timeline, elapsed, session.rules),
     onFreshSave: () => uiAction(() => { session.recoverSave(); ui(); }),
     onReloadSave: () => location.reload(),
-    onSelect: select, onToolDown: toolDown, onPause: () => uiAction(() => setPaused(!userPaused)), onReset: () => uiAction(reset),
-    onNext: () => uiAction(() => loadLevel((levelIndex + 1) % prototypeLevels.length)), onHint: hint,
+    onSelect: select, onToolDown: toolDown, onPause: () => uiAction(() => setPaused(!userPaused)), onReset: () => uiAction(() => growthTransition(reset)),
+    onNext: () => uiAction(() => growthTransition(() => loadLevel((levelIndex + 1) % prototypeLevels.length))), onHint: hint,
     onReduced: event => { reduced = event.currentTarget.checked; ui(); }, onKeyboard: keyboard,
     onRetryRenderer: () => uiAction(initializeBoard) }), root);
   // Match the former held size (80% of the button, capped at 100px, with 12% lift).
@@ -192,6 +211,7 @@ function tick(now) {
   if (timeline && elapsed >= timeline.duration) {
     audio.advanceTimeline(timeline.duration);
     timeline = null; phase = state.terminal ?? 'playing';
+    if(state.terminal)runtimePlatform?.gameplay?.(false);
     audio.playResult(state.terminal);
     selected = null;
     notice = state.terminal === 'won' ? 'Goal reached!' : state.terminal === 'lost' ? 'No empty tiles left. Try again.' : 'Choose a magnet for the next move.';
@@ -219,10 +239,12 @@ function submit(action) {
   if (!resolution.accepted) { audio.playGame('reject'); notice = 'This tile is occupied. Choose an empty tile.'; ui(); return resolution; }
   clearHint();
   state = resolution.state;
+  runtimePlatform?.gameplay?.(true);
   timeline = makeTransferTimeline(before, resolution, reduced);
   audio.beginTimeline(timeline, state.turn); audio.playGame('place');
   elapsed = 0; previousElapsed = 0; phase = 'resolving';
   leaderboards?.observe();
+  growth.move(growthContext());
   keyboardCell = null; cancelGesture(); cancelFrame(); ui(); draw(); schedule();
   return resolution;
 }
@@ -293,7 +315,8 @@ function setPaused(value) {
 }
 export function setPlatformPaused(value) { platformPaused = Boolean(value); updatePause(); }
 function updatePause() {
-  paused = userPaused || platformPaused || leaderboardPaused; clearHint(); syncAudio(); cancelGesture(); cancelFrame(); ui(); draw();
+  paused = userPaused || platformPaused || leaderboardPaused || commercePaused || Boolean(growthView); clearHint(); syncAudio(); cancelGesture(); cancelFrame(); ui(); draw();
+  runtimePlatform?.gameplay?.(!paused && state.turn>0 && !state.terminal);
   if (!paused) schedule();
 }
 function reset() { loadLevel(levelIndex, runSeed); }
@@ -315,27 +338,34 @@ function undo() {
   const result = session.undo();
   if (!result.accepted) return result;
   state = result.state; phase = 'playing'; selected = null;
+  growth.action('ms_undo_used', growthContext());
   notice = 'Last move undone. Choose a magnet.';
   clearPresentation(); ui(); draw();
+  runtimePlatform?.gameplay?.(true);
   canvas?.focus({ preventScroll: true });
   return result;
 }
 function loadLevel(index, seed = fixedSeed ?? newSeed()) {
   if(!Number.isInteger(index)||!prototypeLevels[index])throw new Error('Invalid level index');
   leaderboards?.renew(session.mode);
+  const retry = state.puzzleId === prototypeLevels[index].id && seed === runSeed;
   state = session.start(index, seed);
+  runtimePlatform?.gameplay?.(false);
   levelIndex = prototypeLevels.findIndex(candidate=>candidate.id===state.puzzleId); level = prototypeLevels[levelIndex]; runSeed=state.seed;
   boardLevel = { ...level, cells: V4_CELLS };
-  phase = 'playing'; userPaused = false; paused = platformPaused; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
+  phase = 'playing'; userPaused = false; growthView = null; paused = platformPaused || leaderboardPaused || commercePaused; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
   clearPresentation();
-  leaderboards?.observe(); ui(); draw();
+  leaderboards?.observe();
+  growth.begin(growthContext(), { force:true, reason:retry?'retry':'next' });
+  ui(); draw();
 }
 function syncModeView(selection) {
   state=session.state;runSeed=state.seed;
   levelIndex=prototypeLevels.findIndex(candidate=>candidate.id===state.puzzleId);level=prototypeLevels[levelIndex];boardLevel={...level,cells:V4_CELLS};
-  clearPresentation();phase=state.terminal??'playing';userPaused=false;paused=platformPaused;
+  clearPresentation();phase=state.terminal??'playing';userPaused=false;growthView=null;paused=platformPaused||leaderboardPaused||commercePaused;
   selected=state.terminal?null:selection===null?null:state.magnets.includes(selection)?selection:state.magnets[0];
   notice=session.mode==='daily'?'Daily board: collect the goal. Your campaign is saved.':session.mode==='challenge'?'Friend challenge: collect the goal. Shared score is unverified.':'Campaign restored. Choose a magnet and an empty tile.';
+  growth.begin(growthContext(), { resumed:state.turn>0, reason:'mode' });
   syncAudio();leaderboards?.observe();ui();draw();schedule();
 }
 function enterDaily() {
@@ -381,6 +411,7 @@ function hint() {
   hintChoice = hintCache.value;
   hintMessage = true;
   if (hintChoice) { selected = hintChoice.color; keyboardCell = { ...hintChoice.cell }; session.markAssisted(); }
+  growth.action('ms_hint_used', growthContext());
   notice = hintText(hintChoice, displayedForecast(state, null, 0, session.rules));
   ui(); draw(); schedule(); audio.playUi();
 }
@@ -427,6 +458,7 @@ function snapshot() {
     displayedCleared, mode:session.mode,daily:session.daily,campaign:session.campaign,base:session.base,challenge:session.challenge,
     share:shareDialog?structuredClone(shareDialog):null,returnSelection:session.returnSelection,
     hint: hintChoice ? structuredClone(hintChoice) : null, collection: collection.snapshot(), audio: audio.snapshot(), saveStatus: session.status(), attempt: session.attempt,
+    growth: growth.snapshot(), growthView,
     drag: drag ? { x: drag.x, y: drag.y, targetX: drag.targetX, targetY: drag.targetY, size:drag.size, targetSize:drag.targetSize, homeSize:drag.homeSize, angle: drag.angle, released: drag.released } : null,
     gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error, loading };
 }
@@ -437,9 +469,11 @@ export function dispose() {
   leaderboards?.dispose();
   shareGeneration++;shareDialog=null;
   audio.dispose();
+  growth.dispose();
   collection.dispose(); session.dispose(); observer.disconnect(); cleanups.forEach(cleanup => cleanup()); board?.dispose(); board = null;
   render(null, root); if (import.meta.env.DEV) delete window.gameDebug;
 }
+growth.begin(growthContext(), { resumed:state.turn>0 });
 ui();
 export function configureLeaderboards(capability) {
   leaderboards?.dispose();
@@ -455,6 +489,8 @@ function openLeaderboards() {
 function closeLeaderboards() {
   leaderboards?.close(); leaderboardPaused = false; updatePause();
 }
+export function configureGrowth(platform) { runtimePlatform = platform; return growth.connect(platform); }
+export function gameRevealed() { growth.ready(); }
 export function startRuntime(onProgress = () => {}) { startupProgress = onProgress; return initializeBoard(); }
 listen(root, 'pointerdown', audioGesture, { capture: true });
 listen(root, 'click', audioGesture, { capture: true });
@@ -473,8 +509,12 @@ listen(window, 'blur', () => { windowFocused = false; setPaused(true); });
 listen(window, 'focus', () => { windowFocused = true; syncAudio(); });
 listen(window, 'storage', event => {
   if (event.key === PROGRESS_V4_KEY || event.key === DAILY_V4_KEY || event.key === null) { session.checkConflict(); ui(); }
+  if (event.key?.startsWith('magnet-sort-telemetry-v1:') || event.key?.startsWith('magnet-sort.meta') || event.key === null) ui();
 });
-listen(document, 'visibilitychange', () => { if (document.hidden) setPaused(true); else syncAudio(); });
+listen(document, 'visibilitychange', () => { if (document.hidden) { setPaused(true); void growth.flush(); } else syncAudio(); });
+listen(window, 'pagehide', () => growth.end());
+const growthFlushTimer = setInterval(() => { if (!document.hidden) void growth.flush(); }, 15_000);
+cleanups.push(() => clearInterval(growthFlushTimer));
 listen(canvas, 'webglcontextlost', event => { event.preventDefault(); setPaused(true); error = 'WebGL context lost'; ui(); });
 listen(canvas, 'webglcontextrestored', initializeBoard);
 const observer = new ResizeObserver(resize); observer.observe(host);
