@@ -16,7 +16,7 @@ import { createCollectionView } from './collection.js';
 import { tutorialPlacement } from './tutorial-guide.js';
 import { createAudioSettings } from './audio-settings.js';
 import { createPrototypeAudio } from './audio.js';
-import { createV4Session } from './session.js';
+import { createV4ModeSession, DAILY_V4_KEY } from './daily-v4.js';
 import { PROGRESS_V4_KEY } from './progress-v4.js';
 import { displayedForecast } from './spawn-forecast.js';
 import { findV4Hint, hintText } from './hint-v4.js';
@@ -33,7 +33,7 @@ let experiment = null;
 if (import.meta.env.DEV) {
   try { experiment = window.parent.__magnetPaceExperiment ?? null; } catch { /* Cross-origin dev embeds have no experiment. */ }
 }
-const session = createV4Session({ newSeed, fixedSeed: experiment ? fixedSeed ?? 0 : fixedSeed,
+const session = createV4ModeSession({ newSeed, fixedSeed: experiment ? fixedSeed ?? 0 : fixedSeed,
   rules: experiment?.rules, initialLevelIndex: experiment?.levelIndex ?? 0 });
 let state = session.state, runSeed = state.seed;
 let levelIndex = prototypeLevels.findIndex(candidate => candidate.id === state.puzzleId), level = prototypeLevels[levelIndex];
@@ -73,7 +73,7 @@ function clearHint() {
 }
 function getHintTarget() { return hintChoice && board ? { ...board.screenPosition(hintChoice.cell), size: board.magnetScreenSize() } : null; }
 function getTutorialTarget() {
-  if (!board || levelIndex !== 0 || state.turn !== 0) return null;
+  if (!board || session.mode !== 'campaign' || levelIndex !== 0 || state.turn !== 0) return null;
   if (tutorialChoice.state !== state || tutorialChoice.color !== selected)
     tutorialChoice = {state,color:selected,cell:tutorialPlacement(state,selected)};
   return tutorialChoice.cell ? {...board.screenPosition(tutorialChoice.cell),cell:tutorialChoice.cell,size:board.magnetScreenSize()} : null;
@@ -107,7 +107,8 @@ function ui() {
   render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, magnetRadii:timeline&&elapsed<timeline.queueStart?timeline.before.magnetRadii:state.magnetRadii, magnets, queueTurn, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
     canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
     getTutorialTarget, hintChoice, getHintTarget, audioSettings, onAudioChange: changeAudio, saveStatus: session.status(), canUndo: canUndo(), onUndo: () => uiAction(undo),
-    spawnForecast: displayedForecast(state, timeline, elapsed, experiment?.rules),
+    mode:session.mode,daily:session.daily,onDaily:()=>uiAction(enterDaily),onReturnCampaign:()=>uiAction(returnCampaign),onRetryDaily:()=>uiAction(reset),
+    spawnForecast: displayedForecast(state, timeline, elapsed, session.rules),
     onFreshSave: () => uiAction(() => { session.recoverSave(); ui(); }),
     onReloadSave: () => location.reload(),
     onSelect: select, onToolDown: toolDown, onPause: () => uiAction(() => setPaused(!userPaused)), onReset: () => uiAction(reset),
@@ -125,7 +126,7 @@ function draw(alpha = 1) {
     tool.toggleAttribute('data-dragging', drag?.color === tool.dataset.magnetColor);
   }
   const time = previousElapsed + (elapsed - previousElapsed) * alpha;
-  const forecastKey = JSON.stringify(displayedForecast(state, timeline, time, experiment?.rules));
+  const forecastKey = JSON.stringify(displayedForecast(state, timeline, time, session.rules));
   if (forecastKey !== displayedForecastKey) { displayedForecastKey = forecastKey; ui(); }
   if (timeline) audio.advanceTimeline(time);
   const previewCell=keyboardCell??hover;
@@ -309,6 +310,21 @@ function loadLevel(index, seed = fixedSeed ?? newSeed()) {
   clearPresentation();
   ui(); draw();
 }
+function syncModeView(selection) {
+  state=session.state;runSeed=state.seed;
+  levelIndex=prototypeLevels.findIndex(candidate=>candidate.id===state.puzzleId);level=prototypeLevels[levelIndex];boardLevel={...level,cells:V4_CELLS};
+  clearPresentation();phase=state.terminal??'playing';userPaused=false;paused=platformPaused;
+  selected=state.terminal?null:selection===null?null:state.magnets.includes(selection)?selection:state.magnets[0];
+  notice=session.mode==='daily'?'Daily board: collect the goal. Your campaign is saved.':'Campaign restored. Choose a magnet and an empty tile.';
+  syncAudio();ui();draw();schedule();
+}
+function enterDaily() {
+  if(disposed||loading||error||session.mode==='daily')return;
+  if(session.enterDaily(selected))syncModeView(undefined);else ui();
+}
+function returnCampaign() {
+  const selection=session.returnSelection;session.returnCampaign();syncModeView(selection);
+}
 function hint() {
   if (!interactive()) return;
   cancelGesture(); cancelFrame();
@@ -316,7 +332,7 @@ function hint() {
   hintChoice = hintCache.value;
   hintMessage = true;
   if (hintChoice) { selected = hintChoice.color; keyboardCell = { ...hintChoice.cell }; session.markAssisted(); }
-  notice = hintText(hintChoice, displayedForecast(state, null, 0, experiment?.rules));
+  notice = hintText(hintChoice, displayedForecast(state, null, 0, session.rules));
   ui(); draw(); schedule(); audio.playUi();
 }
 function resize() {
@@ -359,7 +375,8 @@ function snapshot() {
   return { state: structuredClone(state), phase, selected, paused, levelIndex, puzzleId: level.id,
     timeline: timeline ? { duration: timeline.duration, elapsed, activeUnits: timeline.segments.filter(segment => segment.type === 'unitMoved' && segment.start <= elapsed && segment.end > elapsed).length } : null,
     renderer: board?.snapshot() ?? null, canvasCount: root.querySelectorAll('canvas').length,
-    displayedCleared, hint: hintChoice ? structuredClone(hintChoice) : null, collection: collection.snapshot(), audio: audio.snapshot(), saveStatus: session.status(), attempt: session.attempt,
+    displayedCleared, mode:session.mode,daily:session.daily,campaign:session.campaign,returnSelection:session.returnSelection,
+    hint: hintChoice ? structuredClone(hintChoice) : null, collection: collection.snapshot(), audio: audio.snapshot(), saveStatus: session.status(), attempt: session.attempt,
     drag: drag ? { x: drag.x, y: drag.y, targetX: drag.targetX, targetY: drag.targetY, size:drag.size, targetSize:drag.targetSize, homeSize:drag.homeSize, angle: drag.angle, released: drag.released } : null,
     gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error, loading };
 }
@@ -389,7 +406,7 @@ listen(window, 'scroll', () => draw(), { passive: true });
 listen(window, 'blur', () => { windowFocused = false; setPaused(true); });
 listen(window, 'focus', () => { windowFocused = true; syncAudio(); });
 listen(window, 'storage', event => {
-  if (event.key === PROGRESS_V4_KEY || event.key === null) { session.checkConflict(); ui(); }
+  if (event.key === PROGRESS_V4_KEY || event.key === DAILY_V4_KEY || event.key === null) { session.checkConflict(); ui(); }
 });
 listen(document, 'visibilitychange', () => { if (document.hidden) setPaused(true); else syncAudio(); });
 listen(canvas, 'webglcontextlost', event => { event.preventDefault(); setPaused(true); error = 'WebGL context lost'; ui(); });

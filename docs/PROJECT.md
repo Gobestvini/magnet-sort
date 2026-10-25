@@ -1,5 +1,16 @@
 # Карта проекта
 
+Daily v4, 2026-10-25: `prototype/daily-catalog-v1.js` замораживает30 пар
+L1–6/seeds0–4 и literal preset/version; `daily-rules.js` создаёт B через общий
+kernel. `daily-v4.js` владеет UTC rotation, strict replay, отдельным store,
+результатами/календарём и `createV4ModeSession`. Campaign `session.js` имеет
+узкий suspendedStartup: при reload daily не пишет кампанию и не пропускает won.
+Runtime выбирает owner режима и очищает presentation при входе/Return; App
+показывает Daily в pause/result и локальные ограничения. Generator/fixtures:
+`tools/generate-daily-catalog.mjs`, `tools/fixtures/daily-v4-witnesses.json`.
+Tests: daily-v4/daily-catalog; browser: `tools/daily-v4-browser-check.cjs`.
+[Контракт, версии и проверки](reports/V4_DAILY.md).
+
 Hint v4, 2026-10-25: `prototype/hint-v4.js::findV4Hint/hintText` оценивает только
 видимое поле общим dry resolver: cleared → free → moved → tray → row/col.
 `session.js::markAssisted` сохраняет помощь без action/RNG; runtime кэширует

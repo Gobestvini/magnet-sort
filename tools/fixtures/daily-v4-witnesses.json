@@ -1,0 +1,2879 @@
+{
+  "catalogVersion": "daily-30-2026-10-25.1",
+  "presetId": "short-b-2026-10-25.1",
+  "contentVersion": "sub-ten-2026-10-20.1",
+  "seedRange": [
+    0,
+    99
+  ],
+  "cutoff": 320,
+  "counts": {
+    "won": 30,
+    "lost": 0,
+    "unknown": 0
+  },
+  "entries": [
+    {
+      "index": 0,
+      "levelId": "magnet-v4-01",
+      "seed": 0,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 5,
+      "cleared": 40,
+      "stars": 2,
+      "finalStateSha256": "6295ae66def0cc18aa8ca78786df69789f1c9cb2c8a0683e000d5f31d70f8620"
+    },
+    {
+      "index": 1,
+      "levelId": "magnet-v4-01",
+      "seed": 1,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      "moves": 6,
+      "cleared": 50,
+      "stars": 2,
+      "finalStateSha256": "95dcabab77c14dd7a27b4a9b80fcb44839257276c7cb3696bc4730424684b20f"
+    },
+    {
+      "index": 2,
+      "levelId": "magnet-v4-01",
+      "seed": 2,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 6,
+      "cleared": 50,
+      "stars": 2,
+      "finalStateSha256": "02749a7a9fabd694252a462f0f5ca10384633e025165955fa6cbfd511ec55c09"
+    },
+    {
+      "index": 3,
+      "levelId": "magnet-v4-01",
+      "seed": 3,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      "moves": 5,
+      "cleared": 40,
+      "stars": 2,
+      "finalStateSha256": "a5bcfbc503c5e1979767654eb91ab015c4eafbedf06e3774d0f6336b3a2a4eaa"
+    },
+    {
+      "index": 4,
+      "levelId": "magnet-v4-01",
+      "seed": 4,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        }
+      ],
+      "moves": 5,
+      "cleared": 40,
+      "stars": 2,
+      "finalStateSha256": "9068547d579c6ef9b98d678d7e566ba3b04432424f086145bc17e95d527b615a"
+    },
+    {
+      "index": 5,
+      "levelId": "magnet-v4-02",
+      "seed": 0,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        }
+      ],
+      "moves": 6,
+      "cleared": 50,
+      "stars": 2,
+      "finalStateSha256": "a70479d17bd824396b328fce8d0797f39d79436e00da53b2dc873203550e85d6"
+    },
+    {
+      "index": 6,
+      "levelId": "magnet-v4-02",
+      "seed": 1,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        }
+      ],
+      "moves": 10,
+      "cleared": 50,
+      "stars": 1,
+      "finalStateSha256": "16b78ffc411b2edd3bf25cbef8aedb9578531002a300f5593ca335c46914175a"
+    },
+    {
+      "index": 7,
+      "levelId": "magnet-v4-02",
+      "seed": 2,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 7,
+      "cleared": 50,
+      "stars": 2,
+      "finalStateSha256": "182d4c0a58526ff85cd9dce8aa179cc53c14286985270017b51edddb7dfbd10f"
+    },
+    {
+      "index": 8,
+      "levelId": "magnet-v4-02",
+      "seed": 3,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 7,
+      "cleared": 50,
+      "stars": 2,
+      "finalStateSha256": "1cd377cec1bd299483b2a010642546c8784c1007cae54b57731f9916eba6f9d2"
+    },
+    {
+      "index": 9,
+      "levelId": "magnet-v4-02",
+      "seed": 4,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 6,
+      "cleared": 50,
+      "stars": 2,
+      "finalStateSha256": "907e510c4e8e3b9a238934f6a78fc48b6c16b2f4be48ba56d30e31de361bc530"
+    },
+    {
+      "index": 10,
+      "levelId": "magnet-v4-03",
+      "seed": 0,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        }
+      ],
+      "moves": 12,
+      "cleared": 60,
+      "stars": 1,
+      "finalStateSha256": "ea5b3852d73453a188d355c7e18c607db66743f140833e4f183bb201f01e7758"
+    },
+    {
+      "index": 11,
+      "levelId": "magnet-v4-03",
+      "seed": 1,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        }
+      ],
+      "moves": 11,
+      "cleared": 60,
+      "stars": 1,
+      "finalStateSha256": "a18e4445ea7f46ce3c4405bf029a0707d6d63cebb755b225e1ac9fcd0a5b8379"
+    },
+    {
+      "index": 12,
+      "levelId": "magnet-v4-03",
+      "seed": 2,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        }
+      ],
+      "moves": 8,
+      "cleared": 60,
+      "stars": 2,
+      "finalStateSha256": "a9984e317d3af83cc50b6aa0afb05142b3750828964be40a71231292b2d7c3c9"
+    },
+    {
+      "index": 13,
+      "levelId": "magnet-v4-03",
+      "seed": 3,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        }
+      ],
+      "moves": 8,
+      "cleared": 60,
+      "stars": 2,
+      "finalStateSha256": "cf609af1ae614527b6df7cb832847b64d07356d1c2ffc1e0dddf4944ce5f57f4"
+    },
+    {
+      "index": 14,
+      "levelId": "magnet-v4-03",
+      "seed": 4,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        }
+      ],
+      "moves": 8,
+      "cleared": 60,
+      "stars": 2,
+      "finalStateSha256": "bd236ffd5df90540656b98bfb546aff8a7696967d1553e36de0b89df1663929e"
+    },
+    {
+      "index": 15,
+      "levelId": "magnet-v4-04",
+      "seed": 0,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 14,
+      "cleared": 80,
+      "stars": 1,
+      "finalStateSha256": "369773b8253ef54311e8ca9f093433242459d3e3162d32ec98748528870a8215"
+    },
+    {
+      "index": 16,
+      "levelId": "magnet-v4-04",
+      "seed": 1,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 13,
+      "cleared": 80,
+      "stars": 1,
+      "finalStateSha256": "e9a6ab0591367069e7d39872b2435746c9749e5ec91f900833e040ed719408fa"
+    },
+    {
+      "index": 17,
+      "levelId": "magnet-v4-04",
+      "seed": 2,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 13,
+      "cleared": 70,
+      "stars": 1,
+      "finalStateSha256": "69b731e0375b7f7eed4c34118b9764fa148ee95cfa74103a51cf5d8af96f40c1"
+    },
+    {
+      "index": 18,
+      "levelId": "magnet-v4-04",
+      "seed": 3,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 5
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 11,
+      "cleared": 70,
+      "stars": 2,
+      "finalStateSha256": "1aae1aa8b0df5796883d0fce99a2d74482dcd5f6a468d70ebeebd7d5e297ef8c"
+    },
+    {
+      "index": 19,
+      "levelId": "magnet-v4-04",
+      "seed": 4,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 5
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 13,
+      "cleared": 70,
+      "stars": 1,
+      "finalStateSha256": "53fcc4df0d06920ccdcb33bcdf075c7cc4f443f510817a274588c812bdf0eb9e"
+    },
+    {
+      "index": 20,
+      "levelId": "magnet-v4-05",
+      "seed": 0,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 5
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 13,
+      "cleared": 80,
+      "stars": 2,
+      "finalStateSha256": "b8c02eef449a2ba9a4d21494e24ccc3f661e3fa8a25490e02645d607227c8c51"
+    },
+    {
+      "index": 21,
+      "levelId": "magnet-v4-05",
+      "seed": 1,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 14,
+      "cleared": 80,
+      "stars": 2,
+      "finalStateSha256": "76d77c226bb455c45cfc4b489c3b6c3727e3a4ed17f020280bf7676c3593f196"
+    },
+    {
+      "index": 22,
+      "levelId": "magnet-v4-05",
+      "seed": 2,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 5
+          }
+        }
+      ],
+      "moves": 13,
+      "cleared": 80,
+      "stars": 2,
+      "finalStateSha256": "c25b7eaad7db3cdb1af5d8141cc20c6251a7b2e99e9f441fcd3deb486dc96e92"
+    },
+    {
+      "index": 23,
+      "levelId": "magnet-v4-05",
+      "seed": 3,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 5
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 5
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 12,
+      "cleared": 80,
+      "stars": 2,
+      "finalStateSha256": "ebe01dd57483fc4a67b6bc270ef47ade602d00b1c29897e41f69b66aa6e3177a"
+    },
+    {
+      "index": 24,
+      "levelId": "magnet-v4-05",
+      "seed": 4,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 5
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 13,
+      "cleared": 80,
+      "stars": 2,
+      "finalStateSha256": "969838b703b08059dba2a9c7e3a7d5a15a58c2f327c5420ae70f009db1fdd1f9"
+    },
+    {
+      "index": 25,
+      "levelId": "magnet-v4-06",
+      "seed": 0,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        }
+      ],
+      "moves": 14,
+      "cleared": 90,
+      "stars": 2,
+      "finalStateSha256": "5b58ad91dd22d5f577c9a26212bd21fc50e187cfcdc96ebe286d6a569cdac674"
+    },
+    {
+      "index": 26,
+      "levelId": "magnet-v4-06",
+      "seed": 1,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 13,
+      "cleared": 100,
+      "stars": 2,
+      "finalStateSha256": "8c90d8fe81558a063e348a2e3f2624e3fd905745cdb87a9129410b9c254a1a3d"
+    },
+    {
+      "index": 27,
+      "levelId": "magnet-v4-06",
+      "seed": 2,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 5,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        }
+      ],
+      "moves": 14,
+      "cleared": 90,
+      "stars": 2,
+      "finalStateSha256": "f7ccd9176c03a99011e2432f1a0e243d01aa4c1c70d97c87ea6bb540a05ecb34"
+    },
+    {
+      "index": 28,
+      "levelId": "magnet-v4-06",
+      "seed": 3,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 3,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 5,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        }
+      ],
+      "moves": 15,
+      "cleared": 90,
+      "stars": 2,
+      "finalStateSha256": "7e2524eae8b4a14a2250f5cd51f9486b678bc9cd25f46496a3be32e2d8d85001"
+    },
+    {
+      "index": 29,
+      "levelId": "magnet-v4-06",
+      "seed": 4,
+      "contentVersion": "sub-ten-2026-10-20.1",
+      "presetId": "short-b-2026-10-25.1",
+      "actions": [
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 4
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 2,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 5,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 4,
+            "row": 5
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "coral",
+          "cell": {
+            "col": 4,
+            "row": 1
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "gold",
+          "cell": {
+            "col": 3,
+            "row": 3
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "blue",
+          "cell": {
+            "col": 4,
+            "row": 2
+          }
+        },
+        {
+          "type": "placeMagnet",
+          "color": "violet",
+          "cell": {
+            "col": 1,
+            "row": 1
+          }
+        }
+      ],
+      "moves": 14,
+      "cleared": 90,
+      "stars": 2,
+      "finalStateSha256": "6b5b454821e7e25a268d79afada3d01b9eb8689496d3766a73e695f972186f2a"
+    }
+  ]
+}

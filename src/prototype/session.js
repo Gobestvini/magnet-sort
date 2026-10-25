@@ -5,7 +5,7 @@ const defaultRules = { createV4State, applyV4Magnet };
 
 // One owner of committed gameplay, independent of DOM/Telegram/presentation.
 // Transient attempts suspend the campaign; they never write its durable record.
-export function createV4Session({ newSeed, fixedSeed = null, rules = defaultRules, initialLevelIndex = 0, ...storageOptions } = {}) {
+export function createV4Session({ newSeed, fixedSeed = null, rules = defaultRules, initialLevelIndex = 0, suspendedStartup = false, ...storageOptions } = {}) {
   if (typeof newSeed !== 'function') throw new TypeError('A seed source is required');
   if (!Number.isInteger(initialLevelIndex) || !v4Levels[initialLevelIndex] || (rules !== defaultRules && fixedSeed === null))
     throw new TypeError('Experimental rules require a transient seed');
@@ -25,7 +25,7 @@ export function createV4Session({ newSeed, fixedSeed = null, rules = defaultRule
     else store.save(progress);
   }
   // Entry policy runs once. Completing a turn itself never skips its result.
-  if (!transient && campaign.state.terminal === 'won') {
+  if (!suspendedStartup && !transient && campaign.state.terminal === 'won') {
     const index = v4Levels.findIndex(level => level.id === campaign.attempt.levelId);
     progress = withAttempt(progress, campaign.attempt, campaign.state);
     if (index < v4Levels.length - 1) {
@@ -33,7 +33,7 @@ export function createV4Session({ newSeed, fixedSeed = null, rules = defaultRule
       campaign = { attempt, state: rules.createV4State(v4Levels[index + 1], attempt.seed) };
     }
   }
-  persist();
+  if (!suspendedStartup) persist();
   return {
     get state() { return current().state; },
     get attempt() { return structuredClone(current().attempt); },

@@ -1,12 +1,19 @@
 # TASK-0071: Добавить отдельную доску дня v4
 
-- Статус: draft
+- Статус: review
 - Приоритет: normal
 - Создана: 2026-10-19
-- Обновлена: 2026-10-19
+- Обновлена: 2026-10-25
 - Проект: Magnet Sort, `C:/Users/gobes/OneDrive/Документы/PetProgects/Magnet Sort`, remote `https://github.com/Gobestvini/magnet-sort`
 - Рекомендуемый исполнитель: сильная; высокий уровень рассуждения — версия контента, UTC rotation и изоляция режимов.
-- Зависимости: TASK-0066 и TASK-0068 done; TASK-0069 с принятым человеком коротким пресетом и отдельным зафиксированным решением внедрения. До этого не ready.
+- Зависимости: TASK-0066/0068/0069 done. Пользователь 2026-10-25 отдельно выбрал B только для доски дня; условия ready выполнены, разрешена реализация.
+
+Решение 2026-10-25: на вопрос о B пользователь ответил «Да, вариант B для доски дня».
+Параметры: goal=30+10*N, действующие интервалы spawnInterval(N) и пороги
+stacksForMove сохранены; кампания остаётся goal50*N. Ротация v1 содержит30
+досок уровней1–6 (по5 проверенных seeds), отобранных ограниченным поиском из0…99
+с cutoff320 и победными replay. Предлагаемые новые пороги звёзд не внедряются.
+Зафиксированы catalogVersion=`daily-30-2026-10-25.1`, presetId=`short-b-2026-10-25.1`, contentVersion=`sub-ten-2026-10-20.1`.
 
 ## 1. Цель и запрос пользователя
 
@@ -16,14 +23,14 @@
 
 ## 2. Проверенный контекст
 
-Проверено чтением кода 2026-10-19, HEAD 2c77551ade5f790d4462a3d7e956ebe33ea65d5a. Активны Three.js0.186.1/Preact11/Vite7.1.9 и rules v4. Полный исходный запрос, ссылки на конкурентов и аудит наших игр: [исследование](../reports/TELEGRAM_IMPROVEMENT_IDEAS.md). Чужие локальные board.js, magnet-glow.js, draw-order.js и .codex-remote-attachments/ не включать и не откатывать. После изменения HEAD контекст перепроверить.
+Контекст перепроверен2026-10-25, HEAD daef763. Активны Three.js0.186.1/Preact11/Vite7.1.9, rules v4, session/save/Undo/Hint. Полный исходный запрос и аудит: [исследование](../reports/TELEGRAM_IMPROVEMENT_IDEAS.md). Исторические board/draw-order изменения уже интегрированы. Чужой untracked .codex-remote-attachments/ не включать и не откатывать.
 
 | Файл / символ | Проверенный факт / назначение |
 | --- | --- |
 | `src/social/daily.js::getDailyPuzzle` | Старый UTC rotation использует src/game/levels.js и несовместим с текущими правилами. |
-| `src/prototype/runtime.js::loadLevel; levels-v4.js` | Пока одна singleton-партия кампании. |
+| `src/prototype/runtime.js::loadLevel; levels-v4.js` | Кампания использует общий session owner; daily получает отдельный owner и store. |
 | `TASK-0066-v4-save-continue.md; TASK-0068-v4-undo.md` | Session/assisted/restore boundaries, которые должны реально существовать до старта. |
-| `TASK-0069-telegram-session-pace.md` | Требуемый короткий preset ещё не принят; не использовать произвольный L12 для daily. |
+| `TASK-0069-telegram-session-pace.md` | Пользователь принял исследование и отдельно выбрал B для daily2026-10-25; каталог ограничен L1–6. |
 
 ## 3. Область изменений
 
@@ -50,11 +57,12 @@
 
 ## 6. Критерии готовности
 
-- [ ] Одна UTC-дата/версия даёт одинаковый seed/layout и прошедший replay.
-- [ ] Midnight не меняет активную attempt; повтор не удваивает completion.
-- [ ] Вход/выход/reload daily сохраняют campaign, Undo и настройки.
-- [ ] Рекорды разделены по помощи; local/client limitations видимы и не маскируются рейтингом.
-- [ ] Проверки и ограничения записаны в разделе 10, статус файла и INDEX совпадают; собственный commit/push/deploy выполнен по AGENTS.md.
+- [x] Одна UTC-дата/версия даёт одинаковый seed/layout и прошедший replay.
+- [x] Midnight не меняет активную attempt; повтор не удваивает completion.
+- [x] Вход/выход/reload daily сохраняют campaign, Undo и настройки.
+- [x] Рекорды разделены по помощи; local/client limitations видимы и не маскируются рейтингом.
+- [x] Проверки и ограничения записаны в разделе 10, статус файла и INDEX совпадают; доставка собственного коммита фиксируется в release.json и итоговом сообщении.
+- [ ] Реальный Telegram/физический телефон (§7): отдельная пользовательская проверка новой доски дня. Техническая и независимая приёмка завершены; mock не заменяет это evidence.
 
 ## 7. Проверки
 
@@ -84,10 +92,10 @@
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: —
-- Итоговый статус и дата: —
+- Результат: Реализованы добровольный daily entry, frozen30каталог B, закреплённая UTC-дата, отдельные attempt/results/store и точный Return в кампанию. Кампания A и её envelope не меняются от daily.
+- Изменённые файлы и зачем: daily-catalog-v1/daily-rules — immutable approved content; daily-v4 — UTC, strict replay, local results/history/store и mode owner; session suspendedStartup и runtime/App/CSS — интеграция/cleanup/UI; tests/generator/witnesses/browser tool — воспроизводимость и регрессии. Подробно docs/reports/V4_DAILY.md.
+- Команды и фактические результаты: generator --check30/30 PASS, catalog4/4 tests, 268full tests/build, build:platforms/test:platforms PASS; production daily web/Telegram mock, Hint/Undo/tutorial/Pages PASS. Независимый критик повторил38targetedtests, generator, DEV mode/midnight/woncampaign и productionTelegram recovery/layout.
+- Ручные проверки: реальные touch/keyboard в браузере390×844/844×390, разные timezone при одинаковом UTC; просмотрены pause/result/Return/recovery screenshots. Midnight+reload, assistance/categories/ties/calendar, exact campaign raw/state/history/selection/audio и newdayentry PASS. DEV8modecycles (3warm+5measured), normal motion, pause/resume, resize/reduced/dispose PASS.
+- Выполненные критерии: все технические; 30winningreplays5–15ходов, ранжирование localbest и90dayexpiry включая unfinishedentry, сохранность ошибок/конфликтов и campaign won без автоперехода. Новые кнопки сохраняют44px в compactTelegram.
+- Непроверенное, блокеры и отклонения от плана: реальный Telegram/физический телефон нового режима не проверены; управляемый UTC-clock/browser/mock не выдан за устройство. По §7 остаётся review. Серверный рейтинг, призы и legacy daily не добавлялись.
+- Итоговый статус и дата: review,2026-10-25; техническая реализация и независимая приёмка завершены, отдельная проверка устройства ожидается.

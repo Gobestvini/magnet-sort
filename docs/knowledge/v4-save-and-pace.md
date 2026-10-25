@@ -18,7 +18,33 @@
 выбор B и закрытие отдельной TASK-0057 из этого не следуют. Ниже сохранены даты
 и ограничения исходных автоматических проверок.
 
+## Доска дня — 2026-10-25
+
+Пользователь отдельно выбрал B только daily: goal30+10*N, действующий spawn;
+кампания A не переключалась. Каталог `daily-30-2026-10-25.1` заморожен:
+30L1–6/seed0–4, все с winningreplay,5–15ходов. Источник: задача0071 и
+[V4_DAILY](../reports/V4_DAILY.md), дневные модули и generator fixtures.
+
+Признак: reload второго режима переписывает приостановленную кампанию или
+пропускает её won. Причина: constructor выполняет persist/entry policy даже
+для неактивного owner. Способ: отдельные rules/attempt/store и mode coordinator;
+campaign suspendedStartup читает без entry writes/advance. Дневной журнал
+сохраняется до timeline, Return восстанавливает точный campaign owner и selection.
+
+Проверка2026-10-25:268tests/build;30replays; web/Telegram mock с управляемым
+UTC и разными timezone, midnight/reload/Hint/Undo/Retry/Return, exact campaignraw,
+woncampaign, localbest/help/tie/calendar, corruption/version/conflict и
+independentcritic PASS.8modecycles послеwarm стабильны, sharedaudio не меняется.
+Полезная ошибка: platform rootselector сильнее общих pause minheight; новые
+Retry/Recovery получили отдельные scoped44px classes и browser bounds checks.
+Ограничения: дата клиентская, optimistic localStorage безCAS; реальные
+Telegram/телефон нового режима отдельно не проверены и остаются review.
+
 ## Hint — 2026-10-25
+
+Пользовательская приёмка получена2026-10-25: подсказка оценена «всё норм»;
+устройство не сообщено. Для следующей TASK-0071 пользователь отдельно выбрал
+пресет B только daily: goal30+10*N при действующем spawn. Кампания остаётся A.
 
 Признак: общий совет не объясняет конкретный доступный ход, а полный apply
 просматривает будущий spawn/RNG. Способ: оценивать legal пары через общий dry
@@ -32,7 +58,8 @@ touch/отдельный Enter, reload/Undo/Retry, layout/safe insets и indepen
 PASS. После трёх GPU warm cycles десять одинаковых циклов стабильны8/13.
 Источник: [V4_HINT](../reports/V4_HINT.md), runtime/session/hint-v4 и browser tool.
 Ограничения: эвристика до спавна, без solver promises; zero-pull synthetic,
-hidden handler synthetic, новый телефон и субъективное удобство не подтверждены.
+hidden handler synthetic; новый телефон агентом не проверен, субъективное
+удобство принято пользователем2026-10-25 без данных об устройстве.
 Synthetic iframe с вторым runtime: заранее поставить host на паузу реальной
 кнопкой, иначе autofocus его pause modal забирает focus у child и очищает Hint.
 После общего full build повторить platform builds: Vite очищает dist и его
