@@ -1,5 +1,32 @@
 # V4 save, прогноз и темп: проверенные границы
 
+2026-10-25: пользователь подтвердил оставшиеся проверки сохранения и темпа
+(TASK-0066/0069) и разрешил продолжение. Источник — сообщение пользователя,
+вид подтверждения — пользовательская приёмка; модель устройства, версия клиента,
+число участников и замеры не сообщены. Статусы done; production A сохраняется,
+выбор B и закрытие отдельной TASK-0057 из этого не следуют. Ниже сохранены даты
+и ограничения исходных автоматических проверок.
+
+## Hint — 2026-10-25
+
+Признак: общий совет не объясняет конкретный доступный ход, а полный apply
+просматривает будущий spawn/RNG. Способ: оценивать legal пары через общий dry
+resolver, ранжировать cleared/free/moved и стабильные tray/row/col ties; кэшировать
+по identity state. Assistance — отдельная синхронная запись session, без action.
+Первый Hint меняет tutorial layout: resize должен сохранять keyboard cursor
+независимо от отмены pointer gesture. Текст/маркер очищаются одним helper.
+
+Проверка: 23 профильных и 255 full tests/build, production web/Telegram mock,
+touch/отдельный Enter, reload/Undo/Retry, layout/safe insets и independent critic
+PASS. После трёх GPU warm cycles десять одинаковых циклов стабильны8/13.
+Источник: [V4_HINT](../reports/V4_HINT.md), runtime/session/hint-v4 и browser tool.
+Ограничения: эвристика до спавна, без solver promises; zero-pull synthetic,
+hidden handler synthetic, новый телефон и субъективное удобство не подтверждены.
+Synthetic iframe с вторым runtime: заранее поставить host на паузу реальной
+кнопкой, иначе autofocus его pause modal забирает focus у child и очищает Hint.
+После общего full build повторить platform builds: Vite очищает dist и его
+старые target подкаталоги; иначе browser target URL вернёт404 вместо игры.
+
 ## Undo — 2026-10-23
 
 Признак: откат только stacks оставляет другой spawn/queue/RNG и теряет историю

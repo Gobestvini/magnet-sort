@@ -1,5 +1,14 @@
 # Карта проекта
 
+Hint v4, 2026-10-25: `prototype/hint-v4.js::findV4Hint/hintText` оценивает только
+видимое поле общим dry resolver: cleared → free → moved → tray → row/col.
+`session.js::markAssisted` сохраняет помощь без action/RNG; runtime кэширует
+по identity state и очищает рекомендацию на переходах. App показывает Hint,
+точное объяснение, доступное описание клетки и статичный DOM-маркер фактической
+проекции; Enter отдельно применяет выбранную клетку. `tests/hint-v4.test.js`,
+`tools/hint-v4-browser-check.cjs` — численные, replay/save, UI и lifecycle сценарии.
+[Отчёт](reports/V4_HINT.md).
+
 Undo v4, 2026-10-23: `prototype/session.js::canUndo/undo` воспроизводит укороченный
 accepted journal и сохраняет монотонный assisted; `runtime.js::clearPresentation`
 общий для Undo/Restart, без нового board/RAF. App показывает Undo в actions/lost;

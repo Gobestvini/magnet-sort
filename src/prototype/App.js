@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEffect, useRef, useLayoutEffect } from 'preact/hooks';
+import { useEffect, useRef, useLayoutEffect, useState } from 'preact/hooks';
 import { COLORS, remainingUnits } from './model.js';
 import { art } from './assets.js';
 import { IdleBackdrop } from './IdleBackdrop.js';
@@ -75,10 +75,32 @@ function SaveStatus({ status, onFreshSave, onReloadSave }) {
       h('button', { className: 'secondary-button light-button', onClick: onFreshSave }, 'Start fresh save'));
 }
 
+// A viewport overlay follows the actual projected empty tile. It has no input
+// handlers or animation clock, and never covers stack faces or intercepts taps.
+function HintMarker({ hint, getTarget }) {
+  const ref = useRef(null), [target, setTarget] = useState(null);
+  useLayoutEffect(() => {
+    const host = ref.current?.closest('.prototype-shell')?.querySelector('.board-host');
+    if (!host) return;
+    const measure = () => {
+      const next = getTarget();
+      setTarget(previous => next && previous && next.x === previous.x && next.y === previous.y && next.size === previous.size ? previous : next);
+    };
+    measure();
+    const observer = new ResizeObserver(measure); observer.observe(host);
+    window.addEventListener('resize', measure); window.addEventListener('scroll', measure, { passive:true });
+    return () => { observer.disconnect(); window.removeEventListener('resize', measure); window.removeEventListener('scroll', measure); };
+  }, [hint, getTarget]);
+  return h('div', { ref, className:'hint-marker', 'aria-hidden':'true', 'data-color':hint.color,
+    'data-target-cell':`${hint.cell.col},${hint.cell.row}`, hidden:!target,
+    style:target ? {left:`${target.x}px`,top:`${target.y}px`,width:`${target.size * .85}px`,height:`${target.size * .66}px`} : {} },
+    h('span', null, '?'));
+}
+
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget, audioSettings, onAudioChange, saveStatus, onFreshSave, onReloadSave, spawnForecast, canUndo, onUndo }) {
+  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget, hintChoice, getHintTarget, audioSettings, onAudioChange, saveStatus, onFreshSave, onReloadSave, spawnForecast, canUndo, onUndo }) {
   const tutorial = levelIndex === 0 && state.turn === 0 && phase === 'playing';
-  const tutorialMessage = tutorial && !notice.includes('occupied') && !notice.startsWith('Hint:');
+  const tutorialMessage = tutorial && !hintChoice && !notice.includes('occupied') && !notice.startsWith('Hint:');
   const result = state.terminal && phase !== 'resolving';
   const overlay = paused || result || Boolean(error) || loading;
   const locked = overlay || phase === 'resolving';
@@ -107,17 +129,20 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
         'aria-label': forecastText(spawnForecast) + '. Up to this many stacks, if space remains.' }, forecastText(spawnForecast))),
       h('section', { className: 'board-panel', 'aria-label': 'Game board' },
         h('div', { className: 'board-host', ref: hostRef },
-          h('canvas', { ref: canvasRef, tabIndex: overlay ? -1 : 0, 'aria-label': 'Board: arrow keys select a tile, Enter places a magnet', onKeyDown: onKeyboard, 'aria-describedby': 'keyboard-cell' })),
-        h('p', { id: 'keyboard-cell', className: 'sr-only' }, keyboardCell ? 'Tile: row ' + keyboardCell.row + ', column ' + keyboardCell.col : 'Use arrow keys to select a tile.')),
-      h('p', { className: 'game-status' + (tutorialMessage ? ' tutorial-message cream-panel' : ''), role: 'status', 'aria-live': 'polite' },
+          h('canvas', { ref: canvasRef, tabIndex: overlay ? -1 : 0, 'aria-label': 'Board: arrow keys select a tile, Enter places a magnet', onKeyDown: onKeyboard, 'aria-describedby': 'keyboard-cell hint-cell' })),
+        h('p', { id: 'keyboard-cell', className: 'sr-only' }, keyboardCell ? 'Tile: row ' + keyboardCell.row + ', column ' + keyboardCell.col : 'Use arrow keys to select a tile.'),
+        h('p', { id:'hint-cell', className:'sr-only' }, hintChoice ? `Hint tile: row ${hintChoice.cell.row}, column ${hintChoice.cell.col}. ${notice}` : '')),
+      h('p', { className: 'game-status' + (tutorialMessage ? ' tutorial-message cream-panel' : '') + (notice.startsWith('Hint:') ? ' hint-message' : ''), role: 'status', 'aria-live': 'polite' },
         tutorialMessage ? h('span', null, h('strong', null, `Collect ${goal} pieces!`), h('small', null, 'Drag a magnet onto an empty tile. You can also tap.')) : phase === 'resolving' ? 'Pulling one piece at a time…' : notice),
       h('section', { className: 'controls', 'aria-label': 'Magnets and actions' },
         h(MagnetTray,{state,selected,locked,reduced,onSelect,onToolDown}),
         h('div', { className: 'action-row' },
           h('button', { type: 'button', className: 'secondary-button undo-button', onClick: onUndo, disabled: !canUndo, 'aria-label': 'Undo last move' }, 'Undo'),
+          h('button', { type:'button', className:'secondary-button hint-button', onClick:onHint, disabled:locked, 'aria-label':'Hint' }, 'Hint'),
           h('button', { className: 'secondary-button restart-button', onClick: onReset, 'aria-label': 'Restart' }, h('img', { className: 'restart-icon', src: art('restart'), alt: '' }), ' Restart')),
         h('p', { className: 'sr-only' }, 'Collect the goal using up to three magnets matching exposed stack colors. The badge shows one or two hex rings. Magnets pull exposed matching colors directly, including over crosses. Every ten pieces go to the progress bar.'))),
-    tutorial && !overlay && h(TutorialGuide, {color:selected,getTarget:getTutorialTarget,runId,reduced}),
+    tutorial && !overlay && !hintChoice && !notice.startsWith('Hint:') && h(TutorialGuide, {color:selected,getTarget:getTutorialTarget,runId,reduced}),
+    hintChoice && !locked && h(HintMarker, {hint:hintChoice,getTarget:getHintTarget}),
     loading && h('div', { className: 'loading-screen' },
       h('div', { className: 'loading-frame' }, h('img', { className: 'loading-logo', src: art('logo-exact'), alt: 'Magnet Sort' }),
         h('div', { className: 'loading-magnets', 'aria-hidden': 'true' }, ['blue', 'violet', 'coral'].map(color => h(MagnetIcon, { color }))),

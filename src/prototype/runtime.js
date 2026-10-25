@@ -19,6 +19,7 @@ import { createPrototypeAudio } from './audio.js';
 import { createV4Session } from './session.js';
 import { PROGRESS_V4_KEY } from './progress-v4.js';
 import { displayedForecast } from './spawn-forecast.js';
+import { findV4Hint, hintText } from './hint-v4.js';
 
 const root = document.querySelector('#ui-root');
 // Preact mounts into an empty host; the static boot message belongs to HTML only.
@@ -64,6 +65,13 @@ const dragRef = node => { dragNode = node; };
 let boardGeneration = 0, loading = true, loadingProgress = 0;
 let startupProgress = () => {};
 let tutorialChoice = {state:null,color:null,cell:null};
+let hintChoice = null, hintMessage = false, hintCache = {state:null,value:null};
+function clearHint() {
+  hintChoice = null;
+  if (hintMessage) { notice = 'Choose a magnet and an empty tile.'; keyboardCell = null; }
+  hintMessage = false;
+}
+function getHintTarget() { return hintChoice && board ? { ...board.screenPosition(hintChoice.cell), size: board.magnetScreenSize() } : null; }
 function getTutorialTarget() {
   if (!board || levelIndex !== 0 || state.turn !== 0) return null;
   if (tutorialChoice.state !== state || tutorialChoice.color !== selected)
@@ -98,7 +106,7 @@ function ui() {
   const queueTurn=timeline && elapsed < timeline.queueStart ? timeline.before.turn : state.turn;
   render(h(PrototypeApp, { level, levelIndex, runId, totalLevels: prototypeLevels.length, state: { ...state, magnetRadii:timeline&&elapsed<timeline.queueStart?timeline.before.magnetRadii:state.magnetRadii, magnets, queueTurn, cleared: displayedCleared }, phase, selected, paused, notice, reduced,
     canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
-    getTutorialTarget, audioSettings, onAudioChange: changeAudio, saveStatus: session.status(), canUndo: canUndo(), onUndo: () => uiAction(undo),
+    getTutorialTarget, hintChoice, getHintTarget, audioSettings, onAudioChange: changeAudio, saveStatus: session.status(), canUndo: canUndo(), onUndo: () => uiAction(undo),
     spawnForecast: displayedForecast(state, timeline, elapsed, experiment?.rules),
     onFreshSave: () => uiAction(() => { session.recoverSave(); ui(); }),
     onReloadSave: () => location.reload(),
@@ -182,14 +190,16 @@ function cancelGesture() {
 function interactive() { return !disposed && board && !loading && !root.inert && !error && !paused && !document.hidden && phase === 'playing'; }
 function select(color) {
   if (!interactive() || !state.magnets.includes(color)) return;
+  if (color !== selected) clearHint();
   audio.playGame('select');
-  selected = color; notice = 'Place a magnet on an empty tile.'; ui(); draw(); schedule();
+  selected = color; if (!hintMessage) notice = 'Place a magnet on an empty tile.'; ui(); draw(); schedule();
 }
 function submit(action) {
   if (!interactive()) return { accepted: false, reason: 'locked' };
   const before = state;
   const resolution = session.submit(action);
   if (!resolution.accepted) { audio.playGame('reject'); notice = 'This tile is occupied. Choose an empty tile.'; ui(); return resolution; }
+  clearHint();
   state = resolution.state;
   timeline = makeTransferTimeline(before, resolution, reduced);
   audio.beginTimeline(timeline, state.turn); audio.playGame('place');
@@ -264,7 +274,7 @@ function setPaused(value) {
 }
 export function setPlatformPaused(value) { platformPaused = Boolean(value); updatePause(); }
 function updatePause() {
-  paused = userPaused || platformPaused; syncAudio(); cancelGesture(); cancelFrame(); ui(); draw();
+  paused = userPaused || platformPaused; clearHint(); syncAudio(); cancelGesture(); cancelFrame(); ui(); draw();
   if (!paused) schedule();
 }
 function reset() { loadLevel(levelIndex, runSeed); }
@@ -273,6 +283,7 @@ function canUndo() {
     (phase === 'playing' || phase === 'lost') && session.canUndo;
 }
 function clearPresentation() {
+  clearHint();
   runId++;
   cancelGesture(); cancelFrame(); timeline = null; elapsed = 0; previousElapsed = 0;
   collection.clear();
@@ -300,14 +311,25 @@ function loadLevel(index, seed = fixedSeed ?? newSeed()) {
 }
 function hint() {
   if (!interactive()) return;
-  notice = 'Match exposed colors in the two nearest rings. New stacks appear as you play.'; ui();
+  cancelGesture(); cancelFrame();
+  if (hintCache.state !== state) hintCache = {state,value:findV4Hint(state)};
+  hintChoice = hintCache.value;
+  hintMessage = true;
+  if (hintChoice) { selected = hintChoice.color; keyboardCell = { ...hintChoice.cell }; session.markAssisted(); }
+  notice = hintText(hintChoice, displayedForecast(state, null, 0, experiment?.rules));
+  ui(); draw(); schedule(); audio.playUi();
 }
 function resize() {
+  // Layout can change when Hint replaces the first-move tutorial. Cancelling
+  // a pointer drag must not discard the independently selected keyboard tile.
+  const cursor = keyboardCell;
   cancelGesture(); cancelFrame();
+  keyboardCell = cursor;
   board?.resize(host.clientWidth, host.clientHeight); draw(); schedule();
   ui();
 }
 async function initializeBoard() {
+  clearHint();
   const generation = ++boardGeneration;
   cancelGesture(); cancelFrame(); loading = true; loadingProgress = 0;
   syncAudio();
@@ -337,13 +359,14 @@ function snapshot() {
   return { state: structuredClone(state), phase, selected, paused, levelIndex, puzzleId: level.id,
     timeline: timeline ? { duration: timeline.duration, elapsed, activeUnits: timeline.segments.filter(segment => segment.type === 'unitMoved' && segment.start <= elapsed && segment.end > elapsed).length } : null,
     renderer: board?.snapshot() ?? null, canvasCount: root.querySelectorAll('canvas').length,
-    displayedCleared, collection: collection.snapshot(), audio: audio.snapshot(), saveStatus: session.status(), attempt: session.attempt,
+    displayedCleared, hint: hintChoice ? structuredClone(hintChoice) : null, collection: collection.snapshot(), audio: audio.snapshot(), saveStatus: session.status(), attempt: session.attempt,
     drag: drag ? { x: drag.x, y: drag.y, targetX: drag.targetX, targetY: drag.targetY, size:drag.size, targetSize:drag.targetSize, homeSize:drag.homeSize, angle: drag.angle, released: drag.released } : null,
     gesture: Boolean(gesture), pointerId: gesture?.id ?? null, rafScheduled: raf !== null, error, loading };
 }
 export function dispose() {
   if (disposed) return;
   disposed = true; boardGeneration++; cancelGesture(); cancelFrame(); timeline = null;
+  clearHint();
   audio.dispose();
   collection.dispose(); session.dispose(); observer.disconnect(); cleanups.forEach(cleanup => cleanup()); board?.dispose(); board = null;
   render(null, root); if (import.meta.env.DEV) delete window.gameDebug;

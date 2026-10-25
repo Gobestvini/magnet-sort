@@ -1,5 +1,12 @@
 # Очередь Magnet Sort
 
+2026-10-25: пользователь принял проверки сохранения TASK-0066 и темпа TASK-0069 («проверил обе задачи норм переходи дальше»). Обе done по пользовательской приёмке; подробные device/playtest замеры не предоставлены. Production пресет сохраняется. Следующий срез — объясняющая подсказка TASK-0070; TASK-0057 отдельно не закрывается.
+
+2026-10-25: [объясняющая Hint TASK-0070](../reports/V4_HINT.md) реализована,
+255 tests/build, production web/Telegram mock и независимая приёмка PASS.
+Review — только пользовательская оценка понятности объяснения; следующий
+элемент очереди0071 (daily) остаётся draft до отдельного запуска и актуализации.
+
 2026-10-23: [TASK-0068 Undo](../reports/V4_UNDO.md) реализован: полный rollback,
 lost/reload, повтор до нуля и assisted; 248 tests/build, production web/Telegram mock,
 20 lifecycle cycles, layout/platform/tutorial checks PASS. Phone review TASK-0066 остаётся отдельным.
@@ -20,15 +27,15 @@ range-light/pages/tutorial smoke PASS. [Отчёт](../reports/DRAW_ORDER_COMPLE
 
 ## Улучшения Telegram-билда: исследование и очередь — 2026-10-19
 
-[Исследование, сравнение игр и приоритеты](../reports/TELEGRAM_IMPROVEMENT_IDEAS.md). По запросу выполнены0066/0067 и техническая часть0069: [save](../reports/V4_SAVE_CONTINUE.md), [forecast](../reports/SPAWN_FORECAST.md), [темп](../reports/TELEGRAM_SESSION_PACE.md). Сохранение остаётся review по физическому Telegram close/reopen; темп — review по двум добровольным игрокам. Остальные задачи не запускались.
+[Исследование, сравнение игр и приоритеты](../reports/TELEGRAM_IMPROVEMENT_IDEAS.md). Выполнены0066/0067/0068 и исследование0069: [save](../reports/V4_SAVE_CONTINUE.md), [forecast](../reports/SPAWN_FORECAST.md), [Undo](../reports/V4_UNDO.md), [темп](../reports/TELEGRAM_SESSION_PACE.md). Пользовательская приёмка0066/0069 получена2026-10-25. Следующий срез0070;0071–0073 пока draft.
 
 | Задача | Статус | Приоритет | Зависимости | Исполнитель |
 | --- | --- | --- | --- | --- |
-| [TASK-0066: Сохранять и продолжать партию v4](TASK-0066-v4-save-continue.md) | review | high | технически выполнена; phone review | сильная; высокий |
+| [TASK-0066: Сохранять и продолжать партию v4](TASK-0066-v4-save-continue.md) | done | high | пользовательская приёмка 2026-10-25 | сильная; высокий |
 | [TASK-0067: Прогноз пополнения поля](TASK-0067-spawn-forecast.md) | done | high | нет | средняя; высокий |
 | [TASK-0068: Полная отмена последнего хода](TASK-0068-v4-undo.md) | done | high | технический save contract проверен; прямой запрос 2026-10-23 | сильная; высокий |
-| [TASK-0069: Исследовать короткую сессию](TASK-0069-telegram-session-pace.md) | review | high | технически выполнена; human A/B review | сильная; высокий |
-| [TASK-0070: Объясняющая подсказка](TASK-0070-explaining-hint.md) | draft | normal | TASK-0066 done | средняя; высокий |
+| [TASK-0069: Исследовать короткую сессию](TASK-0069-telegram-session-pace.md) | done | high | пользовательская приёмка 2026-10-25; production A | сильная; высокий |
+| [TASK-0070: Объясняющая подсказка](TASK-0070-explaining-hint.md) | review | normal | реализована; пользовательская оценка объяснения | средняя; высокий |
 | [TASK-0071: Отдельная доска дня v4](TASK-0071-v4-daily.md) | draft | normal | TASK-0066/0068 done, принятый результат0069 | сильная; высокий |
 | [TASK-0072: Telegram-вызов другу](TASK-0072-telegram-friend-challenge.md) | draft | normal | TASK-0066/0068 done | сильная; высокий |
 | [TASK-0073: Пилот цветовых заказов](TASK-0073-color-orders-pilot.md) | draft | normal | принятый результат TASK-0069 | сильная; высокий |

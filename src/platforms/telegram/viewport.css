@@ -20,7 +20,7 @@
 :root[data-platform-viewport] .startup-content { padding:0; }
 @media(min-width:701px) and (max-height:600px) {
   :root[data-platform-viewport] .prototype-shell { padding:6px 16px; }
-  :root[data-platform-viewport] .game-view { height:calc(var(--viewport-height) - var(--safe-top) - var(--safe-bottom) - 12px); grid-template-columns:minmax(0,1fr) minmax(240px,38%); grid-template-rows:50px 82px minmax(80px,1fr) 26px; gap:6px 18px; }
+  :root[data-platform-viewport] .game-view { height:calc(var(--viewport-height) - var(--safe-top) - var(--safe-bottom) - 12px); grid-template-columns:minmax(0,1fr) minmax(240px,38%); grid-template-rows:50px 82px minmax(110px,1fr) auto; gap:6px 18px; }
   :root[data-platform-viewport] .topbar { height:50px; }
   :root[data-platform-viewport] .brand { width:100px; }
   :root[data-platform-viewport] .board-panel { grid-row:2/5; }
@@ -29,12 +29,12 @@
   :root[data-platform-viewport] .goal-panel,
   :root[data-platform-viewport] .moves-group,
   :root[data-platform-viewport] .moves-panel { height:54px; }
-  :root[data-platform-viewport] .controls { grid-row:3; }
-  :root[data-platform-viewport] .magnet-tray { margin:0; padding:4px; }
-  :root[data-platform-viewport] .magnet-tool { max-width:27%; padding:4px 6px; }
-  :root[data-platform-viewport] .action-row { margin-top:6px; }
+  :root[data-platform-viewport] .controls { grid-row:3; min-height:0; display:flex; flex-direction:column; }
+  :root[data-platform-viewport] .magnet-tray { margin:0; padding:4px; flex:1; min-height:0; max-height:92px; }
+  :root[data-platform-viewport] .magnet-tool { max-width:27%; padding:4px 6px; flex:0 1 auto; height:100%; width:auto; }
+  :root[data-platform-viewport] .action-row { margin-top:6px; flex-shrink:0; }
   :root[data-platform-viewport] .secondary-button { min-height:34px; padding:3px 10px; font-size:16px; }
-  :root[data-platform-viewport] .game-status { grid-column:2; grid-row:4; margin:0; min-height:0; padding:3px 6px; font-size:11px; }
+  :root[data-platform-viewport] .game-status { grid-column:2; grid-row:4; margin:0; min-height:44px; padding:3px 6px; font-size:11px; }
   :root[data-platform-viewport] .tutorial-message strong { display:none; }
   :root[data-platform-viewport] .tutorial-message small { font-size:11px; margin:0; }
 }

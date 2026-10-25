@@ -41,6 +41,15 @@ export function createV4Session({ newSeed, fixedSeed = null, rules = defaultRule
     get progress() { return structuredClone(progress); },
     status() { return transient || !store ? { saved: false, reason: 'transient' } : store.status(); },
     checkConflict() { if (!transient && store) store.checkConflict(); },
+    markAssisted() {
+      if (disposed || current().state.terminal) return false;
+      const active = current();
+      if (!active.attempt.assisted) {
+        active.attempt = { ...active.attempt, assisted: true };
+        persist();
+      }
+      return true;
+    },
     submit(action) {
       const active = current();
       if (disposed) return { accepted: false, reason: 'disposed', state: active.state, events: [] };
