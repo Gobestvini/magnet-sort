@@ -1,6 +1,6 @@
 # TASK-0076: Лидерборды кампании и доски дня
 
-- Статус: in-progress
+- Статус: done
 - Приоритет: normal
 - Создана: 2026-10-25
 - Обновлена: 2026-10-25
@@ -97,8 +97,8 @@ Public ID opaque, имя plain text с ограничениями; не выда
 - [x] Forged/expired/wrong-bot auth, malformed/duplicate/oversized input, чужой run, неверный replay/descriptor/version и ход после terminal отклонены без записи; budgets/worker timeout/queue проверены без блокировки HTTP owner.
 - [x] Save/Hint/Undo/campaign↔daily/reload/two-tabs/offline/error/expiry/stale response/keyboard/touch/landscape/dispose сохраняют игру и честный статус отправки.
 - [x] Production не содержит test keys/фиктивных участников/секретов; account deletion/retention корректны, UI не обещает bot-proof/unassisted.
-- [ ] Свои HTTPS/Compose/DB/backup timer/offsite snapshot/restore/rollback подтверждены, чужие endpoints/DB/backup не затронуты.
-- [ ] Независимый критик принял итог; команды/evidence/ограничения в LEADERBOARDS.md, свои commit/push/deploy и опубликованный frontend+API проверены; real Telegram/телефон отмечены отдельно.
+- [x] Свои HTTPS/Compose/DB/backup timer/offsite snapshot/restore подтверждены, чужие endpoints/DB/backup не затронуты. Rollback runbook/code/fixtures приняты; у first install нет previous production backend для реального переключения назад.
+- [x] Независимый критик принял итог; команды/evidence/ограничения в LEADERBOARDS.md, свои commit/push/deploy и опубликованный frontend+API проверены; real Telegram/телефон отмечены отдельно.
 
 ## 7. Проверки
 
@@ -132,13 +132,13 @@ Ready разрешает начать код, но не объявляет deplo
 
 ## 10. Отчёт исполнителя
 
-- Результат: код сервера, SQLite/worker/API/auth, обоих рейтингов и клиента реализован; проверки перед выпуском завершены. Production-развёртывание и реальная первая запись выполняются отдельным следующим шагом; подробный статус — [LEADERBOARDS](../reports/LEADERBOARDS.md).
+- Результат: код сервера, SQLite/worker/API/auth, обоих рейтингов и клиента реализован и опубликован из11669478. Own HTTPS/native/offsite/restore и реальные campaign/daily-записи подтверждены; подробный статус — [LEADERBOARDS](../reports/LEADERBOARDS.md).
 - Изменённые файлы и зачем: server package/leaderboards/tests/deploy/Dockerfile; client/Leaderboards/runtime/App/CSS/platform capability; CI/Vite/build guard; client/API/browser/deploy checks и документация. Gameplay rules и frozen daily catalog сохранены.
-- Команды и фактические результаты: pnpm check:full315/315+build; server17/17 Windows и17/17 native ARM Node24.22.1/SQLite3.53.4 под512MiB/1CPU/PID64; native deploy Python8/8; расширенный Python11:10PASS/1Linux-onlyskip локально; real client→HTTP→SQLite/worker contract; all-platform builds/SDK-resource-cache checks; daily30 witnesses, leaderboards/daily/Undo/Hint/loading/tutorial/Pages browser tools PASS. Полные логи ignored artifacts/leaderboards-implementation.
-- Ручные проверки: production web/Telegram mock screenshots portrait/landscape просмотрены; sticky Close сохраняется при scroll, 20 циклов modal не накапливают fetch. Это browser surrogate, не физический телефон. Реальный существующий бот/production API проверяются при публикации.
-- Выполненные критерии: функциональный код, негативные сценарии, client recovery/two tabs, native DB/ARM/resource limits, isolated identities, визуальный/browser этап. Независимый критик повторно проверил исправленные дефекты; итоговый допуск фиксируется после freeze.
-- Непроверенное, блокеры и отклонения от плана: production provisioning/own offsite upload+restore/HTTPS/Caddy route и real Telegram HTTP first record пока ожидают выпуска; физический телефон не проверен. Первый native image выявил missing transitive art/urls helper — узкий COPY исправлен, второй native прогон PASS. Разделение на другую задачу не потребовалось.
-- Итоговый статус и дата: in-progress, 2026-10-25; код и QA готовы к публикации, done до внешних обязательных проверок не объявляется.
+- Команды и фактические результаты: pnpm check:full315/315+build; server17/17 Windows и17/17 native ARM Node24.22.1/SQLite3.53.4 под512MiB/1CPU/PID64; native deploy Python8/8; расширенный Python11/11 native Linux и10PASS/1Linux-onlyskip локально; real client→HTTP→SQLite/worker contract; all-platform builds/SDK-resource-cache checks; daily30 witnesses, leaderboards/daily/Undo/Hint/loading/tutorial/Pages browser tools PASS. Полные логи ignored artifacts/leaderboards-implementation.
+- Ручные проверки: production web/Telegram mock screenshots portrait/landscape просмотрены; sticky Close сохраняется при scroll, 20 циклов modal не накапливают fetch. Это browser surrogate, не физический телефон. Реальный существующий бот прошёл auth/Join/registration, campaign6moves и Daily14moves → canonical receipts/ownRows. Public PlusVibe/Pages desktop/mobile и platform checks PASS.
+- Выполненные критерии: функциональный код, негативные сценарии, client recovery/two tabs, native DB/ARM/resource limits, isolated identities, визуальный/browser этап. Независимый критик принял объединённый source и operational evidence выпуска. Actual own offsite backup44с/restore7с, native image/resources/schema/SQLite, own timers и чужие routes/backup подтверждены.
+- Непроверенное, блокеры и отклонения от плана: физический телефон и native Telegram не проверены; реальные HTTP first record/production API проверены в Telegram Web. Actual previous-image rollback при first install не выполнялся; код, fixtures и runbook приняты. Первый native image выявил missing transitive art/urls helper — узкий COPY исправлен, второй native прогон PASS. Разделение на другую задачу не потребовалось.
+- Итоговый статус и дата: done, 2026-10-25. Runtime11669478 опубликован на API/PlusVibe/Pages; обе реальные Telegram Web победы приняты. Nonempty offsite backup47с/restore6с подтвердил1player/2acceptedRuns. Финальная документация публикуется отдельным commit с тем же runtime-кодом.
 
 ## Рекомендация модели исполнителя
 

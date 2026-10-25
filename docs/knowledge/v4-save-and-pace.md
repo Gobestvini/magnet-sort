@@ -12,7 +12,7 @@ Blind setItem всего ranking envelope из второй вкладки ст�
 exact-raw guard останавливает stale запись и показывает конфликт до reload.
 
 Источник: TASK-0076, leaderboards-client.js, server/store, [отчёт](../reports/LEADERBOARDS.md).
-Проверка:21 client tests и real client/API/SQLite/worker contract; browser web/
+Проверка:23 client tests и real client/API/SQLite/worker contract; browser web/
 Telegram mock503→reload owner-next→original journal retry,20 modal cycles PASS.
 Ограничения: localStorage без настоящего CAS; quota/unavailable storage явно
 показывается, ограниченная очередь не обещает бесконечный offline upload. Реальная
@@ -28,7 +28,13 @@ DOM подтвердил MagnetSortPuzzleBot id8820798959, а Play launch дал
 Ed25519 signature с официальным production key (проверка в памяти, raw initData,
 профиль и секреты не сохранялись). Это проверка метода/бота, не готового HTTP auth.
 Технический frozen daily-контракт f799c84 принят для76 отдельно от phone review71.
-TASK-0076 ready; реализация нового сервера/API/БД/backup и UI ещё не выполнена.
+Реализация TASK-0076 опубликована из11669478: strict real Telegram HTTP auth,
+SQLite/worker/API, обе UI вкладки;315tests/build, native ARM17, Linuxdeploy11,
+offsite snapshot44с/restore7с и публичные browser checks PASS. Реальная campaign
+победа получила canonical receipt/ownRow; Daily2026-10-25 также принял14moves
+после Undo черезUI существующего бота. Nonempty offsite snapshot/restore подтвердил
+оба acceptedRuns и schema consistency; native Telegram/phone не проверялись.
+Дальнейшее evidence — в отчёте.
 Границы/версии/лимиты/операции записаны в контракте, не в общих инструкциях.
 
 ## Решение об очереди — 2026-10-25
@@ -39,7 +45,7 @@ TASK-0076 ready; реализация нового сервера/API/БД/backu
 (цветовые заказы) отменена, а не реализована. Вместо неё пользователь запросил
 лидерборд и отдельно выбрал оба рейтинга — кампания и доска дня:
 [TASK-0076](../tasks/TASK-0076-leaderboards.md). Вид подтверждения: решение и
-приёмка пользователя; серверный рейтинг пока не реализован. Решение относится
+приёмка пользователя; последующая реализация — [LEADERBOARDS](../reports/LEADERBOARDS.md). Решение относится
 к этой очереди, не отменяет проверки новых задач.
 
 2026-10-25: пользователь подтвердил оставшиеся проверки сохранения и темпа

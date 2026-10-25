@@ -19,10 +19,10 @@ UI показывает preview/share/fallback/Copy/Return. Generator/tests/brow
 `tools/generate-challenge-content.mjs`, challenge-v4/challenge-mode/challenge-platform
 tests и `tools/challenge-v4-browser-check.cjs`. [Отчёт](reports/V4_CHALLENGE.md).
 
-Лидерборды, подготовка2026-10-25: [серверный контракт](design/LEADERBOARDS_SERVER.md)
+Лидерборды, сервер2026-10-25: [серверный контракт](design/LEADERBOARDS_SERVER.md)
 фиксирует отдельный Node24/SQLite/Compose на действующем VPS, Ed25519 существующего
-игрового бота, API/worker/DB/backup и включение обеих вкладок в TASK-0076 ready.
-Серверные пути/команды в контракте — будущие, код и новый API ещё не созданы.
+игрового бота, API/worker/DB/backup и обе вкладки TASK-0076.
+Код реализован; HTTPS API и web/Telegram опубликованы из11669478. [Проверки выпуска](reports/LEADERBOARDS.md).
 
 Daily v4, 2026-10-25: `prototype/daily-catalog-v1.js` замораживает30 пар
 L1–6/seeds0–4 и literal preset/version; `daily-rules.js` создаёт B через общий
