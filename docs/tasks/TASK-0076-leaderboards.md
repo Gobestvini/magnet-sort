@@ -1,6 +1,6 @@
 # TASK-0076: Лидерборды кампании и доски дня
 
-- Статус: ready
+- Статус: in-progress
 - Приоритет: normal
 - Создана: 2026-10-25
 - Обновлена: 2026-10-25
@@ -92,11 +92,11 @@ Public ID opaque, имя plain text с ограничениями; не выда
 
 ## 6. Критерии готовности
 
-- [ ] Один полный срез: actual ARM backend обоих профилей, реальная SQLite, strict existing-bot auth, HTTP contract и две UI вкладки.30 daily witnesses совпадают с frozen71.
-- [ ] Две контролируемые identities в isolated staging видят общие Campaign/Daily строки/ownRow; best/ties/unique count/stars/moves/UTC/version/идемпотентность/конкурентность/restart соответствуют контракту.
-- [ ] Forged/expired/wrong-bot auth, malformed/duplicate/oversized input, чужой run, неверный replay/descriptor/version и ход после terminal отклонены без записи; budgets/worker timeout/queue проверены без блокировки HTTP owner.
-- [ ] Save/Hint/Undo/campaign↔daily/reload/two-tabs/offline/error/expiry/stale response/keyboard/touch/landscape/dispose сохраняют игру и честный статус отправки.
-- [ ] Production не содержит test keys/фиктивных участников/секретов; account deletion/retention корректны, UI не обещает bot-proof/unassisted.
+- [x] Один полный срез: actual ARM backend обоих профилей, реальная SQLite, strict existing-bot auth, HTTP contract и две UI вкладки.30 daily witnesses совпадают с frozen71.
+- [x] Две контролируемые identities в isolated staging видят общие Campaign/Daily строки/ownRow; best/ties/unique count/stars/moves/UTC/version/идемпотентность/конкурентность/restart соответствуют контракту.
+- [x] Forged/expired/wrong-bot auth, malformed/duplicate/oversized input, чужой run, неверный replay/descriptor/version и ход после terminal отклонены без записи; budgets/worker timeout/queue проверены без блокировки HTTP owner.
+- [x] Save/Hint/Undo/campaign↔daily/reload/two-tabs/offline/error/expiry/stale response/keyboard/touch/landscape/dispose сохраняют игру и честный статус отправки.
+- [x] Production не содержит test keys/фиктивных участников/секретов; account deletion/retention корректны, UI не обещает bot-proof/unassisted.
 - [ ] Свои HTTPS/Compose/DB/backup timer/offsite snapshot/restore/rollback подтверждены, чужие endpoints/DB/backup не затронуты.
 - [ ] Независимый критик принял итог; команды/evidence/ограничения в LEADERBOARDS.md, свои commit/push/deploy и опубликованный frontend+API проверены; real Telegram/телефон отмечены отдельно.
 
@@ -132,13 +132,13 @@ Ready разрешает начать код, но не объявляет deplo
 
 ## 10. Отчёт исполнителя
 
-- Результат: Не выполнялась. Подготовлена одна ready-задача; новый сервер/клиент/backup ещё не реализованы и не развёрнуты.
-- Изменённые файлы и зачем: —
-- Команды и фактические результаты: —
-- Ручные проверки: —
-- Выполненные критерии: —
-- Непроверенное, блокеры и отклонения от плана: новое API/auth/ARM image/SQLite/backup/нагрузка и UI обоих рейтингов ещё не проверялись; подготовка не считается реализацией.
-- Итоговый статус и дата: ready, 2026-10-25.
+- Результат: код сервера, SQLite/worker/API/auth, обоих рейтингов и клиента реализован; проверки перед выпуском завершены. Production-развёртывание и реальная первая запись выполняются отдельным следующим шагом; подробный статус — [LEADERBOARDS](../reports/LEADERBOARDS.md).
+- Изменённые файлы и зачем: server package/leaderboards/tests/deploy/Dockerfile; client/Leaderboards/runtime/App/CSS/platform capability; CI/Vite/build guard; client/API/browser/deploy checks и документация. Gameplay rules и frozen daily catalog сохранены.
+- Команды и фактические результаты: pnpm check:full290/290+build; server17/17 Windows и17/17 native ARM Node24.22.1/SQLite3.53.4 под512MiB/1CPU/PID64; native deploy Python8/8; real client→HTTP→SQLite/worker contract; all-platform builds/SDK-resource-cache checks; daily30 witnesses, leaderboards/daily/Undo/Hint/loading/tutorial/Pages browser tools PASS. Полные логи ignored artifacts/leaderboards-implementation.
+- Ручные проверки: production web/Telegram mock screenshots portrait/landscape просмотрены; sticky Close сохраняется при scroll, 20 циклов modal не накапливают fetch. Это browser surrogate, не физический телефон. Реальный существующий бот/production API проверяются при публикации.
+- Выполненные критерии: функциональный код, негативные сценарии, client recovery/two tabs, native DB/ARM/resource limits, isolated identities, визуальный/browser этап. Независимый критик повторно проверил исправленные дефекты; итоговый допуск фиксируется после freeze.
+- Непроверенное, блокеры и отклонения от плана: production provisioning/own offsite upload+restore/HTTPS/Caddy route и real Telegram HTTP first record пока ожидают выпуска; физический телефон не проверен. Первый native image выявил missing transitive art/urls helper — узкий COPY исправлен, второй native прогон PASS. Разделение на другую задачу не потребовалось.
+- Итоговый статус и дата: in-progress, 2026-10-25; код и QA готовы к публикации, done до внешних обязательных проверок не объявляется.
 
 ## Рекомендация модели исполнителя
 

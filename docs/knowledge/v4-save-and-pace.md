@@ -1,5 +1,23 @@
 # V4 save, прогноз и темп: проверенные границы
 
+## Лидерборды: pending и вкладки — 2026-10-25
+
+Признак: network503 после победы, затем reload автоматически открывает следующий
+уровень; accepted journal предыдущей победы больше нет у игрового owner.
+Способ: сохранить перед POST ограниченный pending winner отдельно от текущей
+попытки (один/mode, два всего,512KiB), со стабильными clientAttemptId/runId и
+исходным журналом. Renew/Next/Undo не заменяют pending; явный Retry повторяет
+именно старую победу. Server receipt/digest делает lost response идемпотентным.
+Blind setItem всего ranking envelope из второй вкладки стирал чужой pending;
+exact-raw guard останавливает stale запись и показывает конфликт до reload.
+
+Источник: TASK-0076, leaderboards-client.js, server/store, [отчёт](../reports/LEADERBOARDS.md).
+Проверка:21 client tests и real client/API/SQLite/worker contract; browser web/
+Telegram mock503→reload owner-next→original journal retry,20 modal cycles PASS.
+Ограничения: localStorage без настоящего CAS; quota/unavailable storage явно
+показывается, ограниченная очередь не обещает бесконечный offline upload. Реальная
+публикация/API/bot acceptance отдельно от этих локальных проверок.
+
 ## Сервер рейтингов — подготовка2026-10-25
 
 Пользователь поручил проработать сервер для запуска76 и уточнил: проверять

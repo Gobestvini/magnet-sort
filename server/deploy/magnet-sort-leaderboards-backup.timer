@@ -1,0 +1,12 @@
+[Unit]
+Description=Magnet Sort offsite backup every five hours
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5h
+RandomizedDelaySec=5min
+AccuracySec=1s
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Magnet Sort verified SQLite and dedicated offsite backup
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+UMask=0077
+TimeoutStartSec=54min
+KillMode=control-group
+ExecStart=/usr/bin/bash /srv/magnet-sort/leaderboards/current/server/deploy/backup.sh

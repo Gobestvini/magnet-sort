@@ -20,6 +20,7 @@ import { createV4ModeSession, DAILY_V4_KEY } from './daily-v4.js';
 import { PROGRESS_V4_KEY } from './progress-v4.js';
 import { displayedForecast } from './spawn-forecast.js';
 import { findV4Hint, hintText } from './hint-v4.js';
+import { createLeaderboardsController } from './leaderboards-client.js';
 
 const root = document.querySelector('#ui-root');
 // Preact mounts into an empty host; the static boot message belongs to HTML only.
@@ -39,7 +40,7 @@ let state = session.state, runSeed = state.seed;
 let levelIndex = prototypeLevels.findIndex(candidate => candidate.id === state.puzzleId), level = prototypeLevels[levelIndex];
 let boardLevel = { ...level, cells: V4_CELLS };
 let runId = 1;
-let userPaused = false, platformPaused = false;
+let userPaused = false, platformPaused = false, leaderboardPaused = false, leaderboards = null;
 let windowFocused = document.hasFocus();
 const audioPreferences = createAudioSettings();
 let audioSettings = audioPreferences.get();
@@ -108,6 +109,11 @@ function ui() {
     canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, keyboardCell, error, loading, loadingProgress,
     getTutorialTarget, hintChoice, getHintTarget, audioSettings, onAudioChange: changeAudio, saveStatus: session.status(), canUndo: canUndo(), onUndo: () => uiAction(undo),
     mode:session.mode,daily:session.daily,onDaily:()=>uiAction(enterDaily),onReturnCampaign:()=>uiAction(returnCampaign),onRetryDaily:()=>uiAction(reset),
+    leaderboards:leaderboards?.view,onLeaderboards:openLeaderboards,onCloseLeaderboards:closeLeaderboards,
+    onLeaderboardTab:mode=>leaderboards?.tab(mode),onLeaderboardRetry:()=>leaderboards?.retry(),
+    onLeaderboardJoin:()=>leaderboards?.join(),onLeaderboardLeave:()=>leaderboards?.leave(),
+    onLeaderboardRetrySubmission:()=>leaderboards?.retryPublication(),onLeaderboardRemove:()=>leaderboards?.remove(),
+    onLeaderboardDiscardPending:()=>leaderboards?.discardPending(),
     spawnForecast: displayedForecast(state, timeline, elapsed, session.rules),
     onFreshSave: () => uiAction(() => { session.recoverSave(); ui(); }),
     onReloadSave: () => location.reload(),
@@ -205,6 +211,7 @@ function submit(action) {
   timeline = makeTransferTimeline(before, resolution, reduced);
   audio.beginTimeline(timeline, state.turn); audio.playGame('place');
   elapsed = 0; previousElapsed = 0; phase = 'resolving';
+  leaderboards?.observe();
   keyboardCell = null; cancelGesture(); cancelFrame(); ui(); draw(); schedule();
   return resolution;
 }
@@ -275,7 +282,7 @@ function setPaused(value) {
 }
 export function setPlatformPaused(value) { platformPaused = Boolean(value); updatePause(); }
 function updatePause() {
-  paused = userPaused || platformPaused; clearHint(); syncAudio(); cancelGesture(); cancelFrame(); ui(); draw();
+  paused = userPaused || platformPaused || leaderboardPaused; clearHint(); syncAudio(); cancelGesture(); cancelFrame(); ui(); draw();
   if (!paused) schedule();
 }
 function reset() { loadLevel(levelIndex, runSeed); }
@@ -303,12 +310,13 @@ function undo() {
 }
 function loadLevel(index, seed = fixedSeed ?? newSeed()) {
   if(!Number.isInteger(index)||!prototypeLevels[index])throw new Error('Invalid level index');
+  leaderboards?.renew(session.mode);
   state = session.start(index, seed);
   levelIndex = index; level = prototypeLevels[index]; runSeed=state.seed;
   boardLevel = { ...level, cells: V4_CELLS };
   phase = 'playing'; userPaused = false; paused = platformPaused; selected = state.magnets[0]; notice = 'Choose a magnet and an empty tile.';
   clearPresentation();
-  ui(); draw();
+  leaderboards?.observe(); ui(); draw();
 }
 function syncModeView(selection) {
   state=session.state;runSeed=state.seed;
@@ -316,7 +324,7 @@ function syncModeView(selection) {
   clearPresentation();phase=state.terminal??'playing';userPaused=false;paused=platformPaused;
   selected=state.terminal?null:selection===null?null:state.magnets.includes(selection)?selection:state.magnets[0];
   notice=session.mode==='daily'?'Daily board: collect the goal. Your campaign is saved.':'Campaign restored. Choose a magnet and an empty tile.';
-  syncAudio();ui();draw();schedule();
+  syncAudio();leaderboards?.observe();ui();draw();schedule();
 }
 function enterDaily() {
   if(disposed||loading||error||session.mode==='daily')return;
@@ -384,11 +392,26 @@ export function dispose() {
   if (disposed) return;
   disposed = true; boardGeneration++; cancelGesture(); cancelFrame(); timeline = null;
   clearHint();
+  leaderboards?.dispose();
   audio.dispose();
   collection.dispose(); session.dispose(); observer.disconnect(); cleanups.forEach(cleanup => cleanup()); board?.dispose(); board = null;
   render(null, root); if (import.meta.env.DEV) delete window.gameDebug;
 }
 ui();
+export function configureLeaderboards(capability) {
+  leaderboards?.dispose();
+  leaderboards = createLeaderboardsController({ capability,
+    getSnapshot: () => ({ mode: session.mode, daily: session.daily, attempt: session.attempt, state: session.state, saveStatus: session.status() }),
+    onChange: () => ui() });
+  void leaderboards.bootstrap();
+}
+function openLeaderboards() {
+  if (!leaderboards || disposed || loading || error) return;
+  leaderboardPaused = true; updatePause(); leaderboards.open();
+}
+function closeLeaderboards() {
+  leaderboards?.close(); leaderboardPaused = false; updatePause();
+}
 export function startRuntime(onProgress = () => {}) { startupProgress = onProgress; return initializeBoard(); }
 listen(root, 'pointerdown', audioGesture, { capture: true });
 listen(root, 'click', audioGesture, { capture: true });

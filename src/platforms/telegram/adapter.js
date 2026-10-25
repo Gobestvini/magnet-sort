@@ -103,6 +103,12 @@ export function createTelegramPlatform(options = {}) {
       readySent = true;
       bridge.ready();
     },
+    leaderboardAuth() {
+      if (disposed || typeof bridge?.initData !== 'string' || !bridge.initData.trim()) return null;
+      // Launch data crosses the explicit auth boundary only. The platform never
+      // persists it and the shared game does not read Telegram globals.
+      return bridge.initData;
+    },
     subscribePause(listener) {
       if (disposed) return () => {
       };

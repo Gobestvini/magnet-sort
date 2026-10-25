@@ -59,7 +59,7 @@ range-light/pages/tutorial smoke PASS. [Отчёт](../reports/DRAW_ORDER_COMPLE
 | [TASK-0071: Отдельная доска дня v4](TASK-0071-v4-daily.md) | review | normal | реализована; native Telegram/phone review по §7 | сильная; высокий |
 | [TASK-0072: Telegram-вызов другу](TASK-0072-telegram-friend-challenge.md) | draft | normal | TASK-0066/0068 done | сильная; высокий |
 | [TASK-0073: Пилот цветовых заказов](TASK-0073-color-orders-pilot.md) | cancelled | normal | отменена пользователем2026-10-25; заменена0076 | — |
-| [TASK-0076: Лидерборды кампании и доски дня](TASK-0076-leaderboards.md) | ready | normal | серверный контракт/существующий бот проверены; технический daily f799c84 принят | gpt-6.1-sol; high |
+| [TASK-0076: Лидерборды кампании и доски дня](TASK-0076-leaderboards.md) | in-progress | normal | реализация сервера и обоих рейтингов поручена пользователем2026-10-25 | gpt-6.1-sol; high |
 
 Актуальный остаток:0076 ready к реализации;0072 draft независимо от неё.0071 оставлена на отдельную реальную Telegram/phone проверку, её технический контракт уже принят для76.0073 отменена. Общие runtime/App/prototype.css редактировать последовательно. Draft переводить в ready после проверки зависимостей и актуализации контекста.
 

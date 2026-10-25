@@ -5,6 +5,12 @@ const {probe:audioProbe}=require('../audio-browser-check.cjs');
 // Only the bridge boundary is simulated. The production renderer/game are real.
 async function bridge(page) {
   await page.route('https://telegram.org/js/telegram-web-app.js',route=>route.fulfill({contentType:'text/javascript',body:''}));
+  await page.route('https://api.plusvibegames.com/magnet-sort/v1/auth/telegram',route=>{
+    const request=route.request(),headers={'Access-Control-Allow-Origin':request.headers().origin||'*','Access-Control-Allow-Methods':'POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type,Authorization','Cache-Control':'no-store'};
+    if(request.method()==='OPTIONS')return route.fulfill({status:204,headers});
+    if(request.postDataJSON()?.initData!=='opaque-browser-fixture')return route.continue();
+    return route.fulfill({status:200,contentType:'application/json',headers,body:JSON.stringify({token:'isolated-browser-fixture-session',expiresAt:Date.now()+86400000,player:{playerId:'browser-fixture-player',displayName:'Browser fixture'}})});
+  });
   await page.addInitScript(()=>{
     const handlers=new Map(); window.tgTest={ready:0,expanded:0,emit(name,data){for(const fn of handlers.get(name)||[])fn(data);}};
     window.Telegram={WebApp:{initData:'opaque-browser-fixture',version:'8.0',isActive:true,viewportStableHeight:innerHeight,viewportHeight:innerHeight,

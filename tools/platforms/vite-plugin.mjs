@@ -16,7 +16,9 @@ export function platformBuild(profile) {
     async generateBundle(_options, bundle) {
       const adapters = new Set();
       for (const chunk of Object.values(bundle)) if (chunk.type === 'chunk') for (const name of Object.keys(chunk.modules)) {
-        const match = name.replaceAll('\\', '/').match(/\/src\/platforms\/(web|embed|telegram)\/adapter\.js$/);
+        const modulePath = name.replaceAll('\\', '/');
+        if (/\/server\//.test(modulePath) || /(?:better-sqlite3|browser-external:node:)/.test(modulePath)) throw Error('Server dependencies must not enter the game bundle');
+        const match = modulePath.match(/\/src\/platforms\/(web|embed|telegram)\/adapter\.js$/);
         if (match) adapters.add(match[1]);
       }
       if (adapters.size !== 1 || !adapters.has(profile.id)) throw Error(`Platform isolation failed for ${profile.id}`);

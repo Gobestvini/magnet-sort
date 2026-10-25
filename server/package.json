@@ -1,0 +1,16 @@
+{
+  "name": "magnet-sort-leaderboards",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.22.1 <25" },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 tests/*.test.mjs",
+    "start": "node leaderboards/main.mjs",
+    "migrate": "node leaderboards/migrate.mjs",
+    "backup": "node leaderboards/backup.mjs",
+    "restore:check": "node leaderboards/restore-check.mjs",
+    "smoke": "node leaderboards/smoke.mjs"
+  },
+  "dependencies": { "better-sqlite3": "13.0.3" }
+}

@@ -64,12 +64,18 @@ reveal and sends ready once. Version 8+ activity events preserve user pause;
 older versions retain document visibility/blur handling. Stable viewport and the
 union of device/content/browser safe margins protect HUD and popups. Listeners,
 pending wait and CSS changes have cleanup. initData is only an opaque launch UX
-gate: no parsing, persistence, forwarding or account authentication.
+gate at the original platform publication. TASK-0076 now adds an explicit
+leaderboard auth capability: raw initData is passed in memory to the own HTTPS API,
+which verifies Telegram's Ed25519 signature for this existing bot. It is never
+persisted in client storage or logs; the scoped service token is separate.
+No bot token, new bot or player messaging is required. See
+[leaderboard verification and release status](../reports/LEADERBOARDS.md).
 
 Further acceptance needs Telegram Desktop and a physical touch phone:
 profile/menu launches, loading, move/win/next/retry, pause, minimize during a move,
 resume, portrait/landscape, reopening. Record device/OS/Telegram version. Current
-v4 has no durable campaign saves; no save support is implied by this integration.
+v4 campaign persistence was added separately by TASK-0066; this original platform
+check is not its evidence. See [save/continue](../reports/V4_SAVE_CONTINUE.md).
 
 Official references checked 2026-10-19:
 [Mini App launch, viewport/activity API](https://core.telegram.org/bots/webapps),

@@ -1,0 +1,48 @@
+name: magnet-sort-leaderboards
+x-runtime: &runtime
+  image: ${MAGNET_SORT_IMAGE:?Set the immutable image tag or digest}
+  user: "1000:1000"
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 64
+  mem_limit: 512m
+  cpus: 1.0
+  tmpfs: ["/tmp:size=67108864,mode=1777"]
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: "3"}
+  env_file: /etc/magnet-sort/leaderboards.env
+  environment:
+    NODE_ENV: production
+    PORT: "8080"
+    LEADERBOARDS_DB: /data/leaderboards.sqlite
+    MAGNET_SORT_BOT_ID: "8820798959"
+services:
+  api:
+    <<: *runtime
+    restart: unless-stopped
+    stop_grace_period: 15s
+    volumes:
+      - /srv/magnet-sort/leaderboards/data:/data
+    networks:
+      edge:
+        aliases: [magnet-sort-leaderboards]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8080/v1/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 6
+  maintenance:
+    <<: *runtime
+    profiles: [maintenance]
+    network_mode: none
+    restart: "no"
+    volumes:
+      - /srv/magnet-sort/leaderboards/data:/data
+      - /srv/magnet-sort/leaderboards/backups:/backup
+networks:
+  edge:
+    external: true
+    name: tower-edge

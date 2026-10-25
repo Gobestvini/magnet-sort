@@ -17,6 +17,8 @@ export function startGame(platform) {
       const client = await import('../prototype/runtime.js');
       if (disposed) { client.dispose(); return; }
       runtime = client;
+      const apiUrl = import.meta.env.VITE_LEADERBOARDS_API_URL;
+      runtime.configureLeaderboards({ apiUrl, ...(typeof platform.leaderboardAuth === 'function' ? { authenticate: () => platform.leaderboardAuth() } : {}) });
       unsubscribe = platform.subscribePause(runtime.setPlatformPaused);
       if (!await runtime.startRuntime(shell.setProgress)) throw Error('Game startup failed');
       if (disposed) return;

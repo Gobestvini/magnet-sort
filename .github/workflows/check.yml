@@ -10,7 +10,11 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24.22.1
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: npm --prefix server ci
+      - run: npm --prefix server test
+      - run: node tools/leaderboards-contract-check.mjs
+      - run: python3 -m unittest discover -s server/deploy -p 'test_*.py'
       - run: pnpm check:full

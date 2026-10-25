@@ -1,9 +1,12 @@
 # Карта проекта
 
-Лидерборды, подготовка2026-10-25: [серверный контракт](design/LEADERBOARDS_SERVER.md)
-фиксирует отдельный Node24/SQLite/Compose на действующем VPS, Ed25519 существующего
-игрового бота, API/worker/DB/backup и включение обеих вкладок в TASK-0076 ready.
-Серверные пути/команды в контракте — будущие, код и новый API ещё не созданы.
+Лидерборды2026-10-25: `server/leaderboards/` владеет Ed25519/SQLite/HTTP/worker
+и обоими rules profiles; `server/deploy/` — собственным Compose/HTTPS/backup.
+`prototype/leaderboards-client.js` владеет HTTP, consent, pending wins и конфликтом
+вкладок; `Leaderboards.js` показывает две таблицы. Runtime сохраняет pause/input/
+owner journal; adapter/bootstrap передаёт auth capability. Root/client/server tests,
+real HTTP contract, native ARM/deploy/browser проверки — [отчёт](reports/LEADERBOARDS.md).
+[Нормативный серверный контракт](design/LEADERBOARDS_SERVER.md).
 
 Daily v4, 2026-10-25: `prototype/daily-catalog-v1.js` замораживает30 пар
 L1–6/seeds0–4 и literal preset/version; `daily-rules.js` создаёт B через общий

@@ -1,5 +1,11 @@
 # Magnet Sort static publication
 
+The leaderboard API is deployed separately by the scoped helpers in
+[`server/deploy/README.md`](../server/deploy/README.md). Its own Compose/SQLite,
+root-only configuration, dedicated offsite repository and API Caddy marker do not
+change this static publishing path or neighboring games. Frontend and API must
+identify the same checked source revision; Pages alone never publishes the API.
+
 Since 2026-10-19 publish a combined tree: web root + `telegram/`.
 Run full checks/default browser checks, `pnpm build:platforms`,
 `pnpm test:platforms`, then `node tools/platforms/stage-publication.mjs`.

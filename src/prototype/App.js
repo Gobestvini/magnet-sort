@@ -8,6 +8,7 @@ import { potentialStars } from './model-v4.js';
 import { assetUrl } from '../art/urls.js';
 import { TutorialGuide } from './TutorialGuide.js';
 import { forecastText } from './spawn-forecast.js';
+import { Leaderboards } from './Leaderboards.js';
 
 export function MagnetIcon({ color = 'violet' }) {
   const key = Object.entries(COLORS).find(([, info]) => info.hex === color)?.[0] ?? color;
@@ -118,7 +119,8 @@ function HintMarker({ hint, getTarget }) {
 }
 
 export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, selected, paused, notice,
-  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget, hintChoice, getHintTarget, audioSettings, onAudioChange, saveStatus, onFreshSave, onReloadSave, spawnForecast, canUndo, onUndo, mode='campaign',daily,onDaily,onReturnCampaign,onRetryDaily }) {
+  reduced, runId, canvasRef, hostRef, dragRef, collectionRef, counterRef, progressRef, onSelect, onToolDown, onPause, onReset, onNext, onHint, onReduced, keyboardCell, onKeyboard, error, onRetryRenderer, loading, loadingProgress, getTutorialTarget, hintChoice, getHintTarget, audioSettings, onAudioChange, saveStatus, onFreshSave, onReloadSave, spawnForecast, canUndo, onUndo, mode='campaign',daily,onDaily,onReturnCampaign,onRetryDaily,
+  leaderboards,onLeaderboards,onCloseLeaderboards,onLeaderboardTab,onLeaderboardRetry,onLeaderboardJoin,onLeaderboardLeave,onLeaderboardRetrySubmission,onLeaderboardDiscardPending,onLeaderboardRemove }) {
   const inDaily=mode==='daily',dailyUnavailable=Boolean(daily?.error);
   const dailyPanel=(result=false)=>h(DailyPanel,{daily,mode,onDaily,onReturnCampaign,onRetryDaily,result});
   const tutorial = !inDaily && levelIndex === 0 && state.turn === 0 && phase === 'playing';
@@ -179,6 +181,8 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
       h('h2',null,'DAILY UNAVAILABLE'),h('p',null,'This saved daily board could not be opened. Its data has been kept. Return to campaign or update the game.'),
       h('button',{className:'secondary-button light-button daily-recovery-button',onClick:onReturnCampaign,'aria-label':'Return to campaign'},'Return to campaign'),
       h('button',{className:'secondary-button light-button daily-recovery-button',onClick:onReloadSave,'aria-label':'Update game'},'Update game')) :
+    leaderboards?.open ? h(Leaderboards, { view:leaderboards,onClose:onCloseLeaderboards,onTab:onLeaderboardTab,onRetry:onLeaderboardRetry,
+      onJoin:onLeaderboardJoin,onLeave:onLeaderboardLeave,onRetryPublication:onLeaderboardRetrySubmission,onDiscardPending:onLeaderboardDiscardPending,onRemove:onLeaderboardRemove,reduced }) :
     paused ? h(Modal, { key:'pause', reduced, label: 'Paused', onClose: onPause, variant: 'pause-dialog' },
       h('h2', { className: 'live-heading' }, 'PAUSED'), h('div', { className: 'modal-magnet' }, h(MagnetIcon)),
       h('div', { className: 'audio-settings', 'aria-label': 'Audio settings' },
@@ -193,6 +197,7 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
               onInput:event=>onAudioChange({[channel+'Volume']:Number(event.currentTarget.value)/100},event)}),
             h('output',{'aria-hidden':'true'},Math.round(audioSettings[channel+'Volume']*100)+'%'))))),
       h('button', { className: 'primary-button', onClick: onPause }, 'Resume'),
+      leaderboards&&h('button',{type:'button',className:'secondary-button light-button leaderboard-entry',onClick:onLeaderboards},'Leaderboards'),
       h('button', { className: 'secondary-button light-button'+(inDaily?' daily-retry-button':''), onClick: onReset,'aria-label':inDaily?'Retry daily':'Restart' }, inDaily?'Retry daily':'Restart'),
       !inDaily&&h(SaveStatus, { status: saveStatus, onFreshSave, onReloadSave }),dailyPanel()) :
     result ? h(Modal, { key:state.terminal, reduced, label: state.terminal === 'won' ? 'Victory' : 'Board full', variant: state.terminal === 'won' ? 'victory-dialog' : 'defeat-dialog' },
@@ -206,5 +211,6 @@ export function PrototypeApp({ level, levelIndex, totalLevels, state, phase, sel
         state.terminal === 'lost' && h('button', { type:'button', className:'secondary-button light-button undo-button', onClick:onUndo, disabled:!canUndo, 'aria-label':'Undo last move' }, 'Undo last move'),
         !inDaily&&h('button', { className: state.terminal === 'won'?'primary-button':'secondary-button defeat-retry', onClick: state.terminal === 'won' ? onNext : onReset },
           state.terminal === 'won' ? levelIndex + 1 === totalLevels ? 'Play from start' : 'Next level' : 'Try again'),
-        !inDaily&&state.terminal === 'won' && h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Play again'),dailyPanel(true))) : null);
+        !inDaily&&state.terminal === 'won' && h('button', { className: 'secondary-button light-button', onClick: onReset }, 'Play again'),
+        leaderboards&&h('button',{type:'button',className:'secondary-button light-button leaderboard-entry',onClick:onLeaderboards},'Leaderboards'),dailyPanel(true))) : null);
 }

@@ -9,8 +9,17 @@ import { getProfile } from '../tools/platforms/profiles.mjs';
 import { readArtifact, stagePublication } from '../tools/platforms/stage-publication.mjs';
 import { packageEmbed } from '../tools/platforms/package.mjs';
 import { createTelegramPlatform } from '../src/platforms/telegram/adapter.js';
+import { platformBuild } from '../tools/platforms/vite-plugin.mjs';
 
 test('unknown platform cannot silently build web', () => assert.throws(() => getProfile('toString'), /Unknown platform/));
+test('a frontend release rejects accidental backend or native database imports', async () => {
+  for (const moduleId of ['/game/server/leaderboards/auth.mjs', 'C:\\game\\server\\leaderboards\\main.mjs', '/game/node_modules/better-sqlite3/lib/index.js']) {
+    const plugin = platformBuild(getProfile('web'));
+    await assert.rejects(plugin.generateBundle.call({ emitFile() { assert.fail('Unsafe bundle must not be emitted'); } }, {}, {
+      runtime: { type: 'chunk', modules: { '/game/src/platforms/web/adapter.js': {}, [moduleId]: {} } }
+    }), /Server dependencies must not enter/);
+  }
+});
 function fakeRoot() {
   const styles = new Map(), attrs = new Map();
   return { style: { getPropertyValue: key => styles.get(key) || '', getPropertyPriority: () => '', setProperty: (key,value) => styles.set(key,value), removeProperty: key => styles.delete(key) },
